@@ -489,9 +489,25 @@ export default function PaysDashboard() {
       if (cancelled || !vegetationCanvasRef.current) return;
       if (vegetationChartRef.current) vegetationChartRef.current.destroy();
 
-      const baselineArea = summary.vegetation.find((d) => d.forest_area_ha)?.forest_area_ha;
+      function fillNearestForestArea(rows) {
+        const filled = rows.map((r) => ({ ...r }));
+        let last = null;
+        for (let i = 0; i < filled.length; i++) {
+          if (filled[i].forest_area_ha != null) last = filled[i].forest_area_ha;
+          else if (last != null) filled[i].forest_area_ha = last;
+        }
+        let next = null;
+        for (let i = filled.length - 1; i >= 0; i--) {
+          if (rows[i].forest_area_ha != null) next = rows[i].forest_area_ha;
+          else if (filled[i].forest_area_ha == null && next != null) filled[i].forest_area_ha = next;
+        }
+        return filled;
+      }
+      const filledVegetation = fillNearestForestArea(summary.vegetation);
+
+      const baselineArea = filledVegetation.find((d) => d.forest_area_ha)?.forest_area_ha;
       let cumulativeLoss = 0;
-      const cumulativeShareData = summary.vegetation.map((d) => {
+      const cumulativeShareData = filledVegetation.map((d) => {
         cumulativeLoss += d.tree_cover_loss_ha || 0;
         return baselineArea ? (cumulativeLoss / baselineArea) * 100 : null;
       });
@@ -511,7 +527,7 @@ export default function PaysDashboard() {
             {
               type: "line",
               label: "% du couvert perdu",
-              data: summary.vegetation.map((d) =>
+              data: filledVegetation.map((d) =>
                 d.forest_area_ha ? (d.tree_cover_loss_ha / d.forest_area_ha) * 100 : null
               ),
               borderColor: "#d63e2a",

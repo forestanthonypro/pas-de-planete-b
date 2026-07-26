@@ -59,13 +59,35 @@ export default function VegetationPage() {
       if (cancelled || !canvasRef.current) return;
       if (chartRef.current) chartRef.current.destroy();
 
+      // La surface forestière (FAO) n'est mesurée que tous les quelques années,
+      // alors que la perte est annuelle — sans ça, la plupart des années n'ont
+      // pas de forest_area_ha et les % (annuel comme cumulé) seraient faux ou
+      // absents. On comble les années manquantes avec la valeur connue la plus
+      // proche (la surface forestière ne bouge pas assez vite d'une année sur
+      // l'autre pour que ce soit un problème).
+      function fillNearestForestArea(rows) {
+        const filled = rows.map((r) => ({ ...r }));
+        let last = null;
+        for (let i = 0; i < filled.length; i++) {
+          if (filled[i].forest_area_ha != null) last = filled[i].forest_area_ha;
+          else if (last != null) filled[i].forest_area_ha = last;
+        }
+        let next = null;
+        for (let i = filled.length - 1; i >= 0; i--) {
+          if (rows[i].forest_area_ha != null) next = rows[i].forest_area_ha;
+          else if (filled[i].forest_area_ha == null && next != null) filled[i].forest_area_ha = next;
+        }
+        return filled;
+      }
+      const filledData = fillNearestForestArea(data);
+
       // Perte cumulée depuis le début des données disponibles, en % de la
       // surface forestière de la première année connue — pour montrer que même
       // une petite perte chaque année finit par représenter beaucoup une fois
       // additionnée sur toute la période.
-      const baselineArea = data.find((d) => d.forest_area_ha)?.forest_area_ha;
+      const baselineArea = filledData.find((d) => d.forest_area_ha)?.forest_area_ha;
       let cumulativeLoss = 0;
-      const cumulativeShareData = data.map((d) => {
+      const cumulativeShareData = filledData.map((d) => {
         cumulativeLoss += d.tree_cover_loss_ha || 0;
         return baselineArea ? (cumulativeLoss / baselineArea) * 100 : null;
       });
@@ -85,7 +107,7 @@ export default function VegetationPage() {
             {
               type: "line",
               label: "% du couvert forestier perdu cette année-là",
-              data: data.map((d) =>
+              data: filledData.map((d) =>
                 d.forest_area_ha ? (d.tree_cover_loss_ha / d.forest_area_ha) * 100 : null
               ),
               borderColor: "#d63e2a",
@@ -184,6 +206,11 @@ export default function VegetationPage() {
         époque-là. Perdre 1 % par an semble peu, mais additionné sur 20 ans, ça peut
         représenter une bonne partie de la forêt initiale — cette courbe donne l&apos;ampleur
         réelle sur toute la période couverte par les données.
+      </p>
+      <p style={{ fontSize: 12, color: "#999", marginBottom: "0.75rem" }}>
+        Note technique : la surface forestière totale (FAO) n&apos;est mesurée que tous les
+        quelques années, alors que la perte est annuelle. Entre deux mesures, on utilise la
+        valeur connue la plus proche plutôt que de laisser les courbes en % vides.
       </p>
 
       {!loading && !error && view === "chart" && (
