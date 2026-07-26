@@ -8,6 +8,7 @@ import { ingestFires } from "./ingest/fires.js";
 import { ingestVegetation } from "./ingest/vegetation.js";
 import { ingestWater } from "./ingest/water.js";
 import { ingestElectricity } from "./ingest/electricity.js";
+import { ingestSpeciesThreatened } from "./ingest/species_threatened.js";
 
 const app = express();
 const port = process.env.API_PORT || 4000;
@@ -208,7 +209,7 @@ app.post("/api/admin/ingest/species", requireIngestToken, async (_req, res) => {
 app.get("/api/country-summary/:country", async (req, res) => {
   const country = req.params.country.toUpperCase();
   try {
-    const [co2Result, plantsResult, speciesResult, firesResult, vegetationResult, waterResult, electricityGenerationResult] = await Promise.all([
+    const [co2Result, plantsResult, speciesResult, firesResult, vegetationResult, waterResult, electricityGenerationResult, speciesThreatenedResult] = await Promise.all([
       pool.query(
         `SELECT year, emissions_mt, emissions_per_capita, consumption_co2, consumption_co2_per_capita
          FROM co2_emissions WHERE country_code = $1 ORDER BY year`,
@@ -249,6 +250,11 @@ app.get("/api/country-summary/:country", async (req, res) => {
          FROM electricity_generation WHERE country_code = $1 ORDER BY year`,
         [country]
       ),
+      pool.query(
+        `SELECT year, mammals_threatened, birds_threatened, fish_threatened
+         FROM species_threatened_counts WHERE country_code = $1 ORDER BY year`,
+        [country]
+      ),
     ]);
 
     res.json({
@@ -260,6 +266,7 @@ app.get("/api/country-summary/:country", async (req, res) => {
       vegetation: vegetationResult.rows,
       water: waterResult.rows,
       electricityGeneration: electricityGenerationResult.rows,
+      speciesThreatened: speciesThreatenedResult.rows,
     });
   } catch (err) {
     res.status(503).json({ error: "Données non initialisées", detail: err.message });
@@ -305,7 +312,7 @@ app.post("/api/admin/ingest/fires", requireIngestToken, async (_req, res) => {
 // (pas la date des données elles-mêmes, qui peut être plus ancienne selon la source).
 app.get("/api/meta/last-updated", async (_req, res) => {
   try {
-    const [co2, plants, species, fires, vegetation, water, electricity] = await Promise.all([
+    const [co2, plants, species, fires, vegetation, water, electricity, speciesThreatened] = await Promise.all([
       pool.query("SELECT MAX(updated_at) AS updated_at, MAX(year) AS latest_year FROM co2_emissions"),
       pool.query("SELECT MAX(updated_at) AS updated_at FROM power_plants"),
       pool.query("SELECT MAX(updated_at) AS updated_at FROM species_status"),
@@ -313,6 +320,7 @@ app.get("/api/meta/last-updated", async (_req, res) => {
       pool.query("SELECT MAX(updated_at) AS updated_at, MAX(year) AS latest_year FROM vegetation_loss"),
       pool.query("SELECT MAX(updated_at) AS updated_at, MAX(year) AS latest_year FROM water_data"),
       pool.query("SELECT MAX(updated_at) AS updated_at, MAX(year) AS latest_year FROM electricity_generation"),
+      pool.query("SELECT MAX(updated_at) AS updated_at, MAX(year) AS latest_year FROM species_threatened_counts"),
     ]);
     res.json({
       co2: { lastIngested: co2.rows[0].updated_at, latestYear: co2.rows[0].latest_year },
@@ -322,6 +330,7 @@ app.get("/api/meta/last-updated", async (_req, res) => {
       vegetation: { lastIngested: vegetation.rows[0].updated_at, latestYear: vegetation.rows[0].latest_year },
       water: { lastIngested: water.rows[0].updated_at, latestYear: water.rows[0].latest_year },
       electricity: { lastIngested: electricity.rows[0].updated_at, latestYear: electricity.rows[0].latest_year },
+      speciesThreatened: { lastIngested: speciesThreatened.rows[0].updated_at, latestYear: speciesThreatened.rows[0].latest_year },
     });
   } catch (err) {
     res.status(503).json({ error: "Données non initialisées", detail: err.message });
@@ -440,6 +449,58 @@ app.get("/api/electricity/:country", async (req, res) => {
 app.post("/api/admin/ingest/electricity", requireIngestToken, async (_req, res) => {
   try {
     const { inserted, skipped } = await ingestElectricity(pool);
+    res.json({ status: "ok", inserted, skipped });
+  } catch (err) {
+    res.status(500).json({ error: "Échec de l'ingestion", detail: err.message });
+  }
+});
+
+
+// --- Espèces menacées : comptage officiel (IUCN via Banque mondiale) ---
+// Comptages absolus par groupe, pas des pourcentages par pays (voir le
+// commentaire du script d'ingestion pour l'explication).
+
+app.get("/api/species-threatened/countries", async (_req, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT DISTINCT country_code, country_name FROM species_threatened_counts ORDER BY country_name"
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+  }
+});
+
+app.get("/api/species-threatened/:country", async (req, res) => {
+  const { country } = req.params;
+  try {
+    const result = await pool.query(
+      `SELECT year, mammals_threatened, birds_threatened, fish_threatened
+       FROM species_threatened_counts
+       WHERE country_code = $1
+       ORDER BY year`,
+      [country.toUpperCase()]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+  }
+});
+
+app.get("/api/species-threatened/global/share", async (_req, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT taxon_group, share_percent, year FROM species_threatened_global_share ORDER BY share_percent DESC"
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+  }
+});
+
+app.post("/api/admin/ingest/species-threatened", requireIngestToken, async (_req, res) => {
+  try {
+    const { inserted, skipped } = await ingestSpeciesThreatened(pool);
     res.json({ status: "ok", inserted, skipped });
   } catch (err) {
     res.status(500).json({ error: "Échec de l'ingestion", detail: err.message });

@@ -569,6 +569,17 @@ export default function PaysDashboard() {
               )}
               {" "}<Link href="/especes">Filtrer par groupe/catégorie →</Link>
             </p>
+            {summary.speciesThreatened?.length > 0 && (() => {
+              const latest = summary.speciesThreatened[summary.speciesThreatened.length - 1];
+              return (
+                <p style={{ fontSize: 12, color: "#666" }}>
+                  Comptage officiel IUCN ({latest.year}) — <strong>{latest.mammals_threatened ?? "—"}</strong> mammifères,{" "}
+                  <strong>{latest.birds_threatened ?? "—"}</strong> oiseaux et{" "}
+                  <strong>{latest.fish_threatened ?? "—"}</strong> poissons menacés (nombres absolus, pas de %).
+                  {" "}<Link href="/especes">Voir le détail →</Link>
+                </p>
+              );
+            })()}
           </section>
         </>
       )}

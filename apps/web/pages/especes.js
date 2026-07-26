@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { detectDefaultCountry } from "../lib/detectCountry";
 import { speciesGroupLabel } from "../lib/speciesGroups";
 import { formatCommonNames } from "../lib/commonNames";
@@ -30,6 +30,10 @@ export default function EspecesPage() {
   const [species, setSpecies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [threatenedCounts, setThreatenedCounts] = useState([]);
+  const [globalShare, setGlobalShare] = useState([]);
+  const threatenedCanvasRef = useRef(null);
+  const threatenedChartRef = useRef(null);
 
   useEffect(() => {
     setCountry(detectDefaultCountry());
@@ -46,7 +50,57 @@ export default function EspecesPage() {
       .then((res) => res.json())
       .then((rows) => setCategories(Array.isArray(rows) ? rows : []))
       .catch(() => setCategories([]));
+
+    fetch(`${API_URL}/api/species-threatened/global/share`)
+      .then((res) => (res.ok ? res.json() : []))
+      .then((rows) => setGlobalShare(Array.isArray(rows) ? rows : []))
+      .catch(() => setGlobalShare([]));
   }, []);
+
+  // Comptage officiel IUCN (mammifères/oiseaux/poissons), à distinguer de
+  // l'échantillon GBIF affiché plus bas — voir la légende pour le détail.
+  useEffect(() => {
+    fetch(`${API_URL}/api/species-threatened/${country}`)
+      .then((res) => (res.ok ? res.json() : []))
+      .then((rows) => setThreatenedCounts(Array.isArray(rows) ? rows : []))
+      .catch(() => setThreatenedCounts([]));
+  }, [country]);
+
+  useEffect(() => {
+    if (threatenedCounts.length === 0) return;
+    let cancelled = false;
+    import("chart.js/auto").then(({ default: Chart }) => {
+      if (cancelled || !threatenedCanvasRef.current) return;
+      if (threatenedChartRef.current) threatenedChartRef.current.destroy();
+
+      const latest = threatenedCounts[threatenedCounts.length - 1];
+      threatenedChartRef.current = new Chart(threatenedCanvasRef.current, {
+        type: "bar",
+        data: {
+          labels: ["Mammifères", "Oiseaux", "Poissons"],
+          datasets: [
+            {
+              label: `Espèces menacées (${latest.year})`,
+              data: [latest.mammals_threatened, latest.birds_threatened, latest.fish_threatened],
+              backgroundColor: ["#8e44ad", "#4285f4", "#1baf7a"],
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          indexAxis: "y",
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { title: { display: true, text: "Nombre d'espèces menacées" } },
+          },
+        },
+      });
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [threatenedCounts]);
 
   useEffect(() => {
     setLoading(true);
@@ -204,6 +258,58 @@ export default function EspecesPage() {
         )}
         . Rafraîchissement automatique mensuel.
       </p>
+
+      <section style={{ marginTop: "2.5rem", borderTop: "1px solid #eee", paddingTop: "1.5rem" }}>
+        <h2>Comptage officiel d&apos;espèces menacées</h2>
+        <p style={{ fontSize: 13, color: "#666" }}>
+          À la différence de l&apos;échantillon GBIF ci-dessus, voici un comptage officiel issu
+          des évaluations IUCN — mais limité à trois groupes seulement (mammifères, oiseaux,
+          poissons), et en <strong>nombre absolu</strong>, pas en pourcentage : aucune source ne
+          publie un total fiable d&apos;espèces présentes par pays pour calculer un vrai %.
+        </p>
+        {threatenedCounts.length > 0 ? (
+          <div style={{ position: "relative", height: 180 }}>
+            <canvas ref={threatenedCanvasRef} role="img" aria-label={`Nombre d'espèces menacées par groupe pour ${selectedCountryName}`} />
+          </div>
+        ) : (
+          <p>Aucune donnée officielle pour ce pays.</p>
+        )}
+
+        {globalShare.length > 0 && (
+          <>
+            <h3 style={{ fontSize: 15, marginTop: "1.5rem" }}>Repère mondial (pas par pays)</h3>
+            <p style={{ fontSize: 13, color: "#666" }}>
+              Pour donner un ordre de grandeur : voici le % d&apos;espèces menacées{" "}
+              <strong>dans le monde entier</strong>, par grand groupe (IUCN) — ce n&apos;est pas
+              spécifique à {selectedCountryName}.
+            </p>
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <thead>
+                <tr>
+                  <th scope="col" style={{ textAlign: "left", padding: 6 }}>Groupe</th>
+                  <th scope="col" style={{ textAlign: "right", padding: 6 }}>% menacé dans le monde</th>
+                </tr>
+              </thead>
+              <tbody>
+                {globalShare.map((g) => (
+                  <tr key={g.taxon_group}>
+                    <th scope="row" style={{ textAlign: "left", padding: 6, fontWeight: 400 }}>{g.taxon_group}</th>
+                    <td style={{ textAlign: "right", padding: 6 }}>{g.share_percent} %</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </>
+        )}
+
+        <p style={{ fontSize: 12, color: "#666", marginTop: "1rem" }}>
+          IUCN Red List / UNEP-WCMC via Banque mondiale, via Our World in Data (CC-BY)
+          {lastUpdated?.speciesThreatened?.latestYear && (
+            <> — dernière année couverte : {lastUpdated.speciesThreatened.latestYear}</>
+          )}
+          .
+        </p>
+      </section>
     </main>
   );
 }
