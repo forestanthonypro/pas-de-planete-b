@@ -59,6 +59,17 @@ export default function VegetationPage() {
       if (cancelled || !canvasRef.current) return;
       if (chartRef.current) chartRef.current.destroy();
 
+      // Perte cumulée depuis le début des données disponibles, en % de la
+      // surface forestière de la première année connue — pour montrer que même
+      // une petite perte chaque année finit par représenter beaucoup une fois
+      // additionnée sur toute la période.
+      const baselineArea = data.find((d) => d.forest_area_ha)?.forest_area_ha;
+      let cumulativeLoss = 0;
+      const cumulativeShareData = data.map((d) => {
+        cumulativeLoss += d.tree_cover_loss_ha || 0;
+        return baselineArea ? (cumulativeLoss / baselineArea) * 100 : null;
+      });
+
       chartRef.current = new Chart(canvasRef.current, {
         type: "bar",
         data: {
@@ -83,6 +94,19 @@ export default function VegetationPage() {
               tension: 0.3,
               pointRadius: 2,
               borderWidth: 2,
+            },
+            {
+              type: "line",
+              label: "% cumulé perdu depuis le début des données",
+              data: cumulativeShareData,
+              borderColor: "#6c3483",
+              backgroundColor: "rgba(108,52,131,0.08)",
+              yAxisID: "y1",
+              tension: 0.3,
+              pointRadius: 0,
+              borderWidth: 2,
+              borderDash: [2, 2],
+              fill: true,
             },
             ...(worldBenchmarks?.forest_loss_share_world
               ? [
@@ -146,12 +170,20 @@ export default function VegetationPage() {
 
       <h2 style={{ fontSize: 18, marginBottom: "0.25rem" }}>Que montre ce graphique ?</h2>
       <p style={{ fontSize: 13, color: "#666", marginBottom: "0.75rem" }}>
-        Les barres orange, c&apos;est le nombre d&apos;hectares de forêt perdus chaque année —
-        un hectare, c&apos;est environ un terrain de foot. La courbe rouge, c&apos;est ce même
-        chiffre rapporté à la taille de la forêt du pays : exemple, si un petit pays très boisé
-        perd 10 000 hectares, ça peut représenter 2 % de sa forêt en une seule année — un rythme
-        bien plus inquiétant qu&apos;un grand pays qui en perdrait 10 fois plus mais sur une forêt
-        beaucoup plus vaste.
+        Imagine la forêt du pays comme une grande réserve. Chaque année, une partie disparaît
+        (coupée, brûlée, défrichée) — c&apos;est la barre orange, en hectares (1 hectare ≈ 1
+        terrain de foot). Mais un même nombre d&apos;hectares perdus ne pèse pas pareil selon la
+        taille de la réserve : perdre 10 000 hectares dans un petit pays très boisé, c&apos;est une
+        part énorme de sa forêt ; perdre les mêmes 10 000 hectares dans un pays immense comme le
+        Brésil, c&apos;est presque rien. La courbe rouge (%) corrige ça : elle dit vraiment
+        &laquo; quelle part de sa forêt le pays perd cette année-là &raquo;.
+      </p>
+      <p style={{ fontSize: 13, color: "#666", marginBottom: "0.75rem" }}>
+        La courbe violette en pointillés montre autre chose : la perte <strong>additionnée</strong>{" "}
+        depuis la première année disponible, rapportée à la taille de la forêt à cette
+        époque-là. Perdre 1 % par an semble peu, mais additionné sur 20 ans, ça peut
+        représenter une bonne partie de la forêt initiale — cette courbe donne l&apos;ampleur
+        réelle sur toute la période couverte par les données.
       </p>
 
       {!loading && !error && view === "chart" && (

@@ -54,7 +54,7 @@ app.get("/api/co2/:country", async (req, res) => {
   const { country } = req.params;
   try {
     const result = await pool.query(
-      `SELECT year, emissions_mt, emissions_per_capita, consumption_co2, consumption_co2_per_capita
+      `SELECT year, emissions_mt, emissions_per_capita, consumption_co2, consumption_co2_per_capita, population
        FROM co2_emissions
        WHERE country_code = $1
        ORDER BY year`,
@@ -213,7 +213,7 @@ app.get("/api/country-summary/:country", async (req, res) => {
   try {
     const [co2Result, plantsResult, speciesResult, firesResult, vegetationResult, waterResult, electricityGenerationResult, speciesThreatenedResult, pollutionResult] = await Promise.all([
       pool.query(
-        `SELECT year, emissions_mt, emissions_per_capita, consumption_co2, consumption_co2_per_capita
+        `SELECT year, emissions_mt, emissions_per_capita, consumption_co2, consumption_co2_per_capita, population
          FROM co2_emissions WHERE country_code = $1 ORDER BY year`,
         [country]
       ),

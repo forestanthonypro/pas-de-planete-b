@@ -297,13 +297,28 @@ export default function PaysDashboard() {
   useEffect(() => {
     if (!summary || !worldBenchmarks) return;
 
+    // Cherche, en partant de la dernière année, la première ligne où CE champ
+    // précis existe — nécessaire car eau/végétation ont plusieurs sources avec
+    // des couvertures temporelles différentes (ex: pluviométrie va jusqu'en 2025,
+    // le stress hydrique s'arrête en 2022) : prendre juste "la dernière ligne du
+    // tableau" renvoyait souvent une année où LE CHAMP QU'ON VEUT est vide.
+    function latestWithField(array, field) {
+      if (!array) return null;
+      for (let i = array.length - 1; i >= 0; i--) {
+        if (array[i][field] !== null && array[i][field] !== undefined) return array[i];
+      }
+      return null;
+    }
+
     function computeRows(summaryData) {
       if (!summaryData) return [];
       const latestCo2 = summaryData.co2?.[summaryData.co2.length - 1];
       const latestElec = summaryData.electricityGeneration?.[summaryData.electricityGeneration.length - 1];
       const latestPollution = summaryData.pollution?.[summaryData.pollution.length - 1];
-      const latestWater = summaryData.water?.[summaryData.water.length - 1];
-      const latestVegetation = summaryData.vegetation?.[summaryData.vegetation.length - 1];
+      const latestWaterStress = latestWithField(summaryData.water, "withdrawal_share_percent");
+      const latestWaterWithdrawal = latestWithField(summaryData.water, "withdrawal_m3");
+      const latestVegLoss = latestWithField(summaryData.vegetation, "tree_cover_loss_ha");
+      const latestVegArea = latestWithField(summaryData.vegetation, "forest_area_ha");
       const latestSpecies = summaryData.speciesThreatened?.[summaryData.speciesThreatened.length - 1];
 
       const rows = [];
@@ -321,15 +336,24 @@ export default function PaysDashboard() {
           type: "index",
         });
       }
-      if (latestWater?.withdrawal_share_percent && worldBenchmarks.water_stress_share) {
+      if (latestWaterStress?.withdrawal_share_percent && worldBenchmarks.water_stress_share) {
         rows.push({
           label: "Eau utilisée (% du disponible)",
-          value: (latestWater.withdrawal_share_percent / worldBenchmarks.water_stress_share.value) * 100,
+          value: (latestWaterStress.withdrawal_share_percent / worldBenchmarks.water_stress_share.value) * 100,
           type: "index",
         });
       }
-      if (latestVegetation?.forest_area_ha && latestVegetation?.tree_cover_loss_ha && worldBenchmarks.forest_loss_share_world) {
-        const countryShare = (latestVegetation.tree_cover_loss_ha / latestVegetation.forest_area_ha) * 100;
+      const latestPopulation = latestCo2?.population;
+      if (latestWaterWithdrawal?.withdrawal_m3 && latestPopulation && worldBenchmarks.water_withdrawal_per_capita) {
+        const countryPerCapita = latestWaterWithdrawal.withdrawal_m3 / latestPopulation;
+        rows.push({
+          label: "Eau prélevée par habitant",
+          value: (countryPerCapita / worldBenchmarks.water_withdrawal_per_capita.value) * 100,
+          type: "index",
+        });
+      }
+      if (latestVegArea?.forest_area_ha && latestVegLoss?.tree_cover_loss_ha && worldBenchmarks.forest_loss_share_world) {
+        const countryShare = (latestVegLoss.tree_cover_loss_ha / latestVegArea.forest_area_ha) * 100;
         rows.push({
           label: "% forêt perdue/an",
           value: (countryShare / worldBenchmarks.forest_loss_share_world.value) * 100,
@@ -448,6 +472,14 @@ export default function PaysDashboard() {
     import("chart.js/auto").then((Chart) => {
       if (cancelled || !vegetationCanvasRef.current) return;
       if (vegetationChartRef.current) vegetationChartRef.current.destroy();
+
+      const baselineArea = summary.vegetation.find((d) => d.forest_area_ha)?.forest_area_ha;
+      let cumulativeLoss = 0;
+      const cumulativeShareData = summary.vegetation.map((d) => {
+        cumulativeLoss += d.tree_cover_loss_ha || 0;
+        return baselineArea ? (cumulativeLoss / baselineArea) * 100 : null;
+      });
+
       vegetationChartRef.current = new Chart.default(vegetationCanvasRef.current, {
         type: "bar",
         data: {
@@ -472,6 +504,19 @@ export default function PaysDashboard() {
               tension: 0.3,
               pointRadius: 2,
               borderWidth: 2,
+            },
+            {
+              type: "line",
+              label: "% cumulé perdu depuis le début des données",
+              data: cumulativeShareData,
+              borderColor: "#6c3483",
+              backgroundColor: "rgba(108,52,131,0.08)",
+              yAxisID: "y1",
+              tension: 0.3,
+              pointRadius: 0,
+              borderWidth: 2,
+              borderDash: [2, 2],
+              fill: true,
             },
             ...(worldBenchmarks?.forest_loss_share_world
               ? [
@@ -974,10 +1019,18 @@ export default function PaysDashboard() {
               perdus.
             </p>
             <p style={{ fontSize: 13, color: "#666" }}>
-              Les barres orange, c&apos;est le nombre d&apos;hectares perdus chaque année (un
-              hectare ≈ un terrain de foot). La courbe rouge rapporte ce chiffre à la taille de la
-              forêt du pays — un petit pays très boisé qui perd peu d&apos;hectares en valeur
-              absolue peut quand même perdre un % important de sa forêt.
+              Imagine la forêt du pays comme une grande réserve. Chaque année, une partie
+              disparaît (coupée, brûlée, défrichée) — c&apos;est la barre orange, en hectares
+              (1 hectare ≈ 1 terrain de foot). Mais un même nombre d&apos;hectares perdus ne pèse
+              pas pareil selon la taille de la réserve : perdre 10 000 hectares dans un petit pays
+              très boisé, c&apos;est énorme ; les mêmes 10 000 hectares dans un pays immense comme
+              le Brésil, c&apos;est presque rien. La courbe rouge (%) corrige ça.
+            </p>
+            <p style={{ fontSize: 13, color: "#666" }}>
+              La courbe violette en pointillés, c&apos;est la perte <strong>additionnée</strong>{" "}
+              depuis la première année disponible, par rapport à la forêt de l&apos;époque : une
+              petite perte chaque année peut représenter beaucoup une fois cumulée sur toute la
+              période.
             </p>
             <div style={{ position: "relative", height: 220 }}>
               <canvas ref={vegetationCanvasRef} role="img" aria-label={`Perte de couverture arborée pour ${countryName}`} />

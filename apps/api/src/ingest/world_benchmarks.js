@@ -12,6 +12,7 @@ import { parse } from "csv-parse/sync";
 
 const CO2_URL = "https://owid-public.owid.io/data/co2/owid-co2-data.csv";
 const WATER_STRESS_URL = "https://ourworldindata.org/grapher/freshwater-withdrawals-as-a-share-of-internal-resources.csv?v=1&csvType=full&useColumnShortNames=false";
+const WATER_WITHDRAWAL_URL = "https://ourworldindata.org/grapher/annual-freshwater-withdrawals.csv?v=1&csvType=full&useColumnShortNames=false";
 const ENERGY_URL = "https://owid-public.owid.io/data/energy/owid-energy-data.csv";
 const MAMMAL_URL = "https://ourworldindata.org/grapher/threatened-mammal-species.csv?v=1&csvType=full&useColumnShortNames=false";
 const BIRD_URL = "https://ourworldindata.org/grapher/threatened-bird-species.csv?v=1&csvType=full&useColumnShortNames=false";
@@ -55,9 +56,10 @@ async function upsertBenchmark(client, key, value, unit, year, source) {
 export async function ingestWorldBenchmarks(pool) {
   let set = 0;
 
-  const [co2Rows, waterRows, energyRows, mammalRows, birdRows, fishRows, pm25Rows, treeLossRows, forestAreaRows] = await Promise.all([
+  const [co2Rows, waterRows, waterWithdrawalRows, energyRows, mammalRows, birdRows, fishRows, pm25Rows, treeLossRows, forestAreaRows] = await Promise.all([
     fetchCsvRows(CO2_URL),
     fetchCsvRows(WATER_STRESS_URL),
+    fetchCsvRows(WATER_WITHDRAWAL_URL),
     fetchCsvRows(ENERGY_URL),
     fetchCsvRows(MAMMAL_URL),
     fetchCsvRows(BIRD_URL),
@@ -82,6 +84,19 @@ export async function ingestWorldBenchmarks(pool) {
     const waterCol = "Level of water stress: freshwater withdrawal as a proportion of available freshwater resources (%) - No breakdown";
     if (waterWorld && waterWorld[waterCol]) {
       if (await upsertBenchmark(client, "water_stress_share", parseFloat(waterWorld[waterCol]), "%", parseInt(waterWorld.Year, 10), "FAO via Our World in Data")) set += 1;
+    }
+
+    // Prélèvements d'eau par habitant, monde — pas d'indicateur "par habitant" tout
+    // fait pour ça (contrairement au CO2/à l'électricité), donc calculé nous-mêmes
+    // à partir du total mondial prélevé et de la population mondiale (même CSV CO2).
+    const withdrawalWorld = latestWorldRow(waterWithdrawalRows);
+    if (withdrawalWorld && withdrawalWorld["Annual freshwater withdrawals"] && co2World?.population) {
+      const worldWithdrawalM3 = parseFloat(withdrawalWorld["Annual freshwater withdrawals"]);
+      const worldPopulation = parseFloat(co2World.population);
+      if (worldPopulation > 0) {
+        const perCapita = worldWithdrawalM3 / worldPopulation;
+        if (await upsertBenchmark(client, "water_withdrawal_per_capita", perCapita, "m³/hab/an", parseInt(withdrawalWorld.Year, 10), "AQUASTAT/FAO, via Our World in Data (calcul propre à partir du total et de la population)")) set += 1;
+      }
     }
 
     // Électricité consommée par habitant (owid-energy-data.csv)
