@@ -801,6 +801,14 @@ export default function PaysDashboard() {
               est 50 % au-dessus de la moyenne mondiale ; à 50, il est deux fois en-dessous.
             </p>
             <p style={{ fontSize: 13, color: "#666" }}>
+              &laquo; Eau prélevée par habitant &raquo; inclut <strong>tous les usages</strong>{" "}
+              — agriculture, industrie et domestique confondus, pas seulement l&apos;eau du
+              robinet. Un pays avec moins d&apos;agriculture irriguée ou moins d&apos;industrie
+              lourde peut afficher un total par habitant plus bas sans que ses habitants
+              &laquo; consomment moins d&apos;eau au quotidien &raquo; au sens courant — c&apos;est
+              le prélèvement total du pays, réparti par habitant, qui est comparé.
+            </p>
+            <p style={{ fontSize: 13, color: "#666" }}>
               La ligne &laquo; Espèces menacées (% du total mondial) &raquo; est différente : elle
               montre la part du total mondial que représente ce pays, pas une comparaison à une
               moyenne — aucun pays ne peut avoir &laquo; 100 % &raquo; des espèces menacées du
