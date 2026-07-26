@@ -3,6 +3,7 @@ import cors from "cors";
 import pg from "pg";
 import { ingestCo2 } from "./ingest/co2.js";
 import { ingestPowerPlants } from "./ingest/power_plants.js";
+import { ingestSpecies } from "./ingest/species.js";
 
 const app = express();
 const port = process.env.API_PORT || 4000;
@@ -69,7 +70,6 @@ app.post("/api/admin/ingest/co2", requireIngestToken, async (_req, res) => {
 
 // --- Centrales électriques ---
 
-// Liste des pays disponibles, pour peupler le filtre.
 app.get("/api/power-plants/countries", async (_req, res) => {
   try {
     const result = await pool.query(
@@ -81,7 +81,6 @@ app.get("/api/power-plants/countries", async (_req, res) => {
   }
 });
 
-// Liste des types de combustible réellement présents, pour peupler le filtre.
 app.get("/api/power-plants/fuel-types", async (_req, res) => {
   try {
     const result = await pool.query(
@@ -93,8 +92,6 @@ app.get("/api/power-plants/fuel-types", async (_req, res) => {
   }
 });
 
-// Centrales filtrées par pays (obligatoire) et type de combustible (optionnel).
-// Un pays est exigé pour éviter de renvoyer ~30 000 lignes en une seule requête non filtrée.
 app.get("/api/power-plants", async (req, res) => {
   const { country, fuel_type: fuelType } = req.query;
   if (!country) {
@@ -125,6 +122,46 @@ app.get("/api/power-plants", async (req, res) => {
 app.post("/api/admin/ingest/power-plants", requireIngestToken, async (_req, res) => {
   try {
     const { inserted, skipped } = await ingestPowerPlants(pool);
+    res.json({ status: "ok", inserted, skipped });
+  } catch (err) {
+    res.status(500).json({ error: "Échec de l'ingestion", detail: err.message });
+  }
+});
+
+// --- Espèces ---
+
+app.get("/api/species/categories", async (_req, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT DISTINCT category FROM species_status ORDER BY category"
+    );
+    res.json(result.rows.map((r) => r.category));
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+  }
+});
+
+app.get("/api/species", async (req, res) => {
+  const { category } = req.query;
+  try {
+    const params = [];
+    let query = "SELECT scientific_name, common_name, category FROM species_status";
+    if (category) {
+      params.push(category.toUpperCase());
+      query += " WHERE category = $1";
+    }
+    query += " ORDER BY scientific_name LIMIT 1000";
+
+    const result = await pool.query(query, params);
+    res.json(result.rows);
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+  }
+});
+
+app.post("/api/admin/ingest/species", requireIngestToken, async (_req, res) => {
+  try {
+    const { inserted, skipped } = await ingestSpecies(pool);
     res.json({ status: "ok", inserted, skipped });
   } catch (err) {
     res.status(500).json({ error: "Échec de l'ingestion", detail: err.message });

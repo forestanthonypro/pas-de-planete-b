@@ -2,7 +2,6 @@ name: Rafraîchir les données
 
 on:
   schedule:
-    # Le 1er de chaque mois à 4h du matin UTC.
     - cron: "0 4 1 * *"
   workflow_dispatch: {}
 
@@ -21,4 +20,12 @@ jobs:
       - name: Ré-ingérer les centrales électriques
         run: |
           curl -f -X POST "${{ secrets.API_URL }}/api/admin/ingest/power-plants" \
+            -H "x-ingest-token: ${{ secrets.INGEST_TOKEN }}"
+
+  refresh-species:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ré-ingérer les espèces
+        run: |
+          curl -f -X POST "${{ secrets.API_URL }}/api/admin/ingest/species" \
             -H "x-ingest-token: ${{ secrets.INGEST_TOKEN }}"
