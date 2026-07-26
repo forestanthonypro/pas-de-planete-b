@@ -6,7 +6,7 @@ import { localizedCountryName } from "../lib/countryNames";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
-export default function VegetationPage() {
+export default function EauPage() {
   const lastUpdated = useLastUpdated();
   const [preferredLang, setPreferredLang] = useState(null);
   const [countries, setCountries] = useState([]);
@@ -25,7 +25,7 @@ export default function VegetationPage() {
   }, []);
 
   useEffect(() => {
-    fetch(`${API_URL}/api/vegetation/countries`)
+    fetch(`${API_URL}/api/water/countries`)
       .then((res) => res.json())
       .then((rows) => setCountries(Array.isArray(rows) ? rows : []))
       .catch(() => setCountries([]));
@@ -34,7 +34,7 @@ export default function VegetationPage() {
   useEffect(() => {
     setLoading(true);
     setError(null);
-    fetch(`${API_URL}/api/vegetation/${countryCode}`)
+    fetch(`${API_URL}/api/water/${countryCode}`)
       .then((res) => {
         if (!res.ok) throw new Error("Données indisponibles pour ce pays");
         return res.json();
@@ -57,21 +57,43 @@ export default function VegetationPage() {
       if (chartRef.current) chartRef.current.destroy();
 
       chartRef.current = new Chart(canvasRef.current, {
-        type: "bar",
+        type: "line",
         data: {
           labels: data.map((d) => d.year),
           datasets: [
             {
-              label: "Perte de couverture arborée (ha)",
-              data: data.map((d) => d.tree_cover_loss_ha),
-              backgroundColor: "#e67e22",
+              label: "Ressources renouvelables (m³/hab.)",
+              data: data.map((d) => d.renewable_freshwater_m3_per_capita),
+              borderColor: "#2a78d6",
+              backgroundColor: "rgba(42,120,214,0.1)",
+              yAxisID: "y",
+              fill: true,
+              tension: 0.3,
+              pointRadius: 0,
+              borderWidth: 2,
+            },
+            {
+              label: "Pluviométrie (mm/an)",
+              data: data.map((d) => d.precipitation_mm),
+              borderColor: "#1baf7a",
+              backgroundColor: "rgba(27,175,122,0.1)",
+              yAxisID: "y1",
+              fill: false,
+              tension: 0.3,
+              pointRadius: 0,
+              borderWidth: 2,
+              borderDash: [5, 4],
             },
           ],
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
+          plugins: { legend: { display: true } },
+          scales: {
+            y: { type: "linear", position: "left", title: { display: true, text: "m³/habitant" } },
+            y1: { type: "linear", position: "right", title: { display: true, text: "mm/an" }, grid: { drawOnChartArea: false } },
+          },
         },
       });
     });
@@ -85,7 +107,7 @@ export default function VegetationPage() {
 
   return (
     <main style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 800, margin: "0 auto" }}>
-      <h1>Perte de couverture arborée — {selectedCountryName}</h1>
+      <h1>Ressources en eau — {selectedCountryName}</h1>
 
       <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem", flexWrap: "wrap" }}>
         <label>
@@ -106,20 +128,21 @@ export default function VegetationPage() {
       {error && <p role="alert">Erreur : {error}</p>}
 
       {!loading && !error && view === "chart" && (
-        <div style={{ position: "relative", height: 320 }}>
-          <canvas ref={canvasRef} role="img" aria-label={`Perte de couverture arborée pour ${selectedCountryName}`} />
+        <div style={{ position: "relative", height: 340 }}>
+          <canvas ref={canvasRef} role="img" aria-label={`Ressources en eau et pluviométrie pour ${selectedCountryName}`} />
         </div>
       )}
 
       {!loading && !error && view === "table" && (
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <caption style={{ textAlign: "left", fontSize: 12, color: "#666", marginBottom: 8 }}>
-            Perte de couverture arborée pour {selectedCountryName}, par année
+            Eau pour {selectedCountryName}, par année
           </caption>
           <thead>
             <tr>
               <th scope="col" style={{ textAlign: "left", padding: 8 }}>Année</th>
-              <th scope="col" style={{ textAlign: "right", padding: 8 }}>Perte (ha)</th>
+              <th scope="col" style={{ textAlign: "right", padding: 8 }}>Ressources (m³/hab.)</th>
+              <th scope="col" style={{ textAlign: "right", padding: 8 }}>Pluviométrie (mm)</th>
             </tr>
           </thead>
           <tbody>
@@ -127,7 +150,10 @@ export default function VegetationPage() {
               <tr key={d.year}>
                 <th scope="row" style={{ textAlign: "left", padding: 8, fontWeight: 400 }}>{d.year}</th>
                 <td style={{ textAlign: "right", padding: 8 }}>
-                  {d.tree_cover_loss_ha ? Math.round(d.tree_cover_loss_ha).toLocaleString("fr-FR") : "—"}
+                  {d.renewable_freshwater_m3_per_capita ? Math.round(d.renewable_freshwater_m3_per_capita).toLocaleString("fr-FR") : "—"}
+                </td>
+                <td style={{ textAlign: "right", padding: 8 }}>
+                  {d.precipitation_mm ? Math.round(d.precipitation_mm).toLocaleString("fr-FR") : "—"}
                 </td>
               </tr>
             ))}
@@ -138,21 +164,29 @@ export default function VegetationPage() {
       <details style={{ marginTop: "1rem", fontSize: 13, color: "#555" }}>
         <summary style={{ cursor: "pointer" }}>Que couvrent ces chiffres exactement ?</summary>
         <p style={{ marginTop: 8 }}>
-          Il s&apos;agit de <strong>perte de couverture arborée</strong> détectée par satellite
-          (résolution 30m, Hansen et al.), toutes causes confondues — coupe rase, incendie,
-          exploitation forestière, agriculture. Ce n&apos;est pas nécessairement de la
-          déforestation permanente : une parcelle peut repousser après coupe forestière gérée.
-          Les données couvrent 2001-2024.
+          La courbe bleue montre les <strong>ressources renouvelables en eau douce</strong>
+          disponibles par habitant (rivières internes, recharge des nappes, plus les apports
+          venant de pays voisins) — un indicateur de rareté relative de l&apos;eau, pas de
+          consommation réelle. C&apos;est une estimation de long terme, recalculée chaque année
+          surtout pour tenir compte de l&apos;évolution démographique : la ressource physique
+          sous-jacente change rarement d&apos;une année sur l&apos;autre.
+        </p>
+        <p>
+          La courbe verte en pointillés montre la <strong>pluviométrie annuelle</strong> mesurée
+          par satellite (réanalyse Copernicus ERA5) — celle-ci varie réellement chaque année.
+          Pour les très petits pays, cette mesure peut être moins fiable (résolution de la grille
+          climatique).
         </p>
       </details>
 
       <p style={{ fontSize: 12, color: "#666", marginTop: "1rem" }}>
-        Source : Global Forest Watch, via Our World in Data (CC-BY)
-        {lastUpdated?.vegetation?.latestYear && (
-          <> — dernière année couverte par la source : {lastUpdated.vegetation.latestYear}</>
+        Sources : AQUASTAT/FAO via Banque mondiale (ressources renouvelables), Copernicus ERA5
+        (pluviométrie), via Our World in Data (CC-BY)
+        {lastUpdated?.water?.latestYear && (
+          <> — dernière année couverte : {lastUpdated.water.latestYear}</>
         )}
-        {lastUpdated?.vegetation?.lastIngested && (
-          <> · dernière mise à jour de notre base : {formatDate(lastUpdated.vegetation.lastIngested)}</>
+        {lastUpdated?.water?.lastIngested && (
+          <> · dernière mise à jour de notre base : {formatDate(lastUpdated.water.lastIngested)}</>
         )}
         . Rafraîchissement automatique mensuel.
       </p>

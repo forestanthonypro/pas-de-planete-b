@@ -4,6 +4,7 @@ import { speciesGroupLabel } from "../lib/speciesGroups";
 import { formatCommonNames } from "../lib/commonNames";
 import { detectPreferredLanguage } from "../lib/detectLanguage";
 import { useLastUpdated, formatDate } from "../lib/useLastUpdated";
+import { localizedCountryName } from "../lib/countryNames";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -89,7 +90,7 @@ export default function EspecesPage() {
   }, [availableGroups, group]);
 
   const selectedCountryName =
-    countries.find((c) => c.country_code === country)?.country_name || country;
+    localizedCountryName(country, preferredLang);
 
   return (
     <main style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
@@ -109,7 +110,7 @@ export default function EspecesPage() {
             {countries.length === 0 && <option value={country}>{country}</option>}
             {countries.map((c) => (
               <option key={c.country_code} value={c.country_code}>
-                {c.country_name}
+                {localizedCountryName(c.country_code, preferredLang)}
               </option>
             ))}
           </select>

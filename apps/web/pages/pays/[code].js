@@ -7,6 +7,7 @@ import { FUEL_COLORS, DEFAULT_FUEL_COLOR, translateFuel } from "../../lib/fuelTy
 import { speciesGroupLabel } from "../../lib/speciesGroups";
 import { formatCommonNames } from "../../lib/commonNames";
 import { useLastUpdated, formatDate } from "../../lib/useLastUpdated";
+import { localizedCountryName } from "../../lib/countryNames";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -64,6 +65,8 @@ export default function PaysDashboard() {
   const fireMarkersLayerRef = useRef(null);
   const vegetationCanvasRef = useRef(null);
   const vegetationChartRef = useRef(null);
+  const waterCanvasRef = useRef(null);
+  const waterChartRef = useRef(null);
 
   useEffect(() => {
     setPreferredLang(detectPreferredLanguage());
@@ -230,6 +233,58 @@ export default function PaysDashboard() {
   }, [summary]);
 
   useEffect(() => {
+    if (!summary || !summary.water || summary.water.length === 0) return;
+    let cancelled = false;
+    import("chart.js/auto").then((Chart) => {
+      if (cancelled || !waterCanvasRef.current) return;
+      if (waterChartRef.current) waterChartRef.current.destroy();
+      waterChartRef.current = new Chart.default(waterCanvasRef.current, {
+        type: "line",
+        data: {
+          labels: summary.water.map((d) => d.year),
+          datasets: [
+            {
+              label: "Ressources renouvelables (m³/hab.)",
+              data: summary.water.map((d) => d.renewable_freshwater_m3_per_capita),
+              borderColor: "#2a78d6",
+              backgroundColor: "rgba(42,120,214,0.1)",
+              yAxisID: "y",
+              fill: true,
+              tension: 0.3,
+              pointRadius: 0,
+              borderWidth: 2,
+            },
+            {
+              label: "Pluviométrie (mm/an)",
+              data: summary.water.map((d) => d.precipitation_mm),
+              borderColor: "#1baf7a",
+              backgroundColor: "rgba(27,175,122,0.1)",
+              yAxisID: "y1",
+              fill: false,
+              tension: 0.3,
+              pointRadius: 0,
+              borderWidth: 2,
+              borderDash: [5, 4],
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: true } },
+          scales: {
+            y: { type: "linear", position: "left", title: { display: true, text: "m³/habitant" } },
+            y1: { type: "linear", position: "right", title: { display: true, text: "mm/an" }, grid: { drawOnChartArea: false } },
+          },
+        },
+      });
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [summary]);
+
+  useEffect(() => {
     if (!fireMapContainerRef.current || fireMapRef.current) return;
     let cancelled = false;
     import("leaflet").then((L) => {
@@ -274,7 +329,7 @@ export default function PaysDashboard() {
     });
   }, [fires]);
 
-  const countryName = countries.find((c) => c.country_code === code)?.country_name || code;
+  const countryName = localizedCountryName(code, preferredLang);
   const latestCo2 = summary?.co2?.[summary.co2.length - 1];
   const totalCapacity = summary?.energyMix?.reduce(
     (sum, r) => sum + Number(r.total_capacity_mw || 0),
@@ -289,7 +344,7 @@ export default function PaysDashboard() {
           Changer de pays{" "}
           <select value={code || ""} onChange={(e) => router.push(`/pays/${e.target.value}`)}>
             {countries.map((c) => (
-              <option key={c.country_code} value={c.country_code}>{c.country_name}</option>
+              <option key={c.country_code} value={c.country_code}>{localizedCountryName(c.country_code, preferredLang)}</option>
             ))}
           </select>
         </label>
@@ -483,6 +538,44 @@ export default function PaysDashboard() {
             <> Dernière année couverte : {lastUpdated.vegetation.latestYear}.</>
           )}
           {" "}<Link href="/vegetation">Voir le détail →</Link>
+        </p>
+      </section>
+
+      <section style={{ marginTop: "2rem" }}>
+        <h2>Ressources en eau</h2>
+        {summary?.water?.length > 0 ? (
+          <p>
+            Dernière donnée disponible ({summary.water[summary.water.length - 1].year}) :{" "}
+            {summary.water[summary.water.length - 1].renewable_freshwater_m3_per_capita && (
+              <>
+                <strong>
+                  {Math.round(summary.water[summary.water.length - 1].renewable_freshwater_m3_per_capita).toLocaleString("fr-FR")} m³
+                </strong>{" "}
+                de ressources renouvelables par habitant
+              </>
+            )}
+            {summary.water[summary.water.length - 1].precipitation_mm && (
+              <>
+                {" "}— <strong>{Math.round(summary.water[summary.water.length - 1].precipitation_mm).toLocaleString("fr-FR")} mm</strong> de précipitations cette année-là
+              </>
+            )}
+            .
+          </p>
+        ) : (
+          <p>Aucune donnée eau pour ce pays.</p>
+        )}
+        {summary?.water?.length > 0 && (
+          <div style={{ position: "relative", height: 260 }}>
+            <canvas ref={waterCanvasRef} role="img" aria-label={`Ressources en eau et pluviométrie pour ${countryName}`} />
+          </div>
+        )}
+        <p style={{ fontSize: 12, color: "#666" }}>
+          AQUASTAT/FAO via Banque mondiale (ressources renouvelables, estimation long terme) et
+          Copernicus ERA5 (pluviométrie annuelle réelle), via Our World in Data.
+          {lastUpdated?.water?.latestYear && (
+            <> Dernière année couverte : {lastUpdated.water.latestYear}.</>
+          )}
+          {" "}<Link href="/eau">Voir le graphique détaillé →</Link>
         </p>
       </section>
     </main>

@@ -1,12 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import { detectDefaultCountry } from "../lib/detectCountry";
+import { detectPreferredLanguage } from "../lib/detectLanguage";
 import { FUEL_COLORS, DEFAULT_FUEL_COLOR, translateFuel } from "../lib/fuelTypes";
 import { useLastUpdated, formatDate } from "../lib/useLastUpdated";
+import { localizedCountryName } from "../lib/countryNames";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 export default function EnergiePage() {
   const lastUpdated = useLastUpdated();
+  const [preferredLang, setPreferredLang] = useState(null);
   const [countries, setCountries] = useState([]);
   const [fuelTypes, setFuelTypes] = useState([]);
   const [country, setCountry] = useState("FRA");
@@ -23,6 +26,7 @@ export default function EnergiePage() {
   // Devine le pays par défaut une fois côté client (évite un décalage serveur/client).
   useEffect(() => {
     setCountry(detectDefaultCountry());
+    setPreferredLang(detectPreferredLanguage());
   }, []);
 
   // Charge les listes pour peupler les filtres, une seule fois.
@@ -124,9 +128,9 @@ export default function EnergiePage() {
         <label>
           Pays{" "}
           <select value={country} onChange={(e) => setCountry(e.target.value)}>
-            {countries.length === 0 && <option value={country}>{country}</option>}
+            {countries.length === 0 && <option value={country}>{localizedCountryName(country, preferredLang)}</option>}
             {countries.map((c) => (
-              <option key={c} value={c}>{c}</option>
+              <option key={c} value={c}>{localizedCountryName(c, preferredLang)}</option>
             ))}
           </select>
         </label>
@@ -157,7 +161,7 @@ export default function EnergiePage() {
       {!loading && !error && view === "table" && (
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <caption style={{ textAlign: "left", fontSize: 12, color: "#666", marginBottom: 8 }}>
-            Centrales électriques — {country} {fuelType ? `(${fuelType})` : ""}
+            Centrales électriques — {localizedCountryName(country, preferredLang)} {fuelType ? `(${fuelType})` : ""}
           </caption>
           <thead>
             <tr>

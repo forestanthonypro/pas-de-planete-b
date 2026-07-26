@@ -38,3 +38,11 @@ jobs:
         run: |
           curl -f -X POST "${{ secrets.API_URL }}/api/admin/ingest/vegetation" \
             -H "x-ingest-token: ${{ secrets.INGEST_TOKEN }}"
+
+  refresh-water:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ré-ingérer les données eau
+        run: |
+          curl -f -X POST "${{ secrets.API_URL }}/api/admin/ingest/water" \
+            -H "x-ingest-token: ${{ secrets.INGEST_TOKEN }}"

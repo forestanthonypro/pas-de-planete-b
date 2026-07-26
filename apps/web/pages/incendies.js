@@ -1,11 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { detectDefaultCountry } from "../lib/detectCountry";
+import { detectPreferredLanguage } from "../lib/detectLanguage";
 import { useLastUpdated, formatDate } from "../lib/useLastUpdated";
+import { localizedCountryName } from "../lib/countryNames";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 export default function IncendiesPage() {
   const lastUpdated = useLastUpdated();
+  const [preferredLang, setPreferredLang] = useState(null);
   const [countries, setCountries] = useState([]);
   const [country, setCountry] = useState("FRA");
   const [fires, setFires] = useState([]);
@@ -19,6 +22,7 @@ export default function IncendiesPage() {
 
   useEffect(() => {
     setCountry(detectDefaultCountry());
+    setPreferredLang(detectPreferredLanguage());
   }, []);
 
   useEffect(() => {
@@ -92,7 +96,7 @@ export default function IncendiesPage() {
   }, [fires, view]);
 
   const selectedCountryName =
-    countries.find((c) => c.country_code === country)?.country_name || country;
+    localizedCountryName(country, preferredLang);
 
   return (
     <main style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
@@ -110,7 +114,7 @@ export default function IncendiesPage() {
           <select value={country} onChange={(e) => setCountry(e.target.value)}>
             {countries.length === 0 && <option value={country}>{country}</option>}
             {countries.map((c) => (
-              <option key={c.country_code} value={c.country_code}>{c.country_name}</option>
+              <option key={c.country_code} value={c.country_code}>{localizedCountryName(c.country_code, preferredLang)}</option>
             ))}
           </select>
         </label>

@@ -1,11 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { detectDefaultCountry } from "../lib/detectCountry";
+import { detectPreferredLanguage } from "../lib/detectLanguage";
+import { localizedCountryName } from "../lib/countryNames";
 import { useLastUpdated, formatDate } from "../lib/useLastUpdated";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 export default function Co2Page() {
   const lastUpdated = useLastUpdated();
+  const [preferredLang, setPreferredLang] = useState(null);
   const [countries, setCountries] = useState([]);
   const [countryCode, setCountryCode] = useState("FRA");
   const [metric, setMetric] = useState("emissions_mt"); // ou "emissions_per_capita"
@@ -20,6 +23,7 @@ export default function Co2Page() {
   // Devine le pays par défaut une fois côté client (évite un décalage serveur/client).
   useEffect(() => {
     setCountryCode(detectDefaultCountry());
+    setPreferredLang(detectPreferredLanguage());
   }, []);
 
   // Charge la liste des pays une seule fois, pour peupler le filtre.
@@ -107,8 +111,7 @@ export default function Co2Page() {
     };
   }, [data, metric, view, loading, error]);
 
-  const selectedCountryName =
-    countries.find((c) => c.country_code === countryCode)?.country_name || countryCode;
+  const selectedCountryName = localizedCountryName(countryCode, preferredLang);
 
   return (
     <main style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 800, margin: "0 auto" }}>
@@ -121,7 +124,7 @@ export default function Co2Page() {
             {countries.length === 0 && <option value={countryCode}>{countryCode}</option>}
             {countries.map((c) => (
               <option key={c.country_code} value={c.country_code}>
-                {c.country_name}
+                {localizedCountryName(c.country_code, preferredLang)}
               </option>
             ))}
           </select>

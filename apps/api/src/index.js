@@ -6,6 +6,7 @@ import { ingestPowerPlants } from "./ingest/power_plants.js";
 import { ingestSpecies } from "./ingest/species.js";
 import { ingestFires } from "./ingest/fires.js";
 import { ingestVegetation } from "./ingest/vegetation.js";
+import { ingestWater } from "./ingest/water.js";
 
 const app = express();
 const port = process.env.API_PORT || 4000;
@@ -206,7 +207,7 @@ app.post("/api/admin/ingest/species", requireIngestToken, async (_req, res) => {
 app.get("/api/country-summary/:country", async (req, res) => {
   const country = req.params.country.toUpperCase();
   try {
-    const [co2Result, plantsResult, speciesResult, firesResult, vegetationResult] = await Promise.all([
+    const [co2Result, plantsResult, speciesResult, firesResult, vegetationResult, waterResult] = await Promise.all([
       pool.query(
         `SELECT year, emissions_mt, emissions_per_capita, consumption_co2, consumption_co2_per_capita
          FROM co2_emissions WHERE country_code = $1 ORDER BY year`,
@@ -236,6 +237,11 @@ app.get("/api/country-summary/:country", async (req, res) => {
          FROM vegetation_loss WHERE country_code = $1 ORDER BY year`,
         [country]
       ),
+      pool.query(
+        `SELECT year, renewable_freshwater_m3_per_capita, precipitation_mm
+         FROM water_data WHERE country_code = $1 ORDER BY year`,
+        [country]
+      ),
     ]);
 
     res.json({
@@ -245,6 +251,7 @@ app.get("/api/country-summary/:country", async (req, res) => {
       speciesBreakdown: speciesResult.rows,
       fires: firesResult.rows[0],
       vegetation: vegetationResult.rows,
+      water: waterResult.rows,
     });
   } catch (err) {
     res.status(503).json({ error: "Données non initialisées", detail: err.message });
@@ -290,12 +297,13 @@ app.post("/api/admin/ingest/fires", requireIngestToken, async (_req, res) => {
 // (pas la date des données elles-mêmes, qui peut être plus ancienne selon la source).
 app.get("/api/meta/last-updated", async (_req, res) => {
   try {
-    const [co2, plants, species, fires, vegetation] = await Promise.all([
+    const [co2, plants, species, fires, vegetation, water] = await Promise.all([
       pool.query("SELECT MAX(updated_at) AS updated_at, MAX(year) AS latest_year FROM co2_emissions"),
       pool.query("SELECT MAX(updated_at) AS updated_at FROM power_plants"),
       pool.query("SELECT MAX(updated_at) AS updated_at FROM species_status"),
       pool.query("SELECT MAX(ingested_at) AS updated_at, MAX(detected_at) AS latest_detection FROM fires"),
       pool.query("SELECT MAX(updated_at) AS updated_at, MAX(year) AS latest_year FROM vegetation_loss"),
+      pool.query("SELECT MAX(updated_at) AS updated_at, MAX(year) AS latest_year FROM water_data"),
     ]);
     res.json({
       co2: { lastIngested: co2.rows[0].updated_at, latestYear: co2.rows[0].latest_year },
@@ -303,6 +311,7 @@ app.get("/api/meta/last-updated", async (_req, res) => {
       species: { lastIngested: species.rows[0].updated_at },
       fires: { lastIngested: fires.rows[0].updated_at, latestDetection: fires.rows[0].latest_detection },
       vegetation: { lastIngested: vegetation.rows[0].updated_at, latestYear: vegetation.rows[0].latest_year },
+      water: { lastIngested: water.rows[0].updated_at, latestYear: water.rows[0].latest_year },
     });
   } catch (err) {
     res.status(503).json({ error: "Données non initialisées", detail: err.message });
@@ -342,6 +351,45 @@ app.get("/api/vegetation/:country", async (req, res) => {
 app.post("/api/admin/ingest/vegetation", requireIngestToken, async (_req, res) => {
   try {
     const { inserted, skipped } = await ingestVegetation(pool);
+    res.json({ status: "ok", inserted, skipped });
+  } catch (err) {
+    res.status(500).json({ error: "Échec de l'ingestion", detail: err.message });
+  }
+});
+
+
+// --- Eau : ressources renouvelables et pluviométrie ---
+
+app.get("/api/water/countries", async (_req, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT DISTINCT country_code, country_name FROM water_data ORDER BY country_name"
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+  }
+});
+
+app.get("/api/water/:country", async (req, res) => {
+  const { country } = req.params;
+  try {
+    const result = await pool.query(
+      `SELECT year, renewable_freshwater_m3_per_capita, precipitation_mm
+       FROM water_data
+       WHERE country_code = $1
+       ORDER BY year`,
+      [country.toUpperCase()]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+  }
+});
+
+app.post("/api/admin/ingest/water", requireIngestToken, async (_req, res) => {
+  try {
+    const { inserted, skipped } = await ingestWater(pool);
     res.json({ status: "ok", inserted, skipped });
   } catch (err) {
     res.status(500).json({ error: "Échec de l'ingestion", detail: err.message });

@@ -21,6 +21,7 @@ export default function Home() {
         <li><Link href="/especes">Espèces menacées →</Link></li>
         <li><Link href="/incendies">Feux actifs →</Link></li>
         <li><Link href="/vegetation">Perte de couverture arborée →</Link></li>
+        <li><Link href="/eau">Ressources en eau →</Link></li>
       </ul>
     </main>
   );
