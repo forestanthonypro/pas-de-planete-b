@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { detectDefaultCountry } from "../../lib/detectCountry";
@@ -58,6 +58,38 @@ export default function PaysDashboard() {
   const [preferredLang, setPreferredLang] = useState(null);
   const [compareCode, setCompareCode] = useState("");
   const [compareSummary, setCompareSummary] = useState(null);
+
+  // Résumé chiffré du cumul forêt (indépendant du graphique) — même logique
+  // que sur /vegetation, pour donner un chiffre net plutôt que de faire deviner
+  // la valeur finale en lisant une courbe sur un axe partagé.
+  const vegetationCumulativeSummary = useMemo(() => {
+    const veg = summary?.vegetation;
+    if (!veg || veg.length === 0) return null;
+    const filled = veg.map((r) => ({ ...r }));
+    let last = null;
+    for (let i = 0; i < filled.length; i++) {
+      if (filled[i].forest_area_ha != null) last = filled[i].forest_area_ha;
+      else if (last != null) filled[i].forest_area_ha = last;
+    }
+    let next = null;
+    for (let i = filled.length - 1; i >= 0; i--) {
+      if (veg[i].forest_area_ha != null) next = veg[i].forest_area_ha;
+      else if (filled[i].forest_area_ha == null && next != null) filled[i].forest_area_ha = next;
+    }
+    const baselineArea = filled.find((d) => d.forest_area_ha)?.forest_area_ha;
+    if (!baselineArea) return null;
+    const firstLossRow = veg.find((d) => d.tree_cover_loss_ha != null);
+    const lastLossRow = [...veg].reverse().find((d) => d.tree_cover_loss_ha != null);
+    if (!firstLossRow || !lastLossRow) return null;
+    const totalLoss = veg.reduce((sum, d) => sum + (d.tree_cover_loss_ha || 0), 0);
+    return {
+      startYear: firstLossRow.year,
+      endYear: lastLossRow.year,
+      totalLossHa: totalLoss,
+      percent: (totalLoss / baselineArea) * 100,
+    };
+  }, [summary]);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -1067,6 +1099,15 @@ export default function PaysDashboard() {
             <div style={{ position: "relative", height: 220 }}>
               <canvas ref={vegetationCanvasRef} role="img" aria-label={`Perte de couverture arborée pour ${countryName}`} />
             </div>
+            {vegetationCumulativeSummary && (
+              <p style={{ fontSize: 13 }}>
+                Au total, entre <strong>{vegetationCumulativeSummary.startYear}</strong> et{" "}
+                <strong>{vegetationCumulativeSummary.endYear}</strong>, {countryName} a perdu{" "}
+                <strong>{Math.round(vegetationCumulativeSummary.totalLossHa).toLocaleString("fr-FR")} ha</strong>,
+                soit environ <strong>{vegetationCumulativeSummary.percent.toFixed(2)} %</strong> de
+                sa forêt de l&apos;époque.
+              </p>
+            )}
           </>
         ) : (
           <p>Aucune donnée de végétation pour ce pays.</p>

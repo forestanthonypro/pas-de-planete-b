@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { detectDefaultCountry } from "../lib/detectCountry";
 import { detectPreferredLanguage } from "../lib/detectLanguage";
 import { useLastUpdated, formatDate } from "../lib/useLastUpdated";
@@ -51,6 +51,36 @@ export default function VegetationPage() {
         setLoading(false);
       });
   }, [countryCode]);
+
+  // Résumé chiffré du cumul (indépendant du graphique) — pour donner un chiffre
+  // net et vérifiable plutôt que de faire deviner la valeur finale en lisant une
+  // courbe sur un axe partagé avec d'autres échelles.
+  const cumulativeSummary = useMemo(() => {
+    if (data.length === 0) return null;
+    const filled = data.map((r) => ({ ...r }));
+    let last = null;
+    for (let i = 0; i < filled.length; i++) {
+      if (filled[i].forest_area_ha != null) last = filled[i].forest_area_ha;
+      else if (last != null) filled[i].forest_area_ha = last;
+    }
+    let next = null;
+    for (let i = filled.length - 1; i >= 0; i--) {
+      if (data[i].forest_area_ha != null) next = data[i].forest_area_ha;
+      else if (filled[i].forest_area_ha == null && next != null) filled[i].forest_area_ha = next;
+    }
+    const baselineArea = filled.find((d) => d.forest_area_ha)?.forest_area_ha;
+    if (!baselineArea) return null;
+    const firstLossRow = data.find((d) => d.tree_cover_loss_ha != null);
+    const lastLossRow = [...data].reverse().find((d) => d.tree_cover_loss_ha != null);
+    if (!firstLossRow || !lastLossRow) return null;
+    const totalLoss = data.reduce((sum, d) => sum + (d.tree_cover_loss_ha || 0), 0);
+    return {
+      startYear: firstLossRow.year,
+      endYear: lastLossRow.year,
+      totalLossHa: totalLoss,
+      percent: (totalLoss / baselineArea) * 100,
+    };
+  }, [data]);
 
   useEffect(() => {
     if (view !== "chart" || loading || error || data.length === 0) return;
@@ -217,6 +247,17 @@ export default function VegetationPage() {
         <div style={{ position: "relative", height: 320 }}>
           <canvas ref={canvasRef} role="img" aria-label={`Perte de couverture arborée pour ${selectedCountryName}`} />
         </div>
+      )}
+
+      {cumulativeSummary && (
+        <p style={{ fontSize: 14, marginTop: "0.75rem" }}>
+          Au total, entre <strong>{cumulativeSummary.startYear}</strong> et{" "}
+          <strong>{cumulativeSummary.endYear}</strong>, {selectedCountryName} a perdu{" "}
+          <strong>{Math.round(cumulativeSummary.totalLossHa).toLocaleString("fr-FR")} ha</strong>,
+          soit environ <strong>{cumulativeSummary.percent.toFixed(2)} %</strong> de sa forêt de
+          l&apos;époque — ce chiffre continue d&apos;augmenter chaque année, il ne s&apos;arrête
+          pas.
+        </p>
       )}
 
       {!loading && !error && view === "table" && (
