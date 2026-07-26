@@ -1,0 +1,61 @@
+# Usage production : docker compose -f docker-compose.prod.yml up -d
+# Les images sont construites en CI et poussées sur le registry, jamais buildées ici.
+services:
+  traefik:
+    image: traefik:v3.1
+    restart: unless-stopped
+    command:
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.le.acme.httpchallenge=true"
+      - "--certificatesresolvers.le.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.le.acme.email=admin@pasdeplaneteb.fr"
+      - "--certificatesresolvers.le.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - letsencrypt:/letsencrypt
+
+  postgres:
+    image: postgis/postgis:16-3.4
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  api:
+    image: ${REGISTRY}/api:latest
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+    depends_on:
+      - postgres
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.api.rule=Host(`api.pasdeplaneteb.fr`)"
+      - "traefik.http.routers.api.entrypoints=websecure"
+      - "traefik.http.routers.api.tls.certresolver=le"
+
+  web:
+    image: ${REGISTRY}/web:latest
+    restart: unless-stopped
+    env_file: .env
+    depends_on:
+      - api
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.web.rule=Host(`pasdeplaneteb.fr`)"
+      - "traefik.http.routers.web.entrypoints=websecure"
+      - "traefik.http.routers.web.tls.certresolver=le"
+
+volumes:
+  postgres-data:
+  letsencrypt:

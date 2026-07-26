@@ -1,0 +1,67 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_BASE: ghcr.io/${{ github.repository }}
+
+jobs:
+  lint-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        app: [api, web]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: apps/${{ matrix.app }}/package.json
+      - run: npm install
+        working-directory: apps/${{ matrix.app }}
+      - run: npm run lint --if-present
+        working-directory: apps/${{ matrix.app }}
+
+  build-push:
+    needs: lint-test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        app: [api, web]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: apps/${{ matrix.app }}
+          push: true
+          tags: |
+            ${{ env.IMAGE_BASE }}/${{ matrix.app }}:latest
+            ${{ env.IMAGE_BASE }}/${{ matrix.app }}:${{ github.sha }}
+
+  deploy-staging:
+    needs: build-push
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - name: Déployer sur le serveur de staging
+        run: echo "TODO: ssh vers le serveur de staging, docker compose pull && up -d"
+
+  deploy-production:
+    needs: deploy-staging
+    runs-on: ubuntu-latest
+    environment: production  # nécessite une validation manuelle configurée dans les réglages du repo
+    steps:
+      - name: Déployer en production
+        run: echo "TODO: ssh vers le serveur de production, docker compose pull && up -d"
