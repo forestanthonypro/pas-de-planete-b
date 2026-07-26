@@ -378,6 +378,21 @@ export default function PaysDashboard() {
               pointRadius: 2,
               borderWidth: 2,
             },
+            ...(worldBenchmarks?.forest_loss_share_world
+              ? [
+                  {
+                    type: "line",
+                    label: "Moyenne mondiale (%)",
+                    data: summary.vegetation.map(() => worldBenchmarks.forest_loss_share_world.value),
+                    borderColor: "#95a5a6",
+                    borderDash: [4, 4],
+                    yAxisID: "y1",
+                    pointRadius: 0,
+                    borderWidth: 1.5,
+                    fill: false,
+                  },
+                ]
+              : []),
           ],
         },
         options: {
@@ -394,7 +409,7 @@ export default function PaysDashboard() {
     return () => {
       cancelled = true;
     };
-  }, [summary]);
+  }, [summary, worldBenchmarks]);
 
   useEffect(() => {
     if (!summary || !summary.water || summary.water.length === 0) return;
