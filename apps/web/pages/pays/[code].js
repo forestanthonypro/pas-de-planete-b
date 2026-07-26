@@ -809,6 +809,24 @@ export default function PaysDashboard() {
               le prélèvement total du pays, réparti par habitant, qui est comparé.
             </p>
             <p style={{ fontSize: 13, color: "#666" }}>
+              &laquo; Stress hydrique &raquo; mesure autre chose : quelle part de l&apos;eau qui se
+              renouvelle naturellement chaque année dans le pays est réellement prélevée.
+              Exemple : un indice de 150 ne veut pas dire &laquo; le pays prélève 150 % de son
+              eau &raquo;, mais qu&apos;il est prélevé à un rythme 50 % supérieur à la moyenne
+              mondiale sur ce ratio &laquo; prélevé / disponible &raquo;. Un pays peut prélever peu
+              en valeur absolue mais avoir un stress hydrique élevé s&apos;il dispose de peu de
+              ressources renouvelables au départ (climat sec, peu de pluie).
+            </p>
+            <p style={{ fontSize: 13, color: "#666" }}>
+              &laquo; Déforestation &raquo; ici, c&apos;est le <strong>rythme annuel de perte</strong>{" "}
+              de couverture arborée, rapporté à la taille de la forêt du pays cette année-là (pas
+              un cumul sur plusieurs années — ça, c&apos;est la courbe violette sur le graphique
+              de la page dédiée). Un indice de 60 veut dire que le pays perd sa forêt à un rythme
+              annuel équivalent à 60 % de la moyenne mondiale. Toutes causes confondues (coupe,
+              incendie, agriculture) — pas nécessairement une déforestation permanente, une
+              parcelle peut repousser après une coupe forestière gérée.
+            </p>
+            <p style={{ fontSize: 13, color: "#666" }}>
               La ligne &laquo; Espèces menacées (% du total mondial) &raquo; est différente : elle
               montre la part du total mondial que représente ce pays, pas une comparaison à une
               moyenne — aucun pays ne peut avoir &laquo; 100 % &raquo; des espèces menacées du
