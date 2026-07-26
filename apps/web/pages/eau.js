@@ -235,12 +235,17 @@ export default function EauPage() {
           )}
           {data.some((d) => d.withdrawal_share_percent) && (
             <>
-              <p style={{ fontSize: 13, color: "#666", marginTop: "1rem", marginBottom: "0.25rem" }}>
-                <strong>En clair :</strong> sur 100 litres d&apos;eau qui se renouvellent
-                naturellement chaque année dans le pays, combien sont réellement utilisés
-                (agriculture, usines, foyers) ? En dessous de 100 %, il en reste. Bien au-dessus,
-                le pays puise plus vite que l&apos;eau ne se renouvelle — souvent dans des nappes
-                non renouvelables ou via le dessalement.
+              <h2 style={{ fontSize: 18, marginTop: "2rem", marginBottom: "0.25rem" }}>
+                Ce deuxième graphique : combien de cette eau est-elle utilisée ?
+              </h2>
+              <p style={{ fontSize: 13, color: "#666", marginBottom: "0.75rem" }}>
+                Le graphique du dessus montre <strong>combien d&apos;eau existe</strong>. Celui-ci
+                montre <strong>combien de cette eau est prélevée</strong> chaque année, en
+                pourcentage. Exemple : à 25 %, le pays utilise un quart de l&apos;eau qui se
+                renouvelle chaque année — il en reste les trois quarts. À 120 %, le pays utilise
+                plus d&apos;eau qu&apos;il ne s&apos;en renouvelle chaque année : il puise dans des
+                réserves qui ne se rechargent pas (nappes profondes) ou dessale de l&apos;eau de
+                mer pour compenser.
               </p>
               <div style={{ position: "relative", height: 220 }}>
                 <canvas ref={stressCanvasRef} role="img" aria-label={`Part de l'eau disponible utilisée pour ${selectedCountryName}, comparé à la moyenne mondiale`} />
