@@ -68,7 +68,7 @@ export default function EauPage() {
           labels: data.map((d) => d.year),
           datasets: [
             {
-              label: "Ressources renouvelables (m³/hab.)",
+              label: "Eau douce disponible par habitant (m³/an)",
               data: data.map((d) => d.renewable_freshwater_m3_per_capita),
               borderColor: "#2a78d6",
               backgroundColor: "rgba(42,120,214,0.1)",
@@ -97,7 +97,7 @@ export default function EauPage() {
           maintainAspectRatio: false,
           plugins: { legend: { display: true } },
           scales: {
-            y: { type: "linear", position: "left", title: { display: true, text: "m³/habitant" } },
+            y: { type: "linear", position: "left", title: { display: true, text: "m³ par habitant et par an" } },
             y1: { type: "linear", position: "right", title: { display: true, text: "mm/an" }, grid: { drawOnChartArea: false } },
           },
         },
@@ -162,7 +162,7 @@ export default function EauPage() {
 
       const datasets = [
         {
-          label: "Stress hydrique du pays (%)",
+          label: "Part de l'eau disponible réellement utilisée (%)",
           data: data.map((d) => d.withdrawal_share_percent),
           borderColor: "#8e44ad",
           backgroundColor: "rgba(142,68,173,0.1)",
@@ -191,7 +191,7 @@ export default function EauPage() {
           responsive: true,
           maintainAspectRatio: false,
           plugins: { legend: { display: true } },
-          scales: { y: { title: { display: true, text: "% des ressources renouvelables prélevé" } } },
+          scales: { y: { title: { display: true, text: "% de l'eau disponible utilisée" } } },
         },
       });
     });
@@ -236,9 +236,18 @@ export default function EauPage() {
             </div>
           )}
           {data.some((d) => d.withdrawal_share_percent) && (
-            <div style={{ position: "relative", height: 220, marginTop: "1rem" }}>
-              <canvas ref={stressCanvasRef} role="img" aria-label={`Stress hydrique pour ${selectedCountryName}, comparé à la moyenne mondiale`} />
-            </div>
+            <>
+              <p style={{ fontSize: 13, color: "#666", marginTop: "1rem", marginBottom: "0.25rem" }}>
+                <strong>En clair :</strong> sur 100 litres d&apos;eau qui se renouvellent
+                naturellement chaque année dans le pays, combien sont réellement utilisés
+                (agriculture, usines, foyers) ? En dessous de 100 %, il en reste. Bien au-dessus,
+                le pays puise plus vite que l&apos;eau ne se renouvelle — souvent dans des nappes
+                non renouvelables ou via le dessalement.
+              </p>
+              <div style={{ position: "relative", height: 220 }}>
+                <canvas ref={stressCanvasRef} role="img" aria-label={`Part de l'eau disponible utilisée pour ${selectedCountryName}, comparé à la moyenne mondiale`} />
+              </div>
+            </>
           )}
         </>
       )}
@@ -251,10 +260,10 @@ export default function EauPage() {
           <thead>
             <tr>
               <th scope="col" style={{ textAlign: "left", padding: 8 }}>Année</th>
-              <th scope="col" style={{ textAlign: "right", padding: 8 }}>Ressources (m³/hab.)</th>
+              <th scope="col" style={{ textAlign: "right", padding: 8 }}>Eau disponible (m³/hab.)</th>
               <th scope="col" style={{ textAlign: "right", padding: 8 }}>Pluviométrie (mm)</th>
               <th scope="col" style={{ textAlign: "right", padding: 8 }}>Prélèvements (Md m³)</th>
-              <th scope="col" style={{ textAlign: "right", padding: 8 }}>Stress hydrique (%)</th>
+              <th scope="col" style={{ textAlign: "right", padding: 8 }}>% de l'eau utilisée</th>
             </tr>
           </thead>
           <tbody>

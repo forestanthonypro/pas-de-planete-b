@@ -295,7 +295,7 @@ export default function PaysDashboard() {
     }
     if (latestWater?.withdrawal_share_percent && worldBenchmarks.water_stress_share) {
       rows.push({
-        label: "Stress hydrique",
+        label: "Eau utilisée (% du disponible)",
         index: (latestWater.withdrawal_share_percent / worldBenchmarks.water_stress_share.value) * 100,
       });
     }
@@ -425,7 +425,7 @@ export default function PaysDashboard() {
           labels: summary.water.map((d) => d.year),
           datasets: [
             {
-              label: "Ressources renouvelables (m³/hab.)",
+              label: "Eau douce disponible par habitant (m³/an)",
               data: summary.water.map((d) => d.renewable_freshwater_m3_per_capita),
               borderColor: "#2a78d6",
               backgroundColor: "rgba(42,120,214,0.1)",
@@ -454,7 +454,7 @@ export default function PaysDashboard() {
           maintainAspectRatio: false,
           plugins: { legend: { display: true } },
           scales: {
-            y: { type: "linear", position: "left", title: { display: true, text: "m³/habitant" } },
+            y: { type: "linear", position: "left", title: { display: true, text: "m³ par habitant et par an" } },
             y1: { type: "linear", position: "right", title: { display: true, text: "mm/an" }, grid: { drawOnChartArea: false } },
           },
         },
@@ -476,7 +476,7 @@ export default function PaysDashboard() {
 
       const datasets = [
         {
-          label: "Stress hydrique du pays (%)",
+          label: "Part de l'eau disponible réellement utilisée (%)",
           data: summary.water.map((d) => d.withdrawal_share_percent),
           borderColor: "#8e44ad",
           backgroundColor: "rgba(142,68,173,0.1)",
@@ -505,7 +505,7 @@ export default function PaysDashboard() {
           responsive: true,
           maintainAspectRatio: false,
           plugins: { legend: { display: true } },
-          scales: { y: { title: { display: true, text: "% des ressources renouvelables prélevé" } } },
+          scales: { y: { title: { display: true, text: "% de l'eau disponible utilisée" } } },
         },
       });
     });
@@ -878,9 +878,17 @@ export default function PaysDashboard() {
           </div>
         )}
         {summary?.water?.some((d) => d.withdrawal_share_percent) && (
-          <div style={{ position: "relative", height: 220, marginTop: "1rem" }}>
-            <canvas ref={stressCanvasRef} role="img" aria-label={`Stress hydrique pour ${countryName}, comparé à la moyenne mondiale`} />
-          </div>
+          <>
+            <p style={{ fontSize: 13, color: "#666", marginTop: "1rem", marginBottom: "0.25rem" }}>
+              <strong>En clair :</strong> sur 100 litres d&apos;eau qui se renouvellent
+              naturellement chaque année, combien sont réellement utilisés (agriculture, usines,
+              foyers) ? Bien au-dessus de 100 %, le pays puise plus vite que l&apos;eau ne se
+              renouvelle.
+            </p>
+            <div style={{ position: "relative", height: 220 }}>
+              <canvas ref={stressCanvasRef} role="img" aria-label={`Part de l'eau disponible utilisée pour ${countryName}, comparé à la moyenne mondiale`} />
+            </div>
+          </>
         )}
         <p style={{ fontSize: 12, color: "#666" }}>
           AQUASTAT/FAO via Banque mondiale (ressources renouvelables, estimation long terme) et
