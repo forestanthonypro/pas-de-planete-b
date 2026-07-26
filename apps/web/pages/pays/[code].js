@@ -338,7 +338,7 @@ export default function PaysDashboard() {
       }
       if (latestWaterStress?.withdrawal_share_percent && worldBenchmarks.water_stress_share) {
         rows.push({
-          label: "Eau utilisée (% du disponible)",
+          label: "Stress hydrique",
           value: (latestWaterStress.withdrawal_share_percent / worldBenchmarks.water_stress_share.value) * 100,
           type: "index",
         });
@@ -355,7 +355,7 @@ export default function PaysDashboard() {
       if (latestVegArea?.forest_area_ha && latestVegLoss?.tree_cover_loss_ha && worldBenchmarks.forest_loss_share_world) {
         const countryShare = (latestVegLoss.tree_cover_loss_ha / latestVegArea.forest_area_ha) * 100;
         rows.push({
-          label: "% forêt perdue/an",
+          label: "Déforestation",
           value: (countryShare / worldBenchmarks.forest_loss_share_world.value) * 100,
           type: "index",
         });
@@ -390,6 +390,7 @@ export default function PaysDashboard() {
 
     const labels = mainRows.map((r) => r.label);
     const compareByLabel = Object.fromEntries(compareRows.map((r) => [r.label, r.value]));
+    const typeByLabel = Object.fromEntries(mainRows.map((r) => [r.label, r.type]));
     const hasIndexMetric = mainRows.some((r) => r.type === "index");
 
     // Ligne verticale à 100 = moyenne mondiale — la couleur des barres identifie
@@ -454,9 +455,24 @@ export default function PaysDashboard() {
           maintainAspectRatio: false,
           plugins: {
             legend: { display: true },
+            tooltip: {
+              callbacks: {
+                label(context) {
+                  const rowLabel = context.label;
+                  const datasetLabel = context.dataset.label;
+                  const value = context.parsed.x;
+                  if (value === null || value === undefined) return `${datasetLabel} : pas de donnée`;
+                  const rounded = Math.round(value * 10) / 10;
+                  if (typeByLabel[rowLabel] === "share") {
+                    return `${datasetLabel} : ${rounded} % du total mondial`;
+                  }
+                  return `${datasetLabel} : indice ${rounded} (100 = moyenne mondiale, donc ${rounded} % de la moyenne)`;
+                },
+              },
+            },
           },
           scales: {
-            x: { title: { display: true, text: "Voir légende ci-dessous — échelles différentes selon la métrique" } },
+            x: { title: { display: true, text: "Indice (100 = moyenne mondiale) — sauf espèces menacées, en % réel du total mondial" } },
           },
         },
       });
