@@ -15,6 +15,8 @@ const PRECIPITATION_URL =
   "https://ourworldindata.org/grapher/average-precipitation-per-year.csv?v=1&csvType=full&useColumnShortNames=false";
 const WITHDRAWAL_URL =
   "https://ourworldindata.org/grapher/annual-freshwater-withdrawals.csv?v=1&csvType=full&useColumnShortNames=false";
+const WATER_STRESS_URL =
+  "https://ourworldindata.org/grapher/freshwater-withdrawals-as-a-share-of-internal-resources.csv?v=1&csvType=full&useColumnShortNames=false";
 const SOURCE_LABEL = "AQUASTAT/FAO via Banque mondiale, et Copernicus ERA5, via Our World in Data";
 const ISO3_RE = /^[A-Z]{3}$/;
 
@@ -26,10 +28,11 @@ async function fetchCsvRows(url) {
 }
 
 export async function ingestWater(pool) {
-  const [freshRows, precipRows, withdrawalRows] = await Promise.all([
+  const [freshRows, precipRows, withdrawalRows, stressRows] = await Promise.all([
     fetchCsvRows(FRESHWATER_URL),
     fetchCsvRows(PRECIPITATION_URL),
     fetchCsvRows(WITHDRAWAL_URL),
+    fetchCsvRows(WATER_STRESS_URL),
   ]);
 
   let inserted = 0;
@@ -97,6 +100,28 @@ export async function ingestWater(pool) {
          ON CONFLICT (country_code, year)
          DO UPDATE SET
            withdrawal_m3 = EXCLUDED.withdrawal_m3,
+           country_name = EXCLUDED.country_name,
+           updated_at = now()`,
+        [isoCode, row.Entity, year, value, SOURCE_LABEL]
+      );
+      inserted += 1;
+    }
+
+    const stressCol = "Level of water stress: freshwater withdrawal as a proportion of available freshwater resources (%) - No breakdown";
+    for (const row of stressRows) {
+      const isoCode = (row.Code || "").trim().toUpperCase();
+      const year = parseInt(row.Year, 10);
+      const value = row[stressCol] === "" || row[stressCol] === undefined ? null : parseFloat(row[stressCol]);
+      if (!ISO3_RE.test(isoCode) || Number.isNaN(year) || value === null) {
+        skipped += 1;
+        continue;
+      }
+      await client.query(
+        `INSERT INTO water_data (country_code, country_name, year, withdrawal_share_percent, source)
+         VALUES ($1, $2, $3, $4, $5)
+         ON CONFLICT (country_code, year)
+         DO UPDATE SET
+           withdrawal_share_percent = EXCLUDED.withdrawal_share_percent,
            country_name = EXCLUDED.country_name,
            updated_at = now()`,
         [isoCode, row.Entity, year, value, SOURCE_LABEL]

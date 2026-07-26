@@ -3,11 +3,13 @@ import { detectDefaultCountry } from "../lib/detectCountry";
 import { detectPreferredLanguage } from "../lib/detectLanguage";
 import { useLastUpdated, formatDate } from "../lib/useLastUpdated";
 import { localizedCountryName } from "../lib/countryNames";
+import { useWorldBenchmarks } from "../lib/useWorldBenchmarks";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 export default function VegetationPage() {
   const lastUpdated = useLastUpdated();
+  const worldBenchmarks = useWorldBenchmarks();
   const [preferredLang, setPreferredLang] = useState(null);
   const [countries, setCountries] = useState([]);
   const [countryCode, setCountryCode] = useState("FRA");
@@ -81,6 +83,21 @@ export default function VegetationPage() {
               pointRadius: 2,
               borderWidth: 2,
             },
+            ...(worldBenchmarks?.forest_loss_share_world
+              ? [
+                  {
+                    type: "line",
+                    label: "Moyenne mondiale (%)",
+                    data: data.map(() => worldBenchmarks.forest_loss_share_world.value),
+                    borderColor: "#95a5a6",
+                    borderDash: [4, 4],
+                    yAxisID: "y1",
+                    pointRadius: 0,
+                    borderWidth: 1.5,
+                    fill: false,
+                  },
+                ]
+              : []),
           ],
         },
         options: {
@@ -102,7 +119,7 @@ export default function VegetationPage() {
     return () => {
       cancelled = true;
     };
-  }, [data, view, loading, error]);
+  }, [data, view, loading, error, worldBenchmarks]);
 
   const selectedCountryName =
     localizedCountryName(countryCode, preferredLang);

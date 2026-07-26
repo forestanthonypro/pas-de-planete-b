@@ -3,11 +3,13 @@ import { detectDefaultCountry } from "../lib/detectCountry";
 import { detectPreferredLanguage } from "../lib/detectLanguage";
 import { useLastUpdated, formatDate } from "../lib/useLastUpdated";
 import { localizedCountryName } from "../lib/countryNames";
+import { useWorldBenchmarks } from "../lib/useWorldBenchmarks";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 export default function EauPage() {
   const lastUpdated = useLastUpdated();
+  const worldBenchmarks = useWorldBenchmarks();
   const [preferredLang, setPreferredLang] = useState(null);
   const [countries, setCountries] = useState([]);
   const [countryCode, setCountryCode] = useState("FRA");
@@ -20,6 +22,8 @@ export default function EauPage() {
   const chartRef = useRef(null);
   const withdrawalCanvasRef = useRef(null);
   const withdrawalChartRef = useRef(null);
+  const stressCanvasRef = useRef(null);
+  const stressChartRef = useRef(null);
 
   useEffect(() => {
     setCountryCode(detectDefaultCountry());
@@ -143,6 +147,59 @@ export default function EauPage() {
     };
   }, [data, view, loading, error]);
 
+  // Troisième graphique : % des ressources renouvelables réellement prélevé
+  // (stress hydrique), comparé à la moyenne mondiale — c'est la vraie
+  // comparaison possible ici, contrairement aux prélèvements bruts qui
+  // demanderaient une donnée de population qu'on n'a pas.
+  useEffect(() => {
+    if (view !== "chart" || loading || error || data.length === 0) return;
+    const hasStress = data.some((d) => d.withdrawal_share_percent !== null && d.withdrawal_share_percent !== undefined);
+    if (!hasStress) return;
+    let cancelled = false;
+    import("chart.js/auto").then(({ default: Chart }) => {
+      if (cancelled || !stressCanvasRef.current) return;
+      if (stressChartRef.current) stressChartRef.current.destroy();
+
+      const datasets = [
+        {
+          label: "Stress hydrique du pays (%)",
+          data: data.map((d) => d.withdrawal_share_percent),
+          borderColor: "#8e44ad",
+          backgroundColor: "rgba(142,68,173,0.1)",
+          fill: true,
+          tension: 0.3,
+          pointRadius: 0,
+          borderWidth: 2,
+        },
+      ];
+      if (worldBenchmarks?.water_stress_share) {
+        datasets.push({
+          label: "Moyenne mondiale",
+          data: data.map(() => worldBenchmarks.water_stress_share.value),
+          borderColor: "#95a5a6",
+          borderDash: [4, 4],
+          pointRadius: 0,
+          borderWidth: 1.5,
+          fill: false,
+        });
+      }
+
+      stressChartRef.current = new Chart(stressCanvasRef.current, {
+        type: "line",
+        data: { labels: data.map((d) => d.year), datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: true } },
+          scales: { y: { title: { display: true, text: "% des ressources renouvelables prélevé" } } },
+        },
+      });
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [data, view, loading, error, worldBenchmarks]);
+
   const selectedCountryName =
     localizedCountryName(countryCode, preferredLang);
 
@@ -178,6 +235,11 @@ export default function EauPage() {
               <canvas ref={withdrawalCanvasRef} role="img" aria-label={`Prélèvements d'eau réels pour ${selectedCountryName}`} />
             </div>
           )}
+          {data.some((d) => d.withdrawal_share_percent) && (
+            <div style={{ position: "relative", height: 220, marginTop: "1rem" }}>
+              <canvas ref={stressCanvasRef} role="img" aria-label={`Stress hydrique pour ${selectedCountryName}, comparé à la moyenne mondiale`} />
+            </div>
+          )}
         </>
       )}
 
@@ -192,6 +254,7 @@ export default function EauPage() {
               <th scope="col" style={{ textAlign: "right", padding: 8 }}>Ressources (m³/hab.)</th>
               <th scope="col" style={{ textAlign: "right", padding: 8 }}>Pluviométrie (mm)</th>
               <th scope="col" style={{ textAlign: "right", padding: 8 }}>Prélèvements (Md m³)</th>
+              <th scope="col" style={{ textAlign: "right", padding: 8 }}>Stress hydrique (%)</th>
             </tr>
           </thead>
           <tbody>
@@ -206,6 +269,9 @@ export default function EauPage() {
                 </td>
                 <td style={{ textAlign: "right", padding: 8 }}>
                   {d.withdrawal_m3 ? (d.withdrawal_m3 / 1e9).toFixed(2) : "—"}
+                </td>
+                <td style={{ textAlign: "right", padding: 8 }}>
+                  {d.withdrawal_share_percent ?? "—"}
                 </td>
               </tr>
             ))}

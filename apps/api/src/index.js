@@ -242,7 +242,7 @@ app.get("/api/country-summary/:country", async (req, res) => {
         [country]
       ),
       pool.query(
-        `SELECT year, renewable_freshwater_m3_per_capita, precipitation_mm, withdrawal_m3
+        `SELECT year, renewable_freshwater_m3_per_capita, precipitation_mm, withdrawal_m3, withdrawal_share_percent
          FROM water_data WHERE country_code = $1 ORDER BY year`,
         [country]
       ),
@@ -403,7 +403,7 @@ app.get("/api/water/:country", async (req, res) => {
   const { country } = req.params;
   try {
     const result = await pool.query(
-      `SELECT year, renewable_freshwater_m3_per_capita, precipitation_mm, withdrawal_m3
+      `SELECT year, renewable_freshwater_m3_per_capita, precipitation_mm, withdrawal_m3, withdrawal_share_percent
        FROM water_data
        WHERE country_code = $1
        ORDER BY year`,

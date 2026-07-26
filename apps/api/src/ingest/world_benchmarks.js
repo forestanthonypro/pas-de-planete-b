@@ -17,6 +17,8 @@ const MAMMAL_URL = "https://ourworldindata.org/grapher/threatened-mammal-species
 const BIRD_URL = "https://ourworldindata.org/grapher/threatened-bird-species.csv?v=1&csvType=full&useColumnShortNames=false";
 const FISH_URL = "https://ourworldindata.org/grapher/fish-species-threatened.csv?v=1&csvType=full&useColumnShortNames=false";
 const PM25_URL = "https://ourworldindata.org/grapher/outdoor-air-pollution-exposure.csv?v=1&csvType=full&useColumnShortNames=false";
+const TREE_LOSS_URL = "https://ourworldindata.org/grapher/tree-cover-loss.csv?v=1&csvType=full&useColumnShortNames=false";
+const FOREST_AREA_URL = "https://ourworldindata.org/grapher/forest-area-km.csv?v=1&csvType=full&useColumnShortNames=false";
 
 async function fetchCsvRows(url) {
   const res = await fetch(url);
@@ -53,7 +55,7 @@ async function upsertBenchmark(client, key, value, unit, year, source) {
 export async function ingestWorldBenchmarks(pool) {
   let set = 0;
 
-  const [co2Rows, waterRows, energyRows, mammalRows, birdRows, fishRows, pm25Rows] = await Promise.all([
+  const [co2Rows, waterRows, energyRows, mammalRows, birdRows, fishRows, pm25Rows, treeLossRows, forestAreaRows] = await Promise.all([
     fetchCsvRows(CO2_URL),
     fetchCsvRows(WATER_STRESS_URL),
     fetchCsvRows(ENERGY_URL),
@@ -61,6 +63,8 @@ export async function ingestWorldBenchmarks(pool) {
     fetchCsvRows(BIRD_URL),
     fetchCsvRows(FISH_URL),
     fetchCsvRows(PM25_URL),
+    fetchCsvRows(TREE_LOSS_URL),
+    fetchCsvRows(FOREST_AREA_URL),
   ]);
 
   const client = await pool.connect();
@@ -110,6 +114,14 @@ export async function ingestWorldBenchmarks(pool) {
       if (await upsertBenchmark(client, "pm25_world_average", parseFloat(pm25World[pm25Col]), "µg/m³", parseInt(pm25World.Year, 10), "SatPM via Our World in Data")) set += 1;
     }
     if (await upsertBenchmark(client, "pm25_who_guideline", 5, "µg/m³", null, "Organisation mondiale de la santé (recommandation)")) set += 1;
+
+    // Déforestation mondiale : % du couvert forestier mondial perdu la dernière année
+    const treeLossWorld = latestWorldRow(treeLossRows);
+    const forestAreaWorld = latestWorldRow(forestAreaRows);
+    if (treeLossWorld && forestAreaWorld && forestAreaWorld["Forest area"]) {
+      const forestLossShare = (parseFloat(treeLossWorld.Total) / parseFloat(forestAreaWorld["Forest area"])) * 100;
+      if (await upsertBenchmark(client, "forest_loss_share_world", forestLossShare, "%", parseInt(treeLossWorld.Year, 10), "Global Forest Watch et FAO, via Our World in Data")) set += 1;
+    }
 
     await client.query("COMMIT");
   } catch (err) {

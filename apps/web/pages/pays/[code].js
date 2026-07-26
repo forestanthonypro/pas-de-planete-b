@@ -231,12 +231,24 @@ export default function PaysDashboard() {
         type: "bar",
         data: {
           labels: summary.electricityGeneration.map((d) => d.year),
-          datasets: sources.map((s) => ({
-            label: s.label,
-            data: summary.electricityGeneration.map((d) => d[s.key] || 0),
-            backgroundColor: s.color || DEFAULT_FUEL_COLOR,
-            stack: "generation",
-          })),
+          datasets: [
+            ...sources.map((s) => ({
+              label: s.label,
+              data: summary.electricityGeneration.map((d) => d[s.key] || 0),
+              backgroundColor: s.color || DEFAULT_FUEL_COLOR,
+              stack: "generation",
+            })),
+            {
+              type: "line",
+              label: "Consommation réelle (demande)",
+              data: summary.electricityGeneration.map((d) => d.demand_twh),
+              borderColor: "#000000",
+              borderWidth: 2,
+              borderDash: [4, 3],
+              pointRadius: 0,
+              fill: false,
+            },
+          ],
         },
         options: {
           responsive: true,
@@ -263,6 +275,8 @@ export default function PaysDashboard() {
     const latestCo2 = summary.co2?.[summary.co2.length - 1];
     const latestElec = summary.electricityGeneration?.[summary.electricityGeneration.length - 1];
     const latestPollution = summary.pollution?.[summary.pollution.length - 1];
+    const latestWater = summary.water?.[summary.water.length - 1];
+    const latestVegetation = summary.vegetation?.[summary.vegetation.length - 1];
 
     const rows = [];
     if (latestCo2?.emissions_per_capita && worldBenchmarks.co2_per_capita) {
@@ -275,6 +289,19 @@ export default function PaysDashboard() {
       rows.push({
         label: "Électricité consommée/hab",
         index: (latestElec.demand_per_capita_kwh / worldBenchmarks.electricity_demand_per_capita.value) * 100,
+      });
+    }
+    if (latestWater?.withdrawal_share_percent && worldBenchmarks.water_stress_share) {
+      rows.push({
+        label: "Stress hydrique",
+        index: (latestWater.withdrawal_share_percent / worldBenchmarks.water_stress_share.value) * 100,
+      });
+    }
+    if (latestVegetation?.forest_area_ha && latestVegetation?.tree_cover_loss_ha && worldBenchmarks.forest_loss_share_world) {
+      const countryShare = (latestVegetation.tree_cover_loss_ha / latestVegetation.forest_area_ha) * 100;
+      rows.push({
+        label: "% forêt perdue/an",
+        index: (countryShare / worldBenchmarks.forest_loss_share_world.value) * 100,
       });
     }
     if (latestPollution?.pm25_ug_m3 && worldBenchmarks.pm25_world_average) {

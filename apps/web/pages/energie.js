@@ -100,12 +100,24 @@ export default function EnergiePage() {
         type: "bar",
         data: {
           labels: generation.map((d) => d.year),
-          datasets: sources.map((s) => ({
-            label: s.label,
-            data: generation.map((d) => d[s.key] || 0),
-            backgroundColor: s.color || DEFAULT_FUEL_COLOR,
-            stack: "generation",
-          })),
+          datasets: [
+            ...sources.map((s) => ({
+              label: s.label,
+              data: generation.map((d) => d[s.key] || 0),
+              backgroundColor: s.color || DEFAULT_FUEL_COLOR,
+              stack: "generation",
+            })),
+            {
+              type: "line",
+              label: "Consommation réelle (demande)",
+              data: generation.map((d) => d.demand_twh),
+              borderColor: "#000000",
+              borderWidth: 2,
+              borderDash: [4, 3],
+              pointRadius: 0,
+              fill: false,
+            },
+          ],
         },
         options: {
           responsive: true,
