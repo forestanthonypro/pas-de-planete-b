@@ -915,12 +915,13 @@ export default function PaysDashboard() {
               gens du pays achètent — y compris les produits importés.
             </p>
             <p style={{ fontSize: 13, color: "#666" }}>
-              Exemple : un téléphone fabriqué en Chine puis acheté en France. Sa fabrication a émis
-              du CO2 en Chine (compté dans la courbe bleue de la Chine, pas de la France), mais
-              comme c&apos;est un Français qui l&apos;utilise, ce CO2 &laquo; appartient &raquo; en
-              réalité à la consommation française — c&apos;est ce que la courbe orange capte. Si
-              l&apos;orange dépasse le bleu, le pays achète (et fait donc émettre ailleurs) plus de
-              CO2 qu&apos;il n&apos;en émet lui-même.
+              Exemple : un objet fabriqué dans une usine à l&apos;étranger, puis acheté et utilisé
+              ici. Sa fabrication a émis du CO2 là où l&apos;usine se trouve (compté dans la
+              courbe bleue de ce pays-là, pas d&apos;ici), mais comme c&apos;est nous qui
+              utilisons l&apos;objet, ce CO2 &laquo; appartient &raquo; en réalité à notre
+              consommation — c&apos;est ce que la courbe orange capte. Si l&apos;orange dépasse
+              le bleu, le pays achète (et fait donc émettre ailleurs) plus de CO2 qu&apos;il
+              n&apos;en émet lui-même.
             </p>
             <p style={{ fontSize: 13, color: "#666", fontWeight: 600 }}>
               Important : ni la bleue ni l&apos;orange n&apos;est &laquo; la vraie &raquo;, et on
@@ -1215,6 +1216,16 @@ export default function PaysDashboard() {
               pourcentage. Exemple : à 25 %, le pays utilise un quart de l&apos;eau qui se
               renouvelle chaque année. À 120 %, il en utilise plus qu&apos;il ne s&apos;en
               renouvelle — souvent en puisant dans des réserves qui ne se rechargent pas.
+            </p>
+            <p style={{ fontSize: 13, color: "#666", marginBottom: "0.75rem" }}>
+              Seuils de référence (FAO/ONU) : &lt;25 % pas de stress, 25-50 % stress faible, 50-75 %
+              stress moyen, 75-100 % stress élevé, &gt;100 % stress critique.
+            </p>
+            <p style={{ fontSize: 13, color: "#666", marginBottom: "0.75rem" }}>
+              L&apos;eau non prélevée n&apos;est pas perdue : elle continue son cycle naturel
+              (rivières, nappes, évaporation, mer) — le &laquo; prélèvement &raquo; ne compte que
+              ce qui est activement extrait pour l&apos;agriculture, l&apos;industrie et les
+              foyers.
             </p>
             <div style={{ position: "relative", height: 220 }}>
               <canvas ref={stressCanvasRef} role="img" aria-label={`Part de l'eau disponible utilisée pour ${countryName}, comparé à la moyenne mondiale`} />

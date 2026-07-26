@@ -150,13 +150,14 @@ export default function Co2Page() {
         fabriqués ailleurs et importés ensuite.
       </p>
       <p style={{ fontSize: 13, color: "#666", marginBottom: "0.75rem" }}>
-        Exemple concret : un téléphone fabriqué en Chine puis acheté en France. Sa fabrication a
-        émis du CO2 en Chine — ce CO2 compte dans la courbe bleue de la Chine, pas dans celle de la
-        France, puisqu&apos;il n&apos;a pas été émis sur le sol français. Mais comme c&apos;est un
-        Français qui l&apos;utilise, ce CO2 &laquo; appartient &raquo; en réalité à la consommation
-        française — c&apos;est ce que la courbe orange essaie de capter. Si l&apos;orange est
-        au-dessus du bleu pour un pays, ça veut dire que ce pays achète (et fait donc émettre à
-        l&apos;étranger) plus de CO2 qu&apos;il n&apos;en émet lui-même sur son propre sol.
+        Exemple concret : un objet fabriqué dans une usine à l&apos;étranger, puis acheté et
+        utilisé ici. Sa fabrication a émis du CO2 là où l&apos;usine se trouve — ce CO2 compte
+        dans la courbe bleue de ce pays-là, pas dans celle d&apos;ici, puisqu&apos;il n&apos;a pas
+        été émis sur notre sol. Mais comme c&apos;est nous qui utilisons l&apos;objet, ce CO2
+        &laquo; appartient &raquo; en réalité à notre consommation — c&apos;est ce que la courbe
+        orange essaie de capter. Si l&apos;orange est au-dessus du bleu pour un pays, ça veut dire
+        que ce pays achète (et fait donc émettre ailleurs) plus de CO2 qu&apos;il n&apos;en émet
+        lui-même sur son propre sol.
       </p>
       <p style={{ fontSize: 13, color: "#666", fontWeight: 600, marginBottom: "0.75rem" }}>
         Important : ni la bleue ni l&apos;orange n&apos;est &laquo; la vraie &raquo; — les deux
@@ -204,15 +205,16 @@ export default function Co2Page() {
           La courbe pleine (bleue) montre les émissions <strong>territoriales</strong> (dites
           &laquo; de production &raquo;) : ce qui est physiquement émis sur le sol du pays (usines,
           transports, chauffage, agriculture...). Elle <strong>n&apos;inclut pas</strong> les
-          émissions liées à la fabrication des produits importés — un objet fabriqué en Chine et
-          consommé en France compte dans les émissions de la Chine, pas dans celles de la France.
-          C&apos;est la méthode utilisée par les États pour leurs engagements internationaux.
+          émissions liées à la fabrication des produits importés — un objet fabriqué à
+          l&apos;étranger et consommé ici compte dans les émissions du pays fabricant, pas dans
+          celles d&apos;ici. C&apos;est la méthode utilisée par les États pour leurs engagements
+          internationaux.
         </p>
         <p>
           La courbe en pointillés (orange), quand elle est disponible, montre les émissions
           &laquo; <strong>basées sur la consommation</strong> &raquo; : émissions territoriales,
-          moins ce qui est exporté, plus ce qui est importé — elle reflète donc les importations
-          comme celles en provenance de Chine. Elle n&apos;existe que pour certains pays (les plus
+          moins ce qui est exporté, plus ce qui est importé — elle reflète donc les importations.
+          Elle n&apos;existe que pour certains pays (les plus
           grandes économies, avec des données commerciales suffisamment détaillées), et retarde
           toujours d&apos;un an sur les émissions territoriales.
         </p>

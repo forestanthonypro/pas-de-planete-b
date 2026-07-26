@@ -247,6 +247,21 @@ export default function EauPage() {
                 réserves qui ne se rechargent pas (nappes profondes) ou dessale de l&apos;eau de
                 mer pour compenser.
               </p>
+              <p style={{ fontSize: 13, color: "#666", marginBottom: "0.75rem" }}>
+                Seuils de référence (FAO/ONU) : en dessous de <strong>25 %</strong>, pas de stress
+                hydrique du tout. Entre <strong>25 et 50 %</strong>, stress faible. Entre{" "}
+                <strong>50 et 75 %</strong>, stress moyen. Entre <strong>75 et 100 %</strong>,
+                stress élevé. Au-dessus de <strong>100 %</strong>, stress critique — le pays puise
+                plus vite que l&apos;eau ne se renouvelle.
+              </p>
+              <p style={{ fontSize: 13, color: "#666", marginBottom: "0.75rem" }}>
+                Et l&apos;eau qui n&apos;est pas prélevée, elle devient quoi ? Elle n&apos;est pas
+                perdue — elle continue simplement son cycle naturel : elle coule dans les rivières
+                (nécessaire pour les écosystèmes aquatiques, diluer la pollution, la navigation),
+                recharge les nappes phréatiques, s&apos;évapore, ou rejoint la mer. Le
+                &laquo; prélèvement &raquo; ne compte que l&apos;eau activement extraite pour
+                l&apos;agriculture, l&apos;industrie et les foyers.
+              </p>
               <div style={{ position: "relative", height: 220 }}>
                 <canvas ref={stressCanvasRef} role="img" aria-label={`Part de l'eau disponible utilisée pour ${selectedCountryName}, comparé à la moyenne mondiale`} />
               </div>
