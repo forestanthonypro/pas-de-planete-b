@@ -81,7 +81,7 @@ export default function PaysDashboard() {
     const firstLossRow = veg.find((d) => d.tree_cover_loss_ha != null);
     const lastLossRow = [...veg].reverse().find((d) => d.tree_cover_loss_ha != null);
     if (!firstLossRow || !lastLossRow) return null;
-    const totalLoss = veg.reduce((sum, d) => sum + (d.tree_cover_loss_ha || 0), 0);
+    const totalLoss = veg.reduce((sum, d) => sum + (parseFloat(d.tree_cover_loss_ha) || 0), 0);
     return {
       startYear: firstLossRow.year,
       endYear: lastLossRow.year,
@@ -540,7 +540,7 @@ export default function PaysDashboard() {
       const baselineArea = filledVegetation.find((d) => d.forest_area_ha)?.forest_area_ha;
       let cumulativeLoss = 0;
       const cumulativeShareData = filledVegetation.map((d) => {
-        cumulativeLoss += d.tree_cover_loss_ha || 0;
+        cumulativeLoss += parseFloat(d.tree_cover_loss_ha) || 0;
         return baselineArea ? (cumulativeLoss / baselineArea) * 100 : null;
       });
 
@@ -1075,13 +1075,18 @@ export default function PaysDashboard() {
         <h2>Perte de couverture arborée</h2>
         {summary?.vegetation?.length > 0 ? (
           <>
-            <p>
-              Dernière donnée disponible ({summary.vegetation[summary.vegetation.length - 1].year}) :{" "}
-              <strong>
-                {Math.round(summary.vegetation[summary.vegetation.length - 1].tree_cover_loss_ha).toLocaleString("fr-FR")} ha
-              </strong>{" "}
-              perdus.
-            </p>
+            {(() => {
+              const latestLoss = [...summary.vegetation].reverse().find((d) => d.tree_cover_loss_ha != null);
+              return latestLoss ? (
+                <p>
+                  Dernière donnée disponible ({latestLoss.year}) :{" "}
+                  <strong>{Math.round(parseFloat(latestLoss.tree_cover_loss_ha)).toLocaleString("fr-FR")} ha</strong>{" "}
+                  perdus.
+                </p>
+              ) : (
+                <p>Aucune donnée de perte pour ce pays.</p>
+              );
+            })()}
             <p style={{ fontSize: 13, color: "#666" }}>
               Imagine la forêt du pays comme une grande réserve. Chaque année, une partie
               disparaît (coupée, brûlée, défrichée) — c&apos;est la barre orange, en hectares

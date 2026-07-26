@@ -73,7 +73,7 @@ export default function VegetationPage() {
     const firstLossRow = data.find((d) => d.tree_cover_loss_ha != null);
     const lastLossRow = [...data].reverse().find((d) => d.tree_cover_loss_ha != null);
     if (!firstLossRow || !lastLossRow) return null;
-    const totalLoss = data.reduce((sum, d) => sum + (d.tree_cover_loss_ha || 0), 0);
+    const totalLoss = data.reduce((sum, d) => sum + (parseFloat(d.tree_cover_loss_ha) || 0), 0);
     return {
       startYear: firstLossRow.year,
       endYear: lastLossRow.year,
@@ -118,7 +118,7 @@ export default function VegetationPage() {
       const baselineArea = filledData.find((d) => d.forest_area_ha)?.forest_area_ha;
       let cumulativeLoss = 0;
       const cumulativeShareData = filledData.map((d) => {
-        cumulativeLoss += d.tree_cover_loss_ha || 0;
+        cumulativeLoss += parseFloat(d.tree_cover_loss_ha) || 0;
         return baselineArea ? (cumulativeLoss / baselineArea) * 100 : null;
       });
 
