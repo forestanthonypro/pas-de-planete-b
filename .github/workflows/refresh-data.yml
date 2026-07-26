@@ -30,3 +30,11 @@ jobs:
         run: |
           curl -f -X POST "${{ secrets.API_URL }}/api/admin/ingest/species" \
             -H "x-ingest-token: ${{ secrets.INGEST_TOKEN }}"
+
+  refresh-vegetation:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ré-ingérer la perte de couverture arborée
+        run: |
+          curl -f -X POST "${{ secrets.API_URL }}/api/admin/ingest/vegetation" \
+            -H "x-ingest-token: ${{ secrets.INGEST_TOKEN }}"

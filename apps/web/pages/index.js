@@ -20,6 +20,7 @@ export default function Home() {
         <li><Link href="/energie">Centrales électriques →</Link></li>
         <li><Link href="/especes">Espèces menacées →</Link></li>
         <li><Link href="/incendies">Feux actifs →</Link></li>
+        <li><Link href="/vegetation">Perte de couverture arborée →</Link></li>
       </ul>
     </main>
   );

@@ -62,6 +62,8 @@ export default function PaysDashboard() {
   const fireMapContainerRef = useRef(null);
   const fireMapRef = useRef(null);
   const fireMarkersLayerRef = useRef(null);
+  const vegetationCanvasRef = useRef(null);
+  const vegetationChartRef = useRef(null);
 
   useEffect(() => {
     setPreferredLang(detectPreferredLanguage());
@@ -189,6 +191,36 @@ export default function PaysDashboard() {
           scales: {
             x: { title: { display: true, text: "Capacité (MW)" } },
           },
+        },
+      });
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [summary]);
+
+  useEffect(() => {
+    if (!summary || !summary.vegetation || summary.vegetation.length === 0) return;
+    let cancelled = false;
+    import("chart.js/auto").then((Chart) => {
+      if (cancelled || !vegetationCanvasRef.current) return;
+      if (vegetationChartRef.current) vegetationChartRef.current.destroy();
+      vegetationChartRef.current = new Chart.default(vegetationCanvasRef.current, {
+        type: "bar",
+        data: {
+          labels: summary.vegetation.map((d) => d.year),
+          datasets: [
+            {
+              label: "Perte de couverture arborée (ha)",
+              data: summary.vegetation.map((d) => d.tree_cover_loss_ha),
+              backgroundColor: "#e67e22",
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
         },
       });
     });
@@ -423,6 +455,34 @@ export default function PaysDashboard() {
           incontrôlé (brûlis agricoles inclus). Couverture limitée à une liste de pays courants.
           Rafraîchissement automatique toutes les 6 heures.{" "}
           <Link href="/incendies">Voir en plein écran →</Link>
+        </p>
+      </section>
+
+      <section style={{ marginTop: "2rem" }}>
+        <h2>Perte de couverture arborée</h2>
+        {summary?.vegetation?.length > 0 ? (
+          <>
+            <p>
+              Dernière donnée disponible ({summary.vegetation[summary.vegetation.length - 1].year}) :{" "}
+              <strong>
+                {Math.round(summary.vegetation[summary.vegetation.length - 1].tree_cover_loss_ha).toLocaleString("fr-FR")} ha
+              </strong>{" "}
+              perdus.
+            </p>
+            <div style={{ position: "relative", height: 220 }}>
+              <canvas ref={vegetationCanvasRef} role="img" aria-label={`Perte de couverture arborée pour ${countryName}`} />
+            </div>
+          </>
+        ) : (
+          <p>Aucune donnée de végétation pour ce pays.</p>
+        )}
+        <p style={{ fontSize: 12, color: "#666" }}>
+          Global Forest Watch (Hansen et al.), toutes causes confondues (coupe, incendie,
+          agriculture) — pas nécessairement permanente.
+          {lastUpdated?.vegetation?.latestYear && (
+            <> Dernière année couverte : {lastUpdated.vegetation.latestYear}.</>
+          )}
+          {" "}<Link href="/vegetation">Voir le détail →</Link>
         </p>
       </section>
     </main>
