@@ -5,17 +5,35 @@
 //
 // Limites assumées, documentées côté interface :
 // - un échantillon par pays et par catégorie (pas la liste complète des espèces évaluées)
-// - au plus MAX_SPECIES_RESOLVED espèces résolues en détail par exécution,
-//   pour garder un temps d'exécution raisonnable et rester respectueux de l'API GBIF.
+// - au plus MAX_SPECIES_RESOLVED espèces résolues en détail par exécution
+// - GBIF ne fournit pas toujours de nom vernaculaire français, même quand il existe
+//   ailleurs (Wikipédia, INPN...) : species_common_names_overrides.json comble ce manque
+//   manuellement et est prioritaire sur ce que GBIF renvoie. À enrichir au fil du temps.
 
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
 import countriesLib from "i18n-iso-countries";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const overrides = JSON.parse(
+  readFileSync(join(__dirname, "species_common_names_overrides.json"), "utf-8")
+);
 
 const GBIF_BASE = "https://api.gbif.org/v1";
 const CATEGORIES = ["EX", "EW", "CR", "EN", "VU"];
 const PER_COUNTRY_CATEGORY_LIMIT = 5;
 const MAX_SPECIES_RESOLVED = 1500;
-const TARGET_LANGUAGES = ["fr", "en", "es", "de"];
 const SOURCE_LABEL = "GBIF (occurrences classées via la collaboration GBIF-IUCN)";
+
+// GBIF ne renvoie pas toujours des codes de langue ISO 639-1 (fr, en...) — certaines
+// entrées utilisent le code ISO 639-2 à 3 lettres (fra, eng...). On accepte les deux.
+const LANGUAGE_CODES = {
+  fr: ["fr", "fra"],
+  en: ["en", "eng"],
+  es: ["es", "spa"],
+  de: ["de", "deu", "ger"],
+};
 
 async function fetchJson(url) {
   const res = await fetch(url);
@@ -31,9 +49,21 @@ function toAlpha2(iso3) {
   }
 }
 
+function resolveCommonNames(scientificName, gbifVernacularResults) {
+  const names = {};
+  for (const [lang, codes] of Object.entries(LANGUAGE_CODES)) {
+    const match = gbifVernacularResults?.find(
+      (v) => codes.includes((v.language || "").toLowerCase()) && v.vernacularName
+    );
+    if (match) names[lang] = match.vernacularName;
+  }
+  // Les correspondances manuelles priment sur ce que GBIF a pu fournir.
+  const manual = overrides[scientificName];
+  if (manual) Object.assign(names, manual);
+  return names;
+}
+
 export async function ingestSpecies(pool) {
-  // 1. Périmètre des pays : ceux déjà suivis via CO2 ou énergie (pas les ~195 pays du monde
-  //    d'un coup, pour garder le nombre de requêtes GBIF raisonnable).
   const countryRows = await pool.query(`
     SELECT DISTINCT country_code FROM co2_emissions
     UNION
@@ -41,7 +71,6 @@ export async function ingestSpecies(pool) {
   `);
   const countryCodes3 = countryRows.rows.map((r) => r.country_code);
 
-  // gbifKey -> { category, countries: Set<alpha3> }
   const speciesMap = new Map();
 
   for (const iso3 of countryCodes3) {
@@ -54,7 +83,7 @@ export async function ingestSpecies(pool) {
       try {
         data = await fetchJson(url);
       } catch {
-        continue; // un pays en erreur ponctuelle ne doit pas interrompre tout le run
+        continue;
       }
       const facet = data.facets?.[0];
       for (const entry of facet?.counts || []) {
@@ -67,7 +96,6 @@ export async function ingestSpecies(pool) {
     }
   }
 
-  // 2. Résolution des espèces (nom, règne, noms vernaculaires), bornée à MAX_SPECIES_RESOLVED.
   let inserted = 0;
   let skipped = 0;
   let countryLinks = 0;
@@ -90,16 +118,14 @@ export async function ingestSpecies(pool) {
         }
         const kingdom = species.kingdom || null;
 
-        const commonNames = {};
+        let vernacularResults = [];
         try {
           const vern = await fetchJson(`${GBIF_BASE}/species/${gbifKey}/vernacularNames?limit=50`);
-          for (const lang of TARGET_LANGUAGES) {
-            const match = vern.results?.find((v) => v.language === lang && v.vernacularName);
-            if (match) commonNames[lang] = match.vernacularName;
-          }
+          vernacularResults = vern.results || [];
         } catch {
-          // Pas de noms vernaculaires disponibles : on garde un objet vide.
+          // Pas de noms vernaculaires disponibles côté GBIF : on se rabat sur les overrides.
         }
+        const commonNames = resolveCommonNames(scientificName, vernacularResults);
 
         await client.query(
           `INSERT INTO species_status (gbif_key, scientific_name, kingdom, category, common_names, source)

@@ -1,0 +1,10 @@
+{
+  "_readme": "Noms communs ajoutés manuellement quand GBIF n'en fournit pas. Format : \"Nom scientifique exact\": { \"fr\": \"...\", \"en\": \"...\" }. Ces entrées sont prioritaires sur celles trouvées automatiquement via GBIF. Pour en ajouter, chercher une source fiable (Wikipédia, INPN, Tela Botanica...) et ajouter une ligne ici, puis relancer l'ingestion.",
+  "Alosa alosa": { "fr": "Grande alose" },
+  "Anguilla anguilla": { "fr": "Anguille européenne" },
+  "Bromus bromoideus": { "fr": "Brome des Ardennes" },
+  "Brugmansia suaveolens": { "fr": "Trompette des anges" },
+  "Lotus angustissimus": { "fr": "Lotier grêle" },
+  "Oxalis corniculata": { "fr": "Oxalide corniculée" },
+  "Puffinus mauretanicus": { "fr": "Puffin des Baléares" }
+}
