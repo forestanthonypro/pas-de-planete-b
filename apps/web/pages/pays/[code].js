@@ -2,20 +2,22 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { detectDefaultCountry } from "../../lib/detectCountry";
+import { FUEL_COLORS, DEFAULT_FUEL_COLOR, translateFuel } from "../../lib/fuelTypes";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
-const CATEGORY_LABELS = {
-  EX: "Éteinte",
-  EW: "Éteinte à l'état sauvage",
-  CR: "En danger critique",
-  EN: "En danger",
-  VU: "Vulnérable",
-  NT: "Quasi menacée",
-  LC: "Préoccupation mineure",
-  DD: "Données insuffisantes",
+const CATEGORY_INFO = {
+  EX: { label: "Éteinte", color: "#000000" },
+  EW: { label: "Éteinte à l'état sauvage", color: "#3d3d3d" },
+  CR: { label: "En danger critique", color: "#d63e2a" },
+  EN: { label: "En danger", color: "#e67e22" },
+  VU: { label: "Vulnérable", color: "#f4b400" },
+  NT: { label: "Quasi menacée", color: "#cbd423" },
+  LC: { label: "Préoccupation mineure", color: "#1baf7a" },
+  DD: { label: "Données insuffisantes", color: "#95a5a6" },
 };
 const KINGDOM_LABELS = { Animalia: "Animal", Plantae: "Végétal", Fungi: "Champignon" };
+const SPECIES_PREVIEW_LIMIT = 12;
 
 export default function PaysDashboard() {
   const router = useRouter();
@@ -23,13 +25,15 @@ export default function PaysDashboard() {
 
   const [countries, setCountries] = useState([]);
   const [summary, setSummary] = useState(null);
+  const [speciesPreview, setSpeciesPreview] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const canvasRef = useRef(null);
-  const chartRef = useRef(null);
+  const co2CanvasRef = useRef(null);
+  const co2ChartRef = useRef(null);
+  const energyCanvasRef = useRef(null);
+  const energyChartRef = useRef(null);
 
-  // Si aucun code n'est encore dans l'URL, redirige vers le pays détecté.
   useEffect(() => {
     if (router.isReady && !code) {
       router.replace(`/pays/${detectDefaultCountry()}`);
@@ -47,13 +51,17 @@ export default function PaysDashboard() {
     if (!code) return;
     setLoading(true);
     setError(null);
-    fetch(`${API_URL}/api/country-summary/${code}`)
-      .then((res) => {
+
+    Promise.all([
+      fetch(`${API_URL}/api/country-summary/${code}`).then((res) => {
         if (!res.ok) throw new Error("Données indisponibles pour ce pays");
         return res.json();
-      })
-      .then((data) => {
-        setSummary(data);
+      }),
+      fetch(`${API_URL}/api/species?country=${code}`).then((res) => (res.ok ? res.json() : [])),
+    ])
+      .then(([summaryData, speciesData]) => {
+        setSummary(summaryData);
+        setSpeciesPreview(Array.isArray(speciesData) ? speciesData : []);
         setLoading(false);
       })
       .catch((err) => {
@@ -62,13 +70,14 @@ export default function PaysDashboard() {
       });
   }, [code]);
 
+  // Graphique CO2.
   useEffect(() => {
     if (!summary || summary.co2.length === 0) return;
     let cancelled = false;
     import("chart.js/auto").then((Chart) => {
-      if (cancelled || !canvasRef.current) return;
-      if (chartRef.current) chartRef.current.destroy();
-      chartRef.current = new Chart.default(canvasRef.current, {
+      if (cancelled || !co2CanvasRef.current) return;
+      if (co2ChartRef.current) co2ChartRef.current.destroy();
+      co2ChartRef.current = new Chart.default(co2CanvasRef.current, {
         type: "line",
         data: {
           labels: summary.co2.map((d) => d.year),
@@ -88,6 +97,46 @@ export default function PaysDashboard() {
           responsive: true,
           maintainAspectRatio: false,
           plugins: { legend: { display: false } },
+        },
+      });
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [summary]);
+
+  // Histogramme du mix énergétique, traduit et coloré comme la carte énergie.
+  useEffect(() => {
+    if (!summary || summary.energyMix.length === 0) return;
+    let cancelled = false;
+    import("chart.js/auto").then((Chart) => {
+      if (cancelled || !energyCanvasRef.current) return;
+      if (energyChartRef.current) energyChartRef.current.destroy();
+
+      const sorted = [...summary.energyMix].sort(
+        (a, b) => Number(b.total_capacity_mw || 0) - Number(a.total_capacity_mw || 0)
+      );
+
+      energyChartRef.current = new Chart.default(energyCanvasRef.current, {
+        type: "bar",
+        data: {
+          labels: sorted.map((r) => translateFuel(r.fuel_type)),
+          datasets: [
+            {
+              label: "Capacité (MW)",
+              data: sorted.map((r) => r.total_capacity_mw || 0),
+              backgroundColor: sorted.map((r) => FUEL_COLORS[r.fuel_type] || DEFAULT_FUEL_COLOR),
+            },
+          ],
+        },
+        options: {
+          indexAxis: "y",
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { title: { display: true, text: "Capacité (MW)" } },
+          },
         },
       });
     });
@@ -141,7 +190,7 @@ export default function PaysDashboard() {
             )}
             {summary.co2.length > 0 && (
               <div style={{ position: "relative", height: 220 }}>
-                <canvas ref={canvasRef} role="img" aria-label={`Émissions de CO2 pour ${countryName}`} />
+                <canvas ref={co2CanvasRef} role="img" aria-label={`Émissions de CO2 pour ${countryName}`} />
               </div>
             )}
             <p><Link href="/co2">Voir le détail et comparer d&apos;autres pays →</Link></p>
@@ -155,7 +204,13 @@ export default function PaysDashboard() {
                   <strong>{summary.energyMix.length}</strong> types de production,{" "}
                   <strong>{Math.round(totalCapacity).toLocaleString("fr-FR")} MW</strong> de capacité totale connue.
                 </p>
-                <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <div style={{ position: "relative", height: Math.max(200, summary.energyMix.length * 32) }}>
+                  <canvas ref={energyCanvasRef} role="img" aria-label={`Mix énergétique de ${countryName}, capacité par type`} />
+                </div>
+                <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "1rem" }}>
+                  <caption style={{ textAlign: "left", fontSize: 12, color: "#666", marginBottom: 8 }}>
+                    Détail chiffré du mix énergétique
+                  </caption>
                   <thead>
                     <tr>
                       <th scope="col" style={{ textAlign: "left", padding: 6 }}>Type</th>
@@ -166,7 +221,7 @@ export default function PaysDashboard() {
                   <tbody>
                     {summary.energyMix.map((r) => (
                       <tr key={r.fuel_type}>
-                        <th scope="row" style={{ textAlign: "left", padding: 6, fontWeight: 400 }}>{r.fuel_type}</th>
+                        <th scope="row" style={{ textAlign: "left", padding: 6, fontWeight: 400 }}>{translateFuel(r.fuel_type)}</th>
                         <td style={{ textAlign: "right", padding: 6 }}>{r.plant_count}</td>
                         <td style={{ textAlign: "right", padding: 6 }}>
                           {r.total_capacity_mw ? Math.round(r.total_capacity_mw).toLocaleString("fr-FR") : "—"}
@@ -184,22 +239,40 @@ export default function PaysDashboard() {
 
           <section style={{ marginTop: "2rem" }}>
             <h2>Biodiversité (échantillon)</h2>
-            {summary.speciesBreakdown.length > 0 ? (
+            {speciesPreview.length > 0 ? (
               <>
                 <p><strong>{totalSpecies}</strong> espèces de l&apos;échantillon observées dans ce pays.</p>
-                <ul>
-                  {summary.speciesBreakdown.map((r, i) => (
-                    <li key={i}>
-                      {CATEGORY_LABELS[r.category] || r.category} —{" "}
-                      {KINGDOM_LABELS[r.kingdom] || r.kingdom || "règne inconnu"} : {r.species_count}
-                    </li>
-                  ))}
+                <ul style={{ listStyle: "none", padding: 0 }}>
+                  {speciesPreview.slice(0, SPECIES_PREVIEW_LIMIT).map((s) => {
+                    const info = CATEGORY_INFO[s.category] || { label: s.category, color: "#999" };
+                    const commonName = s.common_names?.fr;
+                    return (
+                      <li key={s.scientific_name} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 0", borderBottom: "1px solid #eee" }}>
+                        <span
+                          style={{ display: "inline-block", padding: "2px 8px", borderRadius: 4, fontSize: 11, color: "white", backgroundColor: info.color, whiteSpace: "nowrap" }}
+                        >
+                          {info.label}
+                        </span>
+                        <span>
+                          <em>{s.scientific_name}</em>
+                          {commonName && <> — {commonName}</>}
+                          {" "}
+                          <span style={{ color: "#999", fontSize: 12 }}>({KINGDOM_LABELS[s.kingdom] || s.kingdom || "?"})</span>
+                        </span>
+                      </li>
+                    );
+                  })}
                 </ul>
+                {speciesPreview.length > SPECIES_PREVIEW_LIMIT && (
+                  <p style={{ fontSize: 13, color: "#666" }}>
+                    Et {speciesPreview.length - SPECIES_PREVIEW_LIMIT} autres dans cet échantillon...
+                  </p>
+                )}
               </>
             ) : (
               <p>Aucune espèce de l&apos;échantillon liée à ce pays pour l&apos;instant.</p>
             )}
-            <p><Link href="/especes">Voir la liste complète →</Link></p>
+            <p><Link href="/especes">Voir la liste complète avec filtres →</Link></p>
           </section>
         </>
       )}

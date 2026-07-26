@@ -1,23 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { detectDefaultCountry } from "../lib/detectCountry";
+import { FUEL_COLORS, DEFAULT_FUEL_COLOR, translateFuel } from "../lib/fuelTypes";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
-
-// Couleur par type de combustible, pour un repérage visuel rapide sur la carte.
-const FUEL_COLORS = {
-  Solar: "#f4b400",
-  Wind: "#4285f4",
-  Hydro: "#1baf7a",
-  Nuclear: "#8e44ad",
-  Gas: "#e67e22",
-  Coal: "#7f8c8d",
-  Oil: "#5b3a29",
-  Biomass: "#27ae60",
-  Waste: "#95a5a6",
-  Geothermal: "#c0392b",
-  Storage: "#16a085",
-};
-const DEFAULT_COLOR = "#3388ff";
 
 export default function EnergiePage() {
   const [countries, setCountries] = useState([]);
@@ -106,7 +91,7 @@ export default function EnergiePage() {
       markersLayerRef.current.clearLayers();
 
       plants.forEach((p) => {
-        const color = FUEL_COLORS[p.fuel_type] || DEFAULT_COLOR;
+        const color = FUEL_COLORS[p.fuel_type] || DEFAULT_FUEL_COLOR;
         const radius = p.capacity_mw ? Math.max(4, Math.min(20, Math.sqrt(p.capacity_mw))) : 5;
 
         L.circleMarker([p.latitude, p.longitude], {
@@ -117,7 +102,7 @@ export default function EnergiePage() {
           weight: 1,
         })
           .bindPopup(
-            `<strong>${p.name}</strong><br/>${p.fuel_type} — ${p.capacity_mw ?? "?"} MW`
+            `<strong>${p.name}</strong><br/>${translateFuel(p.fuel_type)} — ${p.capacity_mw ?? "?"} MW`
           )
           .addTo(markersLayerRef.current);
       });
@@ -149,7 +134,7 @@ export default function EnergiePage() {
           <select value={fuelType} onChange={(e) => setFuelType(e.target.value)}>
             <option value="">Tous</option>
             {fuelTypes.map((f) => (
-              <option key={f} value={f}>{f}</option>
+              <option key={f} value={f}>{translateFuel(f)}</option>
             ))}
           </select>
         </label>
@@ -183,7 +168,7 @@ export default function EnergiePage() {
             {plants.map((p, i) => (
               <tr key={i}>
                 <th scope="row" style={{ textAlign: "left", padding: 8, fontWeight: 400 }}>{p.name}</th>
-                <td style={{ textAlign: "left", padding: 8 }}>{p.fuel_type}</td>
+                <td style={{ textAlign: "left", padding: 8 }}>{translateFuel(p.fuel_type)}</td>
                 <td style={{ textAlign: "right", padding: 8 }}>{p.capacity_mw ?? "—"}</td>
               </tr>
             ))}

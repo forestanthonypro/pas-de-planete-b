@@ -27,6 +27,8 @@ export default function EspecesPage() {
   const [country, setCountry] = useState("FRA");
   const [categories, setCategories] = useState([]);
   const [category, setCategory] = useState("");
+  const [kingdoms, setKingdoms] = useState([]);
+  const [kingdom, setKingdom] = useState("");
   const [species, setSpecies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -48,12 +50,22 @@ export default function EspecesPage() {
       .catch(() => setCategories([]));
   }, []);
 
+  // Les règnes disponibles dépendent du pays choisi.
+  useEffect(() => {
+    if (!country) return;
+    fetch(`${API_URL}/api/species/kingdoms?country=${country}`)
+      .then((res) => res.json())
+      .then((rows) => setKingdoms(Array.isArray(rows) ? rows : []))
+      .catch(() => setKingdoms([]));
+  }, [country]);
+
   useEffect(() => {
     setLoading(true);
     setError(null);
     const params = new URLSearchParams();
     if (category) params.set("category", category);
     if (country) params.set("country", country);
+    if (kingdom) params.set("kingdom", kingdom);
 
     fetch(`${API_URL}/api/species?${params}`)
       .then((res) => {
@@ -68,7 +80,7 @@ export default function EspecesPage() {
         setError(err.message);
         setLoading(false);
       });
-  }, [category, country]);
+  }, [category, country, kingdom]);
 
   const selectedCountryName =
     countries.find((c) => c.country_code === country)?.country_name || country;
@@ -92,6 +104,16 @@ export default function EspecesPage() {
               <option key={c.country_code} value={c.country_code}>
                 {c.country_name}
               </option>
+            ))}
+          </select>
+        </label>
+
+        <label>
+          Règne{" "}
+          <select value={kingdom} onChange={(e) => setKingdom(e.target.value)}>
+            <option value="">Tous</option>
+            {kingdoms.map((k) => (
+              <option key={k} value={k}>{KINGDOM_LABELS[k] || k}</option>
             ))}
           </select>
         </label>
@@ -123,6 +145,7 @@ export default function EspecesPage() {
           <thead>
             <tr>
               <th scope="col" style={{ textAlign: "left", padding: 8 }}>Nom scientifique</th>
+              <th scope="col" style={{ textAlign: "left", padding: 8 }}>Nom commun (français)</th>
               <th scope="col" style={{ textAlign: "left", padding: 8 }}>Règne</th>
               <th scope="col" style={{ textAlign: "left", padding: 8 }}>Catégorie</th>
             </tr>
@@ -133,10 +156,12 @@ export default function EspecesPage() {
               const commonName = s.common_names?.fr;
               return (
                 <tr key={s.scientific_name}>
-                  <th scope="row" style={{ textAlign: "left", padding: 8, fontWeight: 400 }}>
-                    <span style={{ fontStyle: "italic" }}>{s.scientific_name}</span>
-                    {commonName && <span style={{ color: "#666" }}> — {commonName}</span>}
+                  <th scope="row" style={{ textAlign: "left", padding: 8, fontWeight: 400, fontStyle: "italic" }}>
+                    {s.scientific_name}
                   </th>
+                  <td style={{ textAlign: "left", padding: 8, color: commonName ? "inherit" : "#999" }}>
+                    {commonName || "nom commun non disponible"}
+                  </td>
                   <td style={{ textAlign: "left", padding: 8 }}>
                     {KINGDOM_LABELS[s.kingdom] || s.kingdom || "—"}
                   </td>

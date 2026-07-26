@@ -141,8 +141,25 @@ app.get("/api/species/categories", async (_req, res) => {
   }
 });
 
+app.get("/api/species/kingdoms", async (req, res) => {
+  const { country } = req.query;
+  try {
+    const params = [];
+    let query = "SELECT DISTINCT s.kingdom FROM species_status s";
+    if (country) {
+      query += " JOIN species_countries sc ON sc.gbif_key = s.gbif_key WHERE sc.country_code = $1";
+      params.push(country.toUpperCase());
+    }
+    query += " ORDER BY s.kingdom";
+    const result = await pool.query(query, params);
+    res.json(result.rows.map((r) => r.kingdom).filter(Boolean));
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+  }
+});
+
 app.get("/api/species", async (req, res) => {
-  const { category, country } = req.query;
+  const { category, country, kingdom } = req.query;
   try {
     const params = [];
     const conditions = [];
@@ -158,6 +175,10 @@ app.get("/api/species", async (req, res) => {
     if (category) {
       params.push(category.toUpperCase());
       conditions.push(`s.category = $${params.length}`);
+    }
+    if (kingdom) {
+      params.push(kingdom);
+      conditions.push(`s.kingdom = $${params.length}`);
     }
     if (conditions.length) query += " WHERE " + conditions.join(" AND ");
     query += " ORDER BY s.scientific_name LIMIT 1000";
