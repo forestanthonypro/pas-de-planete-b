@@ -912,9 +912,15 @@ export default function PaysDashboard() {
             <p style={{ fontSize: 13, color: "#666" }}>
               La courbe bleue, c&apos;est ce qui est physiquement émis sur le sol du pays. La
               courbe orange en pointillés (si présente), c&apos;est ce qui est lié à ce que les
-              gens du pays achètent — y compris les produits importés. Exemple : si l&apos;orange
-              dépasse le bleu, le pays importe globalement plus d&apos;émissions qu&apos;il
-              n&apos;en exporte.
+              gens du pays achètent — y compris les produits importés.
+            </p>
+            <p style={{ fontSize: 13, color: "#666" }}>
+              Exemple : un téléphone fabriqué en Chine puis acheté en France. Sa fabrication a émis
+              du CO2 en Chine (compté dans la courbe bleue de la Chine, pas de la France), mais
+              comme c&apos;est un Français qui l&apos;utilise, ce CO2 &laquo; appartient &raquo; en
+              réalité à la consommation française — c&apos;est ce que la courbe orange capte. Si
+              l&apos;orange dépasse le bleu, le pays achète (et fait donc émettre ailleurs) plus de
+              CO2 qu&apos;il n&apos;en émet lui-même.
             </p>
             {summary.co2.length > 0 && (
               <div style={{ position: "relative", height: 220 }}>

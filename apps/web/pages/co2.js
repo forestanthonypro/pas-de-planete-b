@@ -147,9 +147,16 @@ export default function Co2Page() {
         La courbe bleue, c&apos;est ce qui est physiquement émis sur le sol du pays — usines,
         voitures, chauffage. La courbe orange en pointillés (quand elle existe), c&apos;est ce qui
         est lié à tout ce que les gens du pays achètent et consomment, y compris les objets
-        fabriqués ailleurs et importés ensuite. Exemple : si la courbe orange est au-dessus de la
-        bleue, le pays importe globalement plus d&apos;émissions qu&apos;il n&apos;en exporte — il
-        &laquo; délocalise &raquo; une partie de sa pollution chez ses fournisseurs.
+        fabriqués ailleurs et importés ensuite.
+      </p>
+      <p style={{ fontSize: 13, color: "#666", marginBottom: "0.75rem" }}>
+        Exemple concret : un téléphone fabriqué en Chine puis acheté en France. Sa fabrication a
+        émis du CO2 en Chine — ce CO2 compte dans la courbe bleue de la Chine, pas dans celle de la
+        France, puisqu&apos;il n&apos;a pas été émis sur le sol français. Mais comme c&apos;est un
+        Français qui l&apos;utilise, ce CO2 &laquo; appartient &raquo; en réalité à la consommation
+        française — c&apos;est ce que la courbe orange essaie de capter. Si l&apos;orange est
+        au-dessus du bleu pour un pays, ça veut dire que ce pays achète (et fait donc émettre à
+        l&apos;étranger) plus de CO2 qu&apos;il n&apos;en émet lui-même sur son propre sol.
       </p>
 
       {!loading && !error && view === "chart" && (
