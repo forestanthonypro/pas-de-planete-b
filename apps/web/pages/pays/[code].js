@@ -366,6 +366,35 @@ export default function PaysDashboard() {
 
     const labels = mainRows.map((r) => r.label);
     const compareByLabel = Object.fromEntries(compareRows.map((r) => [r.label, r.value]));
+    const hasIndexMetric = mainRows.some((r) => r.type === "index");
+
+    // Ligne verticale à 100 = moyenne mondiale — la couleur des barres identifie
+    // uniquement le pays, jamais si c'est "bon" ou "mauvais" : c'est la position
+    // de la barre par rapport à cette ligne qui le montre.
+    const referenceLinePlugin = {
+      id: "referenceLine100",
+      afterDraw(chart) {
+        if (!hasIndexMetric) return;
+        const xScale = chart.scales.x;
+        const yScale = chart.scales.y;
+        const x = xScale.getPixelForValue(100);
+        const ctx = chart.ctx;
+        ctx.save();
+        ctx.strokeStyle = "#999";
+        ctx.setLineDash([5, 4]);
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(x, yScale.top);
+        ctx.lineTo(x, yScale.bottom);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = "#999";
+        ctx.font = "11px sans-serif";
+        ctx.textAlign = "left";
+        ctx.fillText("Moyenne mondiale", x + 4, yScale.top + 10);
+        ctx.restore();
+      },
+    };
 
     let cancelled = false;
     import("chart.js/auto").then((Chart) => {
@@ -374,30 +403,29 @@ export default function PaysDashboard() {
 
       const datasets = [
         {
-          label: `${localizedCountryName(code, preferredLang)}`,
+          label: localizedCountryName(code, preferredLang),
           data: mainRows.map((r) => Math.round(r.value * 100) / 100),
-          backgroundColor: mainRows.map((r) =>
-            r.type === "share" ? "#8e44ad" : r.value > 100 ? "#d63e2a" : "#1baf7a"
-          ),
+          backgroundColor: "#6c3483",
         },
       ];
       if (compareCode && compareSummary) {
         datasets.push({
           label: localizedCountryName(compareCode, preferredLang),
           data: labels.map((l) => (compareByLabel[l] !== undefined ? Math.round(compareByLabel[l] * 100) / 100 : null)),
-          backgroundColor: "#2a78d6",
+          backgroundColor: "#c6a2d6",
         });
       }
 
       comparisonChartRef.current = new Chart.default(comparisonCanvasRef.current, {
         type: "bar",
         data: { labels, datasets },
+        plugins: [referenceLinePlugin],
         options: {
           indexAxis: "y",
           responsive: true,
           maintainAspectRatio: false,
           plugins: {
-            legend: { display: !!(compareCode && compareSummary) },
+            legend: { display: true },
           },
           scales: {
             x: { title: { display: true, text: "Voir légende ci-dessous — échelles différentes selon la métrique" } },
@@ -648,20 +676,20 @@ export default function PaysDashboard() {
           <section style={{ marginTop: "1rem", marginBottom: "2rem", padding: "1rem", background: "#f7f7f7", borderRadius: 8 }}>
             <h2 style={{ marginTop: 0 }}>Comparaison mondiale</h2>
             <p style={{ fontSize: 13, color: "#666" }}>
-              Pour le CO2, l&apos;électricité, l&apos;eau, la forêt et la pollution : chaque
-              métrique est ramenée à un indice où <strong>100 = moyenne mondiale</strong>, pour
-              pouvoir les regrouper malgré des unités différentes. Exemple : une barre à 150 veut
-              dire que le pays est 50 % au-dessus de la moyenne mondiale sur cette métrique ; à 50,
-              il est deux fois en-dessous. <span style={{ color: "#d63e2a", fontWeight: 600 }}>Rouge</span>{" "}
-              = au-dessus de la moyenne mondiale, <span style={{ color: "#1baf7a", fontWeight: 600 }}>vert</span>{" "}
-              = en-dessous.
+              La <strong>couleur identifie le pays</strong> (voir la légende au-dessus du
+              graphique), rien d&apos;autre — elle ne veut jamais dire &laquo; bon &raquo; ou
+              &laquo; mauvais &raquo;. Pour le CO2, l&apos;électricité, l&apos;eau, la forêt et la
+              pollution, chaque métrique est ramenée à un indice où{" "}
+              <strong>100 = moyenne mondiale</strong> (ligne grise en pointillés sur le graphique) :
+              une barre qui dépasse la ligne est au-dessus de la moyenne mondiale sur cette
+              métrique, une barre qui s&apos;arrête avant est en-dessous. Exemple : à 150, le pays
+              est 50 % au-dessus de la moyenne mondiale ; à 50, il est deux fois en-dessous.
             </p>
             <p style={{ fontSize: 13, color: "#666" }}>
-              La barre <span style={{ color: "#8e44ad", fontWeight: 600 }}>violette</span>{" "}
-              (espèces menacées) est différente : elle montre la part du total mondial que
-              représente ce pays, pas une comparaison à une moyenne — aucun pays ne peut avoir
-              &laquo; 100 % &raquo; des espèces menacées du monde, donc le rouge/vert n&apos;a pas
-              de sens ici.
+              La ligne &laquo; Espèces menacées (% du total mondial) &raquo; est différente : elle
+              montre la part du total mondial que représente ce pays, pas une comparaison à une
+              moyenne — aucun pays ne peut avoir &laquo; 100 % &raquo; des espèces menacées du
+              monde, donc la ligne de référence à 100 n&apos;a pas de sens pour cette ligne-là.
             </p>
             <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap", marginBottom: "0.75rem" }}>
               <CountrySelect
@@ -680,30 +708,45 @@ export default function PaysDashboard() {
             <div style={{ position: "relative", height: 140 }}>
               <canvas ref={comparisonCanvasRef} role="img" aria-label={`Comparaison de ${countryName} avec les moyennes mondiales`} />
             </div>
-            {summary.speciesThreatened?.length > 0 && worldBenchmarks?.mammals_threatened_world && (() => {
-              const latest = summary.speciesThreatened[summary.speciesThreatened.length - 1];
-              const countryTotal = (latest.mammals_threatened || 0) + (latest.birds_threatened || 0) + (latest.fish_threatened || 0);
-              const worldTotal =
-                worldBenchmarks.mammals_threatened_world.value +
-                (worldBenchmarks.birds_threatened_world?.value || 0) +
-                (worldBenchmarks.fish_threatened_world?.value || 0);
-              const share = worldTotal > 0 ? ((countryTotal / worldTotal) * 100).toFixed(2) : null;
-              return share ? (
-                <p style={{ fontSize: 13, color: "#666" }}>
-                  {countryName} compte <strong>{countryTotal}</strong> espèces menacées (mammifères/oiseaux/poissons confondus),
-                  soit environ <strong>{share} %</strong> du total mondial comptabilisé ({worldTotal}).
-                </p>
-              ) : null;
-            })()}
-            {worldBenchmarks?.pm25_who_guideline && summary.pollution?.length > 0 && (() => {
-              const latest = summary.pollution[summary.pollution.length - 1];
-              if (!latest.pm25_ug_m3) return null;
-              const ratio = (latest.pm25_ug_m3 / worldBenchmarks.pm25_who_guideline.value).toFixed(1);
+            {(() => {
+              function speciesLine(summaryData, name) {
+                if (!summaryData?.speciesThreatened?.length || !worldBenchmarks?.mammals_threatened_world) return null;
+                const latest = summaryData.speciesThreatened[summaryData.speciesThreatened.length - 1];
+                const countryTotal = (latest.mammals_threatened || 0) + (latest.birds_threatened || 0) + (latest.fish_threatened || 0);
+                const worldTotal =
+                  worldBenchmarks.mammals_threatened_world.value +
+                  (worldBenchmarks.birds_threatened_world?.value || 0) +
+                  (worldBenchmarks.fish_threatened_world?.value || 0);
+                const share = worldTotal > 0 ? ((countryTotal / worldTotal) * 100).toFixed(2) : null;
+                if (!share) return null;
+                return (
+                  <p key={`species-${name}`} style={{ fontSize: 13, color: "#666" }}>
+                    {name} compte <strong>{countryTotal}</strong> espèces menacées (mammifères/oiseaux/poissons confondus),
+                    soit environ <strong>{share} %</strong> du total mondial comptabilisé ({worldTotal}).
+                  </p>
+                );
+              }
+
+              function pollutionLine(summaryData, name) {
+                if (!worldBenchmarks?.pm25_who_guideline || !summaryData?.pollution?.length) return null;
+                const latest = summaryData.pollution[summaryData.pollution.length - 1];
+                if (!latest.pm25_ug_m3) return null;
+                const ratio = (latest.pm25_ug_m3 / worldBenchmarks.pm25_who_guideline.value).toFixed(1);
+                return (
+                  <p key={`pollution-${name}`} style={{ fontSize: 13, color: "#666" }}>
+                    Pollution de l&apos;air à {name} : {latest.pm25_ug_m3} µg/m³, soit{" "}
+                    <strong>{ratio}×</strong> le seuil recommandé par l&apos;OMS (5 µg/m³).
+                  </p>
+                );
+              }
+
               return (
-                <p style={{ fontSize: 13, color: "#666" }}>
-                  Pollution de l&apos;air : {latest.pm25_ug_m3} µg/m³, soit <strong>{ratio}×</strong> le
-                  seuil recommandé par l&apos;OMS (5 µg/m³).
-                </p>
+                <>
+                  {speciesLine(summary, countryName)}
+                  {compareCode && compareSummary && speciesLine(compareSummary, localizedCountryName(compareCode, preferredLang))}
+                  {pollutionLine(summary, countryName)}
+                  {compareCode && compareSummary && pollutionLine(compareSummary, localizedCountryName(compareCode, preferredLang))}
+                </>
               );
             })()}
           </section>
