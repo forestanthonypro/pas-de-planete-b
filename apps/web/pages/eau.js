@@ -261,7 +261,7 @@ export default function EauPage() {
               <th scope="col" style={{ textAlign: "right", padding: 8 }}>Eau disponible (m³/hab.)</th>
               <th scope="col" style={{ textAlign: "right", padding: 8 }}>Pluviométrie (mm)</th>
               <th scope="col" style={{ textAlign: "right", padding: 8 }}>Prélèvements (Md m³)</th>
-              <th scope="col" style={{ textAlign: "right", padding: 8 }}>% de l'eau utilisée</th>
+              <th scope="col" style={{ textAlign: "right", padding: 8 }}>% de l&apos;eau utilisée</th>
             </tr>
           </thead>
           <tbody>
