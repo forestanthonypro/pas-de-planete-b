@@ -157,6 +157,12 @@ export default function EspecesPage() {
         espèces évaluées, mais un aperçu représentatif. Les noms communs sans traduction connue
         sont indiqués comme tels plutôt que devinés.
       </p>
+      <p style={{ fontSize: 13, color: "#666", marginBottom: "1rem" }}>
+        Les catégories vont du moins grave au plus grave : &laquo; Vulnérable &raquo; veut dire
+        menacée mais pas de danger immédiat, &laquo; En danger &raquo; veut dire qu&apos;elle
+        pourrait disparaître à moyen terme sans action, et &laquo; En danger critique &raquo;
+        veut dire qu&apos;elle risque de disparaître dans les toutes prochaines années.
+      </p>
 
       <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem", flexWrap: "wrap" }}>
         <CountrySelect

@@ -132,6 +132,16 @@ export default function PollutionPage() {
       {loading && <p>Chargement...</p>}
       {error && <p role="alert">Erreur : {error}</p>}
 
+      <h2 style={{ fontSize: 18, marginBottom: "0.25rem" }}>Que montre ce graphique ?</h2>
+      <p style={{ fontSize: 13, color: "#666", marginBottom: "0.75rem" }}>
+        La courbe orange, c&apos;est la quantité de particules fines respirées en moyenne par les
+        habitants du pays. Plus c&apos;est haut, plus l&apos;air est pollué. La ligne verte
+        (5 µg/m³), c&apos;est le seuil que l&apos;OMS recommande de ne pas dépasser pour limiter
+        les risques pour la santé — moins de 15 % des villes du monde le respectent aujourd&apos;hui.
+        Exemple : une valeur à 15 µg/m³ veut dire que le pays respire, en moyenne, 3 fois plus de
+        particules fines que ce que l&apos;OMS recommande.
+      </p>
+
       {!loading && !error && view === "chart" && (
         <div style={{ position: "relative", height: 340 }}>
           <canvas ref={canvasRef} role="img" aria-label={`Exposition PM2.5 pour ${selectedCountryName}`} />

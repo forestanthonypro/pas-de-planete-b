@@ -144,6 +144,16 @@ export default function VegetationPage() {
       {loading && <p>Chargement...</p>}
       {error && <p role="alert">Erreur : {error}</p>}
 
+      <h2 style={{ fontSize: 18, marginBottom: "0.25rem" }}>Que montre ce graphique ?</h2>
+      <p style={{ fontSize: 13, color: "#666", marginBottom: "0.75rem" }}>
+        Les barres orange, c&apos;est le nombre d&apos;hectares de forêt perdus chaque année —
+        un hectare, c&apos;est environ un terrain de foot. La courbe rouge, c&apos;est ce même
+        chiffre rapporté à la taille de la forêt du pays : exemple, si un petit pays très boisé
+        perd 10 000 hectares, ça peut représenter 2 % de sa forêt en une seule année — un rythme
+        bien plus inquiétant qu&apos;un grand pays qui en perdrait 10 fois plus mais sur une forêt
+        beaucoup plus vaste.
+      </p>
+
       {!loading && !error && view === "chart" && (
         <div style={{ position: "relative", height: 320 }}>
           <canvas ref={canvasRef} role="img" aria-label={`Perte de couverture arborée pour ${selectedCountryName}`} />

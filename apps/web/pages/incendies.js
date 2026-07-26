@@ -108,6 +108,14 @@ export default function IncendiesPage() {
         n&apos;est pas nécessairement un feu de forêt incontrôlé — cela inclut aussi les brûlis
         agricoles et d&apos;autres sources de chaleur détectées par satellite.
       </p>
+      <p style={{ fontSize: 13, color: "#666", marginBottom: "1rem" }}>
+        Les points sur la carte sont colorés selon l&apos;intensité de la chaleur détectée :{" "}
+        <span style={{ color: "#f4b400", fontWeight: 600 }}>jaune</span> pour une détection
+        modérée (souvent un brûlis agricole),{" "}
+        <span style={{ color: "#e67e22", fontWeight: 600 }}>orange</span> pour intermédiaire, et{" "}
+        <span style={{ color: "#d63e2a", fontWeight: 600 }}>rouge</span> pour les foyers les plus
+        intenses, plus susceptibles d&apos;être de vrais feux de forêt.
+      </p>
 
       <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem", flexWrap: "wrap" }}>
         <CountrySelect

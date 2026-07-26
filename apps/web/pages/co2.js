@@ -142,6 +142,16 @@ export default function Co2Page() {
       {loading && <p>Chargement...</p>}
       {error && <p role="alert">Erreur : {error}</p>}
 
+      <h2 style={{ fontSize: 18, marginBottom: "0.25rem" }}>Que montre ce graphique ?</h2>
+      <p style={{ fontSize: 13, color: "#666", marginBottom: "0.75rem" }}>
+        La courbe bleue, c&apos;est ce qui est physiquement émis sur le sol du pays — usines,
+        voitures, chauffage. La courbe orange en pointillés (quand elle existe), c&apos;est ce qui
+        est lié à tout ce que les gens du pays achètent et consomment, y compris les objets
+        fabriqués ailleurs et importés ensuite. Exemple : si la courbe orange est au-dessus de la
+        bleue, le pays importe globalement plus d&apos;émissions qu&apos;il n&apos;en exporte — il
+        &laquo; délocalise &raquo; une partie de sa pollution chez ses fournisseurs.
+      </p>
+
       {!loading && !error && view === "chart" && (
         <div style={{ position: "relative", height: 320 }}>
           <canvas ref={canvasRef} role="img" aria-label={`Émissions de CO2 pour ${selectedCountryName}`} />
@@ -173,13 +183,6 @@ export default function Co2Page() {
           </tbody>
         </table>
       )}
-
-      <p style={{ fontSize: 13, color: "#666" }}>
-        <strong>En clair :</strong> la courbe bleue, c&apos;est ce qui est physiquement émis sur
-        le sol du pays (usines, voitures, chauffage...). La courbe orange en pointillés (quand
-        elle existe), c&apos;est plutôt ce qui est lié à tout ce que les gens du pays achètent et
-        consomment — y compris les objets fabriqués ailleurs, comme en Chine, et importés ensuite.
-      </p>
 
       <details style={{ marginBottom: "1rem", fontSize: 13, color: "#555" }}>
         <summary style={{ cursor: "pointer" }}>Le détail méthodologique</summary>

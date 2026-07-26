@@ -223,6 +223,15 @@ export default function EnergiePage() {
       {error && <p role="alert">Erreur : {error}</p>}
       {!loading && !error && plants.length === 0 && <p>Aucune centrale trouvée pour ce filtre.</p>}
 
+      <p style={{ fontSize: 13, color: "#666", marginBottom: "0.75rem" }}>
+        Cette carte montre les centrales électriques existantes et leur <strong>capacité
+        installée</strong> — la puissance maximale qu&apos;elles pourraient produire si elles
+        tournaient à plein régime en permanence. Ce n&apos;est pas ce qu&apos;elles produisent
+        réellement : un panneau solaire de 100 MW ne produit rien la nuit, une centrale nucléaire
+        de 100 MW tourne presque tout le temps. Pour voir la production réelle, regarde le
+        graphique plus bas.
+      </p>
+
       <div style={{ display: view === "map" ? "block" : "none" }}>
         <div ref={mapContainerRef} style={{ height: 480, borderRadius: 8 }} />
       </div>
@@ -256,7 +265,11 @@ export default function EnergiePage() {
           <h2>Génération électrique réelle</h2>
           <p style={{ fontSize: 13, color: "#666" }}>
             À la différence de la carte ci-dessus (capacité installée, figée depuis 2021), voici
-            ce qui est réellement produit chaque année, par filière.
+            ce qui est réellement produit chaque année, par filière — les barres empilées montrent
+            le mix réel de production. La ligne noire en pointillés, c&apos;est la consommation
+            réelle (la demande). Exemple : si la ligne noire est au-dessus des barres empilées,
+            le pays importe de l&apos;électricité de ses voisins pour combler le manque ; si elle
+            est en dessous, il en exporte.
           </p>
           <div style={{ position: "relative", height: 320 }}>
             <canvas ref={generationCanvasRef} role="img" aria-label={`Génération électrique réelle par filière pour ${localizedCountryName(country, preferredLang)}`} />

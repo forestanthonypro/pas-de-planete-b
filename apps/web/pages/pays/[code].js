@@ -610,8 +610,10 @@ export default function PaysDashboard() {
             <h2 style={{ marginTop: 0 }}>Comparaison mondiale</h2>
             <p style={{ fontSize: 13, color: "#666" }}>
               Chaque métrique est ramenée à un indice où <strong>100 = moyenne mondiale</strong>,
-              pour pouvoir les regrouper malgré des unités différentes. Rouge = au-dessus de la
-              moyenne mondiale, vert = en-dessous.
+              pour pouvoir les regrouper malgré des unités différentes. Exemple : une barre à 150
+              veut dire que le pays est 50 % au-dessus de la moyenne mondiale sur cette métrique ;
+              à 50, il est deux fois en-dessous. Rouge = au-dessus de la moyenne mondiale, vert =
+              en-dessous.
             </p>
             <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap", marginBottom: "0.75rem" }}>
               <CountrySelect
@@ -675,16 +677,20 @@ export default function PaysDashboard() {
             ) : (
               <p>Aucune donnée CO2 pour ce pays.</p>
             )}
+            <p style={{ fontSize: 13, color: "#666" }}>
+              La courbe bleue, c&apos;est ce qui est physiquement émis sur le sol du pays. La
+              courbe orange en pointillés (si présente), c&apos;est ce qui est lié à ce que les
+              gens du pays achètent — y compris les produits importés. Exemple : si l&apos;orange
+              dépasse le bleu, le pays importe globalement plus d&apos;émissions qu&apos;il
+              n&apos;en exporte.
+            </p>
             {summary.co2.length > 0 && (
               <div style={{ position: "relative", height: 220 }}>
                 <canvas ref={co2CanvasRef} role="img" aria-label={`Émissions de CO2 pour ${countryName}`} />
               </div>
             )}
-            <p style={{ fontSize: 13, color: "#666" }}>
-              <strong>En clair :</strong> la courbe bleue, c&apos;est ce qui est émis sur le sol du
-              pays. La courbe orange en pointillés (si présente), c&apos;est ce qui est lié à ce
-              que les gens du pays achètent, y compris les produits importés. Aviation et
-              transport maritime internationaux non comptés dans aucune des deux.
+            <p style={{ fontSize: 12, color: "#666" }}>
+              Aviation et transport maritime internationaux non comptés dans aucune des deux.
               {lastUpdated?.co2?.latestYear && (
                 <> Dernière année couverte : {lastUpdated.co2.latestYear}.</>
               )}
@@ -700,6 +706,11 @@ export default function PaysDashboard() {
                 <p>
                   <strong>{summary.energyMix.length}</strong> types de production,{" "}
                   <strong>{Math.round(totalCapacity).toLocaleString("fr-FR")} MW</strong> de capacité totale connue.
+                </p>
+                <p style={{ fontSize: 13, color: "#666" }}>
+                  Ce graphique montre la <strong>capacité installée</strong> — la puissance
+                  maximale possible, pas ce qui est réellement produit (un panneau solaire ne
+                  produit rien la nuit).
                 </p>
                 <div style={{ position: "relative", height: Math.max(200, summary.energyMix.length * 34) }}>
                   <canvas ref={energyCanvasRef} role="img" aria-label={`Mix énergétique de ${countryName}, capacité et nombre de centrales par type`} />
@@ -745,7 +756,9 @@ export default function PaysDashboard() {
               <>
                 <p style={{ fontSize: 13, color: "#666", marginTop: "1rem" }}>
                   À la différence du graphique ci-dessus (capacité installée, figée), voici ce qui
-                  est réellement produit chaque année, par filière.
+                  est réellement produit chaque année. La ligne noire en pointillés, c&apos;est la
+                  consommation réelle : si elle est au-dessus des barres, le pays importe de
+                  l&apos;électricité pour compenser.
                 </p>
                 <div style={{ position: "relative", height: 260 }}>
                   <canvas ref={generationCanvasRef} role="img" aria-label={`Génération électrique réelle par filière pour ${countryName}`} />
@@ -839,6 +852,12 @@ export default function PaysDashboard() {
             <p>Aucune détection récente pour ce pays (ou pays non encore couvert par cette source).</p>
           )
         )}
+        <p style={{ fontSize: 12, color: "#666", marginBottom: "0.5rem" }}>
+          Couleur des points : <span style={{ color: "#f4b400", fontWeight: 600 }}>jaune</span>{" "}
+          modéré (souvent un brûlis agricole), <span style={{ color: "#e67e22", fontWeight: 600 }}>orange</span>{" "}
+          intermédiaire, <span style={{ color: "#d63e2a", fontWeight: 600 }}>rouge</span>{" "}
+          intense (plus probablement un vrai feu de forêt).
+        </p>
         <div ref={fireMapContainerRef} style={{ height: 360, borderRadius: 8 }} />
         <p style={{ fontSize: 12, color: "#666", marginTop: "0.5rem" }}>
           NASA FIRMS (MODIS_NRT) — une détection n&apos;est pas nécessairement un feu de forêt
@@ -858,6 +877,12 @@ export default function PaysDashboard() {
                 {Math.round(summary.vegetation[summary.vegetation.length - 1].tree_cover_loss_ha).toLocaleString("fr-FR")} ha
               </strong>{" "}
               perdus.
+            </p>
+            <p style={{ fontSize: 13, color: "#666" }}>
+              Les barres orange, c&apos;est le nombre d&apos;hectares perdus chaque année (un
+              hectare ≈ un terrain de foot). La courbe rouge rapporte ce chiffre à la taille de la
+              forêt du pays — un petit pays très boisé qui perd peu d&apos;hectares en valeur
+              absolue peut quand même perdre un % important de sa forêt.
             </p>
             <div style={{ position: "relative", height: 220 }}>
               <canvas ref={vegetationCanvasRef} role="img" aria-label={`Perte de couverture arborée pour ${countryName}`} />
