@@ -289,46 +289,83 @@ export default function PaysDashboard() {
     };
   }, [summary]);
 
-  // Comparaison mondiale : chaque métrique normalisée en indice (monde = 100),
-  // pour pouvoir les regrouper sur un seul graphique malgré des unités
-  // différentes (t/hab, kWh/hab, µg/m³). Uniquement les métriques où on a à la
-  // fois la valeur du pays ET un repère mondial fiable. Si un second pays est
-  // choisi pour comparaison, on calcule les mêmes indices pour lui aussi.
+  // Comparaison mondiale : les métriques "indice" (CO2, électricité, eau, forêt,
+  // pollution) sont ramenées à 100 = moyenne mondiale, colorées rouge/vert selon
+  // qu'elles sont au-dessus ou en-dessous. La biodiversité est d'une autre nature
+  // (part du total mondial, pas une moyenne à dépasser) — elle est donc affichée
+  // avec une couleur neutre plutôt que de réutiliser à tort le rouge/vert.
   useEffect(() => {
     if (!summary || !worldBenchmarks) return;
 
     function computeRows(summaryData) {
-      if (!summaryData) return {};
+      if (!summaryData) return [];
       const latestCo2 = summaryData.co2?.[summaryData.co2.length - 1];
       const latestElec = summaryData.electricityGeneration?.[summaryData.electricityGeneration.length - 1];
       const latestPollution = summaryData.pollution?.[summaryData.pollution.length - 1];
       const latestWater = summaryData.water?.[summaryData.water.length - 1];
       const latestVegetation = summaryData.vegetation?.[summaryData.vegetation.length - 1];
+      const latestSpecies = summaryData.speciesThreatened?.[summaryData.speciesThreatened.length - 1];
 
-      const byLabel = {};
+      const rows = [];
       if (latestCo2?.emissions_per_capita && worldBenchmarks.co2_per_capita) {
-        byLabel["CO2 par habitant"] = (latestCo2.emissions_per_capita / worldBenchmarks.co2_per_capita.value) * 100;
+        rows.push({
+          label: "CO2 par habitant",
+          value: (latestCo2.emissions_per_capita / worldBenchmarks.co2_per_capita.value) * 100,
+          type: "index",
+        });
       }
       if (latestElec?.demand_per_capita_kwh && worldBenchmarks.electricity_demand_per_capita) {
-        byLabel["Électricité consommée/hab"] = (latestElec.demand_per_capita_kwh / worldBenchmarks.electricity_demand_per_capita.value) * 100;
+        rows.push({
+          label: "Électricité consommée/hab",
+          value: (latestElec.demand_per_capita_kwh / worldBenchmarks.electricity_demand_per_capita.value) * 100,
+          type: "index",
+        });
       }
       if (latestWater?.withdrawal_share_percent && worldBenchmarks.water_stress_share) {
-        byLabel["Eau utilisée (% du disponible)"] = (latestWater.withdrawal_share_percent / worldBenchmarks.water_stress_share.value) * 100;
+        rows.push({
+          label: "Eau utilisée (% du disponible)",
+          value: (latestWater.withdrawal_share_percent / worldBenchmarks.water_stress_share.value) * 100,
+          type: "index",
+        });
       }
       if (latestVegetation?.forest_area_ha && latestVegetation?.tree_cover_loss_ha && worldBenchmarks.forest_loss_share_world) {
         const countryShare = (latestVegetation.tree_cover_loss_ha / latestVegetation.forest_area_ha) * 100;
-        byLabel["% forêt perdue/an"] = (countryShare / worldBenchmarks.forest_loss_share_world.value) * 100;
+        rows.push({
+          label: "% forêt perdue/an",
+          value: (countryShare / worldBenchmarks.forest_loss_share_world.value) * 100,
+          type: "index",
+        });
       }
       if (latestPollution?.pm25_ug_m3 && worldBenchmarks.pm25_world_average) {
-        byLabel["Pollution de l'air (PM2.5)"] = (latestPollution.pm25_ug_m3 / worldBenchmarks.pm25_world_average.value) * 100;
+        rows.push({
+          label: "Pollution de l'air (PM2.5)",
+          value: (latestPollution.pm25_ug_m3 / worldBenchmarks.pm25_world_average.value) * 100,
+          type: "index",
+        });
       }
-      return byLabel;
+      if (latestSpecies && worldBenchmarks.mammals_threatened_world) {
+        const countryTotal = (latestSpecies.mammals_threatened || 0) + (latestSpecies.birds_threatened || 0) + (latestSpecies.fish_threatened || 0);
+        const worldTotal =
+          worldBenchmarks.mammals_threatened_world.value +
+          (worldBenchmarks.birds_threatened_world?.value || 0) +
+          (worldBenchmarks.fish_threatened_world?.value || 0);
+        if (worldTotal > 0 && countryTotal > 0) {
+          rows.push({
+            label: "Espèces menacées (% du total mondial)",
+            value: (countryTotal / worldTotal) * 100,
+            type: "share",
+          });
+        }
+      }
+      return rows;
     }
 
     const mainRows = computeRows(summary);
     const compareRows = computeRows(compareSummary);
-    const labels = Object.keys(mainRows);
-    if (labels.length === 0) return;
+    if (mainRows.length === 0) return;
+
+    const labels = mainRows.map((r) => r.label);
+    const compareByLabel = Object.fromEntries(compareRows.map((r) => [r.label, r.value]));
 
     let cancelled = false;
     import("chart.js/auto").then((Chart) => {
@@ -337,15 +374,17 @@ export default function PaysDashboard() {
 
       const datasets = [
         {
-          label: `${localizedCountryName(code, preferredLang)} (monde = 100)`,
-          data: labels.map((l) => Math.round(mainRows[l])),
-          backgroundColor: labels.map((l) => (mainRows[l] > 100 ? "#d63e2a" : "#1baf7a")),
+          label: `${localizedCountryName(code, preferredLang)}`,
+          data: mainRows.map((r) => Math.round(r.value * 100) / 100),
+          backgroundColor: mainRows.map((r) =>
+            r.type === "share" ? "#8e44ad" : r.value > 100 ? "#d63e2a" : "#1baf7a"
+          ),
         },
       ];
       if (compareCode && compareSummary) {
         datasets.push({
           label: localizedCountryName(compareCode, preferredLang),
-          data: labels.map((l) => (compareRows[l] !== undefined ? Math.round(compareRows[l]) : null)),
+          data: labels.map((l) => (compareByLabel[l] !== undefined ? Math.round(compareByLabel[l] * 100) / 100 : null)),
           backgroundColor: "#2a78d6",
         });
       }
@@ -361,7 +400,7 @@ export default function PaysDashboard() {
             legend: { display: !!(compareCode && compareSummary) },
           },
           scales: {
-            x: { title: { display: true, text: "Indice (moyenne mondiale = 100)" } },
+            x: { title: { display: true, text: "Voir légende ci-dessous — échelles différentes selon la métrique" } },
           },
         },
       });
@@ -609,11 +648,20 @@ export default function PaysDashboard() {
           <section style={{ marginTop: "1rem", marginBottom: "2rem", padding: "1rem", background: "#f7f7f7", borderRadius: 8 }}>
             <h2 style={{ marginTop: 0 }}>Comparaison mondiale</h2>
             <p style={{ fontSize: 13, color: "#666" }}>
-              Chaque métrique est ramenée à un indice où <strong>100 = moyenne mondiale</strong>,
-              pour pouvoir les regrouper malgré des unités différentes. Exemple : une barre à 150
-              veut dire que le pays est 50 % au-dessus de la moyenne mondiale sur cette métrique ;
-              à 50, il est deux fois en-dessous. Rouge = au-dessus de la moyenne mondiale, vert =
-              en-dessous.
+              Pour le CO2, l&apos;électricité, l&apos;eau, la forêt et la pollution : chaque
+              métrique est ramenée à un indice où <strong>100 = moyenne mondiale</strong>, pour
+              pouvoir les regrouper malgré des unités différentes. Exemple : une barre à 150 veut
+              dire que le pays est 50 % au-dessus de la moyenne mondiale sur cette métrique ; à 50,
+              il est deux fois en-dessous. <span style={{ color: "#d63e2a", fontWeight: 600 }}>Rouge</span>{" "}
+              = au-dessus de la moyenne mondiale, <span style={{ color: "#1baf7a", fontWeight: 600 }}>vert</span>{" "}
+              = en-dessous.
+            </p>
+            <p style={{ fontSize: 13, color: "#666" }}>
+              La barre <span style={{ color: "#8e44ad", fontWeight: 600 }}>violette</span>{" "}
+              (espèces menacées) est différente : elle montre la part du total mondial que
+              représente ce pays, pas une comparaison à une moyenne — aucun pays ne peut avoir
+              &laquo; 100 % &raquo; des espèces menacées du monde, donc le rouge/vert n&apos;a pas
+              de sens ici.
             </p>
             <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap", marginBottom: "0.75rem" }}>
               <CountrySelect
