@@ -45,8 +45,8 @@ export async function ingestElectricity(pool) {
         `INSERT INTO electricity_generation
            (country_code, country_name, year, coal_twh, gas_twh, oil_twh, nuclear_twh,
             hydro_twh, wind_twh, solar_twh, biofuel_twh, other_renewable_twh,
-            total_generation_twh, demand_twh, source)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+            total_generation_twh, demand_twh, demand_per_capita_kwh, source)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
          ON CONFLICT (country_code, year)
          DO UPDATE SET
            coal_twh = EXCLUDED.coal_twh,
@@ -60,6 +60,7 @@ export async function ingestElectricity(pool) {
            other_renewable_twh = EXCLUDED.other_renewable_twh,
            total_generation_twh = EXCLUDED.total_generation_twh,
            demand_twh = EXCLUDED.demand_twh,
+           demand_per_capita_kwh = EXCLUDED.demand_per_capita_kwh,
            updated_at = now()`,
         [
           isoCode,
@@ -76,6 +77,7 @@ export async function ingestElectricity(pool) {
           num(row, "other_renewable_electricity"),
           totalGen,
           num(row, "electricity_demand"),
+          num(row, "electricity_demand_per_capita") || num(row, "per_capita_electricity"),
           SOURCE_LABEL,
         ]
       );

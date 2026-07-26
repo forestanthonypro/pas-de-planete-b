@@ -22,6 +22,7 @@ export default function Home() {
         <li><Link href="/incendies">Feux actifs →</Link></li>
         <li><Link href="/vegetation">Perte de couverture arborée →</Link></li>
         <li><Link href="/eau">Ressources en eau →</Link></li>
+        <li><Link href="/pollution">Pollution de l&apos;air →</Link></li>
       </ul>
     </main>
   );

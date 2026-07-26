@@ -9,6 +9,8 @@ import { ingestVegetation } from "./ingest/vegetation.js";
 import { ingestWater } from "./ingest/water.js";
 import { ingestElectricity } from "./ingest/electricity.js";
 import { ingestSpeciesThreatened } from "./ingest/species_threatened.js";
+import { ingestPollution } from "./ingest/pollution.js";
+import { ingestWorldBenchmarks } from "./ingest/world_benchmarks.js";
 
 const app = express();
 const port = process.env.API_PORT || 4000;
@@ -209,7 +211,7 @@ app.post("/api/admin/ingest/species", requireIngestToken, async (_req, res) => {
 app.get("/api/country-summary/:country", async (req, res) => {
   const country = req.params.country.toUpperCase();
   try {
-    const [co2Result, plantsResult, speciesResult, firesResult, vegetationResult, waterResult, electricityGenerationResult, speciesThreatenedResult] = await Promise.all([
+    const [co2Result, plantsResult, speciesResult, firesResult, vegetationResult, waterResult, electricityGenerationResult, speciesThreatenedResult, pollutionResult] = await Promise.all([
       pool.query(
         `SELECT year, emissions_mt, emissions_per_capita, consumption_co2, consumption_co2_per_capita
          FROM co2_emissions WHERE country_code = $1 ORDER BY year`,
@@ -246,13 +248,17 @@ app.get("/api/country-summary/:country", async (req, res) => {
       ),
       pool.query(
         `SELECT year, coal_twh, gas_twh, oil_twh, nuclear_twh, hydro_twh, wind_twh,
-                solar_twh, biofuel_twh, other_renewable_twh, total_generation_twh, demand_twh
+                solar_twh, biofuel_twh, other_renewable_twh, total_generation_twh, demand_twh, demand_per_capita_kwh
          FROM electricity_generation WHERE country_code = $1 ORDER BY year`,
         [country]
       ),
       pool.query(
         `SELECT year, mammals_threatened, birds_threatened, fish_threatened
          FROM species_threatened_counts WHERE country_code = $1 ORDER BY year`,
+        [country]
+      ),
+      pool.query(
+        `SELECT year, pm25_ug_m3 FROM pollution_data WHERE country_code = $1 ORDER BY year`,
         [country]
       ),
     ]);
@@ -267,6 +273,7 @@ app.get("/api/country-summary/:country", async (req, res) => {
       water: waterResult.rows,
       electricityGeneration: electricityGenerationResult.rows,
       speciesThreatened: speciesThreatenedResult.rows,
+      pollution: pollutionResult.rows,
     });
   } catch (err) {
     res.status(503).json({ error: "Données non initialisées", detail: err.message });
@@ -312,7 +319,7 @@ app.post("/api/admin/ingest/fires", requireIngestToken, async (_req, res) => {
 // (pas la date des données elles-mêmes, qui peut être plus ancienne selon la source).
 app.get("/api/meta/last-updated", async (_req, res) => {
   try {
-    const [co2, plants, species, fires, vegetation, water, electricity, speciesThreatened] = await Promise.all([
+    const [co2, plants, species, fires, vegetation, water, electricity, speciesThreatened, pollution] = await Promise.all([
       pool.query("SELECT MAX(updated_at) AS updated_at, MAX(year) AS latest_year FROM co2_emissions"),
       pool.query("SELECT MAX(updated_at) AS updated_at FROM power_plants"),
       pool.query("SELECT MAX(updated_at) AS updated_at FROM species_status"),
@@ -321,6 +328,7 @@ app.get("/api/meta/last-updated", async (_req, res) => {
       pool.query("SELECT MAX(updated_at) AS updated_at, MAX(year) AS latest_year FROM water_data"),
       pool.query("SELECT MAX(updated_at) AS updated_at, MAX(year) AS latest_year FROM electricity_generation"),
       pool.query("SELECT MAX(updated_at) AS updated_at, MAX(year) AS latest_year FROM species_threatened_counts"),
+      pool.query("SELECT MAX(updated_at) AS updated_at, MAX(year) AS latest_year FROM pollution_data"),
     ]);
     res.json({
       co2: { lastIngested: co2.rows[0].updated_at, latestYear: co2.rows[0].latest_year },
@@ -331,6 +339,7 @@ app.get("/api/meta/last-updated", async (_req, res) => {
       water: { lastIngested: water.rows[0].updated_at, latestYear: water.rows[0].latest_year },
       electricity: { lastIngested: electricity.rows[0].updated_at, latestYear: electricity.rows[0].latest_year },
       speciesThreatened: { lastIngested: speciesThreatened.rows[0].updated_at, latestYear: speciesThreatened.rows[0].latest_year },
+      pollution: { lastIngested: pollution.rows[0].updated_at, latestYear: pollution.rows[0].latest_year },
     });
   } catch (err) {
     res.status(503).json({ error: "Données non initialisées", detail: err.message });
@@ -434,7 +443,7 @@ app.get("/api/electricity/:country", async (req, res) => {
   try {
     const result = await pool.query(
       `SELECT year, coal_twh, gas_twh, oil_twh, nuclear_twh, hydro_twh, wind_twh,
-              solar_twh, biofuel_twh, other_renewable_twh, total_generation_twh, demand_twh
+              solar_twh, biofuel_twh, other_renewable_twh, total_generation_twh, demand_twh, demand_per_capita_kwh
        FROM electricity_generation
        WHERE country_code = $1
        ORDER BY year`,
@@ -502,6 +511,66 @@ app.post("/api/admin/ingest/species-threatened", requireIngestToken, async (_req
   try {
     const { inserted, skipped } = await ingestSpeciesThreatened(pool);
     res.json({ status: "ok", inserted, skipped });
+  } catch (err) {
+    res.status(500).json({ error: "Échec de l'ingestion", detail: err.message });
+  }
+});
+
+
+// --- Pollution de l'air (PM2.5) ---
+
+app.get("/api/pollution/countries", async (_req, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT DISTINCT country_code, country_name FROM pollution_data ORDER BY country_name"
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+  }
+});
+
+app.get("/api/pollution/:country", async (req, res) => {
+  const { country } = req.params;
+  try {
+    const result = await pool.query(
+      `SELECT year, pm25_ug_m3 FROM pollution_data WHERE country_code = $1 ORDER BY year`,
+      [country.toUpperCase()]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+  }
+});
+
+app.post("/api/admin/ingest/pollution", requireIngestToken, async (_req, res) => {
+  try {
+    const { inserted, skipped } = await ingestPollution(pool);
+    res.json({ status: "ok", inserted, skipped });
+  } catch (err) {
+    res.status(500).json({ error: "Échec de l'ingestion", detail: err.message });
+  }
+});
+
+// --- Repères mondiaux (comparaison pays vs monde) ---
+
+app.get("/api/world-benchmarks", async (_req, res) => {
+  try {
+    const result = await pool.query("SELECT metric_key, value, unit, year FROM world_benchmarks");
+    const benchmarks = {};
+    for (const row of result.rows) {
+      benchmarks[row.metric_key] = { value: parseFloat(row.value), unit: row.unit, year: row.year };
+    }
+    res.json(benchmarks);
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+  }
+});
+
+app.post("/api/admin/ingest/world-benchmarks", requireIngestToken, async (_req, res) => {
+  try {
+    const { set } = await ingestWorldBenchmarks(pool);
+    res.json({ status: "ok", set });
   } catch (err) {
     res.status(500).json({ error: "Échec de l'ingestion", detail: err.message });
   }

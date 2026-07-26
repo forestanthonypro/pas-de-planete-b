@@ -8,6 +8,7 @@ import { speciesGroupLabel } from "../../lib/speciesGroups";
 import { formatCommonNames } from "../../lib/commonNames";
 import { useLastUpdated, formatDate } from "../../lib/useLastUpdated";
 import { localizedCountryName } from "../../lib/countryNames";
+import { useWorldBenchmarks } from "../../lib/useWorldBenchmarks";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -47,6 +48,7 @@ export default function PaysDashboard() {
   const router = useRouter();
   const { code } = router.query;
   const lastUpdated = useLastUpdated();
+  const worldBenchmarks = useWorldBenchmarks();
 
   const [countries, setCountries] = useState([]);
   const [summary, setSummary] = useState(null);
@@ -62,6 +64,8 @@ export default function PaysDashboard() {
   const energyChartRef = useRef(null);
   const generationCanvasRef = useRef(null);
   const generationChartRef = useRef(null);
+  const comparisonCanvasRef = useRef(null);
+  const comparisonChartRef = useRef(null);
   const fireMapContainerRef = useRef(null);
   const fireMapRef = useRef(null);
   const fireMarkersLayerRef = useRef(null);
@@ -250,6 +254,72 @@ export default function PaysDashboard() {
     };
   }, [summary]);
 
+  // Comparaison mondiale : chaque métrique normalisée en indice (monde = 100),
+  // pour pouvoir les regrouper sur un seul graphique malgré des unités
+  // différentes (t/hab, kWh/hab, µg/m³). Uniquement les métriques où on a à la
+  // fois la valeur du pays ET un repère mondial fiable.
+  useEffect(() => {
+    if (!summary || !worldBenchmarks) return;
+    const latestCo2 = summary.co2?.[summary.co2.length - 1];
+    const latestElec = summary.electricityGeneration?.[summary.electricityGeneration.length - 1];
+    const latestPollution = summary.pollution?.[summary.pollution.length - 1];
+
+    const rows = [];
+    if (latestCo2?.emissions_per_capita && worldBenchmarks.co2_per_capita) {
+      rows.push({
+        label: "CO2 par habitant",
+        index: (latestCo2.emissions_per_capita / worldBenchmarks.co2_per_capita.value) * 100,
+      });
+    }
+    if (latestElec?.demand_per_capita_kwh && worldBenchmarks.electricity_demand_per_capita) {
+      rows.push({
+        label: "Électricité consommée/hab",
+        index: (latestElec.demand_per_capita_kwh / worldBenchmarks.electricity_demand_per_capita.value) * 100,
+      });
+    }
+    if (latestPollution?.pm25_ug_m3 && worldBenchmarks.pm25_world_average) {
+      rows.push({
+        label: "Pollution de l'air (PM2.5)",
+        index: (latestPollution.pm25_ug_m3 / worldBenchmarks.pm25_world_average.value) * 100,
+      });
+    }
+    if (rows.length === 0) return;
+
+    let cancelled = false;
+    import("chart.js/auto").then((Chart) => {
+      if (cancelled || !comparisonCanvasRef.current) return;
+      if (comparisonChartRef.current) comparisonChartRef.current.destroy();
+
+      comparisonChartRef.current = new Chart.default(comparisonCanvasRef.current, {
+        type: "bar",
+        data: {
+          labels: rows.map((r) => r.label),
+          datasets: [
+            {
+              label: `${localizedCountryName(code, preferredLang)} (monde = 100)`,
+              data: rows.map((r) => Math.round(r.index)),
+              backgroundColor: rows.map((r) => (r.index > 100 ? "#d63e2a" : "#1baf7a")),
+            },
+          ],
+        },
+        options: {
+          indexAxis: "y",
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+          },
+          scales: {
+            x: { title: { display: true, text: "Indice (moyenne mondiale = 100)" } },
+          },
+        },
+      });
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [summary, worldBenchmarks, code, preferredLang]);
+
   useEffect(() => {
     if (!summary || !summary.vegetation || summary.vegetation.length === 0) return;
     let cancelled = false;
@@ -419,6 +489,48 @@ export default function PaysDashboard() {
 
       {loading && <p>Chargement...</p>}
       {error && <p role="alert">Erreur : {error}</p>}
+
+      {!loading && !error && summary && (
+        <>
+          <section style={{ marginTop: "1rem", marginBottom: "2rem", padding: "1rem", background: "#f7f7f7", borderRadius: 8 }}>
+            <h2 style={{ marginTop: 0 }}>Comparaison mondiale</h2>
+            <p style={{ fontSize: 13, color: "#666" }}>
+              Chaque métrique est ramenée à un indice où <strong>100 = moyenne mondiale</strong>,
+              pour pouvoir les regrouper malgré des unités différentes. Rouge = au-dessus de la
+              moyenne mondiale, vert = en-dessous.
+            </p>
+            <div style={{ position: "relative", height: 140 }}>
+              <canvas ref={comparisonCanvasRef} role="img" aria-label={`Comparaison de ${countryName} avec les moyennes mondiales`} />
+            </div>
+            {summary.speciesThreatened?.length > 0 && worldBenchmarks?.mammals_threatened_world && (() => {
+              const latest = summary.speciesThreatened[summary.speciesThreatened.length - 1];
+              const countryTotal = (latest.mammals_threatened || 0) + (latest.birds_threatened || 0) + (latest.fish_threatened || 0);
+              const worldTotal =
+                worldBenchmarks.mammals_threatened_world.value +
+                (worldBenchmarks.birds_threatened_world?.value || 0) +
+                (worldBenchmarks.fish_threatened_world?.value || 0);
+              const share = worldTotal > 0 ? ((countryTotal / worldTotal) * 100).toFixed(2) : null;
+              return share ? (
+                <p style={{ fontSize: 13, color: "#666" }}>
+                  {countryName} compte <strong>{countryTotal}</strong> espèces menacées (mammifères/oiseaux/poissons confondus),
+                  soit environ <strong>{share} %</strong> du total mondial comptabilisé ({worldTotal}).
+                </p>
+              ) : null;
+            })()}
+            {worldBenchmarks?.pm25_who_guideline && summary.pollution?.length > 0 && (() => {
+              const latest = summary.pollution[summary.pollution.length - 1];
+              if (!latest.pm25_ug_m3) return null;
+              const ratio = (latest.pm25_ug_m3 / worldBenchmarks.pm25_who_guideline.value).toFixed(1);
+              return (
+                <p style={{ fontSize: 13, color: "#666" }}>
+                  Pollution de l&apos;air : {latest.pm25_ug_m3} µg/m³, soit <strong>{ratio}×</strong> le
+                  seuil recommandé par l&apos;OMS (5 µg/m³).
+                </p>
+              );
+            })()}
+          </section>
+        </>
+      )}
 
       {!loading && !error && summary && (
         <>

@@ -5,7 +5,6 @@ import { formatCommonNames } from "../lib/commonNames";
 import { detectPreferredLanguage } from "../lib/detectLanguage";
 import { useLastUpdated, formatDate } from "../lib/useLastUpdated";
 import { localizedCountryName } from "../lib/countryNames";
-import { translateTaxonGroup } from "../lib/taxonGroupNames";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -294,7 +293,7 @@ export default function EspecesPage() {
               <tbody>
                 {globalShare.map((g) => (
                   <tr key={g.taxon_group}>
-                    <th scope="row" style={{ textAlign: "left", padding: 6, fontWeight: 400 }}>{translateTaxonGroup(g.taxon_group, preferredLang)}</th>
+                    <th scope="row" style={{ textAlign: "left", padding: 6, fontWeight: 400 }}>{g.taxon_group}</th>
                     <td style={{ textAlign: "right", padding: 6 }}>{g.share_percent} %</td>
                   </tr>
                 ))}
