@@ -3,6 +3,15 @@
 // désormais une erreur générique ("Invalid API call"), y compris sans clé, donc on
 // ne peut plus les récupérer dynamiquement depuis leur API. Cette liste est volontairement
 // limitée plutôt qu'exhaustive (~40 pays) pour rester fiable ; à étendre au besoin.
+//
+// Limite connue : cette approche par rectangle échoue structurellement pour les pays
+// très allongés ou courbés, qui "enroulent" un voisin (ex: la Norvège, qui suit la
+// côte atlantique en s'enroulant autour de la Suède — son rectangle englobant finit
+// par couvrir la Suède entière et une bonne partie de la Finlande). Pas de correctif
+// simple possible sans passer à une vraie géométrie de frontières (polygones) — la
+// Norvège a donc été retirée plutôt que d'afficher des détections mal attribuées.
+// D'autres pays de la liste (Chili, Vietnam, Philippines...) ont des formes moins
+// extrêmes mais restent à prendre avec un peu de recul près des frontières.
 export const COUNTRY_BBOXES = {
   FRA: [-5.2, 41.3, 9.6, 51.1],
   DEU: [5.9, 47.3, 15.0, 55.1],
@@ -16,7 +25,6 @@ export const COUNTRY_BBOXES = {
   AUT: [9.5, 46.4, 17.2, 49.0],
   POL: [14.1, 49.0, 24.2, 55.0],
   SWE: [11.1, 55.3, 24.2, 69.1],
-  NOR: [4.5, 57.9, 31.3, 71.2],
   FIN: [20.5, 59.7, 31.6, 70.1],
   GRC: [19.3, 34.8, 29.6, 41.8],
   USA: [-125.0, 24.4, -66.9, 49.4],
