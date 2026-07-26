@@ -1,5 +1,6 @@
-// Traduit la classe taxonomique (GBIF) en un groupe compréhensible pour le public,
-// avec repli sur le règne quand la classe n'apporte rien de plus précis.
+// Traduit la classe (ou, à défaut, l'ordre) taxonomique GBIF en un groupe
+// compréhensible pour le public. GBIF ne renseigne pas toujours la classe pour
+// chaque fiche — l'ordre sert de filet de sécurité, il est presque toujours présent.
 const KINGDOM_LABELS = {
   Animalia: "Animal",
   Plantae: "Végétal",
@@ -29,7 +30,22 @@ const CLASS_LABELS = {
   Agaricomycetes: "Champignon",
 };
 
-export function speciesGroupLabel(kingdom, speciesClass) {
+// Ordres de poissons les plus courants, pour rattraper les cas où la classe
+// (Actinopterygii/Actinopteri) n'est pas renseignée par GBIF pour une fiche donnée.
+const ORDER_LABELS = {
+  Clupeiformes: "Poisson",
+  Anguilliformes: "Poisson",
+  Cypriniformes: "Poisson",
+  Salmoniformes: "Poisson",
+  Perciformes: "Poisson",
+  Gadiformes: "Poisson",
+  Siluriformes: "Poisson",
+  Cyprinodontiformes: "Poisson",
+  Pleuronectiformes: "Poisson",
+};
+
+export function speciesGroupLabel(kingdom, speciesClass, taxonOrder) {
   if (speciesClass && CLASS_LABELS[speciesClass]) return CLASS_LABELS[speciesClass];
+  if (taxonOrder && ORDER_LABELS[taxonOrder]) return ORDER_LABELS[taxonOrder];
   return KINGDOM_LABELS[kingdom] || kingdom || "Groupe inconnu";
 }

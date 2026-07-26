@@ -147,7 +147,7 @@ app.get("/api/species", async (req, res) => {
     const params = [];
     const conditions = [];
     let query = `
-      SELECT s.scientific_name, s.kingdom, s.class, s.category, s.common_names
+      SELECT s.scientific_name, s.kingdom, s.class, s.taxon_order, s.category, s.common_names
       FROM species_status s
     `;
     if (country) {

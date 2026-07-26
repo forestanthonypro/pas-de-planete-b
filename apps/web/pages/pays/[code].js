@@ -285,7 +285,7 @@ export default function PaysDashboard() {
                         <td style={{ textAlign: "left", padding: 6, fontSize: 13, color: names ? "inherit" : "#999" }}>
                           {names || "non disponible"}
                         </td>
-                        <td style={{ textAlign: "left", padding: 6 }}>{speciesGroupLabel(s.kingdom, s.class)}</td>
+                        <td style={{ textAlign: "left", padding: 6 }}>{speciesGroupLabel(s.kingdom, s.class, s.taxon_order)}</td>
                         <td style={{ padding: 6 }}>
                           <span style={{ display: "inline-block", padding: "2px 8px", borderRadius: 4, fontSize: 11, color: "white", backgroundColor: info.color, whiteSpace: "nowrap" }}>
                             {info.label}

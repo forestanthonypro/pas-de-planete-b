@@ -135,7 +135,7 @@ export default function EspecesPage() {
                     {names || "non disponible"}
                   </td>
                   <td style={{ textAlign: "left", padding: 8 }}>
-                    {speciesGroupLabel(s.kingdom, s.class)}
+                    {speciesGroupLabel(s.kingdom, s.class, s.taxon_order)}
                   </td>
                   <td style={{ padding: 8 }}>
                     <span
