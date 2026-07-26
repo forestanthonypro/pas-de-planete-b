@@ -4,6 +4,7 @@ import { detectPreferredLanguage } from "../lib/detectLanguage";
 import { FUEL_COLORS, DEFAULT_FUEL_COLOR, translateFuel } from "../lib/fuelTypes";
 import { useLastUpdated, formatDate } from "../lib/useLastUpdated";
 import { localizedCountryName } from "../lib/countryNames";
+import CountrySelect from "../components/CountrySelect";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -196,15 +197,12 @@ export default function EnergiePage() {
       <h1>Centrales électriques</h1>
 
       <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem", flexWrap: "wrap" }}>
-        <label>
-          Pays{" "}
-          <select value={country} onChange={(e) => setCountry(e.target.value)}>
-            {countries.length === 0 && <option value={country}>{localizedCountryName(country, preferredLang)}</option>}
-            {countries.map((c) => (
-              <option key={c} value={c}>{localizedCountryName(c, preferredLang)}</option>
-            ))}
-          </select>
-        </label>
+        <CountrySelect
+          countries={countries}
+          value={country}
+          onChange={setCountry}
+          preferredLang={preferredLang}
+        />
 
         <label>
           Type de combustible{" "}

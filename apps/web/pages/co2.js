@@ -3,6 +3,7 @@ import { detectDefaultCountry } from "../lib/detectCountry";
 import { detectPreferredLanguage } from "../lib/detectLanguage";
 import { localizedCountryName } from "../lib/countryNames";
 import { useLastUpdated, formatDate } from "../lib/useLastUpdated";
+import CountrySelect from "../components/CountrySelect";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -67,7 +68,7 @@ export default function Co2Page() {
 
       const datasets = [
         {
-          label: metric === "emissions_mt" ? "Territoriales (Mt CO2)" : "Territoriales, par habitant (t)",
+          label: metric === "emissions_mt" ? "Émis dans le pays (Mt CO2)" : "Émis dans le pays, par habitant (t)",
           data: data.map((d) => d[metric]),
           borderColor: "#2a78d6",
           backgroundColor: "rgba(42,120,214,0.1)",
@@ -80,7 +81,7 @@ export default function Co2Page() {
 
       if (hasConsumptionData) {
         datasets.push({
-          label: metric === "emissions_mt" ? "Basées sur la consommation (Mt CO2)" : "Basées sur la consommation, par habitant (t)",
+          label: metric === "emissions_mt" ? "Lié à ce qu'on achète, importé compris (Mt CO2)" : "Lié à ce qu'on achète, par habitant (t)",
           data: data.map((d) => d[consumptionField]),
           borderColor: "#e67e22",
           backgroundColor: "rgba(230,126,34,0.1)",
@@ -118,17 +119,12 @@ export default function Co2Page() {
       <h1>Émissions de CO2 — {selectedCountryName}</h1>
 
       <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem", flexWrap: "wrap" }}>
-        <label>
-          Pays{" "}
-          <select value={countryCode} onChange={(e) => setCountryCode(e.target.value)}>
-            {countries.length === 0 && <option value={countryCode}>{countryCode}</option>}
-            {countries.map((c) => (
-              <option key={c.country_code} value={c.country_code}>
-                {localizedCountryName(c.country_code, preferredLang)}
-              </option>
-            ))}
-          </select>
-        </label>
+        <CountrySelect
+          countries={countries}
+          value={countryCode}
+          onChange={setCountryCode}
+          preferredLang={preferredLang}
+        />
 
         <label>
           Unité{" "}
@@ -160,9 +156,9 @@ export default function Co2Page() {
           <thead>
             <tr>
               <th scope="col" style={{ textAlign: "left", padding: 8 }}>Année</th>
-              <th scope="col" style={{ textAlign: "right", padding: 8 }}>Territorial (Mt)</th>
-              <th scope="col" style={{ textAlign: "right", padding: 8 }}>Territorial, par habitant (t)</th>
-              <th scope="col" style={{ textAlign: "right", padding: 8 }}>Basé conso. (Mt)</th>
+              <th scope="col" style={{ textAlign: "right", padding: 8 }}>Émis dans le pays (Mt)</th>
+              <th scope="col" style={{ textAlign: "right", padding: 8 }}>Émis dans le pays, par habitant (t)</th>
+              <th scope="col" style={{ textAlign: "right", padding: 8 }}>Lié à ce qu&apos;on achète (Mt)</th>
             </tr>
           </thead>
           <tbody>
@@ -178,8 +174,15 @@ export default function Co2Page() {
         </table>
       )}
 
+      <p style={{ fontSize: 13, color: "#666" }}>
+        <strong>En clair :</strong> la courbe bleue, c&apos;est ce qui est physiquement émis sur
+        le sol du pays (usines, voitures, chauffage...). La courbe orange en pointillés (quand
+        elle existe), c&apos;est plutôt ce qui est lié à tout ce que les gens du pays achètent et
+        consomment — y compris les objets fabriqués ailleurs, comme en Chine, et importés ensuite.
+      </p>
+
       <details style={{ marginBottom: "1rem", fontSize: 13, color: "#555" }}>
-        <summary style={{ cursor: "pointer" }}>Que couvrent ces chiffres exactement ?</summary>
+        <summary style={{ cursor: "pointer" }}>Le détail méthodologique</summary>
         <p style={{ marginTop: 8 }}>
           La courbe pleine (bleue) montre les émissions <strong>territoriales</strong> (dites
           &laquo; de production &raquo;) : ce qui est physiquement émis sur le sol du pays (usines,

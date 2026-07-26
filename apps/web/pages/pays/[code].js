@@ -9,6 +9,7 @@ import { formatCommonNames } from "../../lib/commonNames";
 import { useLastUpdated, formatDate } from "../../lib/useLastUpdated";
 import { localizedCountryName } from "../../lib/countryNames";
 import { useWorldBenchmarks } from "../../lib/useWorldBenchmarks";
+import CountrySelect from "../../components/CountrySelect";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -55,6 +56,8 @@ export default function PaysDashboard() {
   const [speciesList, setSpeciesList] = useState([]);
   const [fires, setFires] = useState([]);
   const [preferredLang, setPreferredLang] = useState(null);
+  const [compareCode, setCompareCode] = useState("");
+  const [compareSummary, setCompareSummary] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -118,6 +121,24 @@ export default function PaysDashboard() {
       });
   }, [code]);
 
+  // Réinitialise la comparaison si on change de pays principal, pour éviter
+  // de comparer un pays avec lui-même par accident.
+  useEffect(() => {
+    setCompareCode("");
+    setCompareSummary(null);
+  }, [code]);
+
+  useEffect(() => {
+    if (!compareCode) {
+      setCompareSummary(null);
+      return;
+    }
+    fetch(`${API_URL}/api/country-summary/${compareCode}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then(setCompareSummary)
+      .catch(() => setCompareSummary(null));
+  }, [compareCode]);
+
   useEffect(() => {
     if (!summary || summary.co2.length === 0) return;
     const hasConsumptionData = summary.co2.some((d) => d.consumption_co2 !== null && d.consumption_co2 !== undefined);
@@ -129,7 +150,7 @@ export default function PaysDashboard() {
 
       const datasets = [
         {
-          label: "Territoriales (Mt)",
+          label: "Émis dans le pays (Mt)",
           data: summary.co2.map((d) => d.emissions_mt),
           borderColor: "#2a78d6",
           backgroundColor: "rgba(42,120,214,0.1)",
@@ -141,7 +162,7 @@ export default function PaysDashboard() {
       ];
       if (hasConsumptionData) {
         datasets.push({
-          label: "Basées conso. (Mt)",
+          label: "Lié à ce qu'on achète (Mt)",
           data: summary.co2.map((d) => d.consumption_co2),
           borderColor: "#e67e22",
           backgroundColor: "rgba(230,126,34,0.1)",
@@ -271,72 +292,73 @@ export default function PaysDashboard() {
   // Comparaison mondiale : chaque métrique normalisée en indice (monde = 100),
   // pour pouvoir les regrouper sur un seul graphique malgré des unités
   // différentes (t/hab, kWh/hab, µg/m³). Uniquement les métriques où on a à la
-  // fois la valeur du pays ET un repère mondial fiable.
+  // fois la valeur du pays ET un repère mondial fiable. Si un second pays est
+  // choisi pour comparaison, on calcule les mêmes indices pour lui aussi.
   useEffect(() => {
     if (!summary || !worldBenchmarks) return;
-    const latestCo2 = summary.co2?.[summary.co2.length - 1];
-    const latestElec = summary.electricityGeneration?.[summary.electricityGeneration.length - 1];
-    const latestPollution = summary.pollution?.[summary.pollution.length - 1];
-    const latestWater = summary.water?.[summary.water.length - 1];
-    const latestVegetation = summary.vegetation?.[summary.vegetation.length - 1];
 
-    const rows = [];
-    if (latestCo2?.emissions_per_capita && worldBenchmarks.co2_per_capita) {
-      rows.push({
-        label: "CO2 par habitant",
-        index: (latestCo2.emissions_per_capita / worldBenchmarks.co2_per_capita.value) * 100,
-      });
+    function computeRows(summaryData) {
+      if (!summaryData) return {};
+      const latestCo2 = summaryData.co2?.[summaryData.co2.length - 1];
+      const latestElec = summaryData.electricityGeneration?.[summaryData.electricityGeneration.length - 1];
+      const latestPollution = summaryData.pollution?.[summaryData.pollution.length - 1];
+      const latestWater = summaryData.water?.[summaryData.water.length - 1];
+      const latestVegetation = summaryData.vegetation?.[summaryData.vegetation.length - 1];
+
+      const byLabel = {};
+      if (latestCo2?.emissions_per_capita && worldBenchmarks.co2_per_capita) {
+        byLabel["CO2 par habitant"] = (latestCo2.emissions_per_capita / worldBenchmarks.co2_per_capita.value) * 100;
+      }
+      if (latestElec?.demand_per_capita_kwh && worldBenchmarks.electricity_demand_per_capita) {
+        byLabel["Électricité consommée/hab"] = (latestElec.demand_per_capita_kwh / worldBenchmarks.electricity_demand_per_capita.value) * 100;
+      }
+      if (latestWater?.withdrawal_share_percent && worldBenchmarks.water_stress_share) {
+        byLabel["Eau utilisée (% du disponible)"] = (latestWater.withdrawal_share_percent / worldBenchmarks.water_stress_share.value) * 100;
+      }
+      if (latestVegetation?.forest_area_ha && latestVegetation?.tree_cover_loss_ha && worldBenchmarks.forest_loss_share_world) {
+        const countryShare = (latestVegetation.tree_cover_loss_ha / latestVegetation.forest_area_ha) * 100;
+        byLabel["% forêt perdue/an"] = (countryShare / worldBenchmarks.forest_loss_share_world.value) * 100;
+      }
+      if (latestPollution?.pm25_ug_m3 && worldBenchmarks.pm25_world_average) {
+        byLabel["Pollution de l'air (PM2.5)"] = (latestPollution.pm25_ug_m3 / worldBenchmarks.pm25_world_average.value) * 100;
+      }
+      return byLabel;
     }
-    if (latestElec?.demand_per_capita_kwh && worldBenchmarks.electricity_demand_per_capita) {
-      rows.push({
-        label: "Électricité consommée/hab",
-        index: (latestElec.demand_per_capita_kwh / worldBenchmarks.electricity_demand_per_capita.value) * 100,
-      });
-    }
-    if (latestWater?.withdrawal_share_percent && worldBenchmarks.water_stress_share) {
-      rows.push({
-        label: "Eau utilisée (% du disponible)",
-        index: (latestWater.withdrawal_share_percent / worldBenchmarks.water_stress_share.value) * 100,
-      });
-    }
-    if (latestVegetation?.forest_area_ha && latestVegetation?.tree_cover_loss_ha && worldBenchmarks.forest_loss_share_world) {
-      const countryShare = (latestVegetation.tree_cover_loss_ha / latestVegetation.forest_area_ha) * 100;
-      rows.push({
-        label: "% forêt perdue/an",
-        index: (countryShare / worldBenchmarks.forest_loss_share_world.value) * 100,
-      });
-    }
-    if (latestPollution?.pm25_ug_m3 && worldBenchmarks.pm25_world_average) {
-      rows.push({
-        label: "Pollution de l'air (PM2.5)",
-        index: (latestPollution.pm25_ug_m3 / worldBenchmarks.pm25_world_average.value) * 100,
-      });
-    }
-    if (rows.length === 0) return;
+
+    const mainRows = computeRows(summary);
+    const compareRows = computeRows(compareSummary);
+    const labels = Object.keys(mainRows);
+    if (labels.length === 0) return;
 
     let cancelled = false;
     import("chart.js/auto").then((Chart) => {
       if (cancelled || !comparisonCanvasRef.current) return;
       if (comparisonChartRef.current) comparisonChartRef.current.destroy();
 
+      const datasets = [
+        {
+          label: `${localizedCountryName(code, preferredLang)} (monde = 100)`,
+          data: labels.map((l) => Math.round(mainRows[l])),
+          backgroundColor: labels.map((l) => (mainRows[l] > 100 ? "#d63e2a" : "#1baf7a")),
+        },
+      ];
+      if (compareCode && compareSummary) {
+        datasets.push({
+          label: localizedCountryName(compareCode, preferredLang),
+          data: labels.map((l) => (compareRows[l] !== undefined ? Math.round(compareRows[l]) : null)),
+          backgroundColor: "#2a78d6",
+        });
+      }
+
       comparisonChartRef.current = new Chart.default(comparisonCanvasRef.current, {
         type: "bar",
-        data: {
-          labels: rows.map((r) => r.label),
-          datasets: [
-            {
-              label: `${localizedCountryName(code, preferredLang)} (monde = 100)`,
-              data: rows.map((r) => Math.round(r.index)),
-              backgroundColor: rows.map((r) => (r.index > 100 ? "#d63e2a" : "#1baf7a")),
-            },
-          ],
-        },
+        data: { labels, datasets },
         options: {
           indexAxis: "y",
           responsive: true,
           maintainAspectRatio: false,
           plugins: {
-            legend: { display: false },
+            legend: { display: !!(compareCode && compareSummary) },
           },
           scales: {
             x: { title: { display: true, text: "Indice (moyenne mondiale = 100)" } },
@@ -347,7 +369,7 @@ export default function PaysDashboard() {
     return () => {
       cancelled = true;
     };
-  }, [summary, worldBenchmarks, code, preferredLang]);
+  }, [summary, worldBenchmarks, code, preferredLang, compareCode, compareSummary]);
 
   useEffect(() => {
     if (!summary || !summary.vegetation || summary.vegetation.length === 0) return;
@@ -570,14 +592,13 @@ export default function PaysDashboard() {
     <main style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "1rem" }}>
         <h1>{countryName}</h1>
-        <label>
-          Changer de pays{" "}
-          <select value={code || ""} onChange={(e) => router.push(`/pays/${e.target.value}`)}>
-            {countries.map((c) => (
-              <option key={c.country_code} value={c.country_code}>{localizedCountryName(c.country_code, preferredLang)}</option>
-            ))}
-          </select>
-        </label>
+        <CountrySelect
+          countries={countries}
+          value={code || ""}
+          onChange={(newCode) => router.push(`/pays/${newCode}`)}
+          preferredLang={preferredLang}
+          label="Changer de pays"
+        />
       </div>
 
       {loading && <p>Chargement...</p>}
@@ -592,6 +613,20 @@ export default function PaysDashboard() {
               pour pouvoir les regrouper malgré des unités différentes. Rouge = au-dessus de la
               moyenne mondiale, vert = en-dessous.
             </p>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap", marginBottom: "0.75rem" }}>
+              <CountrySelect
+                countries={countries.filter((c) => c.country_code !== code)}
+                value={compareCode}
+                onChange={setCompareCode}
+                preferredLang={preferredLang}
+                label="Comparer aussi avec"
+              />
+              {compareCode && (
+                <button onClick={() => setCompareCode("")} style={{ fontSize: 13 }}>
+                  Retirer la comparaison
+                </button>
+              )}
+            </div>
             <div style={{ position: "relative", height: 140 }}>
               <canvas ref={comparisonCanvasRef} role="img" aria-label={`Comparaison de ${countryName} avec les moyennes mondiales`} />
             </div>
@@ -645,11 +680,11 @@ export default function PaysDashboard() {
                 <canvas ref={co2CanvasRef} role="img" aria-label={`Émissions de CO2 pour ${countryName}`} />
               </div>
             )}
-            <p style={{ fontSize: 12, color: "#666" }}>
-              Courbe bleue : émissions territoriales (production), n&apos;incluent pas les
-              produits importés. Courbe orange en pointillés (si présente) : basées sur la
-              consommation (importations comprises, exportations déduites). Aviation et transport
-              maritime internationaux non comptés dans aucune des deux.
+            <p style={{ fontSize: 13, color: "#666" }}>
+              <strong>En clair :</strong> la courbe bleue, c&apos;est ce qui est émis sur le sol du
+              pays. La courbe orange en pointillés (si présente), c&apos;est ce qui est lié à ce
+              que les gens du pays achètent, y compris les produits importés. Aviation et
+              transport maritime internationaux non comptés dans aucune des deux.
               {lastUpdated?.co2?.latestYear && (
                 <> Dernière année couverte : {lastUpdated.co2.latestYear}.</>
               )}

@@ -5,6 +5,7 @@ import { formatCommonNames } from "../lib/commonNames";
 import { detectPreferredLanguage } from "../lib/detectLanguage";
 import { useLastUpdated, formatDate } from "../lib/useLastUpdated";
 import { localizedCountryName } from "../lib/countryNames";
+import CountrySelect from "../components/CountrySelect";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -158,17 +159,12 @@ export default function EspecesPage() {
       </p>
 
       <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem", flexWrap: "wrap" }}>
-        <label>
-          Pays{" "}
-          <select value={country} onChange={(e) => setCountry(e.target.value)}>
-            {countries.length === 0 && <option value={country}>{country}</option>}
-            {countries.map((c) => (
-              <option key={c.country_code} value={c.country_code}>
-                {localizedCountryName(c.country_code, preferredLang)}
-              </option>
-            ))}
-          </select>
-        </label>
+        <CountrySelect
+          countries={countries}
+          value={country}
+          onChange={setCountry}
+          preferredLang={preferredLang}
+        />
 
         <label>
           Groupe{" "}

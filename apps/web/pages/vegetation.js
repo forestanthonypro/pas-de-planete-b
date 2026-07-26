@@ -3,6 +3,7 @@ import { detectDefaultCountry } from "../lib/detectCountry";
 import { detectPreferredLanguage } from "../lib/detectLanguage";
 import { useLastUpdated, formatDate } from "../lib/useLastUpdated";
 import { localizedCountryName } from "../lib/countryNames";
+import CountrySelect from "../components/CountrySelect";
 import { useWorldBenchmarks } from "../lib/useWorldBenchmarks";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
@@ -129,15 +130,12 @@ export default function VegetationPage() {
       <h1>Perte de couverture arborée — {selectedCountryName}</h1>
 
       <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem", flexWrap: "wrap" }}>
-        <label>
-          Pays{" "}
-          <select value={countryCode} onChange={(e) => setCountryCode(e.target.value)}>
-            {countries.length === 0 && <option value={countryCode}>{countryCode}</option>}
-            {countries.map((c) => (
-              <option key={c.country_code} value={c.country_code}>{localizedCountryName(c.country_code, preferredLang)}</option>
-            ))}
-          </select>
-        </label>
+        <CountrySelect
+          countries={countries}
+          value={countryCode}
+          onChange={setCountryCode}
+          preferredLang={preferredLang}
+        />
         <button onClick={() => setView(view === "chart" ? "table" : "chart")}>
           Voir en {view === "chart" ? "tableau" : "graphique"}
         </button>
