@@ -406,6 +406,8 @@ export default function PaysDashboard() {
           label: localizedCountryName(code, preferredLang),
           data: mainRows.map((r) => Math.round(r.value * 100) / 100),
           backgroundColor: "#6c3483",
+          barPercentage: 0.9,
+          categoryPercentage: 0.8,
         },
       ];
       if (compareCode && compareSummary) {
@@ -413,6 +415,8 @@ export default function PaysDashboard() {
           label: localizedCountryName(compareCode, preferredLang),
           data: labels.map((l) => (compareByLabel[l] !== undefined ? Math.round(compareByLabel[l] * 100) / 100 : null)),
           backgroundColor: "#c6a2d6",
+          barPercentage: 0.9,
+          categoryPercentage: 0.8,
         });
       }
 
@@ -705,7 +709,7 @@ export default function PaysDashboard() {
                 </button>
               )}
             </div>
-            <div style={{ position: "relative", height: 140 }}>
+            <div style={{ position: "relative", height: 320 }}>
               <canvas ref={comparisonCanvasRef} role="img" aria-label={`Comparaison de ${countryName} avec les moyennes mondiales`} />
             </div>
             {(() => {

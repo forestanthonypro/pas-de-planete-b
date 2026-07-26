@@ -1,6 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { localizedCountryName } from "../lib/countryNames";
 
+// Retire les accents pour une recherche insensible aux accents (ex: "perou"
+// trouve "Pérou", "cote d'ivoire" trouve "Côte d'Ivoire").
+function normalize(str) {
+  return str
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
+
 // Sélecteur de pays avec champ de recherche et tri alphabétique — remplace un
 // <select> simple, plus pratique dès qu'il y a une centaine de pays à
 // parcourir. Accepte soit une liste de codes ISO3 (string[]), soit une liste
@@ -25,8 +34,8 @@ export default function CountrySelect({ countries, value, onChange, preferredLan
 
   const filtered = useMemo(() => {
     if (!query.trim()) return sorted;
-    const q = query.trim().toLowerCase();
-    return sorted.filter((c) => localizedCountryName(c, preferredLang).toLowerCase().includes(q));
+    const q = normalize(query.trim());
+    return sorted.filter((c) => normalize(localizedCountryName(c, preferredLang)).includes(q));
   }, [sorted, query, preferredLang]);
 
   useEffect(() => {
