@@ -23,9 +23,10 @@ jobs:
             -H "x-ingest-token: ${{ secrets.INGEST_TOKEN }}"
 
   refresh-species:
+    needs: [refresh-co2, refresh-power-plants]
     runs-on: ubuntu-latest
     steps:
-      - name: Ré-ingérer les espèces
+      - name: Ré-ingérer les espèces (dépend des pays déjà connus via CO2/énergie)
         run: |
           curl -f -X POST "${{ secrets.API_URL }}/api/admin/ingest/species" \
             -H "x-ingest-token: ${{ secrets.INGEST_TOKEN }}"

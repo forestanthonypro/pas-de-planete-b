@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { detectDefaultCountry } from "../lib/detectCountry";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -13,6 +14,11 @@ export default function Co2Page() {
 
   const canvasRef = useRef(null);
   const chartRef = useRef(null);
+
+  // Devine le pays par défaut une fois côté client (évite un décalage serveur/client).
+  useEffect(() => {
+    setCountryCode(detectDefaultCountry());
+  }, []);
 
   // Charge la liste des pays une seule fois, pour peupler le filtre.
   useEffect(() => {

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { detectDefaultCountry } from "../lib/detectCountry";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -31,6 +32,11 @@ export default function EnergiePage() {
   const mapContainerRef = useRef(null);
   const mapRef = useRef(null);
   const markersLayerRef = useRef(null);
+
+  // Devine le pays par défaut une fois côté client (évite un décalage serveur/client).
+  useEffect(() => {
+    setCountry(detectDefaultCountry());
+  }, []);
 
   // Charge les listes pour peupler les filtres, une seule fois.
   useEffect(() => {
