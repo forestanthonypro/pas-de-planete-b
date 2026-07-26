@@ -25,7 +25,7 @@ jobs:
           cache-dependency-path: apps/${{ matrix.app }}/package.json
       - run: npm install
         working-directory: apps/${{ matrix.app }}
-      - run: npm run lint --if-present
+      - run: npm run lint
         working-directory: apps/${{ matrix.app }}
 
   build-push:
@@ -61,7 +61,7 @@ jobs:
   deploy-production:
     needs: deploy-staging
     runs-on: ubuntu-latest
-    environment: production  # nécessite une validation manuelle configurée dans les réglages du repo
+    environment: production
     steps:
       - name: Déployer en production
         run: echo "TODO: ssh vers le serveur de production, docker compose pull && up -d"
