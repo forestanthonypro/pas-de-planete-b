@@ -922,6 +922,11 @@ export default function PaysDashboard() {
               l&apos;orange dépasse le bleu, le pays achète (et fait donc émettre ailleurs) plus de
               CO2 qu&apos;il n&apos;en émet lui-même.
             </p>
+            <p style={{ fontSize: 13, color: "#666", fontWeight: 600 }}>
+              Important : ni la bleue ni l&apos;orange n&apos;est &laquo; la vraie &raquo;, et on
+              ne les additionne jamais — ce sont deux façons de découper le même total mondial
+              d&apos;émissions, pas deux morceaux d&apos;un total.
+            </p>
             {summary.co2.length > 0 && (
               <div style={{ position: "relative", height: 220 }}>
                 <canvas ref={co2CanvasRef} role="img" aria-label={`Émissions de CO2 pour ${countryName}`} />

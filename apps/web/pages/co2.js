@@ -158,6 +158,13 @@ export default function Co2Page() {
         au-dessus du bleu pour un pays, ça veut dire que ce pays achète (et fait donc émettre à
         l&apos;étranger) plus de CO2 qu&apos;il n&apos;en émet lui-même sur son propre sol.
       </p>
+      <p style={{ fontSize: 13, color: "#666", fontWeight: 600, marginBottom: "0.75rem" }}>
+        Important : ni la bleue ni l&apos;orange n&apos;est &laquo; la vraie &raquo; — les deux
+        comptent de vraies émissions de CO2, juste avec deux règles différentes pour savoir à qui
+        les attribuer (là où c&apos;est produit, ou par qui c&apos;est consommé). Et surtout : on
+        ne les additionne jamais. Ce ne sont pas deux morceaux d&apos;un total — ce sont deux
+        façons de découper le même total mondial d&apos;émissions.
+      </p>
 
       {!loading && !error && view === "chart" && (
         <div style={{ position: "relative", height: 320 }}>
