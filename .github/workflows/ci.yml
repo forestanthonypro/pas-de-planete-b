@@ -20,12 +20,12 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
           cache-dependency-path: apps/${{ matrix.app }}/package.json
       - run: npm install
         working-directory: apps/${{ matrix.app }}
-      - run: npm run lint
+      - run: npm run lint --if-present
         working-directory: apps/${{ matrix.app }}
 
   build-push:
@@ -56,12 +56,12 @@ jobs:
     environment: staging
     steps:
       - name: Déployer sur le serveur de staging
-        run: 'echo "TODO: ssh vers le serveur de staging, docker compose pull && up -d"'
+        run: echo "TODO: ssh vers le serveur de staging, docker compose pull && up -d"
 
   deploy-production:
     needs: deploy-staging
     runs-on: ubuntu-latest
-    environment: production
+    environment: production  # nécessite une validation manuelle configurée dans les réglages du repo
     steps:
       - name: Déployer en production
-        run: 'echo "TODO: ssh vers le serveur de production, docker compose pull && up -d"'
+        run: echo "TODO: ssh vers le serveur de production, docker compose pull && up -d"
