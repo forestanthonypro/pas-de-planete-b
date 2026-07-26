@@ -1,3 +1,7 @@
+# Usage local / développement : docker compose up
+# Les deux services (api, web) tournent sur une image Node générique et font
+# npm install à chaque démarrage — pas besoin de rebuild ni d'exec manuel
+# quand une dépendance est ajoutée, il suffit de relancer le service concerné.
 services:
   postgres:
     image: postgis/postgis:16-3.4
@@ -17,12 +21,15 @@ services:
       retries: 10
 
   api:
-    build:
-      context: ./apps/api
+    image: node:20-alpine
+    working_dir: /app
     restart: unless-stopped
     env_file: .env
     environment:
       DATABASE_URL: ${DATABASE_URL}
+      API_PORT: ${API_PORT}
+      CORS_ORIGIN: ${CORS_ORIGIN}
+      INGEST_TOKEN: ${INGEST_TOKEN}
     depends_on:
       postgres:
         condition: service_healthy
@@ -30,7 +37,8 @@ services:
       - "4000:4000"
     volumes:
       - ./apps/api:/app
-      - /app/node_modules
+      - api-node-modules:/app/node_modules
+    command: sh -c "npm install && npm run dev"
 
   web:
     image: node:20-alpine
@@ -45,9 +53,12 @@ services:
       - "3000:3000"
     volumes:
       - ./apps/web:/app
-      - /app/node_modules
-      - /app/.next
+      - web-node-modules:/app/node_modules
+      - web-next-cache:/app/.next
     command: sh -c "npm install && npm run dev"
 
 volumes:
   postgres-data:
+  api-node-modules:
+  web-node-modules:
+  web-next-cache:
