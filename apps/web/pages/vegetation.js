@@ -62,16 +62,40 @@ export default function VegetationPage() {
           labels: data.map((d) => d.year),
           datasets: [
             {
+              type: "bar",
               label: "Perte de couverture arborée (ha)",
               data: data.map((d) => d.tree_cover_loss_ha),
               backgroundColor: "#e67e22",
+              yAxisID: "y",
+            },
+            {
+              type: "line",
+              label: "% du couvert forestier perdu cette année-là",
+              data: data.map((d) =>
+                d.forest_area_ha ? (d.tree_cover_loss_ha / d.forest_area_ha) * 100 : null
+              ),
+              borderColor: "#d63e2a",
+              backgroundColor: "rgba(214,62,42,0.1)",
+              yAxisID: "y1",
+              tension: 0.3,
+              pointRadius: 2,
+              borderWidth: 2,
             },
           ],
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
+          plugins: { legend: { display: true } },
+          scales: {
+            y: { type: "linear", position: "left", title: { display: true, text: "Perte (ha)" } },
+            y1: {
+              type: "linear",
+              position: "right",
+              title: { display: true, text: "% du couvert perdu" },
+              grid: { drawOnChartArea: false },
+            },
+          },
         },
       });
     });
@@ -120,6 +144,8 @@ export default function VegetationPage() {
             <tr>
               <th scope="col" style={{ textAlign: "left", padding: 8 }}>Année</th>
               <th scope="col" style={{ textAlign: "right", padding: 8 }}>Perte (ha)</th>
+              <th scope="col" style={{ textAlign: "right", padding: 8 }}>Surface forestière totale (ha)</th>
+              <th scope="col" style={{ textAlign: "right", padding: 8 }}>% perdu</th>
             </tr>
           </thead>
           <tbody>
@@ -128,6 +154,14 @@ export default function VegetationPage() {
                 <th scope="row" style={{ textAlign: "left", padding: 8, fontWeight: 400 }}>{d.year}</th>
                 <td style={{ textAlign: "right", padding: 8 }}>
                   {d.tree_cover_loss_ha ? Math.round(d.tree_cover_loss_ha).toLocaleString("fr-FR") : "—"}
+                </td>
+                <td style={{ textAlign: "right", padding: 8 }}>
+                  {d.forest_area_ha ? Math.round(d.forest_area_ha).toLocaleString("fr-FR") : "—"}
+                </td>
+                <td style={{ textAlign: "right", padding: 8 }}>
+                  {d.forest_area_ha && d.tree_cover_loss_ha
+                    ? ((d.tree_cover_loss_ha / d.forest_area_ha) * 100).toFixed(2) + " %"
+                    : "—"}
                 </td>
               </tr>
             ))}
@@ -142,7 +176,13 @@ export default function VegetationPage() {
           (résolution 30m, Hansen et al.), toutes causes confondues — coupe rase, incendie,
           exploitation forestière, agriculture. Ce n&apos;est pas nécessairement de la
           déforestation permanente : une parcelle peut repousser après coupe forestière gérée.
-          Les données couvrent 2001-2024.
+          Les données de perte couvrent 2001-2024.
+        </p>
+        <p>
+          La courbe rouge (% perdu) rapporte cette perte annuelle à la{" "}
+          <strong>surface forestière totale</strong> du pays cette année-là (FAO, référentiel
+          recalculé tous les 5 ans et interpolé entre-temps) — pour donner un ordre de grandeur
+          relatif plutôt qu&apos;un chiffre brut en hectares sans contexte.
         </p>
       </details>
 

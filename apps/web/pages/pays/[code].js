@@ -60,6 +60,8 @@ export default function PaysDashboard() {
   const co2ChartRef = useRef(null);
   const energyCanvasRef = useRef(null);
   const energyChartRef = useRef(null);
+  const generationCanvasRef = useRef(null);
+  const generationChartRef = useRef(null);
   const fireMapContainerRef = useRef(null);
   const fireMapRef = useRef(null);
   const fireMarkersLayerRef = useRef(null);
@@ -203,6 +205,52 @@ export default function PaysDashboard() {
   }, [summary]);
 
   useEffect(() => {
+    if (!summary || !summary.electricityGeneration || summary.electricityGeneration.length === 0) return;
+    let cancelled = false;
+    import("chart.js/auto").then((Chart) => {
+      if (cancelled || !generationCanvasRef.current) return;
+      if (generationChartRef.current) generationChartRef.current.destroy();
+
+      const sources = [
+        { key: "coal_twh", label: translateFuel("Coal"), color: FUEL_COLORS.Coal },
+        { key: "gas_twh", label: translateFuel("Gas"), color: FUEL_COLORS.Gas },
+        { key: "oil_twh", label: translateFuel("Oil"), color: FUEL_COLORS.Oil },
+        { key: "nuclear_twh", label: translateFuel("Nuclear"), color: FUEL_COLORS.Nuclear },
+        { key: "hydro_twh", label: translateFuel("Hydro"), color: FUEL_COLORS.Hydro },
+        { key: "wind_twh", label: translateFuel("Wind"), color: FUEL_COLORS.Wind },
+        { key: "solar_twh", label: translateFuel("Solar"), color: FUEL_COLORS.Solar },
+        { key: "biofuel_twh", label: translateFuel("Biomass"), color: FUEL_COLORS.Biomass },
+        { key: "other_renewable_twh", label: "Autres renouvelables", color: DEFAULT_FUEL_COLOR },
+      ];
+
+      generationChartRef.current = new Chart.default(generationCanvasRef.current, {
+        type: "bar",
+        data: {
+          labels: summary.electricityGeneration.map((d) => d.year),
+          datasets: sources.map((s) => ({
+            label: s.label,
+            data: summary.electricityGeneration.map((d) => d[s.key] || 0),
+            backgroundColor: s.color || DEFAULT_FUEL_COLOR,
+            stack: "generation",
+          })),
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: true, position: "bottom" } },
+          scales: {
+            x: { stacked: true },
+            y: { stacked: true, title: { display: true, text: "TWh/an" } },
+          },
+        },
+      });
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [summary]);
+
+  useEffect(() => {
     if (!summary || !summary.vegetation || summary.vegetation.length === 0) return;
     let cancelled = false;
     import("chart.js/auto").then((Chart) => {
@@ -214,16 +262,35 @@ export default function PaysDashboard() {
           labels: summary.vegetation.map((d) => d.year),
           datasets: [
             {
+              type: "bar",
               label: "Perte de couverture arborée (ha)",
               data: summary.vegetation.map((d) => d.tree_cover_loss_ha),
               backgroundColor: "#e67e22",
+              yAxisID: "y",
+            },
+            {
+              type: "line",
+              label: "% du couvert perdu",
+              data: summary.vegetation.map((d) =>
+                d.forest_area_ha ? (d.tree_cover_loss_ha / d.forest_area_ha) * 100 : null
+              ),
+              borderColor: "#d63e2a",
+              backgroundColor: "rgba(214,62,42,0.1)",
+              yAxisID: "y1",
+              tension: 0.3,
+              pointRadius: 2,
+              borderWidth: 2,
             },
           ],
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
+          plugins: { legend: { display: true } },
+          scales: {
+            y: { type: "linear", position: "left", title: { display: true, text: "Perte (ha)" } },
+            y1: { type: "linear", position: "right", title: { display: true, text: "% perdu" }, grid: { drawOnChartArea: false } },
+          },
         },
       });
     });
@@ -434,6 +501,23 @@ export default function PaysDashboard() {
               )}
               {" "}<Link href="/energie">Voir la carte détaillée →</Link>
             </p>
+            {summary.electricityGeneration?.length > 0 && (
+              <>
+                <p style={{ fontSize: 13, color: "#666", marginTop: "1rem" }}>
+                  À la différence du graphique ci-dessus (capacité installée, figée), voici ce qui
+                  est réellement produit chaque année, par filière.
+                </p>
+                <div style={{ position: "relative", height: 260 }}>
+                  <canvas ref={generationCanvasRef} role="img" aria-label={`Génération électrique réelle par filière pour ${countryName}`} />
+                </div>
+                <p style={{ fontSize: 12, color: "#666" }}>
+                  Ember / Energy Institute, via Our World in Data.
+                  {lastUpdated?.electricity?.latestYear && (
+                    <> Dernière année couverte : {lastUpdated.electricity.latestYear}.</>
+                  )}
+                </p>
+              </>
+            )}
           </section>
 
           <section style={{ marginTop: "2rem" }}>
@@ -559,6 +643,14 @@ export default function PaysDashboard() {
                 {" "}— <strong>{Math.round(summary.water[summary.water.length - 1].precipitation_mm).toLocaleString("fr-FR")} mm</strong> de précipitations cette année-là
               </>
             )}
+            {(() => {
+              const lastWithdrawal = [...summary.water].reverse().find((d) => d.withdrawal_m3);
+              return lastWithdrawal ? (
+                <>
+                  {" "}— <strong>{(lastWithdrawal.withdrawal_m3 / 1e9).toFixed(1)} Md m³</strong> prélevés réellement en {lastWithdrawal.year}
+                </>
+              ) : null;
+            })()}
             .
           </p>
         ) : (

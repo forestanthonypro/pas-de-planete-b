@@ -18,6 +18,8 @@ export default function EauPage() {
 
   const canvasRef = useRef(null);
   const chartRef = useRef(null);
+  const withdrawalCanvasRef = useRef(null);
+  const withdrawalChartRef = useRef(null);
 
   useEffect(() => {
     setCountryCode(detectDefaultCountry());
@@ -102,6 +104,45 @@ export default function EauPage() {
     };
   }, [data, view, loading, error]);
 
+  // Second graphique : prélèvements d'eau réels (consommation), en milliards de m³/an —
+  // échelle et nature différentes des ressources disponibles, donc un graphique séparé
+  // plutôt qu'un troisième axe illisible sur le même repère.
+  useEffect(() => {
+    if (view !== "chart" || loading || error || data.length === 0) return;
+    const hasWithdrawal = data.some((d) => d.withdrawal_m3 !== null && d.withdrawal_m3 !== undefined);
+    if (!hasWithdrawal) return;
+    let cancelled = false;
+    import("chart.js/auto").then(({ default: Chart }) => {
+      if (cancelled || !withdrawalCanvasRef.current) return;
+      if (withdrawalChartRef.current) withdrawalChartRef.current.destroy();
+
+      withdrawalChartRef.current = new Chart(withdrawalCanvasRef.current, {
+        type: "bar",
+        data: {
+          labels: data.map((d) => d.year),
+          datasets: [
+            {
+              label: "Prélèvements d'eau réels (milliards de m³/an)",
+              data: data.map((d) => (d.withdrawal_m3 ? d.withdrawal_m3 / 1e9 : null)),
+              backgroundColor: "#8e44ad",
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { title: { display: true, text: "Milliards de m³/an" } },
+          },
+        },
+      });
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [data, view, loading, error]);
+
   const selectedCountryName =
     localizedCountryName(countryCode, preferredLang);
 
@@ -128,9 +169,16 @@ export default function EauPage() {
       {error && <p role="alert">Erreur : {error}</p>}
 
       {!loading && !error && view === "chart" && (
-        <div style={{ position: "relative", height: 340 }}>
-          <canvas ref={canvasRef} role="img" aria-label={`Ressources en eau et pluviométrie pour ${selectedCountryName}`} />
-        </div>
+        <>
+          <div style={{ position: "relative", height: 340 }}>
+            <canvas ref={canvasRef} role="img" aria-label={`Ressources en eau et pluviométrie pour ${selectedCountryName}`} />
+          </div>
+          {data.some((d) => d.withdrawal_m3) && (
+            <div style={{ position: "relative", height: 220, marginTop: "1rem" }}>
+              <canvas ref={withdrawalCanvasRef} role="img" aria-label={`Prélèvements d'eau réels pour ${selectedCountryName}`} />
+            </div>
+          )}
+        </>
       )}
 
       {!loading && !error && view === "table" && (
@@ -143,6 +191,7 @@ export default function EauPage() {
               <th scope="col" style={{ textAlign: "left", padding: 8 }}>Année</th>
               <th scope="col" style={{ textAlign: "right", padding: 8 }}>Ressources (m³/hab.)</th>
               <th scope="col" style={{ textAlign: "right", padding: 8 }}>Pluviométrie (mm)</th>
+              <th scope="col" style={{ textAlign: "right", padding: 8 }}>Prélèvements (Md m³)</th>
             </tr>
           </thead>
           <tbody>
@@ -154,6 +203,9 @@ export default function EauPage() {
                 </td>
                 <td style={{ textAlign: "right", padding: 8 }}>
                   {d.precipitation_mm ? Math.round(d.precipitation_mm).toLocaleString("fr-FR") : "—"}
+                </td>
+                <td style={{ textAlign: "right", padding: 8 }}>
+                  {d.withdrawal_m3 ? (d.withdrawal_m3 / 1e9).toFixed(2) : "—"}
                 </td>
               </tr>
             ))}
@@ -177,11 +229,18 @@ export default function EauPage() {
           Pour les très petits pays, cette mesure peut être moins fiable (résolution de la grille
           climatique).
         </p>
+        <p>
+          Le graphique violet montre les <strong>prélèvements d&apos;eau réels</strong>
+          (consommation agricole, industrielle et domestique confondues) — la comparaison directe
+          avec la courbe bleue : si les prélèvements dépassent durablement les ressources
+          renouvelables, c&apos;est le signe d&apos;un recours à des nappes non renouvelables ou au
+          dessalement.
+        </p>
       </details>
 
       <p style={{ fontSize: 12, color: "#666", marginTop: "1rem" }}>
-        Sources : AQUASTAT/FAO via Banque mondiale (ressources renouvelables), Copernicus ERA5
-        (pluviométrie), via Our World in Data (CC-BY)
+        Sources : AQUASTAT/FAO via Banque mondiale (ressources renouvelables et prélèvements),
+        Copernicus ERA5 (pluviométrie), via Our World in Data (CC-BY)
         {lastUpdated?.water?.latestYear && (
           <> — dernière année couverte : {lastUpdated.water.latestYear}</>
         )}

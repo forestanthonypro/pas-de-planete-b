@@ -15,6 +15,7 @@ export default function EnergiePage() {
   const [country, setCountry] = useState("FRA");
   const [fuelType, setFuelType] = useState("");
   const [plants, setPlants] = useState([]);
+  const [generation, setGeneration] = useState([]);
   const [view, setView] = useState("map"); // "map" ou "table"
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -22,6 +23,8 @@ export default function EnergiePage() {
   const mapContainerRef = useRef(null);
   const mapRef = useRef(null);
   const markersLayerRef = useRef(null);
+  const generationCanvasRef = useRef(null);
+  const generationChartRef = useRef(null);
 
   // Devine le pays par défaut une fois côté client (évite un décalage serveur/client).
   useEffect(() => {
@@ -63,6 +66,62 @@ export default function EnergiePage() {
         setLoading(false);
       });
   }, [country, fuelType]);
+
+  // Génération électrique réelle par filière et par an — comparaison à la
+  // capacité installée statique de la carte ci-dessus.
+  useEffect(() => {
+    fetch(`${API_URL}/api/electricity/${country}`)
+      .then((res) => (res.ok ? res.json() : []))
+      .then((rows) => setGeneration(Array.isArray(rows) ? rows : []))
+      .catch(() => setGeneration([]));
+  }, [country]);
+
+  // Dessine le graphique de génération électrique réelle (empilé par filière).
+  useEffect(() => {
+    if (generation.length === 0) return;
+    let cancelled = false;
+    import("chart.js/auto").then(({ default: Chart }) => {
+      if (cancelled || !generationCanvasRef.current) return;
+      if (generationChartRef.current) generationChartRef.current.destroy();
+
+      const sources = [
+        { key: "coal_twh", label: translateFuel("Coal"), color: FUEL_COLORS.Coal },
+        { key: "gas_twh", label: translateFuel("Gas"), color: FUEL_COLORS.Gas },
+        { key: "oil_twh", label: translateFuel("Oil"), color: FUEL_COLORS.Oil },
+        { key: "nuclear_twh", label: translateFuel("Nuclear"), color: FUEL_COLORS.Nuclear },
+        { key: "hydro_twh", label: translateFuel("Hydro"), color: FUEL_COLORS.Hydro },
+        { key: "wind_twh", label: translateFuel("Wind"), color: FUEL_COLORS.Wind },
+        { key: "solar_twh", label: translateFuel("Solar"), color: FUEL_COLORS.Solar },
+        { key: "biofuel_twh", label: translateFuel("Biomass"), color: FUEL_COLORS.Biomass },
+        { key: "other_renewable_twh", label: "Autres renouvelables", color: DEFAULT_FUEL_COLOR },
+      ];
+
+      generationChartRef.current = new Chart(generationCanvasRef.current, {
+        type: "bar",
+        data: {
+          labels: generation.map((d) => d.year),
+          datasets: sources.map((s) => ({
+            label: s.label,
+            data: generation.map((d) => d[s.key] || 0),
+            backgroundColor: s.color || DEFAULT_FUEL_COLOR,
+            stack: "generation",
+          })),
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: true, position: "bottom" } },
+          scales: {
+            x: { stacked: true },
+            y: { stacked: true, title: { display: true, text: "TWh/an" } },
+          },
+        },
+      });
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [generation]);
 
   // Initialise la carte une seule fois.
   useEffect(() => {
@@ -180,6 +239,26 @@ export default function EnergiePage() {
             ))}
           </tbody>
         </table>
+      )}
+
+      {generation.length > 0 && (
+        <section style={{ marginTop: "2rem" }}>
+          <h2>Génération électrique réelle</h2>
+          <p style={{ fontSize: 13, color: "#666" }}>
+            À la différence de la carte ci-dessus (capacité installée, figée depuis 2021), voici
+            ce qui est réellement produit chaque année, par filière.
+          </p>
+          <div style={{ position: "relative", height: 320 }}>
+            <canvas ref={generationCanvasRef} role="img" aria-label={`Génération électrique réelle par filière pour ${localizedCountryName(country, preferredLang)}`} />
+          </div>
+          <p style={{ fontSize: 12, color: "#666", marginTop: "0.5rem" }}>
+            Source : Ember / Energy Institute, via Our World in Data (CC-BY)
+            {lastUpdated?.electricity?.latestYear && (
+              <> — dernière année couverte : {lastUpdated.electricity.latestYear}</>
+            )}
+            . Rafraîchissement automatique mensuel.
+          </p>
+        </section>
       )}
 
       <p style={{ fontSize: 12, color: "#666", marginTop: "1rem" }}>

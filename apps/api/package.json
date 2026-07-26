@@ -13,7 +13,8 @@
     "ingest:species": "node src/ingest/species.js",
     "ingest:fires": "node src/ingest/fires.js",
     "ingest:vegetation": "node src/ingest/vegetation.js",
-    "ingest:water": "node src/ingest/water.js"
+    "ingest:water": "node src/ingest/water.js",
+    "ingest:electricity": "node src/ingest/electricity.js"
   },
   "dependencies": {
     "express": "^4.19.2",

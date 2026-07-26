@@ -1,11 +1,11 @@
-// Ingestion des données eau par pays : ressources renouvelables par habitant
-// (AQUASTAT/FAO via Banque mondiale) et pluviométrie annuelle (Copernicus ERA5),
-// toutes deux republiées par Our World in Data — CSV ouverts, sans authentification.
+// Ingestion des données eau par pays : ressources renouvelables par habitant,
+// pluviométrie annuelle réelle, et prélèvements d'eau réels (consommation) —
+// toutes republiées par Our World in Data, CSV ouverts, sans authentification.
 //
 // Particularité : la donnée "ressources renouvelables" est une estimation à long
 // terme recalculée chaque année seulement pour tenir compte de la population —
 // la valeur physique sous-jacente change rarement d'une année sur l'autre.
-// La pluviométrie, elle, varie réellement chaque année (données climatiques).
+// La pluviométrie et les prélèvements, eux, varient réellement chaque année.
 
 import { parse } from "csv-parse/sync";
 
@@ -13,6 +13,8 @@ const FRESHWATER_URL =
   "https://ourworldindata.org/grapher/renewable-water-resources-per-capita.csv?v=1&csvType=full&useColumnShortNames=false";
 const PRECIPITATION_URL =
   "https://ourworldindata.org/grapher/average-precipitation-per-year.csv?v=1&csvType=full&useColumnShortNames=false";
+const WITHDRAWAL_URL =
+  "https://ourworldindata.org/grapher/annual-freshwater-withdrawals.csv?v=1&csvType=full&useColumnShortNames=false";
 const SOURCE_LABEL = "AQUASTAT/FAO via Banque mondiale, et Copernicus ERA5, via Our World in Data";
 const ISO3_RE = /^[A-Z]{3}$/;
 
@@ -24,9 +26,10 @@ async function fetchCsvRows(url) {
 }
 
 export async function ingestWater(pool) {
-  const [freshRows, precipRows] = await Promise.all([
+  const [freshRows, precipRows, withdrawalRows] = await Promise.all([
     fetchCsvRows(FRESHWATER_URL),
     fetchCsvRows(PRECIPITATION_URL),
+    fetchCsvRows(WITHDRAWAL_URL),
   ]);
 
   let inserted = 0;
@@ -79,6 +82,28 @@ export async function ingestWater(pool) {
       inserted += 1;
     }
 
+    const withdrawalCol = "Annual freshwater withdrawals";
+    for (const row of withdrawalRows) {
+      const isoCode = (row.Code || "").trim().toUpperCase();
+      const year = parseInt(row.Year, 10);
+      const value = row[withdrawalCol] === "" || row[withdrawalCol] === undefined ? null : parseFloat(row[withdrawalCol]);
+      if (!ISO3_RE.test(isoCode) || Number.isNaN(year) || value === null) {
+        skipped += 1;
+        continue;
+      }
+      await client.query(
+        `INSERT INTO water_data (country_code, country_name, year, withdrawal_m3, source)
+         VALUES ($1, $2, $3, $4, $5)
+         ON CONFLICT (country_code, year)
+         DO UPDATE SET
+           withdrawal_m3 = EXCLUDED.withdrawal_m3,
+           country_name = EXCLUDED.country_name,
+           updated_at = now()`,
+        [isoCode, row.Entity, year, value, SOURCE_LABEL]
+      );
+      inserted += 1;
+    }
+
     await client.query("COMMIT");
   } catch (err) {
     await client.query("ROLLBACK");
@@ -93,7 +118,7 @@ export async function ingestWater(pool) {
 if (import.meta.url === `file://${process.argv[1]}`) {
   const { default: pg } = await import("pg");
   const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
-  console.log("Téléchargement des données eau (ressources renouvelables + pluviométrie)...");
+  console.log("Téléchargement des données eau (ressources + pluviométrie + prélèvements)...");
   const { inserted, skipped } = await ingestWater(pool);
   console.log(`Terminé : ${inserted} lignes insérées/mises à jour, ${skipped} lignes ignorées.`);
   await pool.end();
