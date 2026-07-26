@@ -73,6 +73,8 @@ export default function PaysDashboard() {
   const vegetationChartRef = useRef(null);
   const waterCanvasRef = useRef(null);
   const waterChartRef = useRef(null);
+  const stressCanvasRef = useRef(null);
+  const stressChartRef = useRef(null);
 
   useEffect(() => {
     setPreferredLang(detectPreferredLanguage());
@@ -464,6 +466,55 @@ export default function PaysDashboard() {
   }, [summary]);
 
   useEffect(() => {
+    if (!summary || !summary.water || summary.water.length === 0) return;
+    const hasStress = summary.water.some((d) => d.withdrawal_share_percent !== null && d.withdrawal_share_percent !== undefined);
+    if (!hasStress) return;
+    let cancelled = false;
+    import("chart.js/auto").then((Chart) => {
+      if (cancelled || !stressCanvasRef.current) return;
+      if (stressChartRef.current) stressChartRef.current.destroy();
+
+      const datasets = [
+        {
+          label: "Stress hydrique du pays (%)",
+          data: summary.water.map((d) => d.withdrawal_share_percent),
+          borderColor: "#8e44ad",
+          backgroundColor: "rgba(142,68,173,0.1)",
+          fill: true,
+          tension: 0.3,
+          pointRadius: 0,
+          borderWidth: 2,
+        },
+      ];
+      if (worldBenchmarks?.water_stress_share) {
+        datasets.push({
+          label: "Moyenne mondiale",
+          data: summary.water.map(() => worldBenchmarks.water_stress_share.value),
+          borderColor: "#95a5a6",
+          borderDash: [4, 4],
+          pointRadius: 0,
+          borderWidth: 1.5,
+          fill: false,
+        });
+      }
+
+      stressChartRef.current = new Chart.default(stressCanvasRef.current, {
+        type: "line",
+        data: { labels: summary.water.map((d) => d.year), datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: true } },
+          scales: { y: { title: { display: true, text: "% des ressources renouvelables prélevé" } } },
+        },
+      });
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [summary, worldBenchmarks]);
+
+  useEffect(() => {
     if (!fireMapContainerRef.current || fireMapRef.current) return;
     let cancelled = false;
     import("leaflet").then((L) => {
@@ -824,6 +875,11 @@ export default function PaysDashboard() {
         {summary?.water?.length > 0 && (
           <div style={{ position: "relative", height: 260 }}>
             <canvas ref={waterCanvasRef} role="img" aria-label={`Ressources en eau et pluviométrie pour ${countryName}`} />
+          </div>
+        )}
+        {summary?.water?.some((d) => d.withdrawal_share_percent) && (
+          <div style={{ position: "relative", height: 220, marginTop: "1rem" }}>
+            <canvas ref={stressCanvasRef} role="img" aria-label={`Stress hydrique pour ${countryName}, comparé à la moyenne mondiale`} />
           </div>
         )}
         <p style={{ fontSize: 12, color: "#666" }}>
