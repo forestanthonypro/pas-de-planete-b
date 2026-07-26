@@ -4,6 +4,7 @@ import pg from "pg";
 import { ingestCo2 } from "./ingest/co2.js";
 import { ingestPowerPlants } from "./ingest/power_plants.js";
 import { ingestSpecies } from "./ingest/species.js";
+import { ingestFires } from "./ingest/fires.js";
 
 const app = express();
 const port = process.env.API_PORT || 4000;
@@ -47,7 +48,7 @@ app.get("/api/co2/:country", async (req, res) => {
   const { country } = req.params;
   try {
     const result = await pool.query(
-      `SELECT year, emissions_mt, emissions_per_capita
+      `SELECT year, emissions_mt, emissions_per_capita, consumption_co2, consumption_co2_per_capita
        FROM co2_emissions
        WHERE country_code = $1
        ORDER BY year`,
@@ -147,7 +148,7 @@ app.get("/api/species", async (req, res) => {
     const params = [];
     const conditions = [];
     let query = `
-      SELECT s.scientific_name, s.kingdom, s.class, s.taxon_order, s.category, s.common_names
+      SELECT s.scientific_name, s.kingdom, s.class, s.category, s.common_names
       FROM species_status s
     `;
     if (country) {
@@ -204,9 +205,9 @@ app.post("/api/admin/ingest/species", requireIngestToken, async (_req, res) => {
 app.get("/api/country-summary/:country", async (req, res) => {
   const country = req.params.country.toUpperCase();
   try {
-    const [co2Result, plantsResult, speciesResult] = await Promise.all([
+    const [co2Result, plantsResult, speciesResult, firesResult] = await Promise.all([
       pool.query(
-        `SELECT year, emissions_mt, emissions_per_capita
+        `SELECT year, emissions_mt, emissions_per_capita, consumption_co2, consumption_co2_per_capita
          FROM co2_emissions WHERE country_code = $1 ORDER BY year`,
         [country]
       ),
@@ -224,6 +225,11 @@ app.get("/api/country-summary/:country", async (req, res) => {
          GROUP BY s.category, s.kingdom`,
         [country]
       ),
+      pool.query(
+        `SELECT COUNT(*) AS fire_count, MAX(detected_at) AS latest_detection
+         FROM fires WHERE country_code = $1`,
+        [country]
+      ),
     ]);
 
     res.json({
@@ -231,6 +237,63 @@ app.get("/api/country-summary/:country", async (req, res) => {
       co2: co2Result.rows,
       energyMix: plantsResult.rows,
       speciesBreakdown: speciesResult.rows,
+      fires: firesResult.rows[0],
+    });
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+  }
+});
+
+
+// --- Feux actifs (quasi temps réel) ---
+
+app.get("/api/fires", async (req, res) => {
+  const { country } = req.query;
+  if (!country) {
+    return res.status(400).json({ error: "Le paramètre 'country' (code ISO3) est obligatoire" });
+  }
+  try {
+    const result = await pool.query(
+      `SELECT detected_at, confidence, frp,
+              ST_Y(location::geometry) AS latitude,
+              ST_X(location::geometry) AS longitude
+       FROM fires
+       WHERE country_code = $1
+       ORDER BY detected_at DESC
+       LIMIT 2000`,
+      [country.toUpperCase()]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+  }
+});
+
+app.post("/api/admin/ingest/fires", requireIngestToken, async (_req, res) => {
+  try {
+    const { inserted, countriesSkipped, sampleErrors } = await ingestFires(pool);
+    res.json({ status: "ok", inserted, countriesSkipped, sampleErrors });
+  } catch (err) {
+    res.status(500).json({ error: "Échec de l'ingestion", detail: err.message });
+  }
+});
+
+// --- Fraîcheur des données ---
+// Indique quand CHAQUE table a été rafraîchie pour la dernière fois côté notre base
+// (pas la date des données elles-mêmes, qui peut être plus ancienne selon la source).
+app.get("/api/meta/last-updated", async (_req, res) => {
+  try {
+    const [co2, plants, species, fires] = await Promise.all([
+      pool.query("SELECT MAX(updated_at) AS updated_at, MAX(year) AS latest_year FROM co2_emissions"),
+      pool.query("SELECT MAX(updated_at) AS updated_at FROM power_plants"),
+      pool.query("SELECT MAX(updated_at) AS updated_at FROM species_status"),
+      pool.query("SELECT MAX(ingested_at) AS updated_at, MAX(detected_at) AS latest_detection FROM fires"),
+    ]);
+    res.json({
+      co2: { lastIngested: co2.rows[0].updated_at, latestYear: co2.rows[0].latest_year },
+      powerPlants: { lastIngested: plants.rows[0].updated_at },
+      species: { lastIngested: species.rows[0].updated_at },
+      fires: { lastIngested: fires.rows[0].updated_at, latestDetection: fires.rows[0].latest_detection },
     });
   } catch (err) {
     res.status(503).json({ error: "Données non initialisées", detail: err.message });

@@ -34,16 +34,20 @@ export async function ingestCo2(pool) {
       }
 
       const perCapita = row.co2_per_capita === "" ? null : parseFloat(row.co2_per_capita);
+      const consumptionCo2 = row.consumption_co2 === "" || row.consumption_co2 === undefined ? null : parseFloat(row.consumption_co2);
+      const consumptionCo2PerCapita = row.consumption_co2_per_capita === "" || row.consumption_co2_per_capita === undefined ? null : parseFloat(row.consumption_co2_per_capita);
 
       await client.query(
-        `INSERT INTO co2_emissions (country_code, country_name, year, emissions_mt, emissions_per_capita, source)
-         VALUES ($1, $2, $3, $4, $5, $6)
+        `INSERT INTO co2_emissions (country_code, country_name, year, emissions_mt, emissions_per_capita, consumption_co2, consumption_co2_per_capita, source)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
          ON CONFLICT (country_code, year)
          DO UPDATE SET
            emissions_mt = EXCLUDED.emissions_mt,
            emissions_per_capita = EXCLUDED.emissions_per_capita,
+           consumption_co2 = EXCLUDED.consumption_co2,
+           consumption_co2_per_capita = EXCLUDED.consumption_co2_per_capita,
            updated_at = now()`,
-        [isoCode, row.country, year, emissions, perCapita, SOURCE_LABEL]
+        [isoCode, row.country, year, emissions, perCapita, consumptionCo2, consumptionCo2PerCapita, SOURCE_LABEL]
       );
       inserted += 1;
     }

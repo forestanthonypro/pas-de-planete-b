@@ -10,7 +10,8 @@
     "test": "node --test src",
     "ingest:co2": "node src/ingest/co2.js",
     "ingest:power-plants": "node src/ingest/power_plants.js",
-    "ingest:species": "node src/ingest/species.js"
+    "ingest:species": "node src/ingest/species.js",
+    "ingest:fires": "node src/ingest/fires.js"
   },
   "dependencies": {
     "express": "^4.19.2",

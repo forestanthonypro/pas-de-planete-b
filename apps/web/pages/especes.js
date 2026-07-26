@@ -1,7 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { detectDefaultCountry } from "../lib/detectCountry";
 import { speciesGroupLabel } from "../lib/speciesGroups";
 import { formatCommonNames } from "../lib/commonNames";
+import { detectPreferredLanguage } from "../lib/detectLanguage";
+import { useLastUpdated, formatDate } from "../lib/useLastUpdated";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -17,16 +19,20 @@ const CATEGORY_INFO = {
 };
 
 export default function EspecesPage() {
+  const lastUpdated = useLastUpdated();
+  const [preferredLang, setPreferredLang] = useState(null);
   const [countries, setCountries] = useState([]);
   const [country, setCountry] = useState("FRA");
   const [categories, setCategories] = useState([]);
   const [category, setCategory] = useState("");
+  const [group, setGroup] = useState("");
   const [species, setSpecies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     setCountry(detectDefaultCountry());
+    setPreferredLang(detectPreferredLanguage());
   }, []);
 
   useEffect(() => {
@@ -63,6 +69,25 @@ export default function EspecesPage() {
       });
   }, [category, country]);
 
+  // Le groupe (Oiseau, Poisson, Escargot...) est calculé côté client à partir de la
+  // classe/ordre taxonomique — pas une colonne filtrée côté API, donc le filtre
+  // s'applique ici sur les résultats déjà récupérés.
+  const availableGroups = useMemo(() => {
+    const set = new Set(species.map((s) => speciesGroupLabel(s.kingdom, s.class, s.taxon_order)));
+    return Array.from(set).sort();
+  }, [species]);
+
+  const filteredSpecies = useMemo(() => {
+    if (!group) return species;
+    return species.filter((s) => speciesGroupLabel(s.kingdom, s.class, s.taxon_order) === group);
+  }, [species, group]);
+
+  // Le pays/la catégorie changent la liste sous-jacente : le groupe sélectionné
+  // peut ne plus exister dans les résultats, on le réinitialise proprement.
+  useEffect(() => {
+    if (group && !availableGroups.includes(group)) setGroup("");
+  }, [availableGroups, group]);
+
   const selectedCountryName =
     countries.find((c) => c.country_code === country)?.country_name || country;
 
@@ -91,6 +116,16 @@ export default function EspecesPage() {
         </label>
 
         <label>
+          Groupe{" "}
+          <select value={group} onChange={(e) => setGroup(e.target.value)}>
+            <option value="">Tous</option>
+            {availableGroups.map((g) => (
+              <option key={g} value={g}>{g}</option>
+            ))}
+          </select>
+        </label>
+
+        <label>
           Catégorie{" "}
           <select value={category} onChange={(e) => setCategory(e.target.value)}>
             <option value="">Toutes</option>
@@ -105,14 +140,16 @@ export default function EspecesPage() {
 
       {loading && <p>Chargement...</p>}
       {error && <p role="alert">Erreur : {error}</p>}
-      {!loading && !error && species.length === 0 && (
+      {!loading && !error && filteredSpecies.length === 0 && (
         <p>Aucune espèce trouvée pour ce filtre dans cet échantillon.</p>
       )}
 
-      {!loading && !error && species.length > 0 && (
+      {!loading && !error && filteredSpecies.length > 0 && (
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <caption style={{ textAlign: "left", fontSize: 12, color: "#666", marginBottom: 8 }}>
-            Espèces — {selectedCountryName} {category ? `(${CATEGORY_INFO[category]?.label || category})` : ""}
+            Espèces — {selectedCountryName}
+            {category ? ` (${CATEGORY_INFO[category]?.label || category})` : ""}
+            {group ? ` — groupe : ${group}` : ""}
           </caption>
           <thead>
             <tr>
@@ -123,9 +160,9 @@ export default function EspecesPage() {
             </tr>
           </thead>
           <tbody>
-            {species.map((s) => {
+            {filteredSpecies.map((s) => {
               const info = CATEGORY_INFO[s.category] || { label: s.category, color: "#999" };
-              const names = formatCommonNames(s.common_names);
+              const names = formatCommonNames(s.common_names, preferredLang);
               return (
                 <tr key={s.scientific_name}>
                   <th scope="row" style={{ textAlign: "left", padding: 8, fontWeight: 400, fontStyle: "italic" }}>
@@ -161,6 +198,10 @@ export default function EspecesPage() {
 
       <p style={{ fontSize: 12, color: "#666", marginTop: "1rem" }}>
         Source : GBIF, occurrences classées par catégorie UICN via la collaboration GBIF-IUCN (CC-BY)
+        {lastUpdated?.species?.lastIngested && (
+          <> · dernière mise à jour de notre base : {formatDate(lastUpdated.species.lastIngested)}</>
+        )}
+        . Rafraîchissement automatique mensuel.
       </p>
     </main>
   );

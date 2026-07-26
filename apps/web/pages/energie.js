@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { detectDefaultCountry } from "../lib/detectCountry";
 import { FUEL_COLORS, DEFAULT_FUEL_COLOR, translateFuel } from "../lib/fuelTypes";
+import { useLastUpdated, formatDate } from "../lib/useLastUpdated";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 export default function EnergiePage() {
+  const lastUpdated = useLastUpdated();
   const [countries, setCountries] = useState([]);
   const [fuelTypes, setFuelTypes] = useState([]);
   const [country, setCountry] = useState("FRA");
@@ -177,7 +179,14 @@ export default function EnergiePage() {
       )}
 
       <p style={{ fontSize: 12, color: "#666", marginTop: "1rem" }}>
-        Source : Global Power Plant Database, World Resources Institute (CC-BY 4.0)
+        Source : Global Power Plant Database, World Resources Institute (CC-BY 4.0) — dernière
+        version publiée (v1.3.0) ; ce projet n&apos;est plus activement maintenu par WRI depuis
+        2021-2022, les données ne reflètent donc pas nécessairement les toutes dernières centrales
+        construites.
+        {lastUpdated?.powerPlants?.lastIngested && (
+          <> Dernière mise à jour de notre base : {formatDate(lastUpdated.powerPlants.lastIngested)}.</>
+        )}
+        {" "}Rafraîchissement automatique mensuel (sans effet tant que la source elle-même n&apos;évolue pas).
       </p>
     </main>
   );

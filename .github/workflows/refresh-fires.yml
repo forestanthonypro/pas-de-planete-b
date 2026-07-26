@@ -1,0 +1,17 @@
+name: Rafraîchir les feux actifs
+
+on:
+  schedule:
+    # Toutes les 6 heures — ces données sont quasi temps réel, contrairement
+    # au CO2/énergie/espèces qui sont rafraîchis une fois par mois.
+    - cron: "0 */6 * * *"
+  workflow_dispatch: {}
+
+jobs:
+  refresh-fires:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ré-ingérer les feux actifs
+        run: |
+          curl -f -X POST "${{ secrets.API_URL }}/api/admin/ingest/fires" \
+            -H "x-ingest-token: ${{ secrets.INGEST_TOKEN }}"

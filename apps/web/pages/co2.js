@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { detectDefaultCountry } from "../lib/detectCountry";
+import { useLastUpdated, formatDate } from "../lib/useLastUpdated";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 export default function Co2Page() {
+  const lastUpdated = useLastUpdated();
   const [countries, setCountries] = useState([]);
   const [countryCode, setCountryCode] = useState("FRA");
   const [metric, setMetric] = useState("emissions_mt"); // ou "emissions_per_capita"
@@ -51,32 +53,51 @@ export default function Co2Page() {
   useEffect(() => {
     if (view !== "chart" || loading || error || data.length === 0) return;
 
+    const consumptionField = metric === "emissions_mt" ? "consumption_co2" : "consumption_co2_per_capita";
+    const hasConsumptionData = data.some((d) => d[consumptionField] !== null && d[consumptionField] !== undefined);
+
     let cancelled = false;
     import("chart.js/auto").then(({ default: Chart }) => {
       if (cancelled || !canvasRef.current) return;
       if (chartRef.current) chartRef.current.destroy();
 
+      const datasets = [
+        {
+          label: metric === "emissions_mt" ? "Territoriales (Mt CO2)" : "Territoriales, par habitant (t)",
+          data: data.map((d) => d[metric]),
+          borderColor: "#2a78d6",
+          backgroundColor: "rgba(42,120,214,0.1)",
+          fill: true,
+          tension: 0.3,
+          pointRadius: 0,
+          borderWidth: 2,
+        },
+      ];
+
+      if (hasConsumptionData) {
+        datasets.push({
+          label: metric === "emissions_mt" ? "Basées sur la consommation (Mt CO2)" : "Basées sur la consommation, par habitant (t)",
+          data: data.map((d) => d[consumptionField]),
+          borderColor: "#e67e22",
+          backgroundColor: "rgba(230,126,34,0.1)",
+          fill: false,
+          tension: 0.3,
+          pointRadius: 0,
+          borderWidth: 2,
+          borderDash: [5, 4],
+        });
+      }
+
       chartRef.current = new Chart(canvasRef.current, {
         type: "line",
         data: {
           labels: data.map((d) => d.year),
-          datasets: [
-            {
-              label: metric === "emissions_mt" ? "Émissions (Mt CO2)" : "Émissions par habitant (t)",
-              data: data.map((d) => d[metric]),
-              borderColor: "#2a78d6",
-              backgroundColor: "rgba(42,120,214,0.1)",
-              fill: true,
-              tension: 0.3,
-              pointRadius: 0,
-              borderWidth: 2,
-            },
-          ],
+          datasets,
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
+          plugins: { legend: { display: hasConsumptionData } },
         },
       });
     });
@@ -136,8 +157,9 @@ export default function Co2Page() {
           <thead>
             <tr>
               <th scope="col" style={{ textAlign: "left", padding: 8 }}>Année</th>
-              <th scope="col" style={{ textAlign: "right", padding: 8 }}>Total (Mt)</th>
-              <th scope="col" style={{ textAlign: "right", padding: 8 }}>Par habitant (t)</th>
+              <th scope="col" style={{ textAlign: "right", padding: 8 }}>Territorial (Mt)</th>
+              <th scope="col" style={{ textAlign: "right", padding: 8 }}>Territorial, par habitant (t)</th>
+              <th scope="col" style={{ textAlign: "right", padding: 8 }}>Basé conso. (Mt)</th>
             </tr>
           </thead>
           <tbody>
@@ -146,14 +168,46 @@ export default function Co2Page() {
                 <th scope="row" style={{ textAlign: "left", padding: 8, fontWeight: 400 }}>{d.year}</th>
                 <td style={{ textAlign: "right", padding: 8 }}>{d.emissions_mt ?? "—"}</td>
                 <td style={{ textAlign: "right", padding: 8 }}>{d.emissions_per_capita ?? "—"}</td>
+                <td style={{ textAlign: "right", padding: 8 }}>{d.consumption_co2 ?? "—"}</td>
               </tr>
             ))}
           </tbody>
         </table>
       )}
 
-      <p style={{ fontSize: 12, color: "#666", marginTop: "1rem" }}>
+      <details style={{ marginBottom: "1rem", fontSize: 13, color: "#555" }}>
+        <summary style={{ cursor: "pointer" }}>Que couvrent ces chiffres exactement ?</summary>
+        <p style={{ marginTop: 8 }}>
+          La courbe pleine (bleue) montre les émissions <strong>territoriales</strong> (dites
+          &laquo; de production &raquo;) : ce qui est physiquement émis sur le sol du pays (usines,
+          transports, chauffage, agriculture...). Elle <strong>n&apos;inclut pas</strong> les
+          émissions liées à la fabrication des produits importés — un objet fabriqué en Chine et
+          consommé en France compte dans les émissions de la Chine, pas dans celles de la France.
+          C&apos;est la méthode utilisée par les États pour leurs engagements internationaux.
+        </p>
+        <p>
+          La courbe en pointillés (orange), quand elle est disponible, montre les émissions
+          &laquo; <strong>basées sur la consommation</strong> &raquo; : émissions territoriales,
+          moins ce qui est exporté, plus ce qui est importé — elle reflète donc les importations
+          comme celles en provenance de Chine. Elle n&apos;existe que pour certains pays (les plus
+          grandes économies, avec des données commerciales suffisamment détaillées), et retarde
+          toujours d&apos;un an sur les émissions territoriales.
+        </p>
+        <p>
+          Dans les deux cas, les émissions de l&apos;aviation et du transport maritime
+          internationaux ne sont comptées dans les chiffres d&apos;aucun pays.
+        </p>
+      </details>
+
+      <p style={{ fontSize: 12, color: "#666" }}>
         Source : Global Carbon Project, via Our World in Data (CC-BY)
+        {lastUpdated?.co2?.latestYear && (
+          <> — dernière année couverte par la source : {lastUpdated.co2.latestYear}</>
+        )}
+        {lastUpdated?.co2?.lastIngested && (
+          <> · dernière mise à jour de notre base : {formatDate(lastUpdated.co2.lastIngested)}</>
+        )}
+        . Rafraîchissement automatique mensuel.
       </p>
     </main>
   );
