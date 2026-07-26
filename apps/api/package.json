@@ -8,7 +8,8 @@
     "start": "node src/index.js",
     "lint": "eslint src eslint.config.js",
     "test": "node --test src",
-    "ingest:co2": "node src/ingest/co2.js"
+    "ingest:co2": "node src/ingest/co2.js",
+    "ingest:power-plants": "node src/ingest/power_plants.js"
   },
   "dependencies": {
     "express": "^4.19.2",

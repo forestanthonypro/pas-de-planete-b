@@ -1,17 +1,24 @@
-name: Rafraîchir les données CO2
+name: Rafraîchir les données
 
 on:
   schedule:
-    # Le 1er de chaque mois à 4h du matin UTC — OWID met à jour ses données annuellement,
-    # une fréquence mensuelle suffit largement et reste sobre.
+    # Le 1er de chaque mois à 4h du matin UTC.
     - cron: "0 4 1 * *"
-  workflow_dispatch: {}  # permet aussi de le déclencher manuellement depuis l'onglet Actions
+  workflow_dispatch: {}
 
 jobs:
   refresh-co2:
     runs-on: ubuntu-latest
     steps:
-      - name: Appeler l'endpoint de ré-ingestion
+      - name: Ré-ingérer les émissions de CO2
         run: |
           curl -f -X POST "${{ secrets.API_URL }}/api/admin/ingest/co2" \
+            -H "x-ingest-token: ${{ secrets.INGEST_TOKEN }}"
+
+  refresh-power-plants:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ré-ingérer les centrales électriques
+        run: |
+          curl -f -X POST "${{ secrets.API_URL }}/api/admin/ingest/power-plants" \
             -H "x-ingest-token: ${{ secrets.INGEST_TOKEN }}"
