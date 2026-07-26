@@ -68,11 +68,12 @@ export default function VegetationPage() {
       if (data[i].forest_area_ha != null) next = data[i].forest_area_ha;
       else if (filled[i].forest_area_ha == null && next != null) filled[i].forest_area_ha = next;
     }
-    const baselineArea = filled.find((d) => d.forest_area_ha)?.forest_area_ha;
-    if (!baselineArea) return null;
     const firstLossRow = data.find((d) => d.tree_cover_loss_ha != null);
     const lastLossRow = [...data].reverse().find((d) => d.tree_cover_loss_ha != null);
     if (!firstLossRow || !lastLossRow) return null;
+    const baselineRow = filled.find((d) => d.year === firstLossRow.year);
+    const baselineArea = baselineRow?.forest_area_ha;
+    if (!baselineArea) return null;
     const totalLoss = data.reduce((sum, d) => sum + (parseFloat(d.tree_cover_loss_ha) || 0), 0);
     return {
       startYear: firstLossRow.year,
@@ -115,7 +116,8 @@ export default function VegetationPage() {
       // surface forestière de la première année connue — pour montrer que même
       // une petite perte chaque année finit par représenter beaucoup une fois
       // additionnée sur toute la période.
-      const baselineArea = filledData.find((d) => d.forest_area_ha)?.forest_area_ha;
+      const firstLossYear = data.find((d) => d.tree_cover_loss_ha != null)?.year;
+      const baselineArea = filledData.find((d) => d.year === firstLossYear)?.forest_area_ha;
       let cumulativeLoss = 0;
       const cumulativeShareData = filledData.map((d) => {
         cumulativeLoss += parseFloat(d.tree_cover_loss_ha) || 0;
@@ -254,9 +256,10 @@ export default function VegetationPage() {
           Au total, entre <strong>{cumulativeSummary.startYear}</strong> et{" "}
           <strong>{cumulativeSummary.endYear}</strong>, {selectedCountryName} a perdu{" "}
           <strong>{Math.round(cumulativeSummary.totalLossHa).toLocaleString("fr-FR")} ha</strong>,
-          soit environ <strong>{cumulativeSummary.percent.toFixed(2)} %</strong> de sa forêt de
-          l&apos;époque — ce chiffre continue d&apos;augmenter chaque année, il ne s&apos;arrête
-          pas.
+          soit environ <strong>{cumulativeSummary.percent.toFixed(2)} %</strong> de la forêt
+          telle qu&apos;elle existait en <strong>{cumulativeSummary.startYear}</strong> (première
+          année où on a une donnée de perte) — ce chiffre continue d&apos;augmenter chaque année,
+          il ne s&apos;arrête pas.
         </p>
       )}
 

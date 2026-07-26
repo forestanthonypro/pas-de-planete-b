@@ -76,11 +76,12 @@ export default function PaysDashboard() {
       if (veg[i].forest_area_ha != null) next = veg[i].forest_area_ha;
       else if (filled[i].forest_area_ha == null && next != null) filled[i].forest_area_ha = next;
     }
-    const baselineArea = filled.find((d) => d.forest_area_ha)?.forest_area_ha;
-    if (!baselineArea) return null;
     const firstLossRow = veg.find((d) => d.tree_cover_loss_ha != null);
     const lastLossRow = [...veg].reverse().find((d) => d.tree_cover_loss_ha != null);
     if (!firstLossRow || !lastLossRow) return null;
+    const baselineRow = filled.find((d) => d.year === firstLossRow.year);
+    const baselineArea = baselineRow?.forest_area_ha;
+    if (!baselineArea) return null;
     const totalLoss = veg.reduce((sum, d) => sum + (parseFloat(d.tree_cover_loss_ha) || 0), 0);
     return {
       startYear: firstLossRow.year,
@@ -537,7 +538,8 @@ export default function PaysDashboard() {
       }
       const filledVegetation = fillNearestForestArea(summary.vegetation);
 
-      const baselineArea = filledVegetation.find((d) => d.forest_area_ha)?.forest_area_ha;
+      const firstLossYear = summary.vegetation.find((d) => d.tree_cover_loss_ha != null)?.year;
+      const baselineArea = filledVegetation.find((d) => d.year === firstLossYear)?.forest_area_ha;
       let cumulativeLoss = 0;
       const cumulativeShareData = filledVegetation.map((d) => {
         cumulativeLoss += parseFloat(d.tree_cover_loss_ha) || 0;
@@ -1110,7 +1112,9 @@ export default function PaysDashboard() {
                 <strong>{vegetationCumulativeSummary.endYear}</strong>, {countryName} a perdu{" "}
                 <strong>{Math.round(vegetationCumulativeSummary.totalLossHa).toLocaleString("fr-FR")} ha</strong>,
                 soit environ <strong>{vegetationCumulativeSummary.percent.toFixed(2)} %</strong> de
-                sa forêt de l&apos;époque.
+                la forêt telle qu&apos;elle existait en{" "}
+                <strong>{vegetationCumulativeSummary.startYear}</strong> (première année où on a
+                une donnée de perte).
               </p>
             )}
           </>
