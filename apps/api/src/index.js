@@ -141,30 +141,13 @@ app.get("/api/species/categories", async (_req, res) => {
   }
 });
 
-app.get("/api/species/kingdoms", async (req, res) => {
-  const { country } = req.query;
-  try {
-    const params = [];
-    let query = "SELECT DISTINCT s.kingdom FROM species_status s";
-    if (country) {
-      query += " JOIN species_countries sc ON sc.gbif_key = s.gbif_key WHERE sc.country_code = $1";
-      params.push(country.toUpperCase());
-    }
-    query += " ORDER BY s.kingdom";
-    const result = await pool.query(query, params);
-    res.json(result.rows.map((r) => r.kingdom).filter(Boolean));
-  } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
-  }
-});
-
 app.get("/api/species", async (req, res) => {
   const { category, country, kingdom } = req.query;
   try {
     const params = [];
     const conditions = [];
     let query = `
-      SELECT s.scientific_name, s.kingdom, s.category, s.common_names
+      SELECT s.scientific_name, s.kingdom, s.class, s.category, s.common_names
       FROM species_status s
     `;
     if (country) {
@@ -185,6 +168,23 @@ app.get("/api/species", async (req, res) => {
 
     const result = await pool.query(query, params);
     res.json(result.rows);
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+  }
+});
+
+app.get("/api/species/kingdoms", async (req, res) => {
+  const { country } = req.query;
+  try {
+    const params = [];
+    let query = "SELECT DISTINCT s.kingdom FROM species_status s";
+    if (country) {
+      query += " JOIN species_countries sc ON sc.gbif_key = s.gbif_key WHERE sc.country_code = $1";
+      params.push(country.toUpperCase());
+    }
+    query += " ORDER BY s.kingdom";
+    const result = await pool.query(query, params);
+    res.json(result.rows.map((r) => r.kingdom).filter(Boolean));
   } catch (err) {
     res.status(503).json({ error: "Données non initialisées", detail: err.message });
   }

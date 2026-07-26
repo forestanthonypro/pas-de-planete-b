@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { detectDefaultCountry } from "../lib/detectCountry";
+import { speciesGroupLabel } from "../lib/speciesGroups";
+import { formatCommonNames } from "../lib/commonNames";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -14,26 +16,15 @@ const CATEGORY_INFO = {
   DD: { label: "Données insuffisantes", color: "#95a5a6" },
 };
 
-const KINGDOM_LABELS = {
-  Animalia: "Animal",
-  Plantae: "Végétal",
-  Fungi: "Champignon",
-  Chromista: "Chromiste",
-  Protozoa: "Protiste",
-};
-
 export default function EspecesPage() {
   const [countries, setCountries] = useState([]);
   const [country, setCountry] = useState("FRA");
   const [categories, setCategories] = useState([]);
   const [category, setCategory] = useState("");
-  const [kingdoms, setKingdoms] = useState([]);
-  const [kingdom, setKingdom] = useState("");
   const [species, setSpecies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Devine le pays par défaut une fois côté client (évite un décalage serveur/client).
   useEffect(() => {
     setCountry(detectDefaultCountry());
   }, []);
@@ -50,22 +41,12 @@ export default function EspecesPage() {
       .catch(() => setCategories([]));
   }, []);
 
-  // Les règnes disponibles dépendent du pays choisi.
-  useEffect(() => {
-    if (!country) return;
-    fetch(`${API_URL}/api/species/kingdoms?country=${country}`)
-      .then((res) => res.json())
-      .then((rows) => setKingdoms(Array.isArray(rows) ? rows : []))
-      .catch(() => setKingdoms([]));
-  }, [country]);
-
   useEffect(() => {
     setLoading(true);
     setError(null);
     const params = new URLSearchParams();
     if (category) params.set("category", category);
     if (country) params.set("country", country);
-    if (kingdom) params.set("kingdom", kingdom);
 
     fetch(`${API_URL}/api/species?${params}`)
       .then((res) => {
@@ -80,19 +61,20 @@ export default function EspecesPage() {
         setError(err.message);
         setLoading(false);
       });
-  }, [category, country, kingdom]);
+  }, [category, country]);
 
   const selectedCountryName =
     countries.find((c) => c.country_code === country)?.country_name || country;
 
   return (
-    <main style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 800, margin: "0 auto" }}>
+    <main style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
       <h1>Espèces menacées — {selectedCountryName}</h1>
 
       <p style={{ fontSize: 13, color: "#666", marginBottom: "1rem" }}>
         Échantillon d&apos;espèces observées dans ce pays, par catégorie d&apos;extinction UICN,
         à partir des occurrences republiées par GBIF. Ce n&apos;est pas la liste complète des
-        espèces évaluées, mais un aperçu représentatif.
+        espèces évaluées, mais un aperçu représentatif. Les noms communs sans traduction connue
+        sont indiqués comme tels plutôt que devinés.
       </p>
 
       <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem", flexWrap: "wrap" }}>
@@ -104,16 +86,6 @@ export default function EspecesPage() {
               <option key={c.country_code} value={c.country_code}>
                 {c.country_name}
               </option>
-            ))}
-          </select>
-        </label>
-
-        <label>
-          Règne{" "}
-          <select value={kingdom} onChange={(e) => setKingdom(e.target.value)}>
-            <option value="">Tous</option>
-            {kingdoms.map((k) => (
-              <option key={k} value={k}>{KINGDOM_LABELS[k] || k}</option>
             ))}
           </select>
         </label>
@@ -145,25 +117,25 @@ export default function EspecesPage() {
           <thead>
             <tr>
               <th scope="col" style={{ textAlign: "left", padding: 8 }}>Nom scientifique</th>
-              <th scope="col" style={{ textAlign: "left", padding: 8 }}>Nom commun (français)</th>
-              <th scope="col" style={{ textAlign: "left", padding: 8 }}>Règne</th>
+              <th scope="col" style={{ textAlign: "left", padding: 8 }}>Noms communs</th>
+              <th scope="col" style={{ textAlign: "left", padding: 8 }}>Groupe</th>
               <th scope="col" style={{ textAlign: "left", padding: 8 }}>Catégorie</th>
             </tr>
           </thead>
           <tbody>
             {species.map((s) => {
               const info = CATEGORY_INFO[s.category] || { label: s.category, color: "#999" };
-              const commonName = s.common_names?.fr;
+              const names = formatCommonNames(s.common_names);
               return (
                 <tr key={s.scientific_name}>
                   <th scope="row" style={{ textAlign: "left", padding: 8, fontWeight: 400, fontStyle: "italic" }}>
                     {s.scientific_name}
                   </th>
-                  <td style={{ textAlign: "left", padding: 8, color: commonName ? "inherit" : "#999" }}>
-                    {commonName || "nom commun non disponible"}
+                  <td style={{ textAlign: "left", padding: 8, color: names ? "inherit" : "#999", fontSize: 13 }}>
+                    {names || "non disponible"}
                   </td>
                   <td style={{ textAlign: "left", padding: 8 }}>
-                    {KINGDOM_LABELS[s.kingdom] || s.kingdom || "—"}
+                    {speciesGroupLabel(s.kingdom, s.class)}
                   </td>
                   <td style={{ padding: 8 }}>
                     <span
@@ -174,6 +146,7 @@ export default function EspecesPage() {
                         fontSize: 12,
                         color: "white",
                         backgroundColor: info.color,
+                        whiteSpace: "nowrap",
                       }}
                     >
                       {info.label}

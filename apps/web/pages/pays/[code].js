@@ -3,6 +3,8 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import { detectDefaultCountry } from "../../lib/detectCountry";
 import { FUEL_COLORS, DEFAULT_FUEL_COLOR, translateFuel } from "../../lib/fuelTypes";
+import { speciesGroupLabel } from "../../lib/speciesGroups";
+import { formatCommonNames } from "../../lib/commonNames";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -16,8 +18,28 @@ const CATEGORY_INFO = {
   LC: { label: "Préoccupation mineure", color: "#1baf7a" },
   DD: { label: "Données insuffisantes", color: "#95a5a6" },
 };
-const KINGDOM_LABELS = { Animalia: "Animal", Plantae: "Végétal", Fungi: "Champignon" };
-const SPECIES_PREVIEW_LIMIT = 12;
+
+// Dessine le nombre de centrales à la droite de chaque barre du graphique énergie.
+const barEndLabelsPlugin = {
+  id: "barEndLabels",
+  afterDatasetsDraw(chart) {
+    const { ctx } = chart;
+    chart.data.datasets.forEach((dataset, datasetIndex) => {
+      const meta = chart.getDatasetMeta(datasetIndex);
+      meta.data.forEach((bar, index) => {
+        const count = dataset.plantCounts?.[index];
+        if (count == null) return;
+        ctx.save();
+        ctx.fillStyle = "#444";
+        ctx.font = "12px sans-serif";
+        ctx.textBaseline = "middle";
+        ctx.textAlign = "left";
+        ctx.fillText(`${count} centrale${count > 1 ? "s" : ""}`, bar.x + 6, bar.y);
+        ctx.restore();
+      });
+    });
+  },
+};
 
 export default function PaysDashboard() {
   const router = useRouter();
@@ -25,7 +47,7 @@ export default function PaysDashboard() {
 
   const [countries, setCountries] = useState([]);
   const [summary, setSummary] = useState(null);
-  const [speciesPreview, setSpeciesPreview] = useState([]);
+  const [speciesList, setSpeciesList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -61,7 +83,7 @@ export default function PaysDashboard() {
     ])
       .then(([summaryData, speciesData]) => {
         setSummary(summaryData);
-        setSpeciesPreview(Array.isArray(speciesData) ? speciesData : []);
+        setSpeciesList(Array.isArray(speciesData) ? speciesData : []);
         setLoading(false);
       })
       .catch((err) => {
@@ -70,7 +92,6 @@ export default function PaysDashboard() {
       });
   }, [code]);
 
-  // Graphique CO2.
   useEffect(() => {
     if (!summary || summary.co2.length === 0) return;
     let cancelled = false;
@@ -105,7 +126,6 @@ export default function PaysDashboard() {
     };
   }, [summary]);
 
-  // Histogramme du mix énergétique, traduit et coloré comme la carte énergie.
   useEffect(() => {
     if (!summary || summary.energyMix.length === 0) return;
     let cancelled = false;
@@ -126,13 +146,16 @@ export default function PaysDashboard() {
               label: "Capacité (MW)",
               data: sorted.map((r) => r.total_capacity_mw || 0),
               backgroundColor: sorted.map((r) => FUEL_COLORS[r.fuel_type] || DEFAULT_FUEL_COLOR),
+              plantCounts: sorted.map((r) => r.plant_count),
             },
           ],
         },
+        plugins: [barEndLabelsPlugin],
         options: {
           indexAxis: "y",
           responsive: true,
           maintainAspectRatio: false,
+          layout: { padding: { right: 90 } },
           plugins: { legend: { display: false } },
           scales: {
             x: { title: { display: true, text: "Capacité (MW)" } },
@@ -149,10 +172,6 @@ export default function PaysDashboard() {
   const latestCo2 = summary?.co2?.[summary.co2.length - 1];
   const totalCapacity = summary?.energyMix?.reduce(
     (sum, r) => sum + Number(r.total_capacity_mw || 0),
-    0
-  );
-  const totalSpecies = summary?.speciesBreakdown?.reduce(
-    (sum, r) => sum + Number(r.species_count || 0),
     0
   );
 
@@ -204,32 +223,34 @@ export default function PaysDashboard() {
                   <strong>{summary.energyMix.length}</strong> types de production,{" "}
                   <strong>{Math.round(totalCapacity).toLocaleString("fr-FR")} MW</strong> de capacité totale connue.
                 </p>
-                <div style={{ position: "relative", height: Math.max(200, summary.energyMix.length * 32) }}>
-                  <canvas ref={energyCanvasRef} role="img" aria-label={`Mix énergétique de ${countryName}, capacité par type`} />
+                <div style={{ position: "relative", height: Math.max(200, summary.energyMix.length * 34) }}>
+                  <canvas ref={energyCanvasRef} role="img" aria-label={`Mix énergétique de ${countryName}, capacité et nombre de centrales par type`} />
                 </div>
-                <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "1rem" }}>
-                  <caption style={{ textAlign: "left", fontSize: 12, color: "#666", marginBottom: 8 }}>
-                    Détail chiffré du mix énergétique
-                  </caption>
-                  <thead>
-                    <tr>
-                      <th scope="col" style={{ textAlign: "left", padding: 6 }}>Type</th>
-                      <th scope="col" style={{ textAlign: "right", padding: 6 }}>Centrales</th>
-                      <th scope="col" style={{ textAlign: "right", padding: 6 }}>Capacité (MW)</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {summary.energyMix.map((r) => (
-                      <tr key={r.fuel_type}>
-                        <th scope="row" style={{ textAlign: "left", padding: 6, fontWeight: 400 }}>{translateFuel(r.fuel_type)}</th>
-                        <td style={{ textAlign: "right", padding: 6 }}>{r.plant_count}</td>
-                        <td style={{ textAlign: "right", padding: 6 }}>
-                          {r.total_capacity_mw ? Math.round(r.total_capacity_mw).toLocaleString("fr-FR") : "—"}
-                        </td>
+                <details style={{ marginTop: "0.75rem" }}>
+                  <summary style={{ cursor: "pointer", fontSize: 13, color: "#666" }}>
+                    Voir le détail chiffré en tableau
+                  </summary>
+                  <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "0.5rem" }}>
+                    <thead>
+                      <tr>
+                        <th scope="col" style={{ textAlign: "left", padding: 6 }}>Type</th>
+                        <th scope="col" style={{ textAlign: "right", padding: 6 }}>Centrales</th>
+                        <th scope="col" style={{ textAlign: "right", padding: 6 }}>Capacité (MW)</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {summary.energyMix.map((r) => (
+                        <tr key={r.fuel_type}>
+                          <th scope="row" style={{ textAlign: "left", padding: 6, fontWeight: 400 }}>{translateFuel(r.fuel_type)}</th>
+                          <td style={{ textAlign: "right", padding: 6 }}>{r.plant_count}</td>
+                          <td style={{ textAlign: "right", padding: 6 }}>
+                            {r.total_capacity_mw ? Math.round(r.total_capacity_mw).toLocaleString("fr-FR") : "—"}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </details>
               </>
             ) : (
               <p>Aucune centrale répertoriée pour ce pays.</p>
@@ -239,40 +260,46 @@ export default function PaysDashboard() {
 
           <section style={{ marginTop: "2rem" }}>
             <h2>Biodiversité (échantillon)</h2>
-            {speciesPreview.length > 0 ? (
-              <>
-                <p><strong>{totalSpecies}</strong> espèces de l&apos;échantillon observées dans ce pays.</p>
-                <ul style={{ listStyle: "none", padding: 0 }}>
-                  {speciesPreview.slice(0, SPECIES_PREVIEW_LIMIT).map((s) => {
+            {speciesList.length > 0 ? (
+              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <caption style={{ textAlign: "left", fontSize: 12, color: "#666", marginBottom: 8 }}>
+                  <strong>{speciesList.length}</strong> espèces de l&apos;échantillon observées dans ce pays
+                </caption>
+                <thead>
+                  <tr>
+                    <th scope="col" style={{ textAlign: "left", padding: 6 }}>Nom scientifique</th>
+                    <th scope="col" style={{ textAlign: "left", padding: 6 }}>Noms communs</th>
+                    <th scope="col" style={{ textAlign: "left", padding: 6 }}>Groupe</th>
+                    <th scope="col" style={{ textAlign: "left", padding: 6 }}>Catégorie</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {speciesList.map((s) => {
                     const info = CATEGORY_INFO[s.category] || { label: s.category, color: "#999" };
-                    const commonName = s.common_names?.fr;
+                    const names = formatCommonNames(s.common_names);
                     return (
-                      <li key={s.scientific_name} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 0", borderBottom: "1px solid #eee" }}>
-                        <span
-                          style={{ display: "inline-block", padding: "2px 8px", borderRadius: 4, fontSize: 11, color: "white", backgroundColor: info.color, whiteSpace: "nowrap" }}
-                        >
-                          {info.label}
-                        </span>
-                        <span>
-                          <em>{s.scientific_name}</em>
-                          {commonName && <> — {commonName}</>}
-                          {" "}
-                          <span style={{ color: "#999", fontSize: 12 }}>({KINGDOM_LABELS[s.kingdom] || s.kingdom || "?"})</span>
-                        </span>
-                      </li>
+                      <tr key={s.scientific_name}>
+                        <th scope="row" style={{ textAlign: "left", padding: 6, fontWeight: 400, fontStyle: "italic" }}>
+                          {s.scientific_name}
+                        </th>
+                        <td style={{ textAlign: "left", padding: 6, fontSize: 13, color: names ? "inherit" : "#999" }}>
+                          {names || "non disponible"}
+                        </td>
+                        <td style={{ textAlign: "left", padding: 6 }}>{speciesGroupLabel(s.kingdom, s.class)}</td>
+                        <td style={{ padding: 6 }}>
+                          <span style={{ display: "inline-block", padding: "2px 8px", borderRadius: 4, fontSize: 11, color: "white", backgroundColor: info.color, whiteSpace: "nowrap" }}>
+                            {info.label}
+                          </span>
+                        </td>
+                      </tr>
                     );
                   })}
-                </ul>
-                {speciesPreview.length > SPECIES_PREVIEW_LIMIT && (
-                  <p style={{ fontSize: 13, color: "#666" }}>
-                    Et {speciesPreview.length - SPECIES_PREVIEW_LIMIT} autres dans cet échantillon...
-                  </p>
-                )}
-              </>
+                </tbody>
+              </table>
             ) : (
               <p>Aucune espèce de l&apos;échantillon liée à ce pays pour l&apos;instant.</p>
             )}
-            <p><Link href="/especes">Voir la liste complète avec filtres →</Link></p>
+            <p><Link href="/especes">Filtrer par catégorie →</Link></p>
           </section>
         </>
       )}

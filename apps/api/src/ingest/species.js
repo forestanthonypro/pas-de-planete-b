@@ -117,6 +117,7 @@ export async function ingestSpecies(pool) {
           continue;
         }
         const kingdom = species.kingdom || null;
+        const speciesClass = species.class || null;
 
         let vernacularResults = [];
         try {
@@ -128,16 +129,17 @@ export async function ingestSpecies(pool) {
         const commonNames = resolveCommonNames(scientificName, vernacularResults);
 
         await client.query(
-          `INSERT INTO species_status (gbif_key, scientific_name, kingdom, category, common_names, source)
-           VALUES ($1, $2, $3, $4, $5, $6)
+          `INSERT INTO species_status (gbif_key, scientific_name, kingdom, class, category, common_names, source)
+           VALUES ($1, $2, $3, $4, $5, $6, $7)
            ON CONFLICT (gbif_key)
            DO UPDATE SET
              scientific_name = EXCLUDED.scientific_name,
              kingdom = EXCLUDED.kingdom,
+             class = EXCLUDED.class,
              category = EXCLUDED.category,
              common_names = EXCLUDED.common_names,
              updated_at = now()`,
-          [gbifKey, scientificName, kingdom, category, JSON.stringify(commonNames), SOURCE_LABEL]
+          [gbifKey, scientificName, kingdom, speciesClass, category, JSON.stringify(commonNames), SOURCE_LABEL]
         );
         inserted += 1;
 
