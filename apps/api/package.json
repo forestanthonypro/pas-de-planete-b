@@ -17,7 +17,10 @@
     "ingest:electricity": "node src/ingest/electricity.js",
     "ingest:species-threatened": "node src/ingest/species_threatened.js",
     "ingest:pollution": "node src/ingest/pollution.js",
-    "ingest:world-benchmarks": "node src/ingest/world_benchmarks.js"
+    "ingest:world-benchmarks": "node src/ingest/world_benchmarks.js",
+    "ingest:deputies": "node src/ingest/deputies.js",
+    "ingest:scrutins": "node src/ingest/scrutins.js",
+    "ingest:deputy-votes": "node src/ingest/deputy_votes.js"
   },
   "dependencies": {
     "express": "^4.19.2",

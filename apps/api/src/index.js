@@ -11,6 +11,9 @@ import { ingestElectricity } from "./ingest/electricity.js";
 import { ingestSpeciesThreatened } from "./ingest/species_threatened.js";
 import { ingestPollution } from "./ingest/pollution.js";
 import { ingestWorldBenchmarks } from "./ingest/world_benchmarks.js";
+import { ingestDeputies } from "./ingest/deputies.js";
+import { ingestScrutins } from "./ingest/scrutins.js";
+import { ingestDeputyVotes } from "./ingest/deputy_votes.js";
 
 const app = express();
 const port = process.env.API_PORT || 4000;
@@ -571,6 +574,112 @@ app.post("/api/admin/ingest/world-benchmarks", requireIngestToken, async (_req, 
   try {
     const { set } = await ingestWorldBenchmarks(pool);
     res.json({ status: "ok", set });
+  } catch (err) {
+    res.status(500).json({ error: "Échec de l'ingestion", detail: err.message });
+  }
+});
+
+
+// --- Députés et votes à l'Assemblée nationale (17e législature) ---
+// Données factuelles uniquement (qui a voté quoi, résultat officiel) — aucune
+// qualification ni interprétation politique n'est ajoutée.
+
+app.get("/api/deputies", async (_req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT slug, full_name, group_acronym, group_name, department, circo_name, circo_number, profession
+       FROM deputies ORDER BY last_name, first_name`
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+  }
+});
+
+app.get("/api/deputies/:slug", async (req, res) => {
+  const { slug } = req.params;
+  try {
+    const deputyResult = await pool.query("SELECT * FROM deputies WHERE slug = $1", [slug]);
+    if (deputyResult.rows.length === 0) {
+      return res.status(404).json({ error: "Député non trouvé" });
+    }
+    const votesResult = await pool.query(
+      `SELECT dv.scrutin_numero, dv.position, s.scrutin_date, s.title, s.result,
+              s.votes_pour, s.votes_contre, s.votes_abstention
+       FROM deputy_votes dv
+       JOIN scrutins s ON s.legislature = dv.legislature AND s.numero = dv.scrutin_numero
+       WHERE dv.deputy_slug = $1 AND dv.legislature = 17
+       ORDER BY s.scrutin_date DESC NULLS LAST, dv.scrutin_numero DESC`,
+      [slug]
+    );
+    res.json({ deputy: deputyResult.rows[0], votes: votesResult.rows });
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+  }
+});
+
+app.get("/api/scrutins", async (req, res) => {
+  const limit = Math.min(parseInt(req.query.limit, 10) || 100, 500);
+  try {
+    const result = await pool.query(
+      `SELECT legislature, numero, scrutin_date, title, result, votes_pour, votes_contre, votes_abstention
+       FROM scrutins WHERE legislature = 17
+       ORDER BY numero DESC LIMIT $1`,
+      [limit]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+  }
+});
+
+app.get("/api/scrutins/:legislature/:numero", async (req, res) => {
+  const legislature = parseInt(req.params.legislature, 10);
+  const numero = parseInt(req.params.numero, 10);
+  try {
+    const scrutinResult = await pool.query(
+      "SELECT * FROM scrutins WHERE legislature = $1 AND numero = $2",
+      [legislature, numero]
+    );
+    if (scrutinResult.rows.length === 0) {
+      return res.status(404).json({ error: "Scrutin non trouvé" });
+    }
+    const votesResult = await pool.query(
+      `SELECT dv.deputy_slug, dv.position, d.full_name, d.group_acronym
+       FROM deputy_votes dv
+       JOIN deputies d ON d.slug = dv.deputy_slug
+       WHERE dv.legislature = $1 AND dv.scrutin_numero = $2
+       ORDER BY d.group_acronym, d.last_name`,
+      [legislature, numero]
+    );
+    res.json({ scrutin: scrutinResult.rows[0], votes: votesResult.rows });
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+  }
+});
+
+app.post("/api/admin/ingest/deputies", requireIngestToken, async (_req, res) => {
+  try {
+    const result = await ingestDeputies(pool);
+    res.json({ status: "ok", ...result });
+  } catch (err) {
+    res.status(500).json({ error: "Échec de l'ingestion", detail: err.message });
+  }
+});
+
+app.post("/api/admin/ingest/scrutins", requireIngestToken, async (_req, res) => {
+  try {
+    const result = await ingestScrutins(pool);
+    res.json({ status: "ok", ...result });
+  } catch (err) {
+    res.status(500).json({ error: "Échec de l'ingestion", detail: err.message });
+  }
+});
+
+app.post("/api/admin/ingest/deputy-votes", requireIngestToken, async (_req, res) => {
+  try {
+    const result = await ingestDeputyVotes(pool);
+    res.json({ status: "ok", ...result });
   } catch (err) {
     res.status(500).json({ error: "Échec de l'ingestion", detail: err.message });
   }
