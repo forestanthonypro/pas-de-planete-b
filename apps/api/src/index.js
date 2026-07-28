@@ -598,6 +598,32 @@ app.get("/api/deputies", async (_req, res) => {
   }
 });
 
+// Classement de participation : sur la fenêtre de scrutins avec détail
+// nominatif disponible, quelle part des scrutins voit chaque député exprimer
+// un vote (pour/contre/abstention) plutôt qu'être absent. Un seuil minimum de
+// scrutins est appliqué pour éviter qu'un député avec très peu de données
+// (ex: arrivé récemment) fausse le classement avec un échantillon trop petit.
+app.get("/api/deputies/participation", async (_req, res) => {
+  const MIN_VOTES = 20;
+  try {
+    const result = await pool.query(
+      `SELECT d.acteur_uid, d.full_name, d.group_abbreviation,
+              COUNT(*) AS total_votes,
+              COUNT(*) FILTER (WHERE dv.position != 'absent') AS active_votes
+       FROM deputy_votes dv
+       JOIN deputies d ON d.acteur_uid = dv.acteur_uid
+       WHERE dv.legislature = 17
+       GROUP BY d.acteur_uid, d.full_name, d.group_abbreviation
+       HAVING COUNT(*) >= $1
+       ORDER BY (COUNT(*) FILTER (WHERE dv.position != 'absent'))::float / COUNT(*) DESC`,
+      [MIN_VOTES]
+    );
+    res.json({ minVotes: MIN_VOTES, deputies: result.rows });
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+  }
+});
+
 app.get("/api/deputies/:acteurUid", async (req, res) => {
   const { acteurUid } = req.params;
   try {

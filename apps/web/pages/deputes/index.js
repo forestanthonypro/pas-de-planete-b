@@ -116,6 +116,7 @@ export default function DeputesPage() {
       <p style={{ fontSize: 12, color: "#666", marginTop: "1rem" }}>
         Source : CIVIX, à partir des données open data de l&apos;Assemblée nationale (Licence
         Ouverte / Open Licence 2.0).{" "}
+        <Link href="/deputes/participation">Classement de participation →</Link> ·{" "}
         <Link href="/scrutins">Voir les derniers scrutins →</Link>
       </p>
     </main>
