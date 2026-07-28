@@ -950,7 +950,7 @@ export default function PaysDashboard() {
     return () => {
       cancelled = true;
     };
-  }, [compareCode]);
+  }, [compareCode, compareSummary]);
 
   useEffect(() => {
     if (!fireMapCompareRef.current || !fireMarkersCompareLayerRef.current) return;
@@ -978,7 +978,7 @@ export default function PaysDashboard() {
         fireMapCompareRef.current.setView([20, 0], 2);
       }
     });
-  }, [compareFires]);
+  }, [compareFires, compareCode]);
 
   const countryName = localizedCountryName(code, preferredLang);
   const latestCo2 = summary?.co2?.[summary.co2.length - 1];
@@ -1275,45 +1275,65 @@ export default function PaysDashboard() {
 
           <section style={{ marginTop: "2rem" }}>
             <h2>Biodiversité (échantillon)</h2>
-            {speciesList.length > 0 ? (
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                <caption style={{ textAlign: "left", fontSize: 12, color: "#666", marginBottom: 8 }}>
-                  <strong>{speciesList.length}</strong> espèces de l&apos;échantillon observées dans ce pays
-                </caption>
-                <thead>
-                  <tr>
-                    <th scope="col" style={{ textAlign: "left", padding: 6 }}>Nom scientifique</th>
-                    <th scope="col" style={{ textAlign: "left", padding: 6 }}>Noms communs</th>
-                    <th scope="col" style={{ textAlign: "left", padding: 6 }}>Groupe</th>
-                    <th scope="col" style={{ textAlign: "left", padding: 6 }}>Catégorie</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {speciesList.map((s) => {
-                    const info = CATEGORY_INFO[s.category] || { label: s.category, color: "#999" };
-                    const names = formatCommonNames(s.common_names, preferredLang);
-                    return (
-                      <tr key={s.scientific_name}>
-                        <th scope="row" style={{ textAlign: "left", padding: 6, fontWeight: 400, fontStyle: "italic" }}>
-                          {s.scientific_name}
-                        </th>
-                        <td style={{ textAlign: "left", padding: 6, fontSize: 13, color: names ? "inherit" : "#999" }}>
-                          {names || "non disponible"}
-                        </td>
-                        <td style={{ textAlign: "left", padding: 6 }}>{speciesGroupLabel(s.kingdom, s.class, s.taxon_order)}</td>
-                        <td style={{ padding: 6 }}>
-                          <span style={{ display: "inline-block", padding: "2px 8px", borderRadius: 4, fontSize: 11, color: "white", backgroundColor: info.color, whiteSpace: "nowrap" }}>
-                            {info.label}
-                          </span>
-                        </td>
+            {(() => {
+              function renderSpeciesTable(list) {
+                if (list.length === 0) {
+                  return <p>Aucune espèce de l&apos;échantillon liée à ce pays pour l&apos;instant.</p>;
+                }
+                return (
+                  <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                    <caption style={{ textAlign: "left", fontSize: 12, color: "#666", marginBottom: 8 }}>
+                      <strong>{list.length}</strong> espèces de l&apos;échantillon observées
+                    </caption>
+                    <thead>
+                      <tr>
+                        <th scope="col" style={{ textAlign: "left", padding: 6 }}>Nom scientifique</th>
+                        <th scope="col" style={{ textAlign: "left", padding: 6 }}>Noms communs</th>
+                        <th scope="col" style={{ textAlign: "left", padding: 6 }}>Groupe</th>
+                        <th scope="col" style={{ textAlign: "left", padding: 6 }}>Catégorie</th>
                       </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            ) : (
-              <p>Aucune espèce de l&apos;échantillon liée à ce pays pour l&apos;instant.</p>
-            )}
+                    </thead>
+                    <tbody>
+                      {list.map((s) => {
+                        const info = CATEGORY_INFO[s.category] || { label: s.category, color: "#999" };
+                        const names = formatCommonNames(s.common_names, preferredLang);
+                        return (
+                          <tr key={s.scientific_name}>
+                            <th scope="row" style={{ textAlign: "left", padding: 6, fontWeight: 400, fontStyle: "italic" }}>
+                              {s.scientific_name}
+                            </th>
+                            <td style={{ textAlign: "left", padding: 6, fontSize: 13, color: names ? "inherit" : "#999" }}>
+                              {names || "non disponible"}
+                            </td>
+                            <td style={{ textAlign: "left", padding: 6 }}>{speciesGroupLabel(s.kingdom, s.class, s.taxon_order)}</td>
+                            <td style={{ padding: 6 }}>
+                              <span style={{ display: "inline-block", padding: "2px 8px", borderRadius: 4, fontSize: 11, color: "white", backgroundColor: info.color, whiteSpace: "nowrap" }}>
+                                {info.label}
+                              </span>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                );
+              }
+
+              return (
+                <div style={{ display: "grid", gridTemplateColumns: compareCode && compareSummary ? "repeat(auto-fit, minmax(320px, 1fr))" : "1fr", gap: "1rem" }}>
+                  <div>
+                    <p style={{ fontSize: 12, color: "#666", fontWeight: 600, marginBottom: 4 }}>{countryName}</p>
+                    {renderSpeciesTable(speciesList)}
+                  </div>
+                  {compareCode && compareSummary && (
+                    <div>
+                      <p style={{ fontSize: 12, color: "#666", fontWeight: 600, marginBottom: 4 }}>{localizedCountryName(compareCode, preferredLang)}</p>
+                      {renderSpeciesTable(compareSpeciesList)}
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
             <p style={{ fontSize: 12, color: "#666" }}>
               GBIF, occurrences classées par catégorie UICN via la collaboration GBIF-IUCN —
               échantillon, pas la liste complète des espèces évaluées.
