@@ -37,20 +37,16 @@ export default function DeputesPage() {
   }, []);
 
   const groups = useMemo(() => {
-    const set = new Set(deputies.map((d) => d.group_acronym).filter(Boolean));
+    const set = new Set(deputies.map((d) => d.group_abbreviation).filter(Boolean));
     return [...set].sort();
   }, [deputies]);
 
   const filtered = useMemo(() => {
     const q = normalize(query);
     return deputies.filter((d) => {
-      if (groupFilter && d.group_acronym !== groupFilter) return false;
+      if (groupFilter && d.group_abbreviation !== groupFilter) return false;
       if (!q) return true;
-      return (
-        normalize(d.full_name).includes(q) ||
-        normalize(d.circo_name).includes(q) ||
-        normalize(d.department).includes(q)
-      );
+      return normalize(d.full_name).includes(q) || normalize(d.department).includes(q);
     });
   }, [deputies, query, groupFilter]);
 
@@ -58,9 +54,9 @@ export default function DeputesPage() {
     <main style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
       <h1>Députés — Assemblée nationale (17e législature)</h1>
       <p style={{ fontSize: 13, color: "#666", marginBottom: "1rem" }}>
-        Liste des {deputies.length || "…"} députés actuellement en mandat. Cette page présente des
-        informations factuelles (nom, groupe politique, circonscription) sans aucun jugement de
-        valeur — à toi de te faire ton propre avis.
+        Liste des {deputies.length || "…"} députés. Informations factuelles (nom, groupe
+        politique, circonscription) sans aucun jugement de valeur — à toi de te faire ton propre
+        avis.
       </p>
 
       <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem", flexWrap: "wrap" }}>
@@ -68,7 +64,7 @@ export default function DeputesPage() {
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Rechercher un nom, une circonscription..."
+          placeholder="Rechercher un nom, un département..."
           style={{ padding: "6px 10px", minWidth: 260 }}
         />
         <label>
@@ -92,18 +88,18 @@ export default function DeputesPage() {
             <tr>
               <th scope="col" style={{ textAlign: "left", padding: 8 }}>Nom</th>
               <th scope="col" style={{ textAlign: "left", padding: 8 }}>Groupe</th>
-              <th scope="col" style={{ textAlign: "left", padding: 8 }}>Circonscription</th>
+              <th scope="col" style={{ textAlign: "left", padding: 8 }}>Département / circo.</th>
             </tr>
           </thead>
           <tbody>
             {filtered.map((d) => (
-              <tr key={d.slug}>
+              <tr key={d.acteur_uid}>
                 <th scope="row" style={{ textAlign: "left", padding: 8, fontWeight: 400 }}>
-                  <Link href={`/deputes/${d.slug}`}>{d.full_name}</Link>
+                  <Link href={`/deputes/${d.acteur_uid}`}>{d.full_name}</Link>
                 </th>
-                <td style={{ padding: 8 }}>{d.group_acronym || "—"}</td>
+                <td style={{ padding: 8 }}>{d.group_abbreviation || "—"}</td>
                 <td style={{ padding: 8 }}>
-                  {d.circo_name ? `${d.circo_name}${d.circo_number ? ` (${d.circo_number}e circo.)` : ""}` : "—"}
+                  {d.department ? `${d.department}${d.circo_number ? ` (${d.circo_number}e circo.)` : ""}` : "—"}
                 </td>
               </tr>
             ))}
@@ -112,8 +108,8 @@ export default function DeputesPage() {
       )}
 
       <p style={{ fontSize: 12, color: "#666", marginTop: "1rem" }}>
-        Source : NosDéputés.fr (Regards Citoyens), à partir des données de l&apos;Assemblée
-        nationale et du Journal Officiel (CC-BY-SA / ODbL).{" "}
+        Source : CIVIX, à partir des données open data de l&apos;Assemblée nationale (Licence
+        Ouverte / Open Licence 2.0).{" "}
         <Link href="/scrutins">Voir les derniers scrutins →</Link>
       </p>
     </main>

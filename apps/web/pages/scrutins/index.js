@@ -28,9 +28,9 @@ export default function ScrutinsPage() {
     <main style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
       <h1>Derniers scrutins — Assemblée nationale (17e législature)</h1>
       <p style={{ fontSize: 13, color: "#666", marginBottom: "1rem" }}>
-        Les 200 scrutins publics les plus récents, avec leur résultat officiel. La 17e législature
-        a déjà dépassé 8000 scrutins au total (probablement lié à l&apos;instabilité politique
-        actuelle) — on se limite volontairement aux plus récents plutôt que tout l&apos;historique.
+        Les 200 scrutins les plus récents, avec leur résultat officiel. Le détail nominatif
+        (qui a voté quoi) n&apos;est disponible que pour un sous-ensemble de ces scrutins — voir
+        la fiche de chaque scrutin.
       </p>
 
       {loading && <p>Chargement...</p>}
@@ -42,8 +42,8 @@ export default function ScrutinsPage() {
             <tr>
               <th scope="col" style={{ textAlign: "left", padding: 8 }}>Date</th>
               <th scope="col" style={{ textAlign: "left", padding: 8 }}>Objet</th>
+              <th scope="col" style={{ textAlign: "left", padding: 8 }}>Type</th>
               <th scope="col" style={{ textAlign: "left", padding: 8 }}>Résultat</th>
-              <th scope="col" style={{ textAlign: "right", padding: 8 }}>Pour / Contre / Abst.</th>
             </tr>
           </thead>
           <tbody>
@@ -54,13 +54,11 @@ export default function ScrutinsPage() {
                 </td>
                 <td style={{ padding: 8 }}>
                   <Link href={`/scrutins/${s.legislature}/${s.numero}`}>
-                    {s.title || `Scrutin n°${s.numero}`}
+                    {s.title || s.objet || `Scrutin n°${s.numero}`}
                   </Link>
                 </td>
-                <td style={{ padding: 8 }}>{s.result || "—"}</td>
-                <td style={{ padding: 8, textAlign: "right", whiteSpace: "nowrap" }}>
-                  {s.votes_pour ?? "—"} / {s.votes_contre ?? "—"} / {s.votes_abstention ?? "—"}
-                </td>
+                <td style={{ padding: 8 }}>{s.type_vote_label || "—"}</td>
+                <td style={{ padding: 8 }}>{s.result_label || s.result_code || "—"}</td>
               </tr>
             ))}
           </tbody>
@@ -68,8 +66,8 @@ export default function ScrutinsPage() {
       )}
 
       <p style={{ fontSize: 12, color: "#666", marginTop: "1rem" }}>
-        Source : NosDéputés.fr (Regards Citoyens), à partir des données de l&apos;Assemblée
-        nationale et du Journal Officiel (CC-BY-SA / ODbL).{" "}
+        Source : CIVIX, à partir des données open data de l&apos;Assemblée nationale (Licence
+        Ouverte / Open Licence 2.0).{" "}
         <Link href="/deputes">Voir la liste des députés →</Link>
       </p>
     </main>

@@ -20,7 +20,8 @@
     "ingest:world-benchmarks": "node src/ingest/world_benchmarks.js",
     "ingest:deputies": "node src/ingest/deputies.js",
     "ingest:scrutins": "node src/ingest/scrutins.js",
-    "ingest:deputy-votes": "node src/ingest/deputy_votes.js"
+    "ingest:deputy-votes": "node src/ingest/deputy_votes.js",
+    "ingest:an-groups": "node src/ingest/an_groups.js"
   },
   "dependencies": {
     "express": "^4.19.2",

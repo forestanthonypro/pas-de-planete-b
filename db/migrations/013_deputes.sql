@@ -1,52 +1,71 @@
--- Députés de l'Assemblée nationale et leurs votes sur les scrutins publics,
--- source NosDéputés.fr (Regards Citoyens), à partir des données officielles
--- de l'Assemblée nationale et du Journal Officiel.
+-- Députés, groupes politiques, scrutins et votes de l'Assemblée nationale
+-- (17e législature), source CIVIX (data.gouv.fr), à partir des données
+-- officielles de l'Assemblée nationale. Licence Ouverte / Open Licence 2.0.
 --
--- Limite volontaire de périmètre : la 17e législature (depuis juillet 2024)
--- a déjà dépassé 8000 scrutins (contre ~4000-4400 pour des législatures
--- précédentes sur 5 ans complètes, probablement lié à l'instabilité politique
--- actuelle). On se limite volontairement aux scrutins les plus récents
--- (~200) plutôt qu'à tout l'historique, pour rester gérable.
+-- Remplace entièrement une première tentative de ce même périmètre basée sur
+-- NosDéputés.fr, qui s'est révélée non maintenue pour la législature en cours
+-- (l'équipe bénévole avait annoncé dès 2022 que la législature précédente
+-- serait la dernière qu'ils pourraient maintenir).
 
-CREATE TABLE IF NOT EXISTS deputies (
-    slug TEXT PRIMARY KEY,
-    full_name TEXT NOT NULL,
+DROP TABLE IF EXISTS deputy_votes;
+DROP TABLE IF EXISTS scrutins;
+DROP TABLE IF EXISTS deputies;
+DROP TABLE IF EXISTS an_groups;
+
+CREATE TABLE an_groups (
+    legislature INTEGER NOT NULL,
+    abbreviation TEXT NOT NULL,
+    name TEXT NOT NULL,
+    effectif INTEGER,
+    avg_participation_pct NUMERIC(5, 2),
+    median_participation_pct NUMERIC(5, 2),
+    total_votes_exprimes INTEGER,
+    scrutins_eligibles INTEGER,
+    source TEXT NOT NULL DEFAULT 'CIVIX, à partir des données open data de l''Assemblée nationale',
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    PRIMARY KEY (legislature, abbreviation)
+);
+
+CREATE TABLE deputies (
+    acteur_uid TEXT PRIMARY KEY,
     first_name TEXT,
     last_name TEXT,
-    group_acronym TEXT,
-    group_name TEXT,
-    department TEXT,
-    circo_name TEXT,
+    full_name TEXT NOT NULL,
+    legislature INTEGER NOT NULL,
     circo_number INTEGER,
-    profession TEXT,
-    mandate_start DATE,
-    url_an TEXT,
-    source TEXT NOT NULL DEFAULT 'NosDéputés.fr (Regards Citoyens), à partir de l''Assemblée nationale et du Journal Officiel',
+    department TEXT,
+    group_name TEXT,
+    group_abbreviation TEXT,
+    source TEXT NOT NULL DEFAULT 'CIVIX, à partir des données open data de l''Assemblée nationale',
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE IF NOT EXISTS scrutins (
+CREATE TABLE scrutins (
     legislature INTEGER NOT NULL,
     numero INTEGER NOT NULL,
-    scrutin_date DATE,
+    scrutin_uid TEXT,
+    scrutin_date TIMESTAMPTZ,
+    type_vote_code TEXT,
+    type_vote_label TEXT,
+    majority_type TEXT,
+    result_code TEXT,
+    result_label TEXT,
     title TEXT,
-    result TEXT,
-    votes_pour INTEGER,
-    votes_contre INTEGER,
-    votes_abstention INTEGER,
-    source TEXT NOT NULL DEFAULT 'NosDéputés.fr (Regards Citoyens), à partir de l''Assemblée nationale et du Journal Officiel',
+    objet TEXT,
+    source TEXT NOT NULL DEFAULT 'CIVIX, à partir des données open data de l''Assemblée nationale',
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     PRIMARY KEY (legislature, numero)
 );
 
-CREATE TABLE IF NOT EXISTS deputy_votes (
-    deputy_slug TEXT NOT NULL REFERENCES deputies(slug) ON DELETE CASCADE,
+CREATE TABLE deputy_votes (
     legislature INTEGER NOT NULL,
-    scrutin_numero INTEGER NOT NULL,
+    numero_scrutin INTEGER NOT NULL,
+    acteur_uid TEXT NOT NULL REFERENCES deputies(acteur_uid) ON DELETE CASCADE,
+    scrutin_uid TEXT,
     position TEXT NOT NULL,
+    source TEXT NOT NULL DEFAULT 'CIVIX, à partir des données open data de l''Assemblée nationale',
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    PRIMARY KEY (deputy_slug, legislature, scrutin_numero),
-    FOREIGN KEY (legislature, scrutin_numero) REFERENCES scrutins(legislature, numero) ON DELETE CASCADE
+    PRIMARY KEY (legislature, numero_scrutin, acteur_uid)
 );
-CREATE INDEX IF NOT EXISTS idx_deputy_votes_scrutin ON deputy_votes (legislature, scrutin_numero);
-CREATE INDEX IF NOT EXISTS idx_deputy_votes_deputy ON deputy_votes (deputy_slug);
+CREATE INDEX idx_deputy_votes_scrutin ON deputy_votes (legislature, numero_scrutin);
+CREATE INDEX idx_deputy_votes_deputy ON deputy_votes (acteur_uid);

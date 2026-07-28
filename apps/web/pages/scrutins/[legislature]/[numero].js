@@ -9,6 +9,7 @@ const POSITION_LABELS = {
   contre: { label: "Contre", color: "#d63e2a" },
   abstention: { label: "Abstention", color: "#f4b400" },
   absent: { label: "Absent / non-votant", color: "#95a5a6" },
+  "non-votant": { label: "Absent / non-votant", color: "#95a5a6" },
 };
 
 export default function ScrutinPage() {
@@ -40,8 +41,12 @@ export default function ScrutinPage() {
       });
   }, [legislature, numero]);
 
-  const groups = [...new Set(votes.map((v) => v.group_acronym).filter(Boolean))].sort();
-  const filteredVotes = groupFilter ? votes.filter((v) => v.group_acronym === groupFilter) : votes;
+  const groups = [...new Set(votes.map((v) => v.group_abbreviation).filter(Boolean))].sort();
+  const filteredVotes = groupFilter ? votes.filter((v) => v.group_abbreviation === groupFilter) : votes;
+  const tally = votes.reduce((acc, v) => {
+    acc[v.position] = (acc[v.position] || 0) + 1;
+    return acc;
+  }, {});
 
   return (
     <main style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
@@ -54,27 +59,28 @@ export default function ScrutinPage() {
 
       {!loading && !error && scrutin && (
         <>
-          <h1>{scrutin.title || `Scrutin n°${scrutin.numero}`}</h1>
+          <h1>{scrutin.title || scrutin.objet || `Scrutin n°${scrutin.numero}`}</h1>
           <p style={{ color: "#666" }}>
             {scrutin.scrutin_date && (
               <>Voté le {new Date(scrutin.scrutin_date).toLocaleDateString("fr-FR")} — </>
             )}
-            Résultat : <strong>{scrutin.result || "—"}</strong>
-          </p>
-          <p style={{ fontSize: 14 }}>
-            Pour : <strong>{scrutin.votes_pour ?? "—"}</strong> · Contre :{" "}
-            <strong>{scrutin.votes_contre ?? "—"}</strong> · Abstention :{" "}
-            <strong>{scrutin.votes_abstention ?? "—"}</strong>
+            {scrutin.type_vote_label && <>{scrutin.type_vote_label} — </>}
+            Résultat : <strong>{scrutin.result_label || scrutin.result_code || "—"}</strong>
           </p>
 
           {votes.length === 0 ? (
             <p style={{ fontSize: 13, color: "#666" }}>
-              Le détail nominatif des votes n&apos;est pas disponible pour ce scrutin (on se
-              limite volontairement aux scrutins les plus récents pour le détail par député — voir{" "}
+              Le détail nominatif des votes n&apos;est pas disponible pour ce scrutin (le jeu de
+              données public utilisé ne couvre qu&apos;un sous-ensemble des scrutins — voir{" "}
               <Link href="/scrutins">la liste des scrutins</Link>).
             </p>
           ) : (
             <>
+              <p style={{ fontSize: 14 }}>
+                {Object.entries(tally)
+                  .map(([pos, count]) => `${POSITION_LABELS[pos]?.label || pos} : ${count}`)
+                  .join(" · ")}
+              </p>
               <label style={{ display: "block", marginTop: "1rem", marginBottom: "0.5rem" }}>
                 Filtrer par groupe{" "}
                 <select value={groupFilter} onChange={(e) => setGroupFilter(e.target.value)}>
@@ -94,11 +100,11 @@ export default function ScrutinPage() {
                 </thead>
                 <tbody>
                   {filteredVotes.map((v) => (
-                    <tr key={v.deputy_slug}>
+                    <tr key={v.acteur_uid}>
                       <th scope="row" style={{ textAlign: "left", padding: 8, fontWeight: 400 }}>
-                        <Link href={`/deputes/${v.deputy_slug}`}>{v.full_name}</Link>
+                        <Link href={`/deputes/${v.acteur_uid}`}>{v.full_name}</Link>
                       </th>
-                      <td style={{ padding: 8 }}>{v.group_acronym || "—"}</td>
+                      <td style={{ padding: 8 }}>{v.group_abbreviation || "—"}</td>
                       <td style={{ padding: 8, color: POSITION_LABELS[v.position]?.color || "#333", fontWeight: 600 }}>
                         {POSITION_LABELS[v.position]?.label || v.position}
                       </td>
@@ -110,8 +116,8 @@ export default function ScrutinPage() {
           )}
 
           <p style={{ fontSize: 12, color: "#666", marginTop: "1rem" }}>
-            Source : NosDéputés.fr (Regards Citoyens), à partir des données de l&apos;Assemblée
-            nationale et du Journal Officiel (CC-BY-SA / ODbL).
+            Source : CIVIX, à partir des données open data de l&apos;Assemblée nationale (Licence
+            Ouverte / Open Licence 2.0).
           </p>
         </>
       )}

@@ -1,131 +1,80 @@
-// Ingestion des votes individuels de chaque député pour les N scrutins les
-// plus récents (voir la note de périmètre dans la migration 013 : la 17e
-// législature a déjà dépassé 8000 scrutins, trop pour tout ingérer).
+// Ingestion des votes individuels des députés, source CIVIX via data.gouv.fr —
+// colonnes confirmées par échantillon réel :
+// scrutin_uid, numero_scrutin, date_scrutin, acteur_uid, prenom, nom, groupe, position
 //
-// Nécessite que scrutins.js ait déjà tourné (pour connaître les numéros de
-// scrutin existants). Un délai est ajouté entre chaque requête pour rester
-// respectueux du serveur de Regards Citoyens (petite association).
-//
-// IMPORTANT : la structure exacte du JSON par scrutin n'a pas pu être
-// vérifiée en direct au moment de l'écriture de ce script (nosdeputes.fr
-// n'étant pas dans la liste des domaines accessibles depuis l'environnement
-// de développement) — le parsing ci-dessous est défensif (plusieurs formes de
-// clés essayées) mais un premier test réel peut révéler un ajustement
-// nécessaire sur les noms de champs exacts.
+// Note de couverture : ce fichier public est plus restreint que l'ensemble
+// des scrutins de la législature (voir le fichier scrutins, bien plus gros) —
+// il ne couvre vraisemblablement qu'un sous-ensemble récent, pas tout
+// l'historique. On ingère ce qui est disponible plutôt que de le simuler.
 
+import { parse } from "csv-parse/sync";
+
+const VOTES_URL = "https://www.data.gouv.fr/api/1/datasets/r/bb1757e3-ccfd-43a8-b7d3-bb5624ff97a4";
+const SOURCE_LABEL = "CIVIX, à partir des données open data de l'Assemblée nationale";
 const LEGISLATURE = 17;
-const RECENT_COUNT = 200;
-const SOURCE_LABEL = "NosDéputés.fr (Regards Citoyens), à partir de l'Assemblée nationale et du Journal Officiel";
 
-function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
+export async function ingestDeputyVotes(pool) {
+  const res = await fetch(VOTES_URL);
+  if (!res.ok) throw new Error(`Échec du téléchargement : ${res.status} ${res.statusText}`);
+  const text = await res.text();
+  const rows = parse(text, { columns: true, skip_empty_lines: true, relax_column_count: true });
 
-// Essaie plusieurs formes plausibles pour extraire, depuis un scrutin, la
-// liste { slug, position } de chaque député ayant voté.
-function extractVotes(scrutin) {
-  const votes = [];
-  const groupes = scrutin.groupes || scrutin.groupe || [];
-  const groupList = Array.isArray(groupes) ? groupes : [groupes];
+  let inserted = 0;
+  let skipped = 0;
+  let skippedNoDeputy = 0;
 
-  for (const g of groupList) {
-    const groupe = g.groupe || g;
-    const votesByPosition = groupe.votes || groupe.positions || {};
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
 
-    const positionKeyMap = {
-      pour: "pour",
-      pours: "pour",
-      contre: "contre",
-      contres: "contre",
-      abstention: "abstention",
-      abstentions: "abstention",
-      nonVotant: "absent",
-      nonVotants: "absent",
-      non_votant: "absent",
-      non_votants: "absent",
-      absent: "absent",
-      absents: "absent",
-    };
-
-    for (const [key, list] of Object.entries(votesByPosition)) {
-      const normalizedPosition = positionKeyMap[key];
-      if (!normalizedPosition || !Array.isArray(list)) continue;
-      for (const entry of list) {
-        const parl = entry.parlementaire || entry;
-        const slug = parl.slug;
-        if (slug) votes.push({ slug, position: normalizedPosition });
-      }
-    }
-  }
-
-  return votes;
-}
-
-export async function ingestDeputyVotes(pool, { recentCount = RECENT_COUNT } = {}) {
-  const numerosResult = await pool.query(
-    "SELECT numero FROM scrutins WHERE legislature = $1 ORDER BY numero DESC LIMIT $2",
-    [LEGISLATURE, recentCount]
-  );
-  const numeros = numerosResult.rows.map((r) => r.numero);
-
-  let scrutinsProcessed = 0;
-  let votesInserted = 0;
-  let scrutinsFailed = 0;
-
-  for (const numero of numeros) {
-    const url = `https://www.nosdeputes.fr/${LEGISLATURE}/scrutin/${numero}/json`;
-    try {
-      const res = await fetch(url, { headers: { "User-Agent": "PasDePlaneteB/1.0 (contact via GitHub repo)" } });
-      if (!res.ok) {
-        scrutinsFailed += 1;
+    for (const row of rows) {
+      const acteurUid = row.acteur_uid;
+      const numero = parseInt(row.numero_scrutin, 10);
+      const position = (row.position || "").trim().toLowerCase();
+      if (!acteurUid || Number.isNaN(numero) || !position) {
+        skipped += 1;
         continue;
       }
-      const data = await res.json();
-      const scrutin = data.scrutin || data;
-      const votes = extractVotes(scrutin);
 
-      if (votes.length > 0) {
-        const client = await pool.connect();
-        try {
-          await client.query("BEGIN");
-          for (const v of votes) {
-            await client.query(
-              `INSERT INTO deputy_votes (deputy_slug, legislature, scrutin_numero, position)
-               VALUES ($1, $2, $3, $4)
-               ON CONFLICT (deputy_slug, legislature, scrutin_numero)
-               DO UPDATE SET position = EXCLUDED.position, updated_at = now()`,
-              [v.slug, LEGISLATURE, numero, v.position]
-            );
-            votesInserted += 1;
-          }
-          await client.query("COMMIT");
-        } catch (err) {
-          await client.query("ROLLBACK");
-          // Un scrutin individuel qui échoue (ex: député non encore dans la
-          // table deputies, contrainte de clé étrangère) ne doit pas arrêter
-          // l'ingestion des autres scrutins.
-          scrutinsFailed += 1;
-        } finally {
-          client.release();
-        }
+      try {
+        await client.query("SAVEPOINT vote_row");
+        await client.query(
+          `INSERT INTO deputy_votes (legislature, numero_scrutin, acteur_uid, scrutin_uid, position, source)
+           VALUES ($1, $2, $3, $4, $5, $6)
+           ON CONFLICT (legislature, numero_scrutin, acteur_uid)
+           DO UPDATE SET
+             scrutin_uid = EXCLUDED.scrutin_uid,
+             position = EXCLUDED.position,
+             updated_at = now()`,
+          [LEGISLATURE, numero, acteurUid, row.scrutin_uid || null, position, SOURCE_LABEL]
+        );
+        await client.query("RELEASE SAVEPOINT vote_row");
+        inserted += 1;
+      } catch (err) {
+        // Le député référencé n'est pas (encore) dans la table deputies
+        // (contrainte de clé étrangère) — on annule seulement cette ligne
+        // via SAVEPOINT plutôt que de faire échouer toute la transaction.
+        await client.query("ROLLBACK TO SAVEPOINT vote_row");
+        skippedNoDeputy += 1;
       }
-      scrutinsProcessed += 1;
-    } catch (err) {
-      scrutinsFailed += 1;
     }
-    await sleep(150);
+
+    await client.query("COMMIT");
+  } catch (err) {
+    await client.query("ROLLBACK");
+    throw err;
+  } finally {
+    client.release();
   }
 
-  return { scrutinsProcessed, votesInserted, scrutinsFailed, totalScrutins: numeros.length };
+  return { inserted, skipped, skippedNoDeputy };
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
   const { default: pg } = await import("pg");
   const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
-  console.log(`Téléchargement des votes détaillés pour les ${RECENT_COUNT} scrutins les plus récents...`);
-  const result = await ingestDeputyVotes(pool);
-  console.log(
-    `Terminé : ${result.scrutinsProcessed}/${result.totalScrutins} scrutins traités, ${result.votesInserted} votes insérés/mis à jour, ${result.scrutinsFailed} échecs.`
-  );
+  console.log("Téléchargement des votes individuels des députés (CIVIX)...");
+  const { inserted, skipped, skippedNoDeputy } = await ingestDeputyVotes(pool);
+  console.log(`Terminé : ${inserted} votes insérés/mis à jour, ${skipped} lignes ignorées, ${skippedNoDeputy} sans député correspondant.`);
   await pool.end();
 }

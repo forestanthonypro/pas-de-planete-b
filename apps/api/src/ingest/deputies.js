@@ -1,20 +1,18 @@
-// Ingestion de la liste des députés actuellement en mandat, depuis
-// NosDéputés.fr (Regards Citoyens) — licence CC-BY-SA (contenus) / ODbL
-// (données), à partir des données de l'Assemblée nationale et du Journal
-// Officiel.
+// Ingestion de la liste des députés en mandat (17e législature), source CIVIX
+// via data.gouv.fr — colonnes confirmées par échantillon réel :
+// acteur_uid, prenom, nom, legislature, circ_num, circ_departement,
+// groupe_libelle, groupe_libelle_abrev
 
-const DEPUTIES_URL = "https://www.nosdeputes.fr/deputes/enmandat/json";
-const SOURCE_LABEL = "NosDéputés.fr (Regards Citoyens), à partir de l'Assemblée nationale et du Journal Officiel";
+import { parse } from "csv-parse/sync";
+
+const DEPUTIES_URL = "https://www.data.gouv.fr/api/1/datasets/r/0c6045e2-631d-4759-b1dc-f8d76d624321";
+const SOURCE_LABEL = "CIVIX, à partir des données open data de l'Assemblée nationale";
 
 export async function ingestDeputies(pool) {
-  const res = await fetch(DEPUTIES_URL, { headers: { "User-Agent": "PasDePlaneteB/1.0 (contact via GitHub repo)" } });
+  const res = await fetch(DEPUTIES_URL);
   if (!res.ok) throw new Error(`Échec du téléchargement : ${res.status} ${res.statusText}`);
-  const data = await res.json();
-
-  // La structure attendue est { deputes: [ { depute: {...} }, ... ] } — mais on
-  // reste défensif au cas où la forme exacte diffère légèrement (imbrication,
-  // nom de champ), pour ne pas planter sur un détail de format.
-  const rows = Array.isArray(data.deputes) ? data.deputes : Array.isArray(data) ? data : [];
+  const text = await res.text();
+  const rows = parse(text, { columns: true, skip_empty_lines: true });
 
   let inserted = 0;
   let skipped = 0;
@@ -23,48 +21,40 @@ export async function ingestDeputies(pool) {
   try {
     await client.query("BEGIN");
 
-    for (const entry of rows) {
-      const d = entry.depute || entry;
-      const slug = d.slug;
-      if (!slug) {
+    for (const row of rows) {
+      const acteurUid = row.acteur_uid;
+      if (!acteurUid) {
         skipped += 1;
         continue;
       }
-      const fullName = d.nom || `${d.prenom || ""} ${d.nom_de_famille || ""}`.trim();
-      const mandateStart = d.mandat_debut || null;
-      const circoNumber = d.num_circo ? parseInt(d.num_circo, 10) : null;
+      const fullName = `${row.prenom || ""} ${row.nom || ""}`.trim();
+      const circoNumber = row.circ_num ? parseInt(row.circ_num, 10) : null;
 
       await client.query(
-        `INSERT INTO deputies (slug, full_name, first_name, last_name, group_acronym, group_name,
-                                department, circo_name, circo_number, profession, mandate_start, url_an, source)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
-         ON CONFLICT (slug)
+        `INSERT INTO deputies (acteur_uid, first_name, last_name, full_name, legislature,
+                                circo_number, department, group_name, group_abbreviation, source)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+         ON CONFLICT (acteur_uid)
          DO UPDATE SET
-           full_name = EXCLUDED.full_name,
            first_name = EXCLUDED.first_name,
            last_name = EXCLUDED.last_name,
-           group_acronym = EXCLUDED.group_acronym,
-           group_name = EXCLUDED.group_name,
-           department = EXCLUDED.department,
-           circo_name = EXCLUDED.circo_name,
+           full_name = EXCLUDED.full_name,
+           legislature = EXCLUDED.legislature,
            circo_number = EXCLUDED.circo_number,
-           profession = EXCLUDED.profession,
-           mandate_start = EXCLUDED.mandate_start,
-           url_an = EXCLUDED.url_an,
+           department = EXCLUDED.department,
+           group_name = EXCLUDED.group_name,
+           group_abbreviation = EXCLUDED.group_abbreviation,
            updated_at = now()`,
         [
-          slug,
-          fullName || slug,
-          d.prenom || null,
-          d.nom_de_famille || null,
-          d.groupe_sigle || null,
-          d.parti_ratt_financier || d.groupe_sigle || null,
-          d.num_deptmt || null,
-          d.nom_circo || null,
+          acteurUid,
+          row.prenom || null,
+          row.nom || null,
+          fullName || acteurUid,
+          parseInt(row.legislature, 10) || 17,
           Number.isNaN(circoNumber) ? null : circoNumber,
-          d.profession || null,
-          mandateStart,
-          d.url_an || null,
+          row.circ_departement || null,
+          row.groupe_libelle || null,
+          row.groupe_libelle_abrev || null,
           SOURCE_LABEL,
         ]
       );
@@ -85,7 +75,7 @@ export async function ingestDeputies(pool) {
 if (import.meta.url === `file://${process.argv[1]}`) {
   const { default: pg } = await import("pg");
   const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
-  console.log("Téléchargement de la liste des députés en mandat...");
+  console.log("Téléchargement de la liste des députés (CIVIX)...");
   const { inserted, skipped } = await ingestDeputies(pool);
   console.log(`Terminé : ${inserted} députés insérés/mis à jour, ${skipped} lignes ignorées.`);
   await pool.end();
