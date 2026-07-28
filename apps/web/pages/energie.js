@@ -82,7 +82,7 @@ export default function EnergiePage() {
   useEffect(() => {
     if (generation.length === 0) return;
     let cancelled = false;
-    import("chart.js/auto").then(({ default: Chart }) => {
+    import("../lib/chartSetup").then(({ default: Chart }) => {
       if (cancelled || !generationCanvasRef.current) return;
       if (generationChartRef.current) generationChartRef.current.destroy();
 
@@ -194,7 +194,7 @@ export default function EnergiePage() {
   }, [plants, view]);
 
   return (
-    <main style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
+    <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
       <h1>Centrales électriques</h1>
       <ShareButtons title="Centrales électriques" />
 
@@ -297,6 +297,6 @@ export default function EnergiePage() {
         )}
         {" "}Rafraîchissement automatique mensuel (sans effet tant que la source elle-même n&apos;évolue pas).
       </p>
-    </main>
+    </div>
   );
 }

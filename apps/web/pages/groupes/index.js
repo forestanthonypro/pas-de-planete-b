@@ -42,7 +42,7 @@ export default function GroupesPage() {
   useEffect(() => {
     if (groups.length === 0) return;
     let cancelled = false;
-    import("chart.js/auto").then(({ default: Chart }) => {
+    import("../../lib/chartSetup").then(({ default: Chart }) => {
       if (cancelled || !canvasRef.current) return;
       if (chartRef.current) chartRef.current.destroy();
 
@@ -101,7 +101,7 @@ export default function GroupesPage() {
   }, [groups, cohesion]);
 
   return (
-    <main style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
+    <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
       <h1>Groupes politiques — Assemblée nationale (17e législature)</h1>
       <ShareButtons title="Groupes politiques — Assemblée nationale (17e législature)" />
 
@@ -169,6 +169,6 @@ export default function GroupesPage() {
         2.0).{" "}
         <Link href="/deputes">Voir la liste des députés →</Link>
       </p>
-    </main>
+    </div>
   );
 }

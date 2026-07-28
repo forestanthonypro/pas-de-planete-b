@@ -209,7 +209,7 @@ export default function PaysDashboard() {
     const hasConsumptionData = summary.co2.some((d) => d.consumption_co2 !== null && d.consumption_co2 !== undefined);
 
     let cancelled = false;
-    import("chart.js/auto").then((Chart) => {
+    import("../../lib/chartSetup").then((Chart) => {
       if (cancelled || !co2CanvasRef.current) return;
       if (co2ChartRef.current) co2ChartRef.current.destroy();
 
@@ -263,7 +263,7 @@ export default function PaysDashboard() {
     const hasConsumptionData = compareSummary.co2.some((d) => d.consumption_co2 !== null && d.consumption_co2 !== undefined);
 
     let cancelled = false;
-    import("chart.js/auto").then((Chart) => {
+    import("../../lib/chartSetup").then((Chart) => {
       if (cancelled || !co2CompareCanvasRef.current) return;
       if (co2CompareChartRef.current) co2CompareChartRef.current.destroy();
 
@@ -342,7 +342,7 @@ export default function PaysDashboard() {
   useEffect(() => {
     if (!summary || summary.energyMix.length === 0) return;
     let cancelled = false;
-    import("chart.js/auto").then((Chart) => {
+    import("../../lib/chartSetup").then((Chart) => {
       if (cancelled || !energyCanvasRef.current) return;
       if (energyChartRef.current) energyChartRef.current.destroy();
       energyChartRef.current = new Chart.default(energyCanvasRef.current, buildEnergyMixChart(summary.energyMix));
@@ -355,7 +355,7 @@ export default function PaysDashboard() {
   useEffect(() => {
     if (!compareCode || !compareSummary || !compareSummary.energyMix || compareSummary.energyMix.length === 0) return;
     let cancelled = false;
-    import("chart.js/auto").then((Chart) => {
+    import("../../lib/chartSetup").then((Chart) => {
       if (cancelled || !energyCompareCanvasRef.current) return;
       if (energyCompareChartRef.current) energyCompareChartRef.current.destroy();
       energyCompareChartRef.current = new Chart.default(energyCompareCanvasRef.current, buildEnergyMixChart(compareSummary.energyMix));
@@ -415,7 +415,7 @@ export default function PaysDashboard() {
   useEffect(() => {
     if (!summary || !summary.electricityGeneration || summary.electricityGeneration.length === 0) return;
     let cancelled = false;
-    import("chart.js/auto").then((Chart) => {
+    import("../../lib/chartSetup").then((Chart) => {
       if (cancelled || !generationCanvasRef.current) return;
       if (generationChartRef.current) generationChartRef.current.destroy();
       generationChartRef.current = new Chart.default(generationCanvasRef.current, buildGenerationChart(summary.electricityGeneration));
@@ -428,7 +428,7 @@ export default function PaysDashboard() {
   useEffect(() => {
     if (!compareCode || !compareSummary || !compareSummary.electricityGeneration || compareSummary.electricityGeneration.length === 0) return;
     let cancelled = false;
-    import("chart.js/auto").then((Chart) => {
+    import("../../lib/chartSetup").then((Chart) => {
       if (cancelled || !generationCompareCanvasRef.current) return;
       if (generationCompareChartRef.current) generationCompareChartRef.current.destroy();
       generationCompareChartRef.current = new Chart.default(generationCompareCanvasRef.current, buildGenerationChart(compareSummary.electricityGeneration));
@@ -571,7 +571,7 @@ export default function PaysDashboard() {
     };
 
     let cancelled = false;
-    import("chart.js/auto").then((Chart) => {
+    import("../../lib/chartSetup").then((Chart) => {
       if (cancelled || !comparisonCanvasRef.current) return;
       if (comparisonChartRef.current) comparisonChartRef.current.destroy();
 
@@ -726,7 +726,7 @@ export default function PaysDashboard() {
   useEffect(() => {
     if (!summary || !summary.vegetation || summary.vegetation.length === 0) return;
     let cancelled = false;
-    import("chart.js/auto").then((Chart) => {
+    import("../../lib/chartSetup").then((Chart) => {
       if (cancelled || !vegetationCanvasRef.current) return;
       if (vegetationChartRef.current) vegetationChartRef.current.destroy();
       vegetationChartRef.current = new Chart.default(
@@ -743,7 +743,7 @@ export default function PaysDashboard() {
   useEffect(() => {
     if (!compareCode || !compareSummary || !compareSummary.vegetation || compareSummary.vegetation.length === 0) return;
     let cancelled = false;
-    import("chart.js/auto").then((Chart) => {
+    import("../../lib/chartSetup").then((Chart) => {
       if (cancelled || !vegetationCompareCanvasRef.current) return;
       if (vegetationCompareChartRef.current) vegetationCompareChartRef.current.destroy();
       vegetationCompareChartRef.current = new Chart.default(
@@ -802,7 +802,7 @@ export default function PaysDashboard() {
   useEffect(() => {
     if (!summary || !summary.water || summary.water.length === 0) return;
     let cancelled = false;
-    import("chart.js/auto").then((Chart) => {
+    import("../../lib/chartSetup").then((Chart) => {
       if (cancelled || !waterCanvasRef.current) return;
       if (waterChartRef.current) waterChartRef.current.destroy();
       waterChartRef.current = new Chart.default(waterCanvasRef.current, buildWaterChart(summary.water, "#2a78d6"));
@@ -815,7 +815,7 @@ export default function PaysDashboard() {
   useEffect(() => {
     if (!compareCode || !compareSummary || !compareSummary.water || compareSummary.water.length === 0) return;
     let cancelled = false;
-    import("chart.js/auto").then((Chart) => {
+    import("../../lib/chartSetup").then((Chart) => {
       if (cancelled || !waterCompareCanvasRef.current) return;
       if (waterCompareChartRef.current) waterCompareChartRef.current.destroy();
       waterCompareChartRef.current = new Chart.default(waterCompareCanvasRef.current, buildWaterChart(compareSummary.water, "#6c3483"));
@@ -866,7 +866,7 @@ export default function PaysDashboard() {
     const hasStress = summary.water.some((d) => d.withdrawal_share_percent !== null && d.withdrawal_share_percent !== undefined);
     if (!hasStress) return;
     let cancelled = false;
-    import("chart.js/auto").then((Chart) => {
+    import("../../lib/chartSetup").then((Chart) => {
       if (cancelled || !stressCanvasRef.current) return;
       if (stressChartRef.current) stressChartRef.current.destroy();
       stressChartRef.current = new Chart.default(stressCanvasRef.current, buildStressChart(summary.water, worldBenchmarks, "#8e44ad"));
@@ -881,7 +881,7 @@ export default function PaysDashboard() {
     const hasStress = compareSummary.water.some((d) => d.withdrawal_share_percent !== null && d.withdrawal_share_percent !== undefined);
     if (!hasStress) return;
     let cancelled = false;
-    import("chart.js/auto").then((Chart) => {
+    import("../../lib/chartSetup").then((Chart) => {
       if (cancelled || !stressCompareCanvasRef.current) return;
       if (stressCompareChartRef.current) stressCompareChartRef.current.destroy();
       stressCompareChartRef.current = new Chart.default(stressCompareCanvasRef.current, buildStressChart(compareSummary.water, worldBenchmarks, "#6c3483"));
@@ -991,7 +991,7 @@ export default function PaysDashboard() {
   );
 
   return (
-    <main style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
+    <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "1rem" }}>
         <h1>{countryName}</h1>
         <ShareButtons title={`Pas de planète B — ${countryName}`} />
@@ -1595,6 +1595,6 @@ export default function PaysDashboard() {
           {" "}<Link href="/eau">Voir le graphique détaillé →</Link>
         </p>
       </section>
-    </main>
+    </div>
   );
 }

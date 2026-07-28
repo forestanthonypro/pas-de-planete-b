@@ -60,7 +60,7 @@ export default function EauPage() {
   useEffect(() => {
     if (view !== "chart" || loading || error || data.length === 0) return;
     let cancelled = false;
-    import("chart.js/auto").then(({ default: Chart }) => {
+    import("../lib/chartSetup").then(({ default: Chart }) => {
       if (cancelled || !canvasRef.current) return;
       if (chartRef.current) chartRef.current.destroy();
 
@@ -118,7 +118,7 @@ export default function EauPage() {
     const hasWithdrawal = data.some((d) => d.withdrawal_m3 !== null && d.withdrawal_m3 !== undefined);
     if (!hasWithdrawal) return;
     let cancelled = false;
-    import("chart.js/auto").then(({ default: Chart }) => {
+    import("../lib/chartSetup").then(({ default: Chart }) => {
       if (cancelled || !withdrawalCanvasRef.current) return;
       if (withdrawalChartRef.current) withdrawalChartRef.current.destroy();
 
@@ -158,7 +158,7 @@ export default function EauPage() {
     const hasStress = data.some((d) => d.withdrawal_share_percent !== null && d.withdrawal_share_percent !== undefined);
     if (!hasStress) return;
     let cancelled = false;
-    import("chart.js/auto").then(({ default: Chart }) => {
+    import("../lib/chartSetup").then(({ default: Chart }) => {
       if (cancelled || !stressCanvasRef.current) return;
       if (stressChartRef.current) stressChartRef.current.destroy();
 
@@ -206,7 +206,7 @@ export default function EauPage() {
     localizedCountryName(countryCode, preferredLang);
 
   return (
-    <main style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 800, margin: "0 auto" }}>
+    <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 800, margin: "0 auto" }}>
       <h1>Ressources en eau — {selectedCountryName}</h1>
       <ShareButtons title={`Ressources en eau — ${selectedCountryName}`} />
 
@@ -345,6 +345,6 @@ export default function EauPage() {
         )}
         . Rafraîchissement automatique mensuel.
       </p>
-    </main>
+    </div>
   );
 }

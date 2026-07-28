@@ -101,7 +101,7 @@ export default function IncendiesPage() {
     localizedCountryName(country, preferredLang);
 
   return (
-    <main style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
+    <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
       <h1>Feux actifs — {selectedCountryName}</h1>
       <ShareButtons title={`Feux actifs — ${selectedCountryName}`} />
 
@@ -173,6 +173,6 @@ export default function IncendiesPage() {
         )}
         {" "}Rafraîchissement automatique toutes les 6 heures.
       </p>
-    </main>
+    </div>
   );
 }

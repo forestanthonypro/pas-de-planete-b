@@ -56,7 +56,7 @@ export default function PollutionPage() {
   useEffect(() => {
     if (view !== "chart" || loading || error || data.length === 0) return;
     let cancelled = false;
-    import("chart.js/auto").then(({ default: Chart }) => {
+    import("../lib/chartSetup").then(({ default: Chart }) => {
       if (cancelled || !canvasRef.current) return;
       if (chartRef.current) chartRef.current.destroy();
 
@@ -115,7 +115,7 @@ export default function PollutionPage() {
   const selectedCountryName = localizedCountryName(countryCode, preferredLang);
 
   return (
-    <main style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 800, margin: "0 auto" }}>
+    <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 800, margin: "0 auto" }}>
       <h1>Pollution de l&apos;air — {selectedCountryName}</h1>
       <ShareButtons title={`Pollution de l'air — ${selectedCountryName}`} />
 
@@ -194,6 +194,6 @@ export default function PollutionPage() {
         )}
         . Rafraîchissement automatique mensuel.
       </p>
-    </main>
+    </div>
   );
 }

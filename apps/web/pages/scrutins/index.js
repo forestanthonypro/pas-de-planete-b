@@ -64,7 +64,7 @@ export default function ScrutinsPage() {
   useEffect(() => {
     if (!stats || !stats.byResult || stats.byResult.length === 0) return;
     let cancelled = false;
-    import("chart.js/auto").then(({ default: Chart }) => {
+    import("../../lib/chartSetup").then(({ default: Chart }) => {
       if (cancelled || !canvasRef.current) return;
       if (chartRef.current) chartRef.current.destroy();
 
@@ -93,7 +93,7 @@ export default function ScrutinsPage() {
   }, [stats]);
 
   return (
-    <main style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
+    <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
       <h1>Scrutins — Assemblée nationale (17e législature)</h1>
       <ShareButtons title="Scrutins — Assemblée nationale (17e législature)" />
 
@@ -234,6 +234,6 @@ export default function ScrutinsPage() {
         2.0).{" "}
         <Link href="/deputes">Voir la liste des députés →</Link>
       </p>
-    </main>
+    </div>
   );
 }

@@ -71,7 +71,7 @@ export default function EspecesPage() {
   useEffect(() => {
     if (threatenedCounts.length === 0) return;
     let cancelled = false;
-    import("chart.js/auto").then(({ default: Chart }) => {
+    import("../lib/chartSetup").then(({ default: Chart }) => {
       if (cancelled || !threatenedCanvasRef.current) return;
       if (threatenedChartRef.current) threatenedChartRef.current.destroy();
 
@@ -149,7 +149,7 @@ export default function EspecesPage() {
     localizedCountryName(country, preferredLang);
 
   return (
-    <main style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
+    <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
       <h1>Espèces menacées — {selectedCountryName}</h1>
       <ShareButtons title={`Espèces menacées — ${selectedCountryName}`} />
 
@@ -320,6 +320,6 @@ export default function EspecesPage() {
           .
         </p>
       </section>
-    </main>
+    </div>
   );
 }

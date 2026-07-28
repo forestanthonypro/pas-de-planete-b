@@ -1,5 +1,13 @@
-import "leaflet/dist/leaflet.css";
+import "../styles/globals.css";
+import { SobrietyProvider } from "../lib/SobrietyContext";
+import Layout from "../components/Layout";
 
-export default function App({ Component, pageProps }) {
-  return <Component {...pageProps} />;
+export default function MyApp({ Component, pageProps }) {
+  return (
+    <SobrietyProvider>
+      <Layout>
+        <Component {...pageProps} />
+      </Layout>
+    </SobrietyProvider>
+  );
 }

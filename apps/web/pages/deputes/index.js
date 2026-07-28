@@ -65,7 +65,7 @@ export default function DeputesPage() {
   }, [deputies, query, groupFilter, departmentFilter]);
 
   return (
-    <main style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
+    <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
       <h1>Députés — Assemblée nationale (17e législature)</h1>
       <ShareButtons title="Députés — Assemblée nationale (17e législature)" />
 
@@ -147,6 +147,6 @@ export default function DeputesPage() {
         <Link href="/deputes/participation">Classement de participation →</Link> ·{" "}
         <Link href="/scrutins">Voir les derniers scrutins →</Link>
       </p>
-    </main>
+    </div>
   );
 }

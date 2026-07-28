@@ -34,7 +34,7 @@ export default function DebunkEntryPage() {
   }, [slug]);
 
   return (
-    <main style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
+    <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
       <p style={{ fontSize: 13 }}>
         <Link href="/debunk">← Retour à Débunk</Link>
       </p>
@@ -64,6 +64,6 @@ export default function DebunkEntryPage() {
           )}
         </>
       )}
-    </main>
+    </div>
   );
 }

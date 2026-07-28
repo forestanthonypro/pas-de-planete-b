@@ -26,7 +26,7 @@ export default function DebunkPage() {
   }, []);
 
   return (
-    <main style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
+    <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
       <h1>Débunk</h1>
       <ShareButtons title="Débunk — Pas de planète B" />
       <p style={{ fontSize: 13, color: "#666", marginBottom: "1rem" }}>
@@ -58,6 +58,6 @@ export default function DebunkPage() {
       <p style={{ fontSize: 12, color: "#666", marginTop: "1rem" }}>
         <Link href="/">Retour à l&apos;accueil →</Link>
       </p>
-    </main>
+    </div>
   );
 }

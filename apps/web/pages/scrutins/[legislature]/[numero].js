@@ -67,7 +67,7 @@ export default function ScrutinPage() {
   useEffect(() => {
     if (votes.length === 0 || groups.length === 0) return;
     let cancelled = false;
-    import("chart.js/auto").then(({ default: Chart }) => {
+    import("../../../lib/chartSetup").then(({ default: Chart }) => {
       if (cancelled || !canvasRef.current) return;
       if (chartRef.current) chartRef.current.destroy();
 
@@ -111,7 +111,7 @@ export default function ScrutinPage() {
   }, [votes]);
 
   return (
-    <main style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
+    <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
       <p style={{ fontSize: 13 }}>
         <Link href="/scrutins">← Retour à la liste des scrutins</Link>
       </p>
@@ -241,6 +241,6 @@ export default function ScrutinPage() {
           </p>
         </>
       )}
-    </main>
+    </div>
   );
 }

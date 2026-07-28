@@ -50,7 +50,7 @@ export default function ParticipationPage() {
   }, [withRate, query]);
 
   return (
-    <main style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
+    <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
       <h1>Participation aux votes — par député</h1>
       <p style={{ fontSize: 13, color: "#666", marginBottom: "1rem" }}>
         Sur la fenêtre de scrutins où on a le détail nominatif (pas l&apos;historique complet de
@@ -107,6 +107,6 @@ export default function ParticipationPage() {
         Source : Assemblée nationale (open data officiel) (Licence Ouverte / Open Licence 2.0).{" "}
         <Link href="/deputes">Voir la liste des députés →</Link>
       </p>
-    </main>
+    </div>
   );
 }

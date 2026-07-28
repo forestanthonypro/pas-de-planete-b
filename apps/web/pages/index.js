@@ -3,6 +3,32 @@ import Link from "next/link";
 import { detectDefaultCountry } from "../lib/detectCountry";
 import ActionCTA from "../components/ActionCTA";
 
+const ENVIRONMENT_CARDS = [
+  { href: "/co2", emoji: "☁️", label: "CO2", desc: "Par pays" },
+  { href: "/energie", emoji: "⚡", label: "Énergie", desc: "Mix électrique" },
+  { href: "/eau", emoji: "💧", label: "Eau", desc: "Stress hydrique" },
+  { href: "/vegetation", emoji: "🌳", label: "Végétation", desc: "Perte de forêt" },
+  { href: "/especes", emoji: "🐾", label: "Espèces", desc: "Menacées (UICN)" },
+  { href: "/incendies", emoji: "🔥", label: "Incendies", desc: "Détections récentes" },
+  { href: "/pollution", emoji: "🌫️", label: "Pollution", desc: "PM2.5" },
+];
+
+const DEMOCRACY_CARDS = [
+  { href: "/deputes", emoji: "👥", label: "Députés", desc: "577 en mandat" },
+  { href: "/groupes", emoji: "🏛️", label: "Groupes", desc: "Participation, cohésion" },
+  { href: "/scrutins", emoji: "⚖️", label: "Scrutins", desc: "8434 votes publics" },
+];
+
+function Card({ href, emoji, label, desc }) {
+  return (
+    <Link href={href} className="pdpb-card" style={{ display: "block", textDecoration: "none", color: "var(--color-texte)" }}>
+      <span aria-hidden="true" style={{ fontSize: 20 }}>{emoji}</span>
+      <p style={{ fontSize: 14, fontWeight: 600, margin: "8px 0 2px" }}>{label}</p>
+      <p style={{ fontSize: 12, color: "var(--color-texte-clair)", margin: 0 }}>{desc}</p>
+    </Link>
+  );
+}
+
 export default function Home() {
   const [country, setCountry] = useState("FRA");
 
@@ -11,31 +37,36 @@ export default function Home() {
   }, []);
 
   return (
-    <main style={{ fontFamily: "sans-serif", padding: "2rem" }}>
-      <h1>Pas de planète B</h1>
-      <ActionCTA />
-      <p>
-        <Link href={`/pays/${country}`}>Voir le résumé pour mon pays →</Link>
+    <div style={{ maxWidth: 900, margin: "0 auto", padding: "1.5rem" }}>
+      <p style={{ fontSize: 14, color: "var(--color-texte-clair)", margin: "0 0 1rem" }}>
+        Comprendre le changement climatique, pays par pays, avec des données ouvertes et
+        sourcées.
       </p>
-      <ul>
-        <li><Link href="/co2">Émissions de CO2 par pays →</Link></li>
-        <li><Link href="/energie">Centrales électriques →</Link></li>
-        <li><Link href="/especes">Espèces menacées →</Link></li>
-        <li><Link href="/incendies">Feux actifs →</Link></li>
-        <li><Link href="/vegetation">Perte de couverture arborée →</Link></li>
-        <li><Link href="/eau">Ressources en eau →</Link></li>
-        <li><Link href="/pollution">Pollution de l&apos;air →</Link></li>
-      </ul>
-      <h2 style={{ fontSize: 18, marginTop: "1.5rem" }}>Démocratie (France)</h2>
-      <ul>
-        <li><Link href="/deputes">Députés de l&apos;Assemblée nationale →</Link></li>
-        <li><Link href="/groupes">Groupes politiques →</Link></li>
-        <li><Link href="/scrutins">Derniers scrutins →</Link></li>
-      </ul>
-      <h2 style={{ fontSize: 18, marginTop: "1.5rem" }}>S&apos;engager</h2>
-      <ul>
-        <li><Link href="/debunk">Débunk — idées reçues passées au crible →</Link></li>
-      </ul>
-    </main>
+
+      <ActionCTA />
+
+      <p>
+        <Link href={`/pays/${country}`} style={{ fontWeight: 600 }}>Voir le résumé pour mon pays →</Link>
+      </p>
+
+      <h2 style={{ fontSize: 18, margin: "1.5rem 0 0.75rem" }}>Environnement</h2>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 12 }}>
+        {ENVIRONMENT_CARDS.map((c) => (
+          <Card key={c.href} {...c} />
+        ))}
+      </div>
+
+      <h2 style={{ fontSize: 18, margin: "1.5rem 0 0.75rem" }}>Démocratie (France)</h2>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 12 }}>
+        {DEMOCRACY_CARDS.map((c) => (
+          <Card key={c.href} {...c} />
+        ))}
+      </div>
+
+      <h2 style={{ fontSize: 18, margin: "1.5rem 0 0.75rem" }}>S&apos;engager</h2>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 12 }}>
+        <Card href="/debunk" emoji="🔍" label="Débunk" desc="Idées reçues passées au crible" />
+      </div>
+    </div>
   );
 }
