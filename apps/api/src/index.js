@@ -24,6 +24,7 @@ app.use(
     origin: process.env.CORS_ORIGIN || "http://localhost:3000",
   })
 );
+app.use(express.json());
 
 const pool = new pg.Pool({
   connectionString: process.env.DATABASE_URL,
@@ -862,6 +863,52 @@ app.post("/api/admin/ingest/deputy-votes", requireIngestToken, async (_req, res)
     res.json({ status: "ok", ...result });
   } catch (err) {
     res.status(500).json({ error: "Échec de l'ingestion", detail: err.message });
+  }
+});
+
+// --- Newsletter "Il est temps d'agir !" ---
+// Ne couvre que la collecte et le stockage : l'envoi réel des emails
+// nécessite un service tiers (Mailgun, SendGrid, Brevo...) à configurer
+// séparément, une fois choisi.
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+app.post("/api/newsletter/signup", async (req, res) => {
+  const { email, areaType, housingType, hasChildren } = req.body || {};
+  if (!email || typeof email !== "string" || !EMAIL_RE.test(email.trim())) {
+    return res.status(400).json({ error: "Adresse email invalide" });
+  }
+  const validAreaTypes = ["ville", "campagne", null, undefined];
+  const validHousingTypes = ["maison", "appartement", null, undefined];
+  if (!validAreaTypes.includes(areaType) || !validHousingTypes.includes(housingType)) {
+    return res.status(400).json({ error: "Valeur de profil invalide" });
+  }
+  try {
+    await pool.query(
+      `INSERT INTO newsletter_subscribers (email, area_type, housing_type, has_children)
+       VALUES ($1, $2, $3, $4)
+       ON CONFLICT (email)
+       DO UPDATE SET area_type = EXCLUDED.area_type, housing_type = EXCLUDED.housing_type, has_children = EXCLUDED.has_children`,
+      [email.trim().toLowerCase(), areaType || null, housingType || null, hasChildren === true]
+    );
+    res.json({ status: "ok" });
+  } catch (err) {
+    res.status(500).json({ error: "Échec de l'inscription", detail: err.message });
+  }
+});
+
+app.post("/api/newsletter/unsubscribe", async (req, res) => {
+  const { email } = req.body || {};
+  if (!email || typeof email !== "string") {
+    return res.status(400).json({ error: "Adresse email invalide" });
+  }
+  try {
+    await pool.query(
+      "UPDATE newsletter_subscribers SET unsubscribed_at = now() WHERE email = $1",
+      [email.trim().toLowerCase()]
+    );
+    res.json({ status: "ok" });
+  } catch (err) {
+    res.status(500).json({ error: "Échec du désabonnement", detail: err.message });
   }
 });
 

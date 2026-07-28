@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { detectDefaultCountry } from "../lib/detectCountry";
+import ActionCTA from "../components/ActionCTA";
 
 export default function Home() {
   const [country, setCountry] = useState("FRA");
@@ -12,6 +13,7 @@ export default function Home() {
   return (
     <main style={{ fontFamily: "sans-serif", padding: "2rem" }}>
       <h1>Pas de planète B</h1>
+      <ActionCTA />
       <p>
         <Link href={`/pays/${country}`}>Voir le résumé pour mon pays →</Link>
       </p>
