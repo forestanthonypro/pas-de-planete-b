@@ -111,6 +111,9 @@ export default function PaysDashboard() {
   const fireMapContainerRef = useRef(null);
   const fireMapRef = useRef(null);
   const fireMarkersLayerRef = useRef(null);
+  const fireMapCompareContainerRef = useRef(null);
+  const fireMapCompareRef = useRef(null);
+  const fireMarkersCompareLayerRef = useRef(null);
   const vegetationCanvasRef = useRef(null);
   const vegetationChartRef = useRef(null);
   const vegetationCompareCanvasRef = useRef(null);
@@ -173,15 +176,31 @@ export default function PaysDashboard() {
     setCompareSummary(null);
   }, [code]);
 
+  const [compareSpeciesList, setCompareSpeciesList] = useState([]);
+  const [compareFires, setCompareFires] = useState([]);
+
   useEffect(() => {
     if (!compareCode) {
       setCompareSummary(null);
+      setCompareSpeciesList([]);
+      setCompareFires([]);
       return;
     }
-    fetch(`${API_URL}/api/country-summary/${compareCode}`)
-      .then((res) => (res.ok ? res.json() : null))
-      .then(setCompareSummary)
-      .catch(() => setCompareSummary(null));
+    Promise.all([
+      fetch(`${API_URL}/api/country-summary/${compareCode}`).then((res) => (res.ok ? res.json() : null)),
+      fetch(`${API_URL}/api/species?country=${compareCode}`).then((res) => (res.ok ? res.json() : [])),
+      fetch(`${API_URL}/api/fires?country=${compareCode}`).then((res) => (res.ok ? res.json() : [])),
+    ])
+      .then(([summaryData, speciesData, firesData]) => {
+        setCompareSummary(summaryData);
+        setCompareSpeciesList(Array.isArray(speciesData) ? speciesData : []);
+        setCompareFires(Array.isArray(firesData) ? firesData : []);
+      })
+      .catch(() => {
+        setCompareSummary(null);
+        setCompareSpeciesList([]);
+        setCompareFires([]);
+      });
   }, [compareCode]);
 
   useEffect(() => {
@@ -916,6 +935,51 @@ export default function PaysDashboard() {
     });
   }, [fires]);
 
+  useEffect(() => {
+    if (!compareCode || !fireMapCompareContainerRef.current || fireMapCompareRef.current) return;
+    let cancelled = false;
+    import("leaflet").then((L) => {
+      if (cancelled || !fireMapCompareContainerRef.current) return;
+      fireMapCompareRef.current = L.map(fireMapCompareContainerRef.current).setView([20, 0], 2);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "&copy; contributeurs OpenStreetMap",
+        maxZoom: 18,
+      }).addTo(fireMapCompareRef.current);
+      fireMarkersCompareLayerRef.current = L.layerGroup().addTo(fireMapCompareRef.current);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [compareCode]);
+
+  useEffect(() => {
+    if (!fireMapCompareRef.current || !fireMarkersCompareLayerRef.current) return;
+    import("leaflet").then((L) => {
+      fireMarkersCompareLayerRef.current.clearLayers();
+      compareFires.forEach((f) => {
+        const frp = f.frp || 0;
+        const color = frp > 50 ? "#d63e2a" : frp > 10 ? "#e67e22" : "#f4b400";
+        L.circleMarker([f.latitude, f.longitude], {
+          radius: 5,
+          color,
+          fillColor: color,
+          fillOpacity: 0.7,
+          weight: 1,
+        })
+          .bindPopup(
+            `Détecté le ${new Date(f.detected_at).toLocaleString("fr-FR")}<br/>Puissance radiative : ${f.frp ?? "?"} MW`
+          )
+          .addTo(fireMarkersCompareLayerRef.current);
+      });
+      if (compareFires.length > 0) {
+        const bounds = L.latLngBounds(compareFires.map((f) => [f.latitude, f.longitude]));
+        fireMapCompareRef.current.fitBounds(bounds, { padding: [20, 20], maxZoom: 8 });
+      } else {
+        fireMapCompareRef.current.setView([20, 0], 2);
+      }
+    });
+  }, [compareFires]);
+
   const countryName = localizedCountryName(code, preferredLang);
   const latestCo2 = summary?.co2?.[summary.co2.length - 1];
   const totalCapacity = summary?.energyMix?.reduce(
@@ -1269,6 +1333,27 @@ export default function PaysDashboard() {
                 </p>
               );
             })()}
+            {compareCode && compareSummary && (
+              <div style={{ background: "#f7f7f7", borderRadius: 8, padding: "0.75rem 1rem", marginTop: "0.75rem" }}>
+                <p style={{ fontSize: 12, color: "#666", fontWeight: 600, marginBottom: 4 }}>
+                  {localizedCountryName(compareCode, preferredLang)}
+                </p>
+                <p style={{ fontSize: 12, color: "#666", margin: 0 }}>
+                  <strong>{compareSpeciesList.length}</strong> espèces de l&apos;échantillon observées.
+                  {compareSummary.speciesThreatened?.length > 0 && (() => {
+                    const latestCompare = compareSummary.speciesThreatened[compareSummary.speciesThreatened.length - 1];
+                    return (
+                      <>
+                        {" "}Comptage officiel IUCN ({latestCompare.year}) —{" "}
+                        <strong>{latestCompare.mammals_threatened ?? "—"}</strong> mammifères,{" "}
+                        <strong>{latestCompare.birds_threatened ?? "—"}</strong> oiseaux et{" "}
+                        <strong>{latestCompare.fish_threatened ?? "—"}</strong> poissons menacés.
+                      </>
+                    );
+                  })()}
+                </p>
+              </div>
+            )}
           </section>
         </>
       )}
@@ -1294,7 +1379,21 @@ export default function PaysDashboard() {
           intermédiaire, <span style={{ color: "#d63e2a", fontWeight: 600 }}>rouge</span>{" "}
           intense (plus probablement un vrai feu de forêt).
         </p>
-        <div ref={fireMapContainerRef} style={{ height: 360, borderRadius: 8 }} />
+        <div style={{ display: "grid", gridTemplateColumns: compareCode && compareSummary ? "repeat(auto-fit, minmax(320px, 1fr))" : "1fr", gap: "1rem" }}>
+          <div>
+            <p style={{ fontSize: 12, color: "#666", fontWeight: 600, marginBottom: 4 }}>{countryName}</p>
+            <div ref={fireMapContainerRef} style={{ height: 360, borderRadius: 8 }} />
+          </div>
+          {compareCode && compareSummary && (
+            <div>
+              <p style={{ fontSize: 12, color: "#666", fontWeight: 600, marginBottom: 4 }}>
+                {localizedCountryName(compareCode, preferredLang)} —{" "}
+                <strong>{compareFires.length}</strong> détection{compareFires.length !== 1 ? "s" : ""}
+              </p>
+              <div ref={fireMapCompareContainerRef} style={{ height: 360, borderRadius: 8 }} />
+            </div>
+          )}
+        </div>
         <p style={{ fontSize: 12, color: "#666", marginTop: "0.5rem" }}>
           NASA FIRMS (MODIS_NRT) — une détection n&apos;est pas nécessairement un feu de forêt
           incontrôlé (brûlis agricoles inclus). Couverture limitée à une liste de pays courants.
