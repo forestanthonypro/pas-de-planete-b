@@ -100,6 +100,8 @@ export default function PaysDashboard() {
   const co2CompareChartRef = useRef(null);
   const energyCanvasRef = useRef(null);
   const energyChartRef = useRef(null);
+  const energyCompareCanvasRef = useRef(null);
+  const energyCompareChartRef = useRef(null);
   const generationCanvasRef = useRef(null);
   const generationChartRef = useRef(null);
   const generationCompareCanvasRef = useRef(null);
@@ -286,47 +288,62 @@ export default function PaysDashboard() {
     };
   }, [compareCode, compareSummary]);
 
+  function buildEnergyMixChart(energyMixData) {
+    const sorted = [...energyMixData].sort(
+      (a, b) => Number(b.total_capacity_mw || 0) - Number(a.total_capacity_mw || 0)
+    );
+    return {
+      type: "bar",
+      data: {
+        labels: sorted.map((r) => translateFuel(r.fuel_type)),
+        datasets: [
+          {
+            label: "Capacité (MW)",
+            data: sorted.map((r) => r.total_capacity_mw || 0),
+            backgroundColor: sorted.map((r) => FUEL_COLORS[r.fuel_type] || DEFAULT_FUEL_COLOR),
+            plantCounts: sorted.map((r) => r.plant_count),
+          },
+        ],
+      },
+      plugins: [barEndLabelsPlugin],
+      options: {
+        indexAxis: "y",
+        responsive: true,
+        maintainAspectRatio: false,
+        layout: { padding: { right: 90 } },
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { title: { display: true, text: "Capacité (MW)" } },
+        },
+      },
+    };
+  }
+
   useEffect(() => {
     if (!summary || summary.energyMix.length === 0) return;
     let cancelled = false;
     import("chart.js/auto").then((Chart) => {
       if (cancelled || !energyCanvasRef.current) return;
       if (energyChartRef.current) energyChartRef.current.destroy();
-
-      const sorted = [...summary.energyMix].sort(
-        (a, b) => Number(b.total_capacity_mw || 0) - Number(a.total_capacity_mw || 0)
-      );
-
-      energyChartRef.current = new Chart.default(energyCanvasRef.current, {
-        type: "bar",
-        data: {
-          labels: sorted.map((r) => translateFuel(r.fuel_type)),
-          datasets: [
-            {
-              label: "Capacité (MW)",
-              data: sorted.map((r) => r.total_capacity_mw || 0),
-              backgroundColor: sorted.map((r) => FUEL_COLORS[r.fuel_type] || DEFAULT_FUEL_COLOR),
-              plantCounts: sorted.map((r) => r.plant_count),
-            },
-          ],
-        },
-        plugins: [barEndLabelsPlugin],
-        options: {
-          indexAxis: "y",
-          responsive: true,
-          maintainAspectRatio: false,
-          layout: { padding: { right: 90 } },
-          plugins: { legend: { display: false } },
-          scales: {
-            x: { title: { display: true, text: "Capacité (MW)" } },
-          },
-        },
-      });
+      energyChartRef.current = new Chart.default(energyCanvasRef.current, buildEnergyMixChart(summary.energyMix));
     });
     return () => {
       cancelled = true;
     };
   }, [summary]);
+
+  useEffect(() => {
+    if (!compareCode || !compareSummary || !compareSummary.energyMix || compareSummary.energyMix.length === 0) return;
+    let cancelled = false;
+    import("chart.js/auto").then((Chart) => {
+      if (cancelled || !energyCompareCanvasRef.current) return;
+      if (energyCompareChartRef.current) energyCompareChartRef.current.destroy();
+      energyCompareChartRef.current = new Chart.default(energyCompareCanvasRef.current, buildEnergyMixChart(compareSummary.energyMix));
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [compareCode, compareSummary]);
 
   function buildGenerationChart(generationData) {
     const sources = [
@@ -1065,7 +1082,7 @@ export default function PaysDashboard() {
               d&apos;émissions, pas deux morceaux d&apos;un total.
             </p>
             {summary.co2.length > 0 && (
-              <div style={{ display: "grid", gridTemplateColumns: compareCode && compareSummary ? "1fr 1fr" : "1fr", gap: "1rem" }}>
+              <div style={{ display: "grid", gridTemplateColumns: compareCode && compareSummary ? "repeat(auto-fit, minmax(320px, 1fr))" : "1fr", gap: "1rem" }}>
                 <div>
                   <p style={{ fontSize: 12, color: "#666", fontWeight: 600, marginBottom: 4 }}>{countryName}</p>
                   <div style={{ position: "relative", height: 220 }}>
@@ -1105,8 +1122,21 @@ export default function PaysDashboard() {
                   maximale possible, pas ce qui est réellement produit (un panneau solaire ne
                   produit rien la nuit).
                 </p>
-                <div style={{ position: "relative", height: Math.max(200, summary.energyMix.length * 34) }}>
-                  <canvas ref={energyCanvasRef} role="img" aria-label={`Mix énergétique de ${countryName}, capacité et nombre de centrales par type`} />
+                <div style={{ display: "grid", gridTemplateColumns: compareCode && compareSummary ? "repeat(auto-fit, minmax(320px, 1fr))" : "1fr", gap: "1rem" }}>
+                  <div>
+                    <p style={{ fontSize: 12, color: "#666", fontWeight: 600, marginBottom: 4 }}>{countryName}</p>
+                    <div style={{ position: "relative", height: Math.max(200, summary.energyMix.length * 34) }}>
+                      <canvas ref={energyCanvasRef} role="img" aria-label={`Mix énergétique de ${countryName}, capacité et nombre de centrales par type`} />
+                    </div>
+                  </div>
+                  {compareCode && compareSummary?.energyMix?.length > 0 && (
+                    <div>
+                      <p style={{ fontSize: 12, color: "#666", fontWeight: 600, marginBottom: 4 }}>{localizedCountryName(compareCode, preferredLang)}</p>
+                      <div style={{ position: "relative", height: Math.max(200, compareSummary.energyMix.length * 34) }}>
+                        <canvas ref={energyCompareCanvasRef} role="img" aria-label={`Mix énergétique de ${localizedCountryName(compareCode, preferredLang)}, capacité et nombre de centrales par type`} />
+                      </div>
+                    </div>
+                  )}
                 </div>
                 <details style={{ marginTop: "0.75rem" }}>
                   <summary style={{ cursor: "pointer", fontSize: 13, color: "#666" }}>
@@ -1153,7 +1183,7 @@ export default function PaysDashboard() {
                   consommation réelle : si elle est au-dessus des barres, le pays importe de
                   l&apos;électricité pour compenser.
                 </p>
-                <div style={{ display: "grid", gridTemplateColumns: compareCode && compareSummary ? "1fr 1fr" : "1fr", gap: "1rem" }}>
+                <div style={{ display: "grid", gridTemplateColumns: compareCode && compareSummary ? "repeat(auto-fit, minmax(320px, 1fr))" : "1fr", gap: "1rem" }}>
                   <div>
                     <p style={{ fontSize: 12, color: "#666", fontWeight: 600, marginBottom: 4 }}>{countryName}</p>
                     <div style={{ position: "relative", height: 260 }}>
@@ -1303,7 +1333,7 @@ export default function PaysDashboard() {
               petite perte chaque année peut représenter beaucoup une fois cumulée sur toute la
               période.
             </p>
-            <div style={{ display: "grid", gridTemplateColumns: compareCode && compareSummary ? "1fr 1fr" : "1fr", gap: "1rem" }}>
+            <div style={{ display: "grid", gridTemplateColumns: compareCode && compareSummary ? "repeat(auto-fit, minmax(320px, 1fr))" : "1fr", gap: "1rem" }}>
               <div>
                 <p style={{ fontSize: 12, color: "#666", fontWeight: 600, marginBottom: 4 }}>{countryName}</p>
                 <div style={{ position: "relative", height: 220 }}>
@@ -1376,7 +1406,7 @@ export default function PaysDashboard() {
           <p>Aucune donnée eau pour ce pays.</p>
         )}
         {summary?.water?.length > 0 && (
-          <div style={{ display: "grid", gridTemplateColumns: compareCode && compareSummary ? "1fr 1fr" : "1fr", gap: "1rem" }}>
+          <div style={{ display: "grid", gridTemplateColumns: compareCode && compareSummary ? "repeat(auto-fit, minmax(320px, 1fr))" : "1fr", gap: "1rem" }}>
             <div>
               <p style={{ fontSize: 12, color: "#666", fontWeight: 600, marginBottom: 4 }}>{countryName}</p>
               <div style={{ position: "relative", height: 260 }}>
@@ -1415,7 +1445,7 @@ export default function PaysDashboard() {
               ce qui est activement extrait pour l&apos;agriculture, l&apos;industrie et les
               foyers.
             </p>
-            <div style={{ display: "grid", gridTemplateColumns: compareCode && compareSummary ? "1fr 1fr" : "1fr", gap: "1rem" }}>
+            <div style={{ display: "grid", gridTemplateColumns: compareCode && compareSummary ? "repeat(auto-fit, minmax(320px, 1fr))" : "1fr", gap: "1rem" }}>
               <div>
                 <p style={{ fontSize: 12, color: "#666", fontWeight: 600, marginBottom: 4 }}>{countryName}</p>
                 <div style={{ position: "relative", height: 220 }}>
