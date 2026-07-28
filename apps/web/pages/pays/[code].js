@@ -936,25 +936,24 @@ export default function PaysDashboard() {
   }, [fires]);
 
   useEffect(() => {
-    if (!compareCode || !fireMapCompareContainerRef.current || fireMapCompareRef.current) return;
+    if (!compareCode || !compareSummary || !fireMapCompareContainerRef.current) return;
     let cancelled = false;
     import("leaflet").then((L) => {
       if (cancelled || !fireMapCompareContainerRef.current) return;
-      fireMapCompareRef.current = L.map(fireMapCompareContainerRef.current).setView([20, 0], 2);
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: "&copy; contributeurs OpenStreetMap",
-        maxZoom: 18,
-      }).addTo(fireMapCompareRef.current);
-      fireMarkersCompareLayerRef.current = L.layerGroup().addTo(fireMapCompareRef.current);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [compareCode, compareSummary]);
 
-  useEffect(() => {
-    if (!fireMapCompareRef.current || !fireMarkersCompareLayerRef.current) return;
-    import("leaflet").then((L) => {
+      // Création de la carte si elle n'existe pas encore, PUIS dessin des
+      // marqueurs dans le même appel — jamais dans deux effets séparés,
+      // sinon l'import dynamique asynchrone peut faire tourner le dessin des
+      // marqueurs avant que la carte n'existe (course, carte vide observée).
+      if (!fireMapCompareRef.current) {
+        fireMapCompareRef.current = L.map(fireMapCompareContainerRef.current).setView([20, 0], 2);
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution: "&copy; contributeurs OpenStreetMap",
+          maxZoom: 18,
+        }).addTo(fireMapCompareRef.current);
+        fireMarkersCompareLayerRef.current = L.layerGroup().addTo(fireMapCompareRef.current);
+      }
+
       fireMarkersCompareLayerRef.current.clearLayers();
       compareFires.forEach((f) => {
         const frp = f.frp || 0;
@@ -978,7 +977,10 @@ export default function PaysDashboard() {
         fireMapCompareRef.current.setView([20, 0], 2);
       }
     });
-  }, [compareFires, compareCode]);
+    return () => {
+      cancelled = true;
+    };
+  }, [compareCode, compareSummary, compareFires]);
 
   const countryName = localizedCountryName(code, preferredLang);
   const latestCo2 = summary?.co2?.[summary.co2.length - 1];
@@ -1307,7 +1309,7 @@ export default function PaysDashboard() {
                             </td>
                             <td style={{ textAlign: "left", padding: 6 }}>{speciesGroupLabel(s.kingdom, s.class, s.taxon_order)}</td>
                             <td style={{ padding: 6 }}>
-                              <span style={{ display: "inline-block", padding: "2px 8px", borderRadius: 4, fontSize: 11, color: "white", backgroundColor: info.color, whiteSpace: "nowrap" }}>
+                              <span style={{ display: "inline-block", padding: "2px 8px", borderRadius: 4, fontSize: 11, color: "white", backgroundColor: info.color, lineHeight: 1.4 }}>
                                 {info.label}
                               </span>
                             </td>
