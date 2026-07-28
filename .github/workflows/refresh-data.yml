@@ -22,6 +22,14 @@ jobs:
           curl -f -X POST "${{ secrets.API_URL }}/api/admin/ingest/power-plants" \
             -H "x-ingest-token: ${{ secrets.INGEST_TOKEN }}"
 
+  refresh-electricity:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ré-ingérer la génération électrique réelle
+        run: |
+          curl -f -X POST "${{ secrets.API_URL }}/api/admin/ingest/electricity" \
+            -H "x-ingest-token: ${{ secrets.INGEST_TOKEN }}"
+
   refresh-species:
     needs: [refresh-co2, refresh-power-plants]
     runs-on: ubuntu-latest
@@ -29,6 +37,14 @@ jobs:
       - name: Ré-ingérer les espèces (dépend des pays déjà connus via CO2/énergie)
         run: |
           curl -f -X POST "${{ secrets.API_URL }}/api/admin/ingest/species" \
+            -H "x-ingest-token: ${{ secrets.INGEST_TOKEN }}"
+
+  refresh-species-threatened:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ré-ingérer le comptage officiel d'espèces menacées (IUCN)
+        run: |
+          curl -f -X POST "${{ secrets.API_URL }}/api/admin/ingest/species-threatened" \
             -H "x-ingest-token: ${{ secrets.INGEST_TOKEN }}"
 
   refresh-vegetation:
@@ -46,3 +62,50 @@ jobs:
         run: |
           curl -f -X POST "${{ secrets.API_URL }}/api/admin/ingest/water" \
             -H "x-ingest-token: ${{ secrets.INGEST_TOKEN }}"
+
+  refresh-pollution:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ré-ingérer la pollution de l'air (PM2.5)
+        run: |
+          curl -f -X POST "${{ secrets.API_URL }}/api/admin/ingest/pollution" \
+            -H "x-ingest-token: ${{ secrets.INGEST_TOKEN }}"
+
+  refresh-world-benchmarks:
+    needs: [refresh-co2, refresh-electricity, refresh-water, refresh-vegetation, refresh-pollution, refresh-species-threatened]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ré-ingérer les repères mondiaux (dépend des autres modules déjà à jour)
+        run: |
+          curl -f -X POST "${{ secrets.API_URL }}/api/admin/ingest/world-benchmarks" \
+            -H "x-ingest-token: ${{ secrets.INGEST_TOKEN }}"
+
+  # --- Démocratie (Assemblée nationale, 17e législature) ---
+  # Ordre important : les députés doivent exister avant les votes (clé
+  # étrangère), donc refresh-scrutins attend refresh-deputies.
+
+  refresh-deputies:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ré-ingérer la liste des députés
+        run: |
+          curl -f -X POST "${{ secrets.API_URL }}/api/admin/ingest/deputies" \
+            -H "x-ingest-token: ${{ secrets.INGEST_TOKEN }}"
+
+  refresh-an-groups:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ré-ingérer les groupes politiques
+        run: |
+          curl -f -X POST "${{ secrets.API_URL }}/api/admin/ingest/an-groups" \
+            -H "x-ingest-token: ${{ secrets.INGEST_TOKEN }}"
+
+  refresh-scrutins:
+    needs: [refresh-deputies]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ré-ingérer les scrutins et les votes détaillés (peut prendre plusieurs minutes)
+        run: |
+          curl -f -X POST "${{ secrets.API_URL }}/api/admin/ingest/scrutins" \
+            -H "x-ingest-token: ${{ secrets.INGEST_TOKEN }}" \
+            --max-time 600
