@@ -1,4 +1,4 @@
-import express from "express";
+﻿import express from "express";
 import cors from "cors";
 import pg from "pg";
 import { ingestCo2 } from "./ingest/co2.js";
@@ -11,6 +11,10 @@ import { ingestElectricity } from "./ingest/electricity.js";
 import { ingestSpeciesThreatened } from "./ingest/species_threatened.js";
 import { ingestPollution } from "./ingest/pollution.js";
 import { ingestWorldBenchmarks } from "./ingest/world_benchmarks.js";
+import { ingestDeputies } from "./ingest/deputies.js";
+import { ingestGroups } from "./ingest/an_groups.js";
+import { ingestScrutins } from "./ingest/scrutins.js";
+import { ingestDeputyVotes } from "./ingest/deputy_votes.js";
 
 const app = express();
 const port = process.env.API_PORT || 4000;
@@ -46,7 +50,7 @@ app.get("/api/co2/countries", async (_req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
   }
 });
 
@@ -62,7 +66,7 @@ app.get("/api/co2/:country", async (req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
   }
 });
 
@@ -71,11 +75,11 @@ app.post("/api/admin/ingest/co2", requireIngestToken, async (_req, res) => {
     const { inserted, skipped } = await ingestCo2(pool);
     res.json({ status: "ok", inserted, skipped });
   } catch (err) {
-    res.status(500).json({ error: "Échec de l'ingestion", detail: err.message });
+    res.status(500).json({ error: "Ã‰chec de l'ingestion", detail: err.message });
   }
 });
 
-// --- Centrales électriques ---
+// --- Centrales Ã©lectriques ---
 
 app.get("/api/power-plants/countries", async (_req, res) => {
   try {
@@ -84,7 +88,7 @@ app.get("/api/power-plants/countries", async (_req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
   }
 });
 
@@ -95,14 +99,14 @@ app.get("/api/power-plants/fuel-types", async (_req, res) => {
     );
     res.json(result.rows.map((r) => r.fuel_type));
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
   }
 });
 
 app.get("/api/power-plants", async (req, res) => {
   const { country, fuel_type: fuelType } = req.query;
   if (!country) {
-    return res.status(400).json({ error: "Le paramètre 'country' (code ISO3) est obligatoire" });
+    return res.status(400).json({ error: "Le paramÃ¨tre 'country' (code ISO3) est obligatoire" });
   }
   try {
     const params = [country.toUpperCase()];
@@ -122,7 +126,7 @@ app.get("/api/power-plants", async (req, res) => {
     const result = await pool.query(query, params);
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
   }
 });
 
@@ -131,11 +135,11 @@ app.post("/api/admin/ingest/power-plants", requireIngestToken, async (_req, res)
     const { inserted, skipped } = await ingestPowerPlants(pool);
     res.json({ status: "ok", inserted, skipped });
   } catch (err) {
-    res.status(500).json({ error: "Échec de l'ingestion", detail: err.message });
+    res.status(500).json({ error: "Ã‰chec de l'ingestion", detail: err.message });
   }
 });
 
-// --- Espèces ---
+// --- EspÃ¨ces ---
 
 app.get("/api/species/categories", async (_req, res) => {
   try {
@@ -144,7 +148,7 @@ app.get("/api/species/categories", async (_req, res) => {
     );
     res.json(result.rows.map((r) => r.category));
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
   }
 });
 
@@ -176,7 +180,7 @@ app.get("/api/species", async (req, res) => {
     const result = await pool.query(query, params);
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
   }
 });
 
@@ -193,7 +197,7 @@ app.get("/api/species/kingdoms", async (req, res) => {
     const result = await pool.query(query, params);
     res.json(result.rows.map((r) => r.kingdom).filter(Boolean));
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
   }
 });
 
@@ -202,11 +206,11 @@ app.post("/api/admin/ingest/species", requireIngestToken, async (_req, res) => {
     const { inserted, skipped, countryLinks } = await ingestSpecies(pool);
     res.json({ status: "ok", inserted, skipped, countryLinks });
   } catch (err) {
-    res.status(500).json({ error: "Échec de l'ingestion", detail: err.message });
+    res.status(500).json({ error: "Ã‰chec de l'ingestion", detail: err.message });
   }
 });
 
-// --- Dashboard combiné par pays ---
+// --- Dashboard combinÃ© par pays ---
 
 app.get("/api/country-summary/:country", async (req, res) => {
   const country = req.params.country.toUpperCase();
@@ -276,17 +280,17 @@ app.get("/api/country-summary/:country", async (req, res) => {
       pollution: pollutionResult.rows,
     });
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
   }
 });
 
 
-// --- Feux actifs (quasi temps réel) ---
+// --- Feux actifs (quasi temps rÃ©el) ---
 
 app.get("/api/fires", async (req, res) => {
   const { country } = req.query;
   if (!country) {
-    return res.status(400).json({ error: "Le paramètre 'country' (code ISO3) est obligatoire" });
+    return res.status(400).json({ error: "Le paramÃ¨tre 'country' (code ISO3) est obligatoire" });
   }
   try {
     const result = await pool.query(
@@ -301,7 +305,7 @@ app.get("/api/fires", async (req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
   }
 });
 
@@ -310,13 +314,13 @@ app.post("/api/admin/ingest/fires", requireIngestToken, async (_req, res) => {
     const { inserted, countriesSkipped, sampleErrors } = await ingestFires(pool);
     res.json({ status: "ok", inserted, countriesSkipped, sampleErrors });
   } catch (err) {
-    res.status(500).json({ error: "Échec de l'ingestion", detail: err.message });
+    res.status(500).json({ error: "Ã‰chec de l'ingestion", detail: err.message });
   }
 });
 
-// --- Fraîcheur des données ---
-// Indique quand CHAQUE table a été rafraîchie pour la dernière fois côté notre base
-// (pas la date des données elles-mêmes, qui peut être plus ancienne selon la source).
+// --- FraÃ®cheur des donnÃ©es ---
+// Indique quand CHAQUE table a Ã©tÃ© rafraÃ®chie pour la derniÃ¨re fois cÃ´tÃ© notre base
+// (pas la date des donnÃ©es elles-mÃªmes, qui peut Ãªtre plus ancienne selon la source).
 app.get("/api/meta/last-updated", async (_req, res) => {
   try {
     const [co2, plants, species, fires, vegetation, water, electricity, speciesThreatened, pollution] = await Promise.all([
@@ -342,12 +346,12 @@ app.get("/api/meta/last-updated", async (_req, res) => {
       pollution: { lastIngested: pollution.rows[0].updated_at, latestYear: pollution.rows[0].latest_year },
     });
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
   }
 });
 
 
-// --- Végétation / perte de couverture arborée ---
+// --- VÃ©gÃ©tation / perte de couverture arborÃ©e ---
 
 app.get("/api/vegetation/countries", async (_req, res) => {
   try {
@@ -356,7 +360,7 @@ app.get("/api/vegetation/countries", async (_req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
   }
 });
 
@@ -372,7 +376,7 @@ app.get("/api/vegetation/:country", async (req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
   }
 });
 
@@ -381,12 +385,12 @@ app.post("/api/admin/ingest/vegetation", requireIngestToken, async (_req, res) =
     const { inserted, skipped } = await ingestVegetation(pool);
     res.json({ status: "ok", inserted, skipped });
   } catch (err) {
-    res.status(500).json({ error: "Échec de l'ingestion", detail: err.message });
+    res.status(500).json({ error: "Ã‰chec de l'ingestion", detail: err.message });
   }
 });
 
 
-// --- Eau : ressources renouvelables et pluviométrie ---
+// --- Eau : ressources renouvelables et pluviomÃ©trie ---
 
 app.get("/api/water/countries", async (_req, res) => {
   try {
@@ -395,7 +399,7 @@ app.get("/api/water/countries", async (_req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
   }
 });
 
@@ -411,7 +415,7 @@ app.get("/api/water/:country", async (req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
   }
 });
 
@@ -420,12 +424,12 @@ app.post("/api/admin/ingest/water", requireIngestToken, async (_req, res) => {
     const { inserted, skipped } = await ingestWater(pool);
     res.json({ status: "ok", inserted, skipped });
   } catch (err) {
-    res.status(500).json({ error: "Échec de l'ingestion", detail: err.message });
+    res.status(500).json({ error: "Ã‰chec de l'ingestion", detail: err.message });
   }
 });
 
 
-// --- Génération électrique réelle (vs. capacité installée statique) ---
+// --- GÃ©nÃ©ration Ã©lectrique rÃ©elle (vs. capacitÃ© installÃ©e statique) ---
 
 app.get("/api/electricity/countries", async (_req, res) => {
   try {
@@ -434,7 +438,7 @@ app.get("/api/electricity/countries", async (_req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
   }
 });
 
@@ -451,7 +455,7 @@ app.get("/api/electricity/:country", async (req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
   }
 });
 
@@ -460,12 +464,12 @@ app.post("/api/admin/ingest/electricity", requireIngestToken, async (_req, res) 
     const { inserted, skipped } = await ingestElectricity(pool);
     res.json({ status: "ok", inserted, skipped });
   } catch (err) {
-    res.status(500).json({ error: "Échec de l'ingestion", detail: err.message });
+    res.status(500).json({ error: "Ã‰chec de l'ingestion", detail: err.message });
   }
 });
 
 
-// --- Espèces menacées : comptage officiel (IUCN via Banque mondiale) ---
+// --- EspÃ¨ces menacÃ©es : comptage officiel (IUCN via Banque mondiale) ---
 // Comptages absolus par groupe, pas des pourcentages par pays (voir le
 // commentaire du script d'ingestion pour l'explication).
 
@@ -476,7 +480,7 @@ app.get("/api/species-threatened/countries", async (_req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
   }
 });
 
@@ -492,7 +496,7 @@ app.get("/api/species-threatened/:country", async (req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
   }
 });
 
@@ -503,7 +507,7 @@ app.get("/api/species-threatened/global/share", async (_req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
   }
 });
 
@@ -512,7 +516,7 @@ app.post("/api/admin/ingest/species-threatened", requireIngestToken, async (_req
     const { inserted, skipped } = await ingestSpeciesThreatened(pool);
     res.json({ status: "ok", inserted, skipped });
   } catch (err) {
-    res.status(500).json({ error: "Échec de l'ingestion", detail: err.message });
+    res.status(500).json({ error: "Ã‰chec de l'ingestion", detail: err.message });
   }
 });
 
@@ -526,7 +530,7 @@ app.get("/api/pollution/countries", async (_req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
   }
 });
 
@@ -539,7 +543,7 @@ app.get("/api/pollution/:country", async (req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
   }
 });
 
@@ -548,11 +552,11 @@ app.post("/api/admin/ingest/pollution", requireIngestToken, async (_req, res) =>
     const { inserted, skipped } = await ingestPollution(pool);
     res.json({ status: "ok", inserted, skipped });
   } catch (err) {
-    res.status(500).json({ error: "Échec de l'ingestion", detail: err.message });
+    res.status(500).json({ error: "Ã‰chec de l'ingestion", detail: err.message });
   }
 });
 
-// --- Repères mondiaux (comparaison pays vs monde) ---
+// --- RepÃ¨res mondiaux (comparaison pays vs monde) ---
 
 app.get("/api/world-benchmarks", async (_req, res) => {
   try {
@@ -563,7 +567,7 @@ app.get("/api/world-benchmarks", async (_req, res) => {
     }
     res.json(benchmarks);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
   }
 });
 
@@ -572,10 +576,296 @@ app.post("/api/admin/ingest/world-benchmarks", requireIngestToken, async (_req, 
     const { set } = await ingestWorldBenchmarks(pool);
     res.json({ status: "ok", set });
   } catch (err) {
-    res.status(500).json({ error: "Échec de l'ingestion", detail: err.message });
+    res.status(500).json({ error: "Ã‰chec de l'ingestion", detail: err.message });
+  }
+});
+
+
+// --- DÃ©putÃ©s, groupes et votes Ã  l'AssemblÃ©e nationale (17e lÃ©gislature) ---
+// DonnÃ©es factuelles uniquement (qui a votÃ© quoi, rÃ©sultat officiel) â€” aucune
+// qualification ni interprÃ©tation politique n'est ajoutÃ©e. Source : CIVIX,
+// Ã  partir des donnÃ©es open data de l'AssemblÃ©e nationale.
+
+app.get("/api/deputies", async (_req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT acteur_uid, full_name, group_name, group_abbreviation, department, circo_number
+       FROM deputies ORDER BY last_name, first_name`
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
+  }
+});
+
+// Classement de participation : sur la fenÃªtre de scrutins avec dÃ©tail
+// nominatif disponible, quelle part des scrutins voit chaque dÃ©putÃ© exprimer
+// un vote (pour/contre/abstention) plutÃ´t qu'Ãªtre absent. Un seuil minimum de
+// scrutins est appliquÃ© pour Ã©viter qu'un dÃ©putÃ© avec trÃ¨s peu de donnÃ©es
+// (ex: arrivÃ© rÃ©cemment) fausse le classement avec un Ã©chantillon trop petit.
+app.get("/api/deputies/participation", async (_req, res) => {
+  const MIN_VOTES = 20;
+  try {
+    const result = await pool.query(
+      `SELECT d.acteur_uid, d.full_name, d.group_abbreviation,
+              COUNT(*) AS total_votes,
+              COUNT(*) FILTER (WHERE dv.position != 'absent') AS active_votes
+       FROM deputy_votes dv
+       JOIN deputies d ON d.acteur_uid = dv.acteur_uid
+       WHERE dv.legislature = 17
+       GROUP BY d.acteur_uid, d.full_name, d.group_abbreviation
+       HAVING COUNT(*) >= $1
+       ORDER BY (COUNT(*) FILTER (WHERE dv.position != 'absent'))::float / COUNT(*) DESC`,
+      [MIN_VOTES]
+    );
+    res.json({ minVotes: MIN_VOTES, deputies: result.rows });
+  } catch (err) {
+    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
+  }
+});
+
+app.get("/api/deputies/:acteurUid", async (req, res) => {
+  const { acteurUid } = req.params;
+  try {
+    const deputyResult = await pool.query("SELECT * FROM deputies WHERE acteur_uid = $1", [acteurUid]);
+    if (deputyResult.rows.length === 0) {
+      return res.status(404).json({ error: "DÃ©putÃ© non trouvÃ©" });
+    }
+    const deputy = deputyResult.rows[0];
+    const votesResult = await pool.query(
+      `SELECT dv.numero_scrutin, dv.position, s.scrutin_date, s.title, s.objet,
+              s.result_code, s.result_label
+       FROM deputy_votes dv
+       JOIN scrutins s ON s.legislature = dv.legislature AND s.numero = dv.numero_scrutin
+       WHERE dv.acteur_uid = $1 AND dv.legislature = 17
+       ORDER BY s.scrutin_date DESC NULLS LAST, dv.numero_scrutin DESC`,
+      [acteurUid]
+    );
+    let groupStats = null;
+    if (deputy.group_abbreviation) {
+      const groupResult = await pool.query(
+        "SELECT avg_participation_pct, median_participation_pct FROM an_groups WHERE legislature = 17 AND abbreviation = $1",
+        [deputy.group_abbreviation]
+      );
+      groupStats = groupResult.rows[0] || null;
+    }
+    res.json({ deputy, votes: votesResult.rows, groupStats });
+  } catch (err) {
+    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
+  }
+});
+
+app.get("/api/an-groups", async (_req, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT * FROM an_groups WHERE legislature = 17 ORDER BY effectif DESC"
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
+  }
+});
+
+// CohÃ©sion de groupe : sur les scrutins oÃ¹ au moins 2 membres du groupe ont
+// votÃ© (hors absents, qui ne reflÃ¨tent pas un dÃ©saccord de fond), quelle part
+// des scrutins voit tous les votants du groupe choisir la mÃªme position.
+app.get("/api/an-groups/cohesion", async (_req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT group_abbreviation,
+             COUNT(*) FILTER (WHERE distinct_positions = 1) AS unanimous_count,
+             COUNT(*) AS total_count
+      FROM (
+        SELECT d.group_abbreviation, dv.legislature, dv.numero_scrutin,
+               COUNT(DISTINCT dv.position) AS distinct_positions
+        FROM deputy_votes dv
+        JOIN deputies d ON d.acteur_uid = dv.acteur_uid
+        WHERE dv.position IN ('pour', 'contre', 'abstention') AND d.group_abbreviation IS NOT NULL
+        GROUP BY d.group_abbreviation, dv.legislature, dv.numero_scrutin
+        HAVING COUNT(*) >= 2
+      ) sub
+      GROUP BY group_abbreviation
+      ORDER BY unanimous_count::float / NULLIF(total_count, 0) DESC
+    `);
+    res.json(result.rows);
+  } catch (err) {
+    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
+  }
+});
+
+// DÃ©tail d'un groupe : ses infos + le rÃ©sultat (adoptÃ©/rejetÃ©) des scrutins
+// oÃ¹ au moins un de ses membres a votÃ©, en pourcentage â€” puisque les votes
+// sont individuels, on ne peut pas dire que "le groupe a fait adopter" un
+// texte, seulement que ses membres ont participÃ© Ã  des scrutins qui ont
+// abouti Ã  tel ou tel rÃ©sultat.
+app.get("/api/an-groups/:abbreviation", async (req, res) => {
+  const { abbreviation } = req.params;
+  try {
+    const groupResult = await pool.query(
+      "SELECT * FROM an_groups WHERE legislature = 17 AND abbreviation = $1",
+      [abbreviation]
+    );
+    if (groupResult.rows.length === 0) {
+      return res.status(404).json({ error: "Groupe non trouvÃ©" });
+    }
+
+    const resultBreakdown = await pool.query(
+      `SELECT s.result_code, COUNT(DISTINCT s.numero) AS count
+       FROM scrutins s
+       JOIN deputy_votes dv ON dv.legislature = s.legislature AND dv.numero_scrutin = s.numero
+       JOIN deputies d ON d.acteur_uid = dv.acteur_uid
+       WHERE s.legislature = 17 AND d.group_abbreviation = $1
+       GROUP BY s.result_code`,
+      [abbreviation]
+    );
+
+    const recentScrutins = await pool.query(
+      `SELECT s.legislature, s.numero, s.scrutin_date, s.title, s.objet, s.result_code, s.result_label,
+              COUNT(*) FILTER (WHERE dv.position = 'pour') AS pour,
+              COUNT(*) FILTER (WHERE dv.position = 'contre') AS contre,
+              COUNT(*) FILTER (WHERE dv.position = 'abstention') AS abstention
+       FROM scrutins s
+       JOIN deputy_votes dv ON dv.legislature = s.legislature AND dv.numero_scrutin = s.numero
+       JOIN deputies d ON d.acteur_uid = dv.acteur_uid
+       WHERE s.legislature = 17 AND d.group_abbreviation = $1
+       GROUP BY s.legislature, s.numero, s.scrutin_date, s.title, s.objet, s.result_code, s.result_label
+       ORDER BY s.scrutin_date DESC NULLS LAST, s.numero DESC
+       LIMIT 100`,
+      [abbreviation]
+    );
+
+    res.json({
+      group: groupResult.rows[0],
+      resultBreakdown: resultBreakdown.rows,
+      recentScrutins: recentScrutins.rows,
+    });
+  } catch (err) {
+    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
+  }
+});
+
+app.get("/api/scrutins", async (req, res) => {
+  const limit = Math.min(parseInt(req.query.limit, 10) || 100, 500);
+  try {
+    const result = await pool.query(
+      `SELECT legislature, numero, scrutin_date, title, objet, type_vote_label,
+              result_code, result_label
+       FROM scrutins WHERE legislature = 17
+       ORDER BY numero DESC LIMIT $1`,
+      [limit]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
+  }
+});
+
+// Taux d'adoption global, sur l'ensemble des 8000+ scrutins de la
+// lÃ©gislature (pas seulement la fenÃªtre rÃ©cente des votes dÃ©taillÃ©s).
+app.get("/api/scrutins/stats", async (_req, res) => {
+  try {
+    const byResult = await pool.query(
+      `SELECT result_code, COUNT(*) AS count FROM scrutins WHERE legislature = 17
+       GROUP BY result_code ORDER BY count DESC`
+    );
+    const byType = await pool.query(
+      `SELECT type_vote_label, result_code, COUNT(*) AS count FROM scrutins WHERE legislature = 17
+       GROUP BY type_vote_label, result_code ORDER BY type_vote_label, count DESC`
+    );
+    const total = await pool.query("SELECT COUNT(*) AS count FROM scrutins WHERE legislature = 17");
+    res.json({ total: parseInt(total.rows[0].count, 10), byResult: byResult.rows, byType: byType.rows });
+  } catch (err) {
+    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
+  }
+});
+
+// Recherche par mot-clÃ© sur l'ensemble des 8000+ scrutins (titre + objet),
+// pas seulement la fenÃªtre des 200 plus rÃ©cents â€” pour retrouver un dÃ©bat
+// spÃ©cifique (ex: un pesticide, une substance) mÃªme ancien dans la
+// lÃ©gislature. Le dÃ©tail nominatif des votes peut ne pas Ãªtre disponible pour
+// les rÃ©sultats hors de la fenÃªtre rÃ©cente (voir la fiche du scrutin).
+app.get("/api/scrutins/search", async (req, res) => {
+  const q = (req.query.q || "").trim();
+  if (q.length < 3) {
+    return res.status(400).json({ error: "Recherche trop courte (3 caractÃ¨res minimum)" });
+  }
+  try {
+    const result = await pool.query(
+      `SELECT legislature, numero, scrutin_date, title, objet, type_vote_label, result_code, result_label
+       FROM scrutins
+       WHERE legislature = 17 AND (title ILIKE $1 OR objet ILIKE $1)
+       ORDER BY scrutin_date DESC NULLS LAST
+       LIMIT 100`,
+      [`%${q}%`]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
+  }
+});
+
+app.get("/api/scrutins/:legislature/:numero", async (req, res) => {
+  const legislature = parseInt(req.params.legislature, 10);
+  const numero = parseInt(req.params.numero, 10);
+  try {
+    const scrutinResult = await pool.query(
+      "SELECT * FROM scrutins WHERE legislature = $1 AND numero = $2",
+      [legislature, numero]
+    );
+    if (scrutinResult.rows.length === 0) {
+      return res.status(404).json({ error: "Scrutin non trouvÃ©" });
+    }
+    const votesResult = await pool.query(
+      `SELECT dv.acteur_uid, dv.position, d.full_name, d.group_abbreviation
+       FROM deputy_votes dv
+       JOIN deputies d ON d.acteur_uid = dv.acteur_uid
+       WHERE dv.legislature = $1 AND dv.numero_scrutin = $2
+       ORDER BY d.group_abbreviation, d.last_name`,
+      [legislature, numero]
+    );
+    res.json({ scrutin: scrutinResult.rows[0], votes: votesResult.rows });
+  } catch (err) {
+    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
+  }
+});
+
+app.post("/api/admin/ingest/deputies", requireIngestToken, async (_req, res) => {
+  try {
+    const result = await ingestDeputies(pool);
+    res.json({ status: "ok", ...result });
+  } catch (err) {
+    res.status(500).json({ error: "Ã‰chec de l'ingestion", detail: err.message });
+  }
+});
+
+app.post("/api/admin/ingest/an-groups", requireIngestToken, async (_req, res) => {
+  try {
+    const result = await ingestGroups(pool);
+    res.json({ status: "ok", ...result });
+  } catch (err) {
+    res.status(500).json({ error: "Ã‰chec de l'ingestion", detail: err.message });
+  }
+});
+
+app.post("/api/admin/ingest/scrutins", requireIngestToken, async (_req, res) => {
+  try {
+    const result = await ingestScrutins(pool);
+    res.json({ status: "ok", ...result });
+  } catch (err) {
+    res.status(500).json({ error: "Ã‰chec de l'ingestion", detail: err.message });
+  }
+});
+
+app.post("/api/admin/ingest/deputy-votes", requireIngestToken, async (_req, res) => {
+  try {
+    const result = await ingestDeputyVotes(pool);
+    res.json({ status: "ok", ...result });
+  } catch (err) {
+    res.status(500).json({ error: "Ã‰chec de l'ingestion", detail: err.message });
   }
 });
 
 app.listen(port, () => {
-  console.log(`API Pas de planète B à l'écoute sur le port ${port}`);
+  console.log(`API Pas de planÃ¨te B Ã  l'Ã©coute sur le port ${port}`);
 });
+
