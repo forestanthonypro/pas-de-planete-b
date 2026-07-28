@@ -20,6 +20,8 @@ export default function DeputyPage() {
   const [groupStats, setGroupStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [positionFilter, setPositionFilter] = useState("");
+  const [resultFilter, setResultFilter] = useState("");
   const canvasRef = useRef(null);
   const chartRef = useRef(null);
 
@@ -48,6 +50,12 @@ export default function DeputyPage() {
     acc[v.position] = (acc[v.position] || 0) + 1;
     return acc;
   }, {});
+
+  const filteredVotes = votes.filter((v) => {
+    if (positionFilter && v.position !== positionFilter) return false;
+    if (resultFilter && v.result_code !== resultFilter) return false;
+    return true;
+  });
 
   useEffect(() => {
     if (votes.length === 0) return;
@@ -110,9 +118,8 @@ export default function DeputyPage() {
               : "aucune donnée."}
           </p>
           <p style={{ fontSize: 13, color: "#666" }}>
-            Le jeu de données public utilisé ne couvre qu&apos;un sous-ensemble des scrutins (pas
-            l&apos;historique complet de la législature) — ce n&apos;est donc pas un bilan complet
-            du mandat.
+            Couvre l&apos;ensemble des scrutins de la 17e législature (depuis juillet 2024) pour
+            lesquels ce député était en mandat — pas les législatures précédentes.
           </p>
 
           {votes.length > 0 && groupStats?.avg_participation_pct != null && (() => {
@@ -141,34 +148,59 @@ export default function DeputyPage() {
           {votes.length === 0 ? (
             <p>Aucune donnée de vote disponible pour ce député sur la période couverte.</p>
           ) : (
-            <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "1rem" }}>
-              <thead>
-                <tr>
-                  <th scope="col" style={{ textAlign: "left", padding: 8 }}>Date</th>
-                  <th scope="col" style={{ textAlign: "left", padding: 8 }}>Scrutin</th>
-                  <th scope="col" style={{ textAlign: "left", padding: 8 }}>Position</th>
-                  <th scope="col" style={{ textAlign: "left", padding: 8 }}>Résultat</th>
-                </tr>
-              </thead>
-              <tbody>
-                {votes.map((v) => (
-                  <tr key={v.numero_scrutin}>
-                    <td style={{ padding: 8, whiteSpace: "nowrap" }}>
-                      {v.scrutin_date ? new Date(v.scrutin_date).toLocaleDateString("fr-FR") : "—"}
-                    </td>
-                    <td style={{ padding: 8 }}>
-                      <Link href={`/scrutins/17/${v.numero_scrutin}`}>
-                        {v.title || v.objet || `Scrutin n°${v.numero_scrutin}`}
-                      </Link>
-                    </td>
-                    <td style={{ padding: 8, color: POSITION_LABELS[v.position]?.color || "#333", fontWeight: 600 }}>
-                      {POSITION_LABELS[v.position]?.label || v.position}
-                    </td>
-                    <td style={{ padding: 8 }}>{v.result_label || v.result_code || "—"}</td>
+            <>
+              <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", marginTop: "1rem", marginBottom: "0.5rem" }}>
+                <label>
+                  Position{" "}
+                  <select value={positionFilter} onChange={(e) => setPositionFilter(e.target.value)}>
+                    <option value="">Toutes</option>
+                    <option value="pour">Pour</option>
+                    <option value="contre">Contre</option>
+                    <option value="abstention">Abstention</option>
+                    <option value="absent">Absent / non-votant</option>
+                  </select>
+                </label>
+                <label>
+                  Résultat du scrutin{" "}
+                  <select value={resultFilter} onChange={(e) => setResultFilter(e.target.value)}>
+                    <option value="">Tous</option>
+                    <option value="adopté">Adopté</option>
+                    <option value="rejeté">Rejeté</option>
+                  </select>
+                </label>
+              </div>
+              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <thead>
+                  <tr>
+                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>Date</th>
+                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>Scrutin</th>
+                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>Position</th>
+                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>Résultat</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {filteredVotes.map((v) => (
+                    <tr key={v.numero_scrutin}>
+                      <td style={{ padding: 8, whiteSpace: "nowrap" }}>
+                        {v.scrutin_date ? new Date(v.scrutin_date).toLocaleDateString("fr-FR") : "—"}
+                      </td>
+                      <td style={{ padding: 8 }}>
+                        <Link href={`/scrutins/17/${v.numero_scrutin}`}>
+                          {v.title || v.objet || `Scrutin n°${v.numero_scrutin}`}
+                        </Link>
+                      </td>
+                      <td style={{ padding: 8, color: POSITION_LABELS[v.position]?.color || "#333", fontWeight: 600 }}>
+                        {POSITION_LABELS[v.position]?.label || v.position}
+                      </td>
+                      <td style={{ padding: 8 }}>{v.result_label || v.result_code || "—"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {filteredVotes.length === 0 && (
+                <p style={{ fontSize: 13, color: "#666" }}>Aucun scrutin ne correspond à ce filtre.</p>
+              )}
+            </>
           )}
 
           <p style={{ fontSize: 12, color: "#666", marginTop: "1rem" }}>

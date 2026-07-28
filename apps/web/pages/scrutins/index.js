@@ -14,6 +14,7 @@ export default function ScrutinsPage() {
   const [searchResults, setSearchResults] = useState(null);
   const [searching, setSearching] = useState(false);
   const [searchError, setSearchError] = useState(null);
+  const [resultFilter, setResultFilter] = useState("");
 
   function handleSearch(e) {
     e.preventDefault();
@@ -168,9 +169,19 @@ export default function ScrutinsPage() {
 
       <h2 style={{ fontSize: 18, marginTop: "2rem" }}>Les 200 scrutins les plus récents</h2>
       <p style={{ fontSize: 13, color: "#666", marginBottom: "1rem" }}>
-        Avec leur résultat officiel. Le détail nominatif (qui a voté quoi) n&apos;est disponible
-        que pour un sous-ensemble de ces scrutins — voir la fiche de chaque scrutin.
+        Avec leur résultat officiel. Le détail nominatif (qui a voté quoi) est disponible pour
+        chacun via sa fiche — sauf les rares scrutins qui ne font pas l&apos;objet d&apos;un
+        décompte nominatif individuel.
       </p>
+
+      <label style={{ display: "block", marginBottom: "0.75rem" }}>
+        Filtrer par résultat{" "}
+        <select value={resultFilter} onChange={(e) => setResultFilter(e.target.value)}>
+          <option value="">Tous</option>
+          <option value="adopté">Adopté</option>
+          <option value="rejeté">Rejeté</option>
+        </select>
+      </label>
 
       {loading && <p>Chargement...</p>}
       {error && <p role="alert">Erreur : {error}</p>}
@@ -186,23 +197,34 @@ export default function ScrutinsPage() {
             </tr>
           </thead>
           <tbody>
-            {scrutins.map((s) => (
-              <tr key={s.numero}>
-                <td style={{ padding: 8, whiteSpace: "nowrap" }}>
-                  {s.scrutin_date ? new Date(s.scrutin_date).toLocaleDateString("fr-FR") : "—"}
-                </td>
-                <td style={{ padding: 8 }}>
-                  <Link href={`/scrutins/${s.legislature}/${s.numero}`}>
-                    {s.title || s.objet || `Scrutin n°${s.numero}`}
-                  </Link>
-                </td>
-                <td style={{ padding: 8 }}>{s.type_vote_label || "—"}</td>
-                <td style={{ padding: 8 }}>{s.result_label || s.result_code || "—"}</td>
-              </tr>
-            ))}
+            {scrutins
+              .filter((s) => !resultFilter || s.result_code === resultFilter)
+              .map((s) => (
+                <tr key={s.numero}>
+                  <td style={{ padding: 8, whiteSpace: "nowrap" }}>
+                    {s.scrutin_date ? new Date(s.scrutin_date).toLocaleDateString("fr-FR") : "—"}
+                  </td>
+                  <td style={{ padding: 8 }}>
+                    <Link href={`/scrutins/${s.legislature}/${s.numero}`}>
+                      {s.title || s.objet || `Scrutin n°${s.numero}`}
+                    </Link>
+                  </td>
+                  <td style={{ padding: 8 }}>{s.type_vote_label || "—"}</td>
+                  <td style={{ padding: 8 }}>{s.result_label || s.result_code || "—"}</td>
+                </tr>
+              ))}
           </tbody>
         </table>
       )}
+
+      <p style={{ fontSize: 13, color: "#666", marginTop: "1.5rem" }}>
+        Cette page couvre uniquement la <strong>17e législature</strong>, en cours depuis juillet
+        2024 — la seule qui continue de changer. Les législatures précédentes sont closes et ne
+        bougeront plus ; pour les consulter, direction les archives officielles sur{" "}
+        <a href="https://data.assemblee-nationale.fr/" target="_blank" rel="noreferrer">
+          data.assemblee-nationale.fr
+        </a>.
+      </p>
 
       <p style={{ fontSize: 12, color: "#666", marginTop: "1rem" }}>
         Source : CIVIX et Assemblée nationale (open data officiel) (Licence Ouverte / Open Licence

@@ -108,4 +108,4 @@ jobs:
         run: |
           curl -f -X POST "${{ secrets.API_URL }}/api/admin/ingest/scrutins" \
             -H "x-ingest-token: ${{ secrets.INGEST_TOKEN }}" \
-            --max-time 600
+            --max-time 1200

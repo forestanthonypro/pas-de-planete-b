@@ -147,7 +147,7 @@ export default function GroupesPage() {
                 .map((g) => (
                   <tr key={g.abbreviation}>
                     <th scope="row" style={{ textAlign: "left", padding: 8, fontWeight: 400 }}>
-                      <Link href={`/deputes?groupe=${g.abbreviation}`}>{g.name}</Link> ({g.abbreviation})
+                      <Link href={`/groupes/${g.abbreviation}`}>{g.name}</Link> ({g.abbreviation})
                     </th>
                     <td style={{ textAlign: "right", padding: 8 }}>{g.effectif ?? "—"}</td>
                     <td style={{ textAlign: "right", padding: 8 }}>{g.avg_participation_pct != null ? `${g.avg_participation_pct} %` : "—"}</td>

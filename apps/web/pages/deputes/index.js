@@ -19,6 +19,7 @@ export default function DeputesPage() {
   const [error, setError] = useState(null);
   const [query, setQuery] = useState("");
   const [groupFilter, setGroupFilter] = useState("");
+  const [departmentFilter, setDepartmentFilter] = useState("");
   const router = useRouter();
 
   useEffect(() => {
@@ -47,14 +48,20 @@ export default function DeputesPage() {
     return [...set].sort();
   }, [deputies]);
 
+  const departments = useMemo(() => {
+    const set = new Set(deputies.map((d) => d.department).filter(Boolean));
+    return [...set].sort((a, b) => a.localeCompare(b, "fr"));
+  }, [deputies]);
+
   const filtered = useMemo(() => {
     const q = normalize(query);
     return deputies.filter((d) => {
       if (groupFilter && d.group_abbreviation !== groupFilter) return false;
+      if (departmentFilter && d.department !== departmentFilter) return false;
       if (!q) return true;
       return normalize(d.full_name).includes(q) || normalize(d.department).includes(q);
     });
-  }, [deputies, query, groupFilter]);
+  }, [deputies, query, groupFilter, departmentFilter]);
 
   return (
     <main style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
@@ -79,6 +86,15 @@ export default function DeputesPage() {
             <option value="">Tous</option>
             {groups.map((g) => (
               <option key={g} value={g}>{g}</option>
+            ))}
+          </select>
+        </label>
+        <label>
+          Département{" "}
+          <select value={departmentFilter} onChange={(e) => setDepartmentFilter(e.target.value)}>
+            <option value="">Tous</option>
+            {departments.map((d) => (
+              <option key={d} value={d}>{d}</option>
             ))}
           </select>
         </label>
@@ -112,6 +128,15 @@ export default function DeputesPage() {
           </tbody>
         </table>
       )}
+
+      <p style={{ fontSize: 13, color: "#666", marginTop: "1.5rem" }}>
+        Cette page couvre uniquement les députés en mandat lors de la{" "}
+        <strong>17e législature</strong>, en cours depuis juillet 2024. Pour les législatures
+        précédentes (closes), direction les archives officielles sur{" "}
+        <a href="https://data.assemblee-nationale.fr/" target="_blank" rel="noreferrer">
+          data.assemblee-nationale.fr
+        </a>.
+      </p>
 
       <p style={{ fontSize: 12, color: "#666", marginTop: "1rem" }}>
         Source : CIVIX, à partir des données open data de l&apos;Assemblée nationale (Licence

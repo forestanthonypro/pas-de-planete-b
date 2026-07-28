@@ -693,6 +693,57 @@ app.get("/api/an-groups/cohesion", async (_req, res) => {
   }
 });
 
+// Détail d'un groupe : ses infos + le résultat (adopté/rejeté) des scrutins
+// où au moins un de ses membres a voté, en pourcentage — puisque les votes
+// sont individuels, on ne peut pas dire que "le groupe a fait adopter" un
+// texte, seulement que ses membres ont participé à des scrutins qui ont
+// abouti à tel ou tel résultat.
+app.get("/api/an-groups/:abbreviation", async (req, res) => {
+  const { abbreviation } = req.params;
+  try {
+    const groupResult = await pool.query(
+      "SELECT * FROM an_groups WHERE legislature = 17 AND abbreviation = $1",
+      [abbreviation]
+    );
+    if (groupResult.rows.length === 0) {
+      return res.status(404).json({ error: "Groupe non trouvé" });
+    }
+
+    const resultBreakdown = await pool.query(
+      `SELECT s.result_code, COUNT(DISTINCT s.numero) AS count
+       FROM scrutins s
+       JOIN deputy_votes dv ON dv.legislature = s.legislature AND dv.numero_scrutin = s.numero
+       JOIN deputies d ON d.acteur_uid = dv.acteur_uid
+       WHERE s.legislature = 17 AND d.group_abbreviation = $1
+       GROUP BY s.result_code`,
+      [abbreviation]
+    );
+
+    const recentScrutins = await pool.query(
+      `SELECT s.legislature, s.numero, s.scrutin_date, s.title, s.objet, s.result_code, s.result_label,
+              COUNT(*) FILTER (WHERE dv.position = 'pour') AS pour,
+              COUNT(*) FILTER (WHERE dv.position = 'contre') AS contre,
+              COUNT(*) FILTER (WHERE dv.position = 'abstention') AS abstention
+       FROM scrutins s
+       JOIN deputy_votes dv ON dv.legislature = s.legislature AND dv.numero_scrutin = s.numero
+       JOIN deputies d ON d.acteur_uid = dv.acteur_uid
+       WHERE s.legislature = 17 AND d.group_abbreviation = $1
+       GROUP BY s.legislature, s.numero, s.scrutin_date, s.title, s.objet, s.result_code, s.result_label
+       ORDER BY s.scrutin_date DESC NULLS LAST, s.numero DESC
+       LIMIT 100`,
+      [abbreviation]
+    );
+
+    res.json({
+      group: groupResult.rows[0],
+      resultBreakdown: resultBreakdown.rows,
+      recentScrutins: recentScrutins.rows,
+    });
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+  }
+});
+
 app.get("/api/scrutins", async (req, res) => {
   const limit = Math.min(parseInt(req.query.limit, 10) || 100, 500);
   try {

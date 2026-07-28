@@ -13,6 +13,13 @@ const POSITION_LABELS = {
 };
 const POSITIONS = ["pour", "contre", "abstention", "absent"];
 
+function normalize(str) {
+  return (str || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
+
 export default function ScrutinPage() {
   const router = useRouter();
   const { legislature, numero } = router.query;
@@ -21,6 +28,7 @@ export default function ScrutinPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [groupFilter, setGroupFilter] = useState("");
+  const [nameQuery, setNameQuery] = useState("");
   const canvasRef = useRef(null);
   const chartRef = useRef(null);
 
@@ -45,7 +53,11 @@ export default function ScrutinPage() {
   }, [legislature, numero]);
 
   const groups = [...new Set(votes.map((v) => v.group_abbreviation).filter(Boolean))].sort();
-  const filteredVotes = groupFilter ? votes.filter((v) => v.group_abbreviation === groupFilter) : votes;
+  const filteredVotes = votes.filter((v) => {
+    if (groupFilter && v.group_abbreviation !== groupFilter) return false;
+    if (nameQuery && !normalize(v.full_name).includes(normalize(nameQuery))) return false;
+    return true;
+  });
   const tally = votes.reduce((acc, v) => {
     acc[v.position] = (acc[v.position] || 0) + 1;
     return acc;
@@ -119,9 +131,9 @@ export default function ScrutinPage() {
 
           {votes.length === 0 ? (
             <p style={{ fontSize: 13, color: "#666" }}>
-              Le détail nominatif des votes n&apos;est pas disponible pour ce scrutin (le jeu de
-              données public utilisé ne couvre qu&apos;un sous-ensemble des scrutins — voir{" "}
-              <Link href="/scrutins">la liste des scrutins</Link>).
+              Le détail nominatif des votes n&apos;a pas été publié pour ce scrutin (certains
+              votes ne font pas l&apos;objet d&apos;un décompte nominatif individuel) — voir{" "}
+              <Link href="/scrutins">la liste des scrutins</Link>.
             </p>
           ) : (
             <>
@@ -177,15 +189,24 @@ export default function ScrutinPage() {
                 </tbody>
               </table>
 
-              <label style={{ display: "block", marginTop: "1rem", marginBottom: "0.5rem" }}>
-                Filtrer par groupe{" "}
-                <select value={groupFilter} onChange={(e) => setGroupFilter(e.target.value)}>
-                  <option value="">Tous</option>
-                  {groups.map((g) => (
-                    <option key={g} value={g}>{g}</option>
-                  ))}
-                </select>
-              </label>
+              <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", marginTop: "1rem", marginBottom: "0.5rem" }}>
+                <label>
+                  Filtrer par groupe{" "}
+                  <select value={groupFilter} onChange={(e) => setGroupFilter(e.target.value)}>
+                    <option value="">Tous</option>
+                    {groups.map((g) => (
+                      <option key={g} value={g}>{g}</option>
+                    ))}
+                  </select>
+                </label>
+                <input
+                  type="text"
+                  value={nameQuery}
+                  onChange={(e) => setNameQuery(e.target.value)}
+                  placeholder="Rechercher un député..."
+                  style={{ padding: "4px 8px" }}
+                />
+              </div>
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead>
                   <tr>
