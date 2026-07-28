@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import ShareButtons from "../../components/ShareButtons";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -66,6 +67,8 @@ export default function DeputesPage() {
   return (
     <main style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
       <h1>Députés — Assemblée nationale (17e législature)</h1>
+      <ShareButtons title="Députés — Assemblée nationale (17e législature)" />
+
       <p style={{ fontSize: 13, color: "#666", marginBottom: "1rem" }}>
         Liste des {deputies.length || "…"} députés. Informations factuelles (nom, groupe
         politique, circonscription) sans aucun jugement de valeur — à toi de te faire ton propre

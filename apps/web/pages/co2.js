@@ -4,6 +4,7 @@ import { detectPreferredLanguage } from "../lib/detectLanguage";
 import { localizedCountryName } from "../lib/countryNames";
 import { useLastUpdated, formatDate } from "../lib/useLastUpdated";
 import CountrySelect from "../components/CountrySelect";
+import ShareButtons from "../components/ShareButtons";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -117,6 +118,7 @@ export default function Co2Page() {
   return (
     <main style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 800, margin: "0 auto" }}>
       <h1>Émissions de CO2 — {selectedCountryName}</h1>
+      <ShareButtons title={`Émissions de CO2 — ${selectedCountryName}`} />
 
       <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem", flexWrap: "wrap" }}>
         <CountrySelect

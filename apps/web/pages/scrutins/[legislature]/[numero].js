@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import ShareButtons from "../../../components/ShareButtons";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -121,6 +122,8 @@ export default function ScrutinPage() {
       {!loading && !error && scrutin && (
         <>
           <h1>{scrutin.title || scrutin.objet || `Scrutin n°${scrutin.numero}`}</h1>
+      <ShareButtons title={scrutin.title || scrutin.objet || `Scrutin n°${scrutin.numero}`} />
+
           <p style={{ color: "#666" }}>
             {scrutin.scrutin_date && (
               <>Voté le {new Date(scrutin.scrutin_date).toLocaleDateString("fr-FR")} — </>

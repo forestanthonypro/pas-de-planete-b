@@ -4,6 +4,7 @@ import { detectPreferredLanguage } from "../lib/detectLanguage";
 import { useLastUpdated, formatDate } from "../lib/useLastUpdated";
 import { localizedCountryName } from "../lib/countryNames";
 import CountrySelect from "../components/CountrySelect";
+import ShareButtons from "../components/ShareButtons";
 import { useWorldBenchmarks } from "../lib/useWorldBenchmarks";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
@@ -207,6 +208,8 @@ export default function EauPage() {
   return (
     <main style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 800, margin: "0 auto" }}>
       <h1>Ressources en eau — {selectedCountryName}</h1>
+      <ShareButtons title={`Ressources en eau — ${selectedCountryName}`} />
+
 
       <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem", flexWrap: "wrap" }}>
         <CountrySelect

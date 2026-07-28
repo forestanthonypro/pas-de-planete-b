@@ -4,6 +4,7 @@ import { detectPreferredLanguage } from "../lib/detectLanguage";
 import { useLastUpdated, formatDate } from "../lib/useLastUpdated";
 import { localizedCountryName } from "../lib/countryNames";
 import CountrySelect from "../components/CountrySelect";
+import ShareButtons from "../components/ShareButtons";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -102,6 +103,8 @@ export default function IncendiesPage() {
   return (
     <main style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
       <h1>Feux actifs — {selectedCountryName}</h1>
+      <ShareButtons title={`Feux actifs — ${selectedCountryName}`} />
+
 
       <p style={{ fontSize: 13, color: "#666", marginBottom: "1rem" }}>
         Détections satellite des 3 derniers jours (NASA FIRMS, capteur MODIS). Une détection

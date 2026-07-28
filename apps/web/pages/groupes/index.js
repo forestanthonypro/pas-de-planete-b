@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import ShareButtons from "../../components/ShareButtons";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -102,6 +103,8 @@ export default function GroupesPage() {
   return (
     <main style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
       <h1>Groupes politiques — Assemblée nationale (17e législature)</h1>
+      <ShareButtons title="Groupes politiques — Assemblée nationale (17e législature)" />
+
       <p style={{ fontSize: 13, color: "#666", marginBottom: "1rem" }}>
         Taux de participation moyen aux scrutins par groupe. La participation ne dit rien sur le
         sens des votes — un groupe peut avoir une participation élevée tout en votant de façons

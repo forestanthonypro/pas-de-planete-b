@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import ShareButtons from "../../components/ShareButtons";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -77,6 +78,8 @@ export default function GroupDetailPage() {
       {!loading && !error && group && (
         <>
           <h1>{group.name} ({group.abbreviation})</h1>
+      <ShareButtons title={`${group.name} (${group.abbreviation})`} />
+
           <p style={{ color: "#666" }}>
             {group.effectif} membre{group.effectif > 1 ? "s" : ""} · Participation moyenne :{" "}
             {group.avg_participation_pct != null ? `${group.avg_participation_pct} %` : "—"}

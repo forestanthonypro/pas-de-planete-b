@@ -6,6 +6,7 @@ import { detectPreferredLanguage } from "../lib/detectLanguage";
 import { useLastUpdated, formatDate } from "../lib/useLastUpdated";
 import { localizedCountryName } from "../lib/countryNames";
 import CountrySelect from "../components/CountrySelect";
+import ShareButtons from "../components/ShareButtons";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -150,6 +151,8 @@ export default function EspecesPage() {
   return (
     <main style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
       <h1>Espèces menacées — {selectedCountryName}</h1>
+      <ShareButtons title={`Espèces menacées — ${selectedCountryName}`} />
+
 
       <p style={{ fontSize: 13, color: "#666", marginBottom: "1rem" }}>
         Échantillon d&apos;espèces observées dans ce pays, par catégorie d&apos;extinction UICN,

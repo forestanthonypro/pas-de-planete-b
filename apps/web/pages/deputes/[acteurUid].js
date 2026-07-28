@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import ShareButtons from "../../components/ShareButtons";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -103,6 +104,8 @@ export default function DeputyPage() {
       {!loading && !error && deputy && (
         <>
           <h1>{deputy.full_name}</h1>
+      <ShareButtons title={`Député — ${deputy.full_name}`} />
+
           <p style={{ color: "#666" }}>
             {deputy.group_abbreviation && <>Groupe : <strong>{deputy.group_abbreviation}</strong> ({deputy.group_name}) — </>}
             {deputy.department && <>{deputy.department}{deputy.circo_number ? ` (${deputy.circo_number}e circonscription)` : ""}</>}

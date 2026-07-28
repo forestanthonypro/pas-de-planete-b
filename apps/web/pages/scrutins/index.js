@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import ShareButtons from "../../components/ShareButtons";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -94,6 +95,8 @@ export default function ScrutinsPage() {
   return (
     <main style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
       <h1>Scrutins — Assemblée nationale (17e législature)</h1>
+      <ShareButtons title="Scrutins — Assemblée nationale (17e législature)" />
+
 
       <form onSubmit={handleSearch} style={{ marginBottom: "1rem" }}>
         <label htmlFor="scrutin-search" style={{ display: "block", marginBottom: "0.25rem" }}>
