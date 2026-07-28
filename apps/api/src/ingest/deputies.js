@@ -17,6 +17,7 @@
 // structure brute du premier acteur rencontré pour faciliter ce diagnostic.
 
 import AdmZip from "adm-zip";
+import { Buffer } from "node:buffer";
 
 const DEPUTIES_ZIP_URL =
   "https://data.assemblee-nationale.fr/static/openData/repository/17/amo/deputes_actifs_mandats_actifs_organes/AMO10_deputes_actifs_mandats_actifs_organes.json.zip";

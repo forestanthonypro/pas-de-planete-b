@@ -14,6 +14,7 @@
 // nonVotants}.votant[].acteurRef).
 
 import AdmZip from "adm-zip";
+import { Buffer } from "node:buffer";
 
 const SCRUTINS_ZIP_URL = "https://data.assemblee-nationale.fr/static/openData/repository/17/loi/scrutins/Scrutins.json.zip";
 const SOURCE_LABEL = "Assemblée nationale (open data officiel)";
