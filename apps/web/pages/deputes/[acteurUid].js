@@ -17,6 +17,7 @@ export default function DeputyPage() {
   const { acteurUid } = router.query;
   const [deputy, setDeputy] = useState(null);
   const [votes, setVotes] = useState([]);
+  const [groupStats, setGroupStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const canvasRef = useRef(null);
@@ -34,6 +35,7 @@ export default function DeputyPage() {
       .then((data) => {
         setDeputy(data.deputy);
         setVotes(data.votes || []);
+        setGroupStats(data.groupStats || null);
         setLoading(false);
       })
       .catch((err) => {
@@ -112,6 +114,23 @@ export default function DeputyPage() {
             l&apos;historique complet de la législature) — ce n&apos;est donc pas un bilan complet
             du mandat.
           </p>
+
+          {votes.length > 0 && groupStats?.avg_participation_pct != null && (() => {
+            const absentCount = votes.filter((v) => v.position === "absent" || v.position === "non-votant").length;
+            const ownParticipation = Math.round(((votes.length - absentCount) / votes.length) * 1000) / 10;
+            const groupAvg = parseFloat(groupStats.avg_participation_pct);
+            const diff = Math.round((ownParticipation - groupAvg) * 10) / 10;
+            return (
+              <p style={{ fontSize: 13, color: "#666" }}>
+                Sur cette même fenêtre, {deputy.full_name} a exprimé un vote (hors absences) dans{" "}
+                <strong>{ownParticipation} %</strong> des scrutins, contre une moyenne de{" "}
+                <strong>{groupAvg} %</strong> pour son groupe ({diff >= 0 ? "+" : ""}
+                {diff} point{Math.abs(diff) >= 2 ? "s" : ""}). Ces deux chiffres ne sont pas
+                calculés exactement de la même façon (fenêtres de scrutins différentes), à prendre
+                comme un ordre de grandeur plutôt qu&apos;une comparaison au point près.
+              </p>
+            );
+          })()}
 
           {votes.length > 0 && (
             <div style={{ position: "relative", height: 220, maxWidth: 400 }}>

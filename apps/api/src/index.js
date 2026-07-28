@@ -605,6 +605,7 @@ app.get("/api/deputies/:acteurUid", async (req, res) => {
     if (deputyResult.rows.length === 0) {
       return res.status(404).json({ error: "Député non trouvé" });
     }
+    const deputy = deputyResult.rows[0];
     const votesResult = await pool.query(
       `SELECT dv.numero_scrutin, dv.position, s.scrutin_date, s.title, s.objet,
               s.result_code, s.result_label
@@ -614,7 +615,15 @@ app.get("/api/deputies/:acteurUid", async (req, res) => {
        ORDER BY s.scrutin_date DESC NULLS LAST, dv.numero_scrutin DESC`,
       [acteurUid]
     );
-    res.json({ deputy: deputyResult.rows[0], votes: votesResult.rows });
+    let groupStats = null;
+    if (deputy.group_abbreviation) {
+      const groupResult = await pool.query(
+        "SELECT avg_participation_pct, median_participation_pct FROM an_groups WHERE legislature = 17 AND abbreviation = $1",
+        [deputy.group_abbreviation]
+      );
+      groupStats = groupResult.rows[0] || null;
+    }
+    res.json({ deputy, votes: votesResult.rows, groupStats });
   } catch (err) {
     res.status(503).json({ error: "Données non initialisées", detail: err.message });
   }
@@ -625,6 +634,33 @@ app.get("/api/an-groups", async (_req, res) => {
     const result = await pool.query(
       "SELECT * FROM an_groups WHERE legislature = 17 ORDER BY effectif DESC"
     );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+  }
+});
+
+// Cohésion de groupe : sur les scrutins où au moins 2 membres du groupe ont
+// voté (hors absents, qui ne reflètent pas un désaccord de fond), quelle part
+// des scrutins voit tous les votants du groupe choisir la même position.
+app.get("/api/an-groups/cohesion", async (_req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT group_abbreviation,
+             COUNT(*) FILTER (WHERE distinct_positions = 1) AS unanimous_count,
+             COUNT(*) AS total_count
+      FROM (
+        SELECT d.group_abbreviation, dv.legislature, dv.numero_scrutin,
+               COUNT(DISTINCT dv.position) AS distinct_positions
+        FROM deputy_votes dv
+        JOIN deputies d ON d.acteur_uid = dv.acteur_uid
+        WHERE dv.position IN ('pour', 'contre', 'abstention') AND d.group_abbreviation IS NOT NULL
+        GROUP BY d.group_abbreviation, dv.legislature, dv.numero_scrutin
+        HAVING COUNT(*) >= 2
+      ) sub
+      GROUP BY group_abbreviation
+      ORDER BY unanimous_count::float / NULLIF(total_count, 0) DESC
+    `);
     res.json(result.rows);
   } catch (err) {
     res.status(503).json({ error: "Données non initialisées", detail: err.message });
@@ -642,6 +678,25 @@ app.get("/api/scrutins", async (req, res) => {
       [limit]
     );
     res.json(result.rows);
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+  }
+});
+
+// Taux d'adoption global, sur l'ensemble des 8000+ scrutins de la
+// législature (pas seulement la fenêtre récente des votes détaillés).
+app.get("/api/scrutins/stats", async (_req, res) => {
+  try {
+    const byResult = await pool.query(
+      `SELECT result_code, COUNT(*) AS count FROM scrutins WHERE legislature = 17
+       GROUP BY result_code ORDER BY count DESC`
+    );
+    const byType = await pool.query(
+      `SELECT type_vote_label, result_code, COUNT(*) AS count FROM scrutins WHERE legislature = 17
+       GROUP BY type_vote_label, result_code ORDER BY type_vote_label, count DESC`
+    );
+    const total = await pool.query("SELECT COUNT(*) AS count FROM scrutins WHERE legislature = 17");
+    res.json({ total: parseInt(total.rows[0].count, 10), byResult: byResult.rows, byType: byType.rows });
   } catch (err) {
     res.status(503).json({ error: "Données non initialisées", detail: err.message });
   }
