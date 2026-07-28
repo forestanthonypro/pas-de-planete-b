@@ -1,4 +1,4 @@
-﻿import express from "express";
+import express from "express";
 import cors from "cors";
 import pg from "pg";
 import { ingestCo2 } from "./ingest/co2.js";
@@ -50,7 +50,7 @@ app.get("/api/co2/countries", async (_req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
   }
 });
 
@@ -66,7 +66,7 @@ app.get("/api/co2/:country", async (req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
   }
 });
 
@@ -75,11 +75,11 @@ app.post("/api/admin/ingest/co2", requireIngestToken, async (_req, res) => {
     const { inserted, skipped } = await ingestCo2(pool);
     res.json({ status: "ok", inserted, skipped });
   } catch (err) {
-    res.status(500).json({ error: "Ã‰chec de l'ingestion", detail: err.message });
+    res.status(500).json({ error: "Échec de l'ingestion", detail: err.message });
   }
 });
 
-// --- Centrales Ã©lectriques ---
+// --- Centrales électriques ---
 
 app.get("/api/power-plants/countries", async (_req, res) => {
   try {
@@ -88,7 +88,7 @@ app.get("/api/power-plants/countries", async (_req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
   }
 });
 
@@ -99,14 +99,14 @@ app.get("/api/power-plants/fuel-types", async (_req, res) => {
     );
     res.json(result.rows.map((r) => r.fuel_type));
   } catch (err) {
-    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
   }
 });
 
 app.get("/api/power-plants", async (req, res) => {
   const { country, fuel_type: fuelType } = req.query;
   if (!country) {
-    return res.status(400).json({ error: "Le paramÃ¨tre 'country' (code ISO3) est obligatoire" });
+    return res.status(400).json({ error: "Le paramètre 'country' (code ISO3) est obligatoire" });
   }
   try {
     const params = [country.toUpperCase()];
@@ -126,7 +126,7 @@ app.get("/api/power-plants", async (req, res) => {
     const result = await pool.query(query, params);
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
   }
 });
 
@@ -135,11 +135,11 @@ app.post("/api/admin/ingest/power-plants", requireIngestToken, async (_req, res)
     const { inserted, skipped } = await ingestPowerPlants(pool);
     res.json({ status: "ok", inserted, skipped });
   } catch (err) {
-    res.status(500).json({ error: "Ã‰chec de l'ingestion", detail: err.message });
+    res.status(500).json({ error: "Échec de l'ingestion", detail: err.message });
   }
 });
 
-// --- EspÃ¨ces ---
+// --- Espèces ---
 
 app.get("/api/species/categories", async (_req, res) => {
   try {
@@ -148,7 +148,7 @@ app.get("/api/species/categories", async (_req, res) => {
     );
     res.json(result.rows.map((r) => r.category));
   } catch (err) {
-    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
   }
 });
 
@@ -180,7 +180,7 @@ app.get("/api/species", async (req, res) => {
     const result = await pool.query(query, params);
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
   }
 });
 
@@ -197,7 +197,7 @@ app.get("/api/species/kingdoms", async (req, res) => {
     const result = await pool.query(query, params);
     res.json(result.rows.map((r) => r.kingdom).filter(Boolean));
   } catch (err) {
-    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
   }
 });
 
@@ -206,11 +206,11 @@ app.post("/api/admin/ingest/species", requireIngestToken, async (_req, res) => {
     const { inserted, skipped, countryLinks } = await ingestSpecies(pool);
     res.json({ status: "ok", inserted, skipped, countryLinks });
   } catch (err) {
-    res.status(500).json({ error: "Ã‰chec de l'ingestion", detail: err.message });
+    res.status(500).json({ error: "Échec de l'ingestion", detail: err.message });
   }
 });
 
-// --- Dashboard combinÃ© par pays ---
+// --- Dashboard combiné par pays ---
 
 app.get("/api/country-summary/:country", async (req, res) => {
   const country = req.params.country.toUpperCase();
@@ -280,17 +280,17 @@ app.get("/api/country-summary/:country", async (req, res) => {
       pollution: pollutionResult.rows,
     });
   } catch (err) {
-    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
   }
 });
 
 
-// --- Feux actifs (quasi temps rÃ©el) ---
+// --- Feux actifs (quasi temps réel) ---
 
 app.get("/api/fires", async (req, res) => {
   const { country } = req.query;
   if (!country) {
-    return res.status(400).json({ error: "Le paramÃ¨tre 'country' (code ISO3) est obligatoire" });
+    return res.status(400).json({ error: "Le paramètre 'country' (code ISO3) est obligatoire" });
   }
   try {
     const result = await pool.query(
@@ -305,7 +305,7 @@ app.get("/api/fires", async (req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
   }
 });
 
@@ -314,13 +314,13 @@ app.post("/api/admin/ingest/fires", requireIngestToken, async (_req, res) => {
     const { inserted, countriesSkipped, sampleErrors } = await ingestFires(pool);
     res.json({ status: "ok", inserted, countriesSkipped, sampleErrors });
   } catch (err) {
-    res.status(500).json({ error: "Ã‰chec de l'ingestion", detail: err.message });
+    res.status(500).json({ error: "Échec de l'ingestion", detail: err.message });
   }
 });
 
-// --- FraÃ®cheur des donnÃ©es ---
-// Indique quand CHAQUE table a Ã©tÃ© rafraÃ®chie pour la derniÃ¨re fois cÃ´tÃ© notre base
-// (pas la date des donnÃ©es elles-mÃªmes, qui peut Ãªtre plus ancienne selon la source).
+// --- Fraîcheur des données ---
+// Indique quand CHAQUE table a été rafraîchie pour la dernière fois côté notre base
+// (pas la date des données elles-mêmes, qui peut être plus ancienne selon la source).
 app.get("/api/meta/last-updated", async (_req, res) => {
   try {
     const [co2, plants, species, fires, vegetation, water, electricity, speciesThreatened, pollution] = await Promise.all([
@@ -346,12 +346,12 @@ app.get("/api/meta/last-updated", async (_req, res) => {
       pollution: { lastIngested: pollution.rows[0].updated_at, latestYear: pollution.rows[0].latest_year },
     });
   } catch (err) {
-    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
   }
 });
 
 
-// --- VÃ©gÃ©tation / perte de couverture arborÃ©e ---
+// --- Végétation / perte de couverture arborée ---
 
 app.get("/api/vegetation/countries", async (_req, res) => {
   try {
@@ -360,7 +360,7 @@ app.get("/api/vegetation/countries", async (_req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
   }
 });
 
@@ -376,7 +376,7 @@ app.get("/api/vegetation/:country", async (req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
   }
 });
 
@@ -385,12 +385,12 @@ app.post("/api/admin/ingest/vegetation", requireIngestToken, async (_req, res) =
     const { inserted, skipped } = await ingestVegetation(pool);
     res.json({ status: "ok", inserted, skipped });
   } catch (err) {
-    res.status(500).json({ error: "Ã‰chec de l'ingestion", detail: err.message });
+    res.status(500).json({ error: "Échec de l'ingestion", detail: err.message });
   }
 });
 
 
-// --- Eau : ressources renouvelables et pluviomÃ©trie ---
+// --- Eau : ressources renouvelables et pluviométrie ---
 
 app.get("/api/water/countries", async (_req, res) => {
   try {
@@ -399,7 +399,7 @@ app.get("/api/water/countries", async (_req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
   }
 });
 
@@ -415,7 +415,7 @@ app.get("/api/water/:country", async (req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
   }
 });
 
@@ -424,12 +424,12 @@ app.post("/api/admin/ingest/water", requireIngestToken, async (_req, res) => {
     const { inserted, skipped } = await ingestWater(pool);
     res.json({ status: "ok", inserted, skipped });
   } catch (err) {
-    res.status(500).json({ error: "Ã‰chec de l'ingestion", detail: err.message });
+    res.status(500).json({ error: "Échec de l'ingestion", detail: err.message });
   }
 });
 
 
-// --- GÃ©nÃ©ration Ã©lectrique rÃ©elle (vs. capacitÃ© installÃ©e statique) ---
+// --- Génération électrique réelle (vs. capacité installée statique) ---
 
 app.get("/api/electricity/countries", async (_req, res) => {
   try {
@@ -438,7 +438,7 @@ app.get("/api/electricity/countries", async (_req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
   }
 });
 
@@ -455,7 +455,7 @@ app.get("/api/electricity/:country", async (req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
   }
 });
 
@@ -464,12 +464,12 @@ app.post("/api/admin/ingest/electricity", requireIngestToken, async (_req, res) 
     const { inserted, skipped } = await ingestElectricity(pool);
     res.json({ status: "ok", inserted, skipped });
   } catch (err) {
-    res.status(500).json({ error: "Ã‰chec de l'ingestion", detail: err.message });
+    res.status(500).json({ error: "Échec de l'ingestion", detail: err.message });
   }
 });
 
 
-// --- EspÃ¨ces menacÃ©es : comptage officiel (IUCN via Banque mondiale) ---
+// --- Espèces menacées : comptage officiel (IUCN via Banque mondiale) ---
 // Comptages absolus par groupe, pas des pourcentages par pays (voir le
 // commentaire du script d'ingestion pour l'explication).
 
@@ -480,7 +480,7 @@ app.get("/api/species-threatened/countries", async (_req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
   }
 });
 
@@ -496,7 +496,7 @@ app.get("/api/species-threatened/:country", async (req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
   }
 });
 
@@ -507,7 +507,7 @@ app.get("/api/species-threatened/global/share", async (_req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
   }
 });
 
@@ -516,7 +516,7 @@ app.post("/api/admin/ingest/species-threatened", requireIngestToken, async (_req
     const { inserted, skipped } = await ingestSpeciesThreatened(pool);
     res.json({ status: "ok", inserted, skipped });
   } catch (err) {
-    res.status(500).json({ error: "Ã‰chec de l'ingestion", detail: err.message });
+    res.status(500).json({ error: "Échec de l'ingestion", detail: err.message });
   }
 });
 
@@ -530,7 +530,7 @@ app.get("/api/pollution/countries", async (_req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
   }
 });
 
@@ -543,7 +543,7 @@ app.get("/api/pollution/:country", async (req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
   }
 });
 
@@ -552,11 +552,11 @@ app.post("/api/admin/ingest/pollution", requireIngestToken, async (_req, res) =>
     const { inserted, skipped } = await ingestPollution(pool);
     res.json({ status: "ok", inserted, skipped });
   } catch (err) {
-    res.status(500).json({ error: "Ã‰chec de l'ingestion", detail: err.message });
+    res.status(500).json({ error: "Échec de l'ingestion", detail: err.message });
   }
 });
 
-// --- RepÃ¨res mondiaux (comparaison pays vs monde) ---
+// --- Repères mondiaux (comparaison pays vs monde) ---
 
 app.get("/api/world-benchmarks", async (_req, res) => {
   try {
@@ -567,7 +567,7 @@ app.get("/api/world-benchmarks", async (_req, res) => {
     }
     res.json(benchmarks);
   } catch (err) {
-    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
   }
 });
 
@@ -576,15 +576,15 @@ app.post("/api/admin/ingest/world-benchmarks", requireIngestToken, async (_req, 
     const { set } = await ingestWorldBenchmarks(pool);
     res.json({ status: "ok", set });
   } catch (err) {
-    res.status(500).json({ error: "Ã‰chec de l'ingestion", detail: err.message });
+    res.status(500).json({ error: "Échec de l'ingestion", detail: err.message });
   }
 });
 
 
-// --- DÃ©putÃ©s, groupes et votes Ã  l'AssemblÃ©e nationale (17e lÃ©gislature) ---
-// DonnÃ©es factuelles uniquement (qui a votÃ© quoi, rÃ©sultat officiel) â€” aucune
-// qualification ni interprÃ©tation politique n'est ajoutÃ©e. Source : CIVIX,
-// Ã  partir des donnÃ©es open data de l'AssemblÃ©e nationale.
+// --- Députés, groupes et votes à l'Assemblée nationale (17e législature) ---
+// Données factuelles uniquement (qui a voté quoi, résultat officiel) — aucune
+// qualification ni interprétation politique n'est ajoutée. Source : CIVIX,
+// à partir des données open data de l'Assemblée nationale.
 
 app.get("/api/deputies", async (_req, res) => {
   try {
@@ -594,15 +594,15 @@ app.get("/api/deputies", async (_req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
   }
 });
 
-// Classement de participation : sur la fenÃªtre de scrutins avec dÃ©tail
-// nominatif disponible, quelle part des scrutins voit chaque dÃ©putÃ© exprimer
-// un vote (pour/contre/abstention) plutÃ´t qu'Ãªtre absent. Un seuil minimum de
-// scrutins est appliquÃ© pour Ã©viter qu'un dÃ©putÃ© avec trÃ¨s peu de donnÃ©es
-// (ex: arrivÃ© rÃ©cemment) fausse le classement avec un Ã©chantillon trop petit.
+// Classement de participation : sur la fenêtre de scrutins avec détail
+// nominatif disponible, quelle part des scrutins voit chaque député exprimer
+// un vote (pour/contre/abstention) plutôt qu'être absent. Un seuil minimum de
+// scrutins est appliqué pour éviter qu'un député avec très peu de données
+// (ex: arrivé récemment) fausse le classement avec un échantillon trop petit.
 app.get("/api/deputies/participation", async (_req, res) => {
   const MIN_VOTES = 20;
   try {
@@ -620,7 +620,7 @@ app.get("/api/deputies/participation", async (_req, res) => {
     );
     res.json({ minVotes: MIN_VOTES, deputies: result.rows });
   } catch (err) {
-    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
   }
 });
 
@@ -629,7 +629,7 @@ app.get("/api/deputies/:acteurUid", async (req, res) => {
   try {
     const deputyResult = await pool.query("SELECT * FROM deputies WHERE acteur_uid = $1", [acteurUid]);
     if (deputyResult.rows.length === 0) {
-      return res.status(404).json({ error: "DÃ©putÃ© non trouvÃ©" });
+      return res.status(404).json({ error: "Député non trouvé" });
     }
     const deputy = deputyResult.rows[0];
     const votesResult = await pool.query(
@@ -651,7 +651,7 @@ app.get("/api/deputies/:acteurUid", async (req, res) => {
     }
     res.json({ deputy, votes: votesResult.rows, groupStats });
   } catch (err) {
-    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
   }
 });
 
@@ -662,13 +662,13 @@ app.get("/api/an-groups", async (_req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
   }
 });
 
-// CohÃ©sion de groupe : sur les scrutins oÃ¹ au moins 2 membres du groupe ont
-// votÃ© (hors absents, qui ne reflÃ¨tent pas un dÃ©saccord de fond), quelle part
-// des scrutins voit tous les votants du groupe choisir la mÃªme position.
+// Cohésion de groupe : sur les scrutins où au moins 2 membres du groupe ont
+// voté (hors absents, qui ne reflètent pas un désaccord de fond), quelle part
+// des scrutins voit tous les votants du groupe choisir la même position.
 app.get("/api/an-groups/cohesion", async (_req, res) => {
   try {
     const result = await pool.query(`
@@ -689,15 +689,15 @@ app.get("/api/an-groups/cohesion", async (_req, res) => {
     `);
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
   }
 });
 
-// DÃ©tail d'un groupe : ses infos + le rÃ©sultat (adoptÃ©/rejetÃ©) des scrutins
-// oÃ¹ au moins un de ses membres a votÃ©, en pourcentage â€” puisque les votes
+// Détail d'un groupe : ses infos + le résultat (adopté/rejeté) des scrutins
+// où au moins un de ses membres a voté, en pourcentage — puisque les votes
 // sont individuels, on ne peut pas dire que "le groupe a fait adopter" un
-// texte, seulement que ses membres ont participÃ© Ã  des scrutins qui ont
-// abouti Ã  tel ou tel rÃ©sultat.
+// texte, seulement que ses membres ont participé à des scrutins qui ont
+// abouti à tel ou tel résultat.
 app.get("/api/an-groups/:abbreviation", async (req, res) => {
   const { abbreviation } = req.params;
   try {
@@ -706,7 +706,7 @@ app.get("/api/an-groups/:abbreviation", async (req, res) => {
       [abbreviation]
     );
     if (groupResult.rows.length === 0) {
-      return res.status(404).json({ error: "Groupe non trouvÃ©" });
+      return res.status(404).json({ error: "Groupe non trouvé" });
     }
 
     const resultBreakdown = await pool.query(
@@ -740,7 +740,7 @@ app.get("/api/an-groups/:abbreviation", async (req, res) => {
       recentScrutins: recentScrutins.rows,
     });
   } catch (err) {
-    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
   }
 });
 
@@ -756,12 +756,12 @@ app.get("/api/scrutins", async (req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
   }
 });
 
 // Taux d'adoption global, sur l'ensemble des 8000+ scrutins de la
-// lÃ©gislature (pas seulement la fenÃªtre rÃ©cente des votes dÃ©taillÃ©s).
+// législature (pas seulement la fenêtre récente des votes détaillés).
 app.get("/api/scrutins/stats", async (_req, res) => {
   try {
     const byResult = await pool.query(
@@ -775,19 +775,19 @@ app.get("/api/scrutins/stats", async (_req, res) => {
     const total = await pool.query("SELECT COUNT(*) AS count FROM scrutins WHERE legislature = 17");
     res.json({ total: parseInt(total.rows[0].count, 10), byResult: byResult.rows, byType: byType.rows });
   } catch (err) {
-    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
   }
 });
 
-// Recherche par mot-clÃ© sur l'ensemble des 8000+ scrutins (titre + objet),
-// pas seulement la fenÃªtre des 200 plus rÃ©cents â€” pour retrouver un dÃ©bat
-// spÃ©cifique (ex: un pesticide, une substance) mÃªme ancien dans la
-// lÃ©gislature. Le dÃ©tail nominatif des votes peut ne pas Ãªtre disponible pour
-// les rÃ©sultats hors de la fenÃªtre rÃ©cente (voir la fiche du scrutin).
+// Recherche par mot-clé sur l'ensemble des 8000+ scrutins (titre + objet),
+// pas seulement la fenêtre des 200 plus récents — pour retrouver un débat
+// spécifique (ex: un pesticide, une substance) même ancien dans la
+// législature. Le détail nominatif des votes peut ne pas être disponible pour
+// les résultats hors de la fenêtre récente (voir la fiche du scrutin).
 app.get("/api/scrutins/search", async (req, res) => {
   const q = (req.query.q || "").trim();
   if (q.length < 3) {
-    return res.status(400).json({ error: "Recherche trop courte (3 caractÃ¨res minimum)" });
+    return res.status(400).json({ error: "Recherche trop courte (3 caractères minimum)" });
   }
   try {
     const result = await pool.query(
@@ -800,7 +800,7 @@ app.get("/api/scrutins/search", async (req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
   }
 });
 
@@ -813,7 +813,7 @@ app.get("/api/scrutins/:legislature/:numero", async (req, res) => {
       [legislature, numero]
     );
     if (scrutinResult.rows.length === 0) {
-      return res.status(404).json({ error: "Scrutin non trouvÃ©" });
+      return res.status(404).json({ error: "Scrutin non trouvé" });
     }
     const votesResult = await pool.query(
       `SELECT dv.acteur_uid, dv.position, d.full_name, d.group_abbreviation
@@ -825,7 +825,7 @@ app.get("/api/scrutins/:legislature/:numero", async (req, res) => {
     );
     res.json({ scrutin: scrutinResult.rows[0], votes: votesResult.rows });
   } catch (err) {
-    res.status(503).json({ error: "DonnÃ©es non initialisÃ©es", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
   }
 });
 
@@ -834,7 +834,7 @@ app.post("/api/admin/ingest/deputies", requireIngestToken, async (_req, res) => 
     const result = await ingestDeputies(pool);
     res.json({ status: "ok", ...result });
   } catch (err) {
-    res.status(500).json({ error: "Ã‰chec de l'ingestion", detail: err.message });
+    res.status(500).json({ error: "Échec de l'ingestion", detail: err.message });
   }
 });
 
@@ -843,7 +843,7 @@ app.post("/api/admin/ingest/an-groups", requireIngestToken, async (_req, res) =>
     const result = await ingestGroups(pool);
     res.json({ status: "ok", ...result });
   } catch (err) {
-    res.status(500).json({ error: "Ã‰chec de l'ingestion", detail: err.message });
+    res.status(500).json({ error: "Échec de l'ingestion", detail: err.message });
   }
 });
 
@@ -852,7 +852,7 @@ app.post("/api/admin/ingest/scrutins", requireIngestToken, async (_req, res) => 
     const result = await ingestScrutins(pool);
     res.json({ status: "ok", ...result });
   } catch (err) {
-    res.status(500).json({ error: "Ã‰chec de l'ingestion", detail: err.message });
+    res.status(500).json({ error: "Échec de l'ingestion", detail: err.message });
   }
 });
 
@@ -861,11 +861,10 @@ app.post("/api/admin/ingest/deputy-votes", requireIngestToken, async (_req, res)
     const result = await ingestDeputyVotes(pool);
     res.json({ status: "ok", ...result });
   } catch (err) {
-    res.status(500).json({ error: "Ã‰chec de l'ingestion", detail: err.message });
+    res.status(500).json({ error: "Échec de l'ingestion", detail: err.message });
   }
 });
 
 app.listen(port, () => {
-  console.log(`API Pas de planÃ¨te B Ã  l'Ã©coute sur le port ${port}`);
+  console.log(`API Pas de planète B à l'écoute sur le port ${port}`);
 });
-
