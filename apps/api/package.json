@@ -17,19 +17,14 @@
     "ingest:electricity": "node src/ingest/electricity.js",
     "ingest:species-threatened": "node src/ingest/species_threatened.js",
     "ingest:pollution": "node src/ingest/pollution.js",
-    "ingest:world-benchmarks": "node src/ingest/world_benchmarks.js",
-    "ingest:deputies": "node src/ingest/deputies.js",
-    "ingest:scrutins": "node src/ingest/scrutins.js",
-    "ingest:deputy-votes": "node src/ingest/deputy_votes.js",
-    "ingest:an-groups": "node src/ingest/an_groups.js"
+    "ingest:world-benchmarks": "node src/ingest/world_benchmarks.js"
   },
   "dependencies": {
     "express": "^4.19.2",
     "pg": "^8.12.0",
     "csv-parse": "^5.5.6",
     "cors": "^2.8.5",
-    "i18n-iso-countries": "^7.11.2",
-    "adm-zip": "^0.5.16"
+    "i18n-iso-countries": "^7.11.2"
   },
   "devDependencies": {
     "eslint": "^9.9.0",

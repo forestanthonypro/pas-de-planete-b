@@ -15,6 +15,7 @@ const MAMMAL_URL = "https://ourworldindata.org/grapher/threatened-mammal-species
 const BIRD_URL = "https://ourworldindata.org/grapher/threatened-bird-species.csv?v=1&csvType=full&useColumnShortNames=false";
 const FISH_URL = "https://ourworldindata.org/grapher/fish-species-threatened.csv?v=1&csvType=full&useColumnShortNames=false";
 const GLOBAL_SHARE_URL = "https://ourworldindata.org/grapher/share-threatened-species.csv?v=1&csvType=full&useColumnShortNames=false";
+const GLOBAL_COUNT_URL = "https://ourworldindata.org/grapher/number-species-threatened.csv?v=1&csvType=full&useColumnShortNames=false";
 
 const SOURCE_LABEL = "IUCN Red List / UNEP-WCMC via Banque mondiale, via Our World in Data";
 const ISO3_RE = /^[A-Z]{3}$/;
@@ -27,11 +28,12 @@ async function fetchCsvRows(url) {
 }
 
 export async function ingestSpeciesThreatened(pool) {
-  const [mammalRows, birdRows, fishRows, globalShareRows] = await Promise.all([
+  const [mammalRows, birdRows, fishRows, globalShareRows, globalCountRows] = await Promise.all([
     fetchCsvRows(MAMMAL_URL),
     fetchCsvRows(BIRD_URL),
     fetchCsvRows(FISH_URL),
     fetchCsvRows(GLOBAL_SHARE_URL),
+    fetchCsvRows(GLOBAL_COUNT_URL),
   ]);
 
   let inserted = 0;
@@ -69,6 +71,25 @@ export async function ingestSpeciesThreatened(pool) {
     await upsertCountColumn(birdRows, "Bird species, threatened", "birds_threatened");
     await upsertCountColumn(fishRows, "Fish species, threatened", "fish_threatened");
 
+    // Comptage absolu, à recouper par groupe taxonomique (Entity) avec le %
+    // déjà récupéré ci-dessus — colonne exacte non garantie d'une version à
+    // l'autre du jeu de données OWID, d'où la recherche défensive du nom de
+    // colonne plutôt qu'un nom figé.
+    const countByEntity = {};
+    if (globalCountRows.length > 0) {
+      const countCol = Object.keys(globalCountRows[0]).find(
+        (k) => k !== "Entity" && k !== "Code" && k !== "Year" && /threat/i.test(k)
+      );
+      if (countCol) {
+        for (const row of globalCountRows) {
+          const value = row[countCol] === "" || row[countCol] === undefined ? null : parseInt(row[countCol], 10);
+          if (row.Entity && value !== null && !Number.isNaN(value)) {
+            countByEntity[row.Entity] = value;
+          }
+        }
+      }
+    }
+
     const shareCol = "Share of species threatened with extinction";
     for (const row of globalShareRows) {
       const year = parseInt(row.Year, 10);
@@ -78,14 +99,15 @@ export async function ingestSpeciesThreatened(pool) {
         continue;
       }
       await client.query(
-        `INSERT INTO species_threatened_global_share (taxon_group, share_percent, year, source)
-         VALUES ($1, $2, $3, $4)
+        `INSERT INTO species_threatened_global_share (taxon_group, share_percent, species_count, year, source)
+         VALUES ($1, $2, $3, $4, $5)
          ON CONFLICT (taxon_group)
          DO UPDATE SET
            share_percent = EXCLUDED.share_percent,
+           species_count = EXCLUDED.species_count,
            year = EXCLUDED.year,
            updated_at = now()`,
-        [row.Entity, value, Number.isNaN(year) ? null : year, "IUCN Red List Summary Statistics, via Our World in Data"]
+        [row.Entity, value, countByEntity[row.Entity] ?? null, Number.isNaN(year) ? null : year, "IUCN Red List Summary Statistics, via Our World in Data"]
       );
       inserted += 1;
     }

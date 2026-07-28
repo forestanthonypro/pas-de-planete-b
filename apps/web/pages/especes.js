@@ -281,14 +281,18 @@ export default function EspecesPage() {
           <>
             <h3 style={{ fontSize: 15, marginTop: "1.5rem" }}>Repère mondial (pas par pays)</h3>
             <p style={{ fontSize: 13, color: "#666" }}>
-              Pour donner un ordre de grandeur : voici le % d&apos;espèces menacées{" "}
-              <strong>dans le monde entier</strong>, par grand groupe (IUCN) — ce n&apos;est pas
-              spécifique à {selectedCountryName}.
+              Pour donner un ordre de grandeur : voici le nombre et le % d&apos;espèces menacées{" "}
+              <strong>dans le monde entier</strong>, par grand groupe (IUCN Red List, via Our World
+              in Data) — ce n&apos;est pas spécifique à {selectedCountryName}. Ces chiffres se
+              mettent à jour automatiquement (source ouverte, republiée légalement par OWID — les
+              données brutes de l&apos;IUCN elle-même ne peuvent pas être redistribuées
+              automatiquement selon ses propres conditions d&apos;utilisation).
             </p>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr>
                   <th scope="col" style={{ textAlign: "left", padding: 6 }}>Groupe</th>
+                  <th scope="col" style={{ textAlign: "right", padding: 6 }}>Espèces menacées</th>
                   <th scope="col" style={{ textAlign: "right", padding: 6 }}>% menacé dans le monde</th>
                 </tr>
               </thead>
@@ -296,6 +300,7 @@ export default function EspecesPage() {
                 {globalShare.map((g) => (
                   <tr key={g.taxon_group}>
                     <th scope="row" style={{ textAlign: "left", padding: 6, fontWeight: 400 }}>{g.taxon_group}</th>
+                    <td style={{ textAlign: "right", padding: 6 }}>{g.species_count != null ? g.species_count.toLocaleString("fr-FR") : "—"}</td>
                     <td style={{ textAlign: "right", padding: 6 }}>{g.share_percent} %</td>
                   </tr>
                 ))}
