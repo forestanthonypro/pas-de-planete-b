@@ -912,6 +912,81 @@ app.post("/api/newsletter/unsubscribe", async (req, res) => {
   }
 });
 
+// --- Rubrique DEBUNK ---
+// Contenu éditorial (pas ingéré automatiquement) — ajouté/modifié via les
+// routes protégées ci-dessous, avec le même jeton que les routes d'admin
+// d'ingestion. Seules les entrées "published = true" sont visibles
+// publiquement.
+
+app.get("/api/debunk", async (_req, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT slug, myth, category, updated_at FROM debunk_entries WHERE published = true ORDER BY updated_at DESC"
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+  }
+});
+
+app.get("/api/debunk/:slug", async (req, res) => {
+  try {
+    const entryResult = await pool.query(
+      "SELECT * FROM debunk_entries WHERE slug = $1 AND published = true",
+      [req.params.slug]
+    );
+    if (entryResult.rows.length === 0) {
+      return res.status(404).json({ error: "Entrée non trouvée" });
+    }
+    const sourcesResult = await pool.query(
+      "SELECT label, url FROM debunk_sources WHERE debunk_slug = $1 ORDER BY id",
+      [req.params.slug]
+    );
+    res.json({ entry: entryResult.rows[0], sources: sourcesResult.rows });
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+  }
+});
+
+// Création/mise à jour d'une entrée — protégé, réservé à la rédaction du
+// site. "sources" est un tableau [{label, url}, ...].
+app.post("/api/admin/debunk", requireIngestToken, async (req, res) => {
+  const { slug, myth, reality, category, published, sources } = req.body || {};
+  if (!slug || !myth || !reality) {
+    return res.status(400).json({ error: "slug, myth et reality sont requis" });
+  }
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    await client.query(
+      `INSERT INTO debunk_entries (slug, myth, reality, category, published, updated_at)
+       VALUES ($1, $2, $3, $4, $5, now())
+       ON CONFLICT (slug)
+       DO UPDATE SET myth = EXCLUDED.myth, reality = EXCLUDED.reality, category = EXCLUDED.category,
+                     published = EXCLUDED.published, updated_at = now()`,
+      [slug, myth, reality, category || null, published === true]
+    );
+    if (Array.isArray(sources)) {
+      await client.query("DELETE FROM debunk_sources WHERE debunk_slug = $1", [slug]);
+      for (const s of sources) {
+        if (s?.label && s?.url) {
+          await client.query(
+            "INSERT INTO debunk_sources (debunk_slug, label, url) VALUES ($1, $2, $3)",
+            [slug, s.label, s.url]
+          );
+        }
+      }
+    }
+    await client.query("COMMIT");
+    res.json({ status: "ok" });
+  } catch (err) {
+    await client.query("ROLLBACK");
+    res.status(500).json({ error: "Échec de l'enregistrement", detail: err.message });
+  } finally {
+    client.release();
+  }
+});
+
 app.listen(port, () => {
   console.log(`API Pas de planète B à l'écoute sur le port ${port}`);
 });

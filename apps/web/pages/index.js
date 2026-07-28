@@ -32,6 +32,10 @@ export default function Home() {
         <li><Link href="/groupes">Groupes politiques →</Link></li>
         <li><Link href="/scrutins">Derniers scrutins →</Link></li>
       </ul>
+      <h2 style={{ fontSize: 18, marginTop: "1.5rem" }}>S&apos;engager</h2>
+      <ul>
+        <li><Link href="/debunk">Débunk — idées reçues passées au crible →</Link></li>
+      </ul>
     </main>
   );
 }
