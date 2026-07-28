@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 
@@ -11,6 +11,7 @@ const POSITION_LABELS = {
   absent: { label: "Absent / non-votant", color: "#95a5a6" },
   "non-votant": { label: "Absent / non-votant", color: "#95a5a6" },
 };
+const POSITIONS = ["pour", "contre", "abstention", "absent"];
 
 export default function ScrutinPage() {
   const router = useRouter();
@@ -20,6 +21,8 @@ export default function ScrutinPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [groupFilter, setGroupFilter] = useState("");
+  const canvasRef = useRef(null);
+  const chartRef = useRef(null);
 
   useEffect(() => {
     if (!legislature || !numero) return;
@@ -47,6 +50,52 @@ export default function ScrutinPage() {
     acc[v.position] = (acc[v.position] || 0) + 1;
     return acc;
   }, {});
+
+  useEffect(() => {
+    if (votes.length === 0 || groups.length === 0) return;
+    let cancelled = false;
+    import("chart.js/auto").then(({ default: Chart }) => {
+      if (cancelled || !canvasRef.current) return;
+      if (chartRef.current) chartRef.current.destroy();
+
+      // Une barre empilée par groupe politique : combien de "pour"/"contre"/
+      // "abstention"/"absent" en son sein, pour visualiser d'un coup d'œil si
+      // un groupe a voté de façon homogène ou partagée.
+      const byGroup = {};
+      for (const v of votes) {
+        const g = v.group_abbreviation || "?";
+        if (!byGroup[g]) byGroup[g] = { pour: 0, contre: 0, abstention: 0, absent: 0 };
+        const pos = POSITIONS.includes(v.position) ? v.position : "absent";
+        byGroup[g][pos] += 1;
+      }
+      const groupLabels = Object.keys(byGroup).sort(
+        (a, b) => Object.values(byGroup[b]).reduce((s, n) => s + n, 0) - Object.values(byGroup[a]).reduce((s, n) => s + n, 0)
+      );
+
+      chartRef.current = new Chart(canvasRef.current, {
+        type: "bar",
+        data: {
+          labels: groupLabels,
+          datasets: POSITIONS.map((pos) => ({
+            label: POSITION_LABELS[pos].label,
+            data: groupLabels.map((g) => byGroup[g][pos]),
+            backgroundColor: POSITION_LABELS[pos].color,
+          })),
+        },
+        options: {
+          indexAxis: "y",
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: { x: { stacked: true }, y: { stacked: true } },
+          plugins: { legend: { position: "bottom" } },
+        },
+      });
+    });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [votes]);
 
   return (
     <main style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
@@ -81,6 +130,9 @@ export default function ScrutinPage() {
                   .map(([pos, count]) => `${POSITION_LABELS[pos]?.label || pos} : ${count}`)
                   .join(" · ")}
               </p>
+              <div style={{ position: "relative", height: Math.max(160, groups.length * 40) }}>
+                <canvas ref={canvasRef} role="img" aria-label="Répartition des votes par groupe politique" />
+              </div>
               <label style={{ display: "block", marginTop: "1rem", marginBottom: "0.5rem" }}>
                 Filtrer par groupe{" "}
                 <select value={groupFilter} onChange={(e) => setGroupFilter(e.target.value)}>

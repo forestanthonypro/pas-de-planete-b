@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 
@@ -19,6 +19,8 @@ export default function DeputyPage() {
   const [votes, setVotes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const canvasRef = useRef(null);
+  const chartRef = useRef(null);
 
   useEffect(() => {
     if (!acteurUid) return;
@@ -44,6 +46,40 @@ export default function DeputyPage() {
     acc[v.position] = (acc[v.position] || 0) + 1;
     return acc;
   }, {});
+
+  useEffect(() => {
+    if (votes.length === 0) return;
+    let cancelled = false;
+    import("chart.js/auto").then(({ default: Chart }) => {
+      if (cancelled || !canvasRef.current) return;
+      if (chartRef.current) chartRef.current.destroy();
+
+      const positions = ["pour", "contre", "abstention", "absent"];
+      const counts = positions.map((p) => tally[p] || 0);
+
+      chartRef.current = new Chart(canvasRef.current, {
+        type: "doughnut",
+        data: {
+          labels: positions.map((p) => POSITION_LABELS[p].label),
+          datasets: [
+            {
+              data: counts,
+              backgroundColor: positions.map((p) => POSITION_LABELS[p].color),
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: "right" } },
+        },
+      });
+    });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [votes]);
 
   return (
     <main style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
@@ -76,6 +112,12 @@ export default function DeputyPage() {
             l&apos;historique complet de la législature) — ce n&apos;est donc pas un bilan complet
             du mandat.
           </p>
+
+          {votes.length > 0 && (
+            <div style={{ position: "relative", height: 220, maxWidth: 400 }}>
+              <canvas ref={canvasRef} role="img" aria-label={`Répartition des votes de ${deputy.full_name}`} />
+            </div>
+          )}
 
           {votes.length === 0 ? (
             <p>Aucune donnée de vote disponible pour ce député sur la période couverte.</p>

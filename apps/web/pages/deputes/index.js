@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/router";
 import Link from "next/link";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
@@ -18,6 +19,11 @@ export default function DeputesPage() {
   const [error, setError] = useState(null);
   const [query, setQuery] = useState("");
   const [groupFilter, setGroupFilter] = useState("");
+  const router = useRouter();
+
+  useEffect(() => {
+    if (typeof router.query.groupe === "string") setGroupFilter(router.query.groupe);
+  }, [router.query.groupe]);
 
   useEffect(() => {
     setLoading(true);

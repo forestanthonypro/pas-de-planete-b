@@ -27,6 +27,7 @@ export default function Home() {
       <h2 style={{ fontSize: 18, marginTop: "1.5rem" }}>Démocratie (France)</h2>
       <ul>
         <li><Link href="/deputes">Députés de l&apos;Assemblée nationale →</Link></li>
+        <li><Link href="/groupes">Groupes politiques →</Link></li>
         <li><Link href="/scrutins">Derniers scrutins →</Link></li>
       </ul>
     </main>
