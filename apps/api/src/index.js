@@ -728,6 +728,31 @@ app.get("/api/scrutins/stats", async (_req, res) => {
   }
 });
 
+// Recherche par mot-clé sur l'ensemble des 8000+ scrutins (titre + objet),
+// pas seulement la fenêtre des 200 plus récents — pour retrouver un débat
+// spécifique (ex: un pesticide, une substance) même ancien dans la
+// législature. Le détail nominatif des votes peut ne pas être disponible pour
+// les résultats hors de la fenêtre récente (voir la fiche du scrutin).
+app.get("/api/scrutins/search", async (req, res) => {
+  const q = (req.query.q || "").trim();
+  if (q.length < 3) {
+    return res.status(400).json({ error: "Recherche trop courte (3 caractères minimum)" });
+  }
+  try {
+    const result = await pool.query(
+      `SELECT legislature, numero, scrutin_date, title, objet, type_vote_label, result_code, result_label
+       FROM scrutins
+       WHERE legislature = 17 AND (title ILIKE $1 OR objet ILIKE $1)
+       ORDER BY scrutin_date DESC NULLS LAST
+       LIMIT 100`,
+      [`%${q}%`]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+  }
+});
+
 app.get("/api/scrutins/:legislature/:numero", async (req, res) => {
   const legislature = parseInt(req.params.legislature, 10);
   const numero = parseInt(req.params.numero, 10);

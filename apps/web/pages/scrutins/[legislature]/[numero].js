@@ -126,6 +126,8 @@ export default function ScrutinPage() {
           ) : (
             <>
               <p style={{ fontSize: 14 }}>
+                Résultat global de l&apos;Assemblée :{" "}
+                <strong>{scrutin.result_label || scrutin.result_code || "—"}</strong> —{" "}
                 {Object.entries(tally)
                   .map(([pos, count]) => `${POSITION_LABELS[pos]?.label || pos} : ${count}`)
                   .join(" · ")}
@@ -133,6 +135,48 @@ export default function ScrutinPage() {
               <div style={{ position: "relative", height: Math.max(160, groups.length * 40) }}>
                 <canvas ref={canvasRef} role="img" aria-label="Répartition des votes par groupe politique" />
               </div>
+
+              <h2 style={{ fontSize: 16, marginTop: "1.5rem" }}>Position de chaque groupe</h2>
+              <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "1rem" }}>
+                <thead>
+                  <tr>
+                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>Groupe</th>
+                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>Position majoritaire</th>
+                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>Détail</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {groups.map((g) => {
+                    const groupVotes = votes.filter((v) => v.group_abbreviation === g);
+                    const groupTally = groupVotes.reduce((acc, v) => {
+                      const pos = POSITIONS.includes(v.position) ? v.position : "absent";
+                      acc[pos] = (acc[pos] || 0) + 1;
+                      return acc;
+                    }, {});
+                    const votingPositions = ["pour", "contre", "abstention"];
+                    const votingCounts = votingPositions.map((p) => groupTally[p] || 0);
+                    const maxCount = Math.max(...votingCounts);
+                    const winners = votingPositions.filter((p, i) => votingCounts[i] === maxCount && maxCount > 0);
+                    const majority = winners.length === 1 ? winners[0] : null;
+                    return (
+                      <tr key={g}>
+                        <th scope="row" style={{ textAlign: "left", padding: 8, fontWeight: 400 }}>
+                          <Link href={`/deputes?groupe=${g}`}>{g}</Link>
+                        </th>
+                        <td style={{ padding: 8, color: majority ? POSITION_LABELS[majority].color : "#666", fontWeight: 600 }}>
+                          {majority ? POSITION_LABELS[majority].label : "Partagé (pas de majorité claire)"}
+                        </td>
+                        <td style={{ padding: 8, fontSize: 13, color: "#666" }}>
+                          {Object.entries(groupTally)
+                            .map(([pos, count]) => `${POSITION_LABELS[pos]?.label || pos} : ${count}`)
+                            .join(" · ")}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+
               <label style={{ display: "block", marginTop: "1rem", marginBottom: "0.5rem" }}>
                 Filtrer par groupe{" "}
                 <select value={groupFilter} onChange={(e) => setGroupFilter(e.target.value)}>

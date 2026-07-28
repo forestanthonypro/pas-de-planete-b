@@ -10,6 +10,35 @@ export default function ScrutinsPage() {
   const [error, setError] = useState(null);
   const canvasRef = useRef(null);
   const chartRef = useRef(null);
+  const [query, setQuery] = useState("");
+  const [searchResults, setSearchResults] = useState(null);
+  const [searching, setSearching] = useState(false);
+  const [searchError, setSearchError] = useState(null);
+
+  function handleSearch(e) {
+    e.preventDefault();
+    const q = query.trim();
+    if (q.length < 3) {
+      setSearchError("Tape au moins 3 caractères.");
+      setSearchResults(null);
+      return;
+    }
+    setSearching(true);
+    setSearchError(null);
+    fetch(`${API_URL}/api/scrutins/search?q=${encodeURIComponent(q)}`)
+      .then((res) => {
+        if (!res.ok) throw new Error("Erreur lors de la recherche");
+        return res.json();
+      })
+      .then((rows) => {
+        setSearchResults(rows);
+        setSearching(false);
+      })
+      .catch((err) => {
+        setSearchError(err.message);
+        setSearching(false);
+      });
+  }
 
   useEffect(() => {
     Promise.all([
@@ -64,6 +93,66 @@ export default function ScrutinsPage() {
   return (
     <main style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
       <h1>Scrutins — Assemblée nationale (17e législature)</h1>
+
+      <form onSubmit={handleSearch} style={{ marginBottom: "1rem" }}>
+        <label htmlFor="scrutin-search" style={{ display: "block", marginBottom: "0.25rem" }}>
+          Rechercher un scrutin par mot-clé (ex : &laquo; cadmium &raquo;, &laquo; acétamipride &raquo;)
+        </label>
+        <div style={{ display: "flex", gap: "0.5rem" }}>
+          <input
+            id="scrutin-search"
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Rechercher dans le titre et l'objet du scrutin..."
+            style={{ padding: "6px 10px", minWidth: 320, flex: 1 }}
+          />
+          <button type="submit">Rechercher</button>
+        </div>
+        <p style={{ fontSize: 12, color: "#666", marginTop: "0.25rem" }}>
+          Cherche sur les 8000+ scrutins de la législature, pas seulement les 200 plus récents
+          affichés plus bas.
+        </p>
+      </form>
+
+      {searching && <p>Recherche en cours...</p>}
+      {searchError && <p role="alert">{searchError}</p>}
+
+      {searchResults && (
+        <section style={{ marginBottom: "2rem", padding: "1rem", background: "#f7f7f7", borderRadius: 8 }}>
+          <h2 style={{ fontSize: 16, marginTop: 0 }}>
+            {searchResults.length} résultat{searchResults.length !== 1 ? "s" : ""} pour &laquo; {query} &raquo;
+          </h2>
+          {searchResults.length === 0 ? (
+            <p style={{ fontSize: 13, color: "#666" }}>Aucun scrutin trouvé pour ce mot-clé.</p>
+          ) : (
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <thead>
+                <tr>
+                  <th scope="col" style={{ textAlign: "left", padding: 8 }}>Date</th>
+                  <th scope="col" style={{ textAlign: "left", padding: 8 }}>Objet</th>
+                  <th scope="col" style={{ textAlign: "left", padding: 8 }}>Résultat</th>
+                </tr>
+              </thead>
+              <tbody>
+                {searchResults.map((s) => (
+                  <tr key={s.numero}>
+                    <td style={{ padding: 8, whiteSpace: "nowrap" }}>
+                      {s.scrutin_date ? new Date(s.scrutin_date).toLocaleDateString("fr-FR") : "—"}
+                    </td>
+                    <td style={{ padding: 8 }}>
+                      <Link href={`/scrutins/${s.legislature}/${s.numero}`}>
+                        {s.title || s.objet || `Scrutin n°${s.numero}`}
+                      </Link>
+                    </td>
+                    <td style={{ padding: 8 }}>{s.result_label || s.result_code || "—"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </section>
+      )}
 
       {stats && (
         <>
