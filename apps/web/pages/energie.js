@@ -45,7 +45,7 @@ export default function EnergiePage() {
     for (const p of plants) {
       const key = p.fuel_type || "Autre";
       if (!byFuel[key]) byFuel[key] = { fuel_type: key, total_capacity_mw: 0, plant_count: 0 };
-      byFuel[key].total_capacity_mw += p.capacity_mw || 0;
+      byFuel[key].total_capacity_mw += parseFloat(p.capacity_mw) || 0;
       byFuel[key].plant_count += 1;
     }
     return Object.values(byFuel).sort((a, b) => b.total_capacity_mw - a.total_capacity_mw);
