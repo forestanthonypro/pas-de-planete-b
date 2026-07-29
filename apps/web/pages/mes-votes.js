@@ -3,6 +3,8 @@ import Link from "next/link";
 import { getAnonymousId, getConsent, resetConsentChoice, forgetLocalIdentity } from "../lib/anonymousId";
 import { fetchCitizenVotes, fetchCitizenAlignment, deleteAllCitizenVotes } from "../lib/citizenVotes";
 import { useT } from "../lib/useT";
+import PageHeader from "../components/PageHeader";
+import { IconCheck } from "../components/icons";
 
 const POSITION_LABELS_KEYS = { pour: "scrutins.pos_pour", contre: "scrutins.pos_contre", abstention: "scrutins.pos_abstention" };
 
@@ -61,7 +63,7 @@ export default function MesVotesPage() {
 
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 800, margin: "0 auto" }}>
-      <h1>{t("citizenVote.page_title")}</h1>
+      <PageHeader Icon={IconCheck} tint="blue" title={t("citizenVote.page_title")} />
       <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginBottom: "1.5rem" }}>{t("citizenVote.page_intro")}</p>
 
       <section style={{ background: "var(--color-carte)", border: "1px solid var(--color-bordure)", borderRadius: 12, padding: "1rem", marginBottom: "1.5rem" }}>

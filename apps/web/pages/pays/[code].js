@@ -10,6 +10,7 @@ import { useLastUpdated, formatDate } from "../../lib/useLastUpdated";
 import { localizedCountryName } from "../../lib/countryNames";
 import { useWorldBenchmarks } from "../../lib/useWorldBenchmarks";
 import CountrySelect from "../../components/CountrySelect";
+import { IconLeaf } from "../../components/icons";
 import ShareButtons from "../../components/ShareButtons";
 import { useSobriety } from "../../lib/SobrietyContext";
 import { barEndLabelsPlugin } from "../../lib/barEndLabelsPlugin";
@@ -965,7 +966,14 @@ export default function PaysDashboard() {
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "1rem" }}>
-        <h1>{countryName}</h1>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          {!sobriety && (
+            <div style={{ width: 38, height: 38, borderRadius: 10, background: "#eaf3de", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <IconLeaf size={20} style={{ color: "#1b5e20" }} />
+            </div>
+          )}
+          <h1 style={{ margin: 0 }}>{countryName}</h1>
+        </div>
         <ShareButtons title={`Pas de planète B — ${countryName}`} />
         <CountrySelect
           countries={countries}

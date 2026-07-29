@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import ShareButtons from "../../components/ShareButtons";
+import PageHeader from "../../components/PageHeader";
+import { IconSearch } from "../../components/icons";
 import { useT } from "../../lib/useT";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
@@ -54,10 +56,9 @@ export default function DebunkPage() {
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: "1rem" }}>
-        <div>
-          <h1 style={{ margin: 0 }}>{t("debunk.title")}</h1>
-          <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginTop: 8, maxWidth: 600 }}>{t("debunk.intro")}</p>
-        </div>
+        <PageHeader Icon={IconSearch} tint="teal" title={t("debunk.title")}>
+          <p style={{ fontSize: 13, color: "var(--color-texte-clair)", maxWidth: 600, margin: 0 }}>{t("debunk.intro")}</p>
+        </PageHeader>
         {categories.length > 0 && (
           <select
             value={categoryFilter}

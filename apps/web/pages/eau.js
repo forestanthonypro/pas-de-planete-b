@@ -4,6 +4,8 @@ import { detectPreferredLanguage } from "../lib/detectLanguage";
 import { useLastUpdated, formatDate } from "../lib/useLastUpdated";
 import { localizedCountryName } from "../lib/countryNames";
 import CountrySelect from "../components/CountrySelect";
+import PageHeader from "../components/PageHeader";
+import { IconDroplet } from "../components/icons";
 import ShareButtons from "../components/ShareButtons";
 import { useWorldBenchmarks } from "../lib/useWorldBenchmarks";
 import { useT } from "../lib/useT";
@@ -205,7 +207,7 @@ export default function EauPage() {
 
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 800, margin: "0 auto" }}>
-      <h1>{t("eau.title")} — {selectedCountryName}</h1>
+      <PageHeader Icon={IconDroplet} tint="blue" title={t("eau.title")} — {selectedCountryName} />
       <ShareButtons title={`${t("eau.title")} — ${selectedCountryName}`} />
 
       <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem", flexWrap: "wrap" }}>

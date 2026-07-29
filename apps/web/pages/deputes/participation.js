@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useT } from "../../lib/useT";
+import PageHeader from "../../components/PageHeader";
+import { IconUsers } from "../../components/icons";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -54,7 +56,7 @@ export default function ParticipationPage() {
 
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
-      <h1>{t("deputes.participation_title")}</h1>
+      <PageHeader Icon={IconUsers} tint="blue" title={t("deputes.participation_title")} />
       <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginBottom: "1rem" }}>
         {t("deputes.participation_intro1", { minVotes })}
       </p>

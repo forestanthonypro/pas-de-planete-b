@@ -5,6 +5,8 @@ import { localizedCountryName } from "../lib/countryNames";
 import { useLastUpdated, formatDate } from "../lib/useLastUpdated";
 import { useWorldBenchmarks } from "../lib/useWorldBenchmarks";
 import CountrySelect from "../components/CountrySelect";
+import PageHeader from "../components/PageHeader";
+import { IconSmog } from "../components/icons";
 import ShareButtons from "../components/ShareButtons";
 import { useT } from "../lib/useT";
 
@@ -120,7 +122,7 @@ export default function PollutionPage() {
 
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 800, margin: "0 auto" }}>
-      <h1>{t("pollution.title")} — {selectedCountryName}</h1>
+      <PageHeader Icon={IconSmog} tint="mauve" title={t("pollution.title")} — {selectedCountryName} />
       <ShareButtons title={`${t("pollution.title")} — ${selectedCountryName}`} />
 
       <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem", flexWrap: "wrap" }}>

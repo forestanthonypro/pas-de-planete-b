@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import ShareButtons from "../../components/ShareButtons";
+import PageHeader from "../../components/PageHeader";
+import { IconScale } from "../../components/icons";
 import { useT } from "../../lib/useT";
 import { getConsent, getAnonymousId } from "../../lib/anonymousId";
 import { fetchCitizenVotes } from "../../lib/citizenVotes";
@@ -111,7 +113,7 @@ export default function ScrutinsPage() {
 
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
-      <h1>{t("scrutins.title")}</h1>
+      <PageHeader Icon={IconScale} tint="blue" title={t("scrutins.title")} />
       <ShareButtons title={t("scrutins.title")} />
 
       <form onSubmit={handleSearch} style={{ marginBottom: "1rem" }}>

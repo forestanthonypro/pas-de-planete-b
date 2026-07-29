@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import ShareButtons from "../../components/ShareButtons";
+import PageHeader from "../../components/PageHeader";
+import { IconLandmark } from "../../components/icons";
 import { useT } from "../../lib/useT";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
@@ -81,7 +83,7 @@ export default function GroupDetailPage() {
 
       {!loading && !error && group && (
         <>
-          <h1>{group.name} ({group.abbreviation})</h1>
+          <PageHeader Icon={IconLandmark} tint="blue" title={group.name} ({group.abbreviation}) />
           <ShareButtons title={`${group.name} (${group.abbreviation})`} />
 
           <p style={{ color: "var(--color-texte-clair)" }}>

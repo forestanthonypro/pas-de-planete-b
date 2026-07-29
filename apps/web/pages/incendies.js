@@ -4,6 +4,8 @@ import { detectPreferredLanguage } from "../lib/detectLanguage";
 import { useLastUpdated, formatDate } from "../lib/useLastUpdated";
 import { localizedCountryName } from "../lib/countryNames";
 import CountrySelect from "../components/CountrySelect";
+import PageHeader from "../components/PageHeader";
+import { IconFlame } from "../components/icons";
 import ShareButtons from "../components/ShareButtons";
 import { useSobriety } from "../lib/SobrietyContext";
 import { useT } from "../lib/useT";
@@ -107,7 +109,7 @@ export default function IncendiesPage() {
 
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
-      <h1>{t("incendies.title")} — {selectedCountryName}</h1>
+      <PageHeader Icon={IconFlame} tint="red" title={t("incendies.title")} — {selectedCountryName} />
       <ShareButtons title={`${t("incendies.title")} — ${selectedCountryName}`} />
 
       <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginBottom: "1rem" }}>{t("incendies.intro_p1")}</p>

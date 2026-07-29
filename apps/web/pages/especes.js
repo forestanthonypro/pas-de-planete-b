@@ -7,6 +7,8 @@ import { detectPreferredLanguage } from "../lib/detectLanguage";
 import { useLastUpdated, formatDate } from "../lib/useLastUpdated";
 import { localizedCountryName } from "../lib/countryNames";
 import CountrySelect from "../components/CountrySelect";
+import PageHeader from "../components/PageHeader";
+import { IconPaw } from "../components/icons";
 import ShareButtons from "../components/ShareButtons";
 import { useT } from "../lib/useT";
 
@@ -150,7 +152,7 @@ export default function EspecesPage() {
 
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
-      <h1>{t("especes.title")} — {selectedCountryName}</h1>
+      <PageHeader Icon={IconPaw} tint="tan" title={t("especes.title")} — {selectedCountryName} />
       <ShareButtons title={`${t("especes.title")} — ${selectedCountryName}`} />
 
       <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginBottom: "1rem" }}>{t("especes.intro_p1")}</p>

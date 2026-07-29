@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import ShareButtons from "../../components/ShareButtons";
+import PageHeader from "../../components/PageHeader";
+import { IconUsers } from "../../components/icons";
 import { useT } from "../../lib/useT";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
@@ -109,7 +111,7 @@ export default function DeputyPage() {
 
       {!loading && !error && deputy && (
         <>
-          <h1>{deputy.full_name}</h1>
+          <PageHeader Icon={IconUsers} tint="blue" title={deputy.full_name} />
           <ShareButtons title={`${deputy.full_name}`} />
 
           <p style={{ color: "var(--color-texte-clair)" }}>

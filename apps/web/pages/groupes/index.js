@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import ShareButtons from "../../components/ShareButtons";
+import PageHeader from "../../components/PageHeader";
+import { IconLandmark } from "../../components/icons";
 import { useT } from "../../lib/useT";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
@@ -106,7 +108,7 @@ export default function GroupesPage() {
 
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
-      <h1>{t("groupes.title")}</h1>
+      <PageHeader Icon={IconLandmark} tint="blue" title={t("groupes.title")} />
       <ShareButtons title={t("groupes.title")} />
 
       <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginBottom: "1rem" }}>{t("groupes.intro")}</p>

@@ -5,6 +5,8 @@ import { FUEL_COLORS, DEFAULT_FUEL_COLOR, translateFuel } from "../lib/fuelTypes
 import { useLastUpdated, formatDate } from "../lib/useLastUpdated";
 import { localizedCountryName } from "../lib/countryNames";
 import CountrySelect from "../components/CountrySelect";
+import PageHeader from "../components/PageHeader";
+import { IconBolt } from "../components/icons";
 import ShareButtons from "../components/ShareButtons";
 import { useSobriety } from "../lib/SobrietyContext";
 import { barEndLabelsPlugin } from "../lib/barEndLabelsPlugin";
@@ -246,7 +248,7 @@ export default function EnergiePage() {
 
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
-      <h1>{t("energie.title")}</h1>
+      <PageHeader Icon={IconBolt} tint="amber" title={t("energie.title")} />
       <ShareButtons title={t("energie.title")} />
 
       <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem", flexWrap: "wrap" }}>

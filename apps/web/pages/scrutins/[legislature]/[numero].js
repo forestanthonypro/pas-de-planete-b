@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import ShareButtons from "../../../components/ShareButtons";
+import PageHeader from "../../../components/PageHeader";
+import { IconScale } from "../../../components/icons";
 import CitizenVote from "../../../components/CitizenVote";
 import { useT } from "../../../lib/useT";
 
@@ -130,7 +132,7 @@ export default function ScrutinPage() {
 
       {!loading && !error && scrutin && (
         <>
-          <h1>{scrutin.title || scrutin.objet || `Scrutin n°${scrutin.numero}`}</h1>
+          <PageHeader Icon={IconScale} tint="blue" title={scrutin.title || scrutin.objet || `Scrutin n°${scrutin.numero}`} />
           <ShareButtons title={scrutin.title || scrutin.objet || `Scrutin n°${scrutin.numero}`} />
 
           <CitizenVote
