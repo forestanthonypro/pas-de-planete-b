@@ -109,7 +109,7 @@ export default function GroupesPage() {
       <h1>{t("groupes.title")}</h1>
       <ShareButtons title={t("groupes.title")} />
 
-      <p style={{ fontSize: 13, color: "#666", marginBottom: "1rem" }}>{t("groupes.intro")}</p>
+      <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginBottom: "1rem" }}>{t("groupes.intro")}</p>
 
       {loading && <p>{t("common.loading")}</p>}
       {error && <p role="alert">{t("common.error_prefix")} {error}</p>}
@@ -121,7 +121,7 @@ export default function GroupesPage() {
           </div>
 
           <h2 style={{ fontSize: 18, marginTop: "2rem" }}>{t("groupes.cohesion_title")}</h2>
-          <p style={{ fontSize: 13, color: "#666", marginBottom: "0.75rem" }}>{t("groupes.cohesion_explain")}</p>
+          <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginBottom: "0.75rem" }}>{t("groupes.cohesion_explain")}</p>
           <div style={{ position: "relative", height: Math.max(200, Object.keys(cohesion).length * 34) }}>
             <canvas ref={cohesionCanvasRef} role="img" aria-label={t("groupes.chart_alt_cohesion")} />
           </div>
@@ -157,7 +157,7 @@ export default function GroupesPage() {
         </>
       )}
 
-      <p style={{ fontSize: 12, color: "#666", marginTop: "1rem" }}>
+      <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginTop: "1rem" }}>
         {t("groupes.source")}{" "}
         <Link href="/deputes">{t("groupes.back_to_deputies")}</Link>
       </p>

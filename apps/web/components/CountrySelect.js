@@ -106,8 +106,8 @@ export default function CountrySelect({ countries, value, onChange, preferredLan
             right: 0,
             maxHeight: 260,
             overflowY: "auto",
-            background: "white",
-            border: "1px solid #ccc",
+            background: "var(--color-fond)",
+            border: "1px solid var(--color-bordure)",
             borderRadius: 4,
             margin: 0,
             padding: 0,
@@ -116,7 +116,7 @@ export default function CountrySelect({ countries, value, onChange, preferredLan
           }}
         >
           {filtered.length === 0 && (
-            <li style={{ padding: "6px 10px", color: "#999", fontSize: 13 }}>{t("common.no_results")}</li>
+            <li style={{ padding: "6px 10px", color: "var(--color-texte-clair)", fontSize: 13 }}>{t("common.no_results")}</li>
           )}
           {filtered.map((code, i) => (
             <li

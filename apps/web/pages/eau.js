@@ -238,9 +238,9 @@ export default function EauPage() {
               <h2 style={{ fontSize: 18, marginTop: "2rem", marginBottom: "0.25rem" }}>
                 {t("eau.second_chart_title")}
               </h2>
-              <p style={{ fontSize: 13, color: "#666", marginBottom: "0.75rem" }}>{t("eau.explain_p1")}</p>
-              <p style={{ fontSize: 13, color: "#666", marginBottom: "0.75rem" }}>{t("eau.explain_p2")}</p>
-              <p style={{ fontSize: 13, color: "#666", marginBottom: "0.75rem" }}>{t("eau.explain_p3")}</p>
+              <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginBottom: "0.75rem" }}>{t("eau.explain_p1")}</p>
+              <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginBottom: "0.75rem" }}>{t("eau.explain_p2")}</p>
+              <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginBottom: "0.75rem" }}>{t("eau.explain_p3")}</p>
               <div style={{ position: "relative", height: 220 }}>
                 <canvas ref={stressCanvasRef} role="img" aria-label={t("eau.chart_stress")} />
               </div>
@@ -251,7 +251,7 @@ export default function EauPage() {
 
       {!loading && !error && view === "table" && (
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
-          <caption style={{ textAlign: "left", fontSize: 12, color: "#666", marginBottom: 8 }}>
+          <caption style={{ textAlign: "left", fontSize: 12, color: "var(--color-texte-clair)", marginBottom: 8 }}>
             {t("eau.table_caption", { country: selectedCountryName })}
           </caption>
           <thead>
@@ -292,7 +292,7 @@ export default function EauPage() {
         <p>{t("eau.details_p3")}</p>
       </details>
 
-      <p style={{ fontSize: 12, color: "#666", marginTop: "1rem" }}>
+      <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginTop: "1rem" }}>
         {t("eau.source")}
         {lastUpdated?.water?.latestYear && (
           <> {t("eau.source_latest_year", { year: lastUpdated.water.latestYear })}</>

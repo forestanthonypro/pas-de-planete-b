@@ -139,7 +139,7 @@ export default function PollutionPage() {
       {error && <p role="alert">{t("common.error_prefix")} {error}</p>}
 
       <h2 style={{ fontSize: 18, marginBottom: "0.25rem" }}>{t("pollution.what_shows_title")}</h2>
-      <p style={{ fontSize: 13, color: "#666", marginBottom: "0.75rem" }}>{t("pollution.explain_p1")}</p>
+      <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginBottom: "0.75rem" }}>{t("pollution.explain_p1")}</p>
 
       {!loading && !error && view === "chart" && (
         <div style={{ position: "relative", height: 340 }}>
@@ -149,7 +149,7 @@ export default function PollutionPage() {
 
       {!loading && !error && view === "table" && (
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
-          <caption style={{ textAlign: "left", fontSize: 12, color: "#666", marginBottom: 8 }}>
+          <caption style={{ textAlign: "left", fontSize: 12, color: "var(--color-texte-clair)", marginBottom: 8 }}>
             {t("pollution.table_caption", { country: selectedCountryName })}
           </caption>
           <thead>
@@ -174,7 +174,7 @@ export default function PollutionPage() {
         <p style={{ marginTop: 8 }}>{t("pollution.details_p1")}</p>
       </details>
 
-      <p style={{ fontSize: 12, color: "#666", marginTop: "1rem" }}>
+      <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginTop: "1rem" }}>
         {t("pollution.source")}
         {lastUpdated?.pollution?.latestYear && (
           <> {t("pollution.source_latest_year", { year: lastUpdated.pollution.latestYear })}</>

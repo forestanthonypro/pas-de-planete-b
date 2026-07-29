@@ -110,8 +110,8 @@ export default function IncendiesPage() {
       <h1>{t("incendies.title")} — {selectedCountryName}</h1>
       <ShareButtons title={`${t("incendies.title")} — ${selectedCountryName}`} />
 
-      <p style={{ fontSize: 13, color: "#666", marginBottom: "1rem" }}>{t("incendies.intro_p1")}</p>
-      <p style={{ fontSize: 13, color: "#666", marginBottom: "1rem" }}>
+      <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginBottom: "1rem" }}>{t("incendies.intro_p1")}</p>
+      <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginBottom: "1rem" }}>
         {t("incendies.intro_p2_prefix")}{" "}
         <span style={{ color: "#f4b400", fontWeight: 600 }}>{t("incendies.color_yellow")}</span> {t("incendies.color_yellow_desc")}{" "}
         <span style={{ color: "#e67e22", fontWeight: 600 }}>{t("incendies.color_orange")}</span> {t("incendies.color_orange_desc")}{" "}
@@ -129,7 +129,7 @@ export default function IncendiesPage() {
           {view === "map" ? t("common.view_as_table") : t("common.view_as_chart")}
         </button>
         {sobriety && (
-          <span style={{ fontSize: 12, color: "#666" }}>{t("incendies.map_sobriety_disabled")}</span>
+          <span style={{ fontSize: 12, color: "var(--color-texte-clair)" }}>{t("incendies.map_sobriety_disabled")}</span>
         )}
       </div>
 
@@ -143,7 +143,7 @@ export default function IncendiesPage() {
 
       {!loading && !error && view === "table" && fires.length > 0 && (
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
-          <caption style={{ textAlign: "left", fontSize: 12, color: "#666", marginBottom: 8 }}>
+          <caption style={{ textAlign: "left", fontSize: 12, color: "var(--color-texte-clair)", marginBottom: 8 }}>
             {t("incendies.table_caption", { country: selectedCountryName })}
           </caption>
           <thead>
@@ -167,7 +167,7 @@ export default function IncendiesPage() {
         </table>
       )}
 
-      <p style={{ fontSize: 12, color: "#666", marginTop: "1rem" }}>
+      <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginTop: "1rem" }}>
         {t("incendies.source")}
         {lastUpdated?.fires?.latestDetection && (
           <> {t("incendies.source_latest", { date: formatDate(lastUpdated.fires.latestDetection) })}</>

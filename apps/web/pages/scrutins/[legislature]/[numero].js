@@ -156,7 +156,7 @@ export default function ScrutinPage() {
             </div>
           )}
 
-          <p style={{ color: "#666" }}>
+          <p style={{ color: "var(--color-texte-clair)" }}>
             {scrutin.scrutin_date && (
               <>{t("scrutins.voted_on", { date: new Date(scrutin.scrutin_date).toLocaleDateString("fr-FR") })} </>
             )}
@@ -169,7 +169,7 @@ export default function ScrutinPage() {
           </p>
 
           {votes.length === 0 ? (
-            <p style={{ fontSize: 13, color: "#666" }}>
+            <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>
               {t("scrutins.no_nominative_detail")}{" "}
               <Link href="/scrutins">{t("scrutins.scrutins_list")}</Link>.
             </p>
@@ -213,10 +213,10 @@ export default function ScrutinPage() {
                         <th scope="row" style={{ textAlign: "left", padding: 8, fontWeight: 400 }}>
                           <Link href={`/deputes?groupe=${g}`}>{g}</Link>
                         </th>
-                        <td style={{ padding: 8, color: majority ? POSITION_LABELS[majority].color : "#666", fontWeight: 600 }}>
+                        <td style={{ padding: 8, color: majority ? POSITION_LABELS[majority].color : "var(--color-texte-clair)", fontWeight: 600 }}>
                           {majority ? POSITION_LABELS[majority].label : t("scrutins.shared_no_majority")}
                         </td>
-                        <td style={{ padding: 8, fontSize: 13, color: "#666" }}>
+                        <td style={{ padding: 8, fontSize: 13, color: "var(--color-texte-clair)" }}>
                           {Object.entries(groupTally)
                             .map(([pos, count]) => `${POSITION_LABELS[pos]?.label || pos} : ${count}`)
                             .join(" · ")}
@@ -260,7 +260,7 @@ export default function ScrutinPage() {
                         <Link href={`/deputes/${v.acteur_uid}`}>{v.full_name}</Link>
                       </th>
                       <td style={{ padding: 8 }}>{v.group_abbreviation || "—"}</td>
-                      <td style={{ padding: 8, color: POSITION_LABELS[v.position]?.color || "#333", fontWeight: 600 }}>
+                      <td style={{ padding: 8, color: POSITION_LABELS[v.position]?.color || "var(--color-texte)", fontWeight: 600 }}>
                         {POSITION_LABELS[v.position]?.label || v.position}
                       </td>
                     </tr>
@@ -269,10 +269,10 @@ export default function ScrutinPage() {
               </table>
             </>
           ) : (
-            <p style={{ fontSize: 13, color: "#666" }}>{t("scrutins.results_hidden_note")}</p>
+            <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>{t("scrutins.results_hidden_note")}</p>
           )}
 
-          <p style={{ fontSize: 12, color: "#666", marginTop: "1rem" }}>{t("scrutins.detail_source")}</p>
+          <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginTop: "1rem" }}>{t("scrutins.detail_source")}</p>
         </>
       )}
     </div>

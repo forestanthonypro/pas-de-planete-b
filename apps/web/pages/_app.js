@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import "../styles/globals.css";
 import "leaflet/dist/leaflet.css";
 import { SobrietyProvider } from "../lib/SobrietyContext";
+import { ThemeProvider } from "../lib/ThemeContext";
 import Layout from "../components/Layout";
 
 export default function MyApp({ Component, pageProps }) {
@@ -15,10 +16,12 @@ export default function MyApp({ Component, pageProps }) {
   }, []);
 
   return (
-    <SobrietyProvider>
-      <Layout>
-        <Component {...pageProps} />
-      </Layout>
-    </SobrietyProvider>
+    <ThemeProvider>
+      <SobrietyProvider>
+        <Layout>
+          <Component {...pageProps} />
+        </Layout>
+      </SobrietyProvider>
+    </ThemeProvider>
   );
 }

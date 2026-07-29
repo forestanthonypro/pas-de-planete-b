@@ -62,11 +62,11 @@ export default function MesVotesPage() {
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 800, margin: "0 auto" }}>
       <h1>{t("citizenVote.page_title")}</h1>
-      <p style={{ fontSize: 13, color: "#666", marginBottom: "1.5rem" }}>{t("citizenVote.page_intro")}</p>
+      <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginBottom: "1.5rem" }}>{t("citizenVote.page_intro")}</p>
 
-      <section style={{ background: "#f7f7f5", border: "1px solid #e5e7e0", borderRadius: 12, padding: "1rem", marginBottom: "1.5rem" }}>
+      <section style={{ background: "var(--color-carte)", border: "1px solid #e5e7e0", borderRadius: 12, padding: "1rem", marginBottom: "1.5rem" }}>
         <h2 style={{ fontSize: 16, marginTop: 0 }}>{t("citizenVote.manage_data_title")}</h2>
-        <p style={{ fontSize: 13, color: "#666" }}>
+        <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>
           {consent === "yes" && t("citizenVote.consent_status_yes")}
           {consent === "no" && t("citizenVote.consent_status_no")}
           {consent === null && !deleted && t("citizenVote.consent_status_unset")}
@@ -98,7 +98,7 @@ export default function MesVotesPage() {
       )}
 
       {!loading && consent !== "yes" && !deleted && (
-        <p style={{ fontSize: 13, color: "#666" }}>{t("citizenVote.no_votes_yet")}</p>
+        <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>{t("citizenVote.no_votes_yet")}</p>
       )}
 
       {!loading && !error && votes.length > 0 && (
@@ -136,12 +136,12 @@ export default function MesVotesPage() {
           {alignment && (
             <section>
               <h2 style={{ fontSize: 18 }}>{t("citizenVote.alignment_title")}</h2>
-              <p style={{ fontSize: 13, color: "#666" }}>
+              <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>
                 {t("citizenVote.alignment_explain", { min: alignment.minCommonVotes })}
               </p>
 
               {alignment.deputies.length === 0 && alignment.groups.length === 0 ? (
-                <p style={{ fontSize: 13, color: "#666" }}>{t("citizenVote.no_alignment_yet")}</p>
+                <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>{t("citizenVote.no_alignment_yet")}</p>
               ) : (
                 <>
                   {alignment.groups.length > 0 && (
@@ -208,7 +208,7 @@ export default function MesVotesPage() {
         </>
       )}
 
-      <p style={{ fontSize: 12, color: "#666", marginTop: "2rem" }}>
+      <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginTop: "2rem" }}>
         <Link href="/scrutins">← Retour aux scrutins</Link>
       </p>
     </div>

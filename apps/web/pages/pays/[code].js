@@ -982,11 +982,11 @@ export default function PaysDashboard() {
       {!loading && !error && summary && (
         <section style={{ marginTop: "1rem", marginBottom: "2rem", padding: "1rem", background: "#f7f7f7", borderRadius: 8 }}>
           <h2 style={{ marginTop: 0 }}>{t("pays.world_comparison_title")}</h2>
-          <p style={{ fontSize: 13, color: "#666" }}>{t("pays.world_comparison_p1")}</p>
-          <p style={{ fontSize: 13, color: "#666" }}>{t("pays.world_comparison_p2")}</p>
-          <p style={{ fontSize: 13, color: "#666" }}>{t("pays.world_comparison_p3")}</p>
-          <p style={{ fontSize: 13, color: "#666" }}>{t("pays.world_comparison_p4")}</p>
-          <p style={{ fontSize: 13, color: "#666" }}>{t("pays.world_comparison_p5")}</p>
+          <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>{t("pays.world_comparison_p1")}</p>
+          <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>{t("pays.world_comparison_p2")}</p>
+          <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>{t("pays.world_comparison_p3")}</p>
+          <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>{t("pays.world_comparison_p4")}</p>
+          <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>{t("pays.world_comparison_p5")}</p>
           <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap", marginBottom: "0.75rem" }}>
             <CountrySelect
               countries={countries.filter((c) => c.country_code !== code)}
@@ -1016,7 +1016,7 @@ export default function PaysDashboard() {
               const share = worldTotal > 0 ? ((countryTotal / worldTotal) * 100).toFixed(2) : null;
               if (!share) return null;
               return (
-                <p key={`species-${name}`} style={{ fontSize: 13, color: "#666" }}>
+                <p key={`species-${name}`} style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>
                   {t("pays.species_share_summary", { name, count: countryTotal, share, worldTotal })}
                 </p>
               );
@@ -1028,7 +1028,7 @@ export default function PaysDashboard() {
               if (!latest.pm25_ug_m3) return null;
               const ratio = (latest.pm25_ug_m3 / worldBenchmarks.pm25_who_guideline.value).toFixed(1);
               return (
-                <p key={`pollution-${name}`} style={{ fontSize: 13, color: "#666" }}>
+                <p key={`pollution-${name}`} style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>
                   {t("pays.pollution_summary", { name, value: latest.pm25_ug_m3, ratio })}
                 </p>
               );
@@ -1060,20 +1060,20 @@ export default function PaysDashboard() {
             ) : (
               <p>{t("pays.co2_no_data")}</p>
             )}
-            <p style={{ fontSize: 13, color: "#666" }}>{t("co2.explain_p1")}</p>
-            <p style={{ fontSize: 13, color: "#666" }}>{t("co2.explain_p2")}</p>
-            <p style={{ fontSize: 13, color: "#666", fontWeight: 600 }}>{t("co2.explain_p3")}</p>
+            <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>{t("co2.explain_p1")}</p>
+            <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>{t("co2.explain_p2")}</p>
+            <p style={{ fontSize: 13, color: "var(--color-texte-clair)", fontWeight: 600 }}>{t("co2.explain_p3")}</p>
             {summary.co2.length > 0 && (
               <div style={{ display: "grid", gridTemplateColumns: compareCode && compareSummary ? "repeat(auto-fit, minmax(320px, 1fr))" : "1fr", gap: "1rem" }}>
                 <div>
-                  <p style={{ fontSize: 12, color: "#666", fontWeight: 600, marginBottom: 4 }}>{countryName}</p>
+                  <p style={{ fontSize: 12, color: "var(--color-texte-clair)", fontWeight: 600, marginBottom: 4 }}>{countryName}</p>
                   <div style={{ position: "relative", height: 220 }}>
                     <canvas ref={co2CanvasRef} role="img" aria-label={`${t("co2.title")} — ${countryName}`} />
                   </div>
                 </div>
                 {compareCode && compareSummary && (
                   <div>
-                    <p style={{ fontSize: 12, color: "#666", fontWeight: 600, marginBottom: 4 }}>{localizedCountryName(compareCode, preferredLang)}</p>
+                    <p style={{ fontSize: 12, color: "var(--color-texte-clair)", fontWeight: 600, marginBottom: 4 }}>{localizedCountryName(compareCode, preferredLang)}</p>
                     <div style={{ position: "relative", height: 220 }}>
                       <canvas ref={co2CompareCanvasRef} role="img" aria-label={`${t("co2.title")} — ${localizedCountryName(compareCode, preferredLang)}`} />
                     </div>
@@ -1081,7 +1081,7 @@ export default function PaysDashboard() {
                 )}
               </div>
             )}
-            <p style={{ fontSize: 12, color: "#666" }}>
+            <p style={{ fontSize: 12, color: "var(--color-texte-clair)" }}>
               {t("pays.co2_footer_note")}
               {lastUpdated?.co2?.latestYear && (
                 <>{t("pays.co2_footer_year", { year: lastUpdated.co2.latestYear })}</>
@@ -1098,17 +1098,17 @@ export default function PaysDashboard() {
                 <p>
                   {t("pays.energie_summary", { count: summary.energyMix.length, capacity: Math.round(totalCapacity).toLocaleString("fr-FR") })}
                 </p>
-                <p style={{ fontSize: 13, color: "#666" }}>{t("energie.map_explain")}</p>
+                <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>{t("energie.map_explain")}</p>
                 <div style={{ display: "grid", gridTemplateColumns: compareCode && compareSummary ? "repeat(auto-fit, minmax(320px, 1fr))" : "1fr", gap: "1rem" }}>
                   <div>
-                    <p style={{ fontSize: 12, color: "#666", fontWeight: 600, marginBottom: 4 }}>{countryName}</p>
+                    <p style={{ fontSize: 12, color: "var(--color-texte-clair)", fontWeight: 600, marginBottom: 4 }}>{countryName}</p>
                     <div style={{ position: "relative", height: Math.max(200, summary.energyMix.length * 34) }}>
                       <canvas ref={energyCanvasRef} role="img" aria-label={t("energie.mix_title")} />
                     </div>
                   </div>
                   {compareCode && compareSummary?.energyMix?.length > 0 && (
                     <div>
-                      <p style={{ fontSize: 12, color: "#666", fontWeight: 600, marginBottom: 4 }}>{localizedCountryName(compareCode, preferredLang)}</p>
+                      <p style={{ fontSize: 12, color: "var(--color-texte-clair)", fontWeight: 600, marginBottom: 4 }}>{localizedCountryName(compareCode, preferredLang)}</p>
                       <div style={{ position: "relative", height: Math.max(200, compareSummary.energyMix.length * 34) }}>
                         <canvas ref={energyCompareCanvasRef} role="img" aria-label={t("energie.mix_title")} />
                       </div>
@@ -1116,7 +1116,7 @@ export default function PaysDashboard() {
                   )}
                 </div>
                 <details style={{ marginTop: "0.75rem" }}>
-                  <summary style={{ cursor: "pointer", fontSize: 13, color: "#666" }}>
+                  <summary style={{ cursor: "pointer", fontSize: 13, color: "var(--color-texte-clair)" }}>
                     {t("pays.energie_table_summary")}
                   </summary>
                   <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "0.5rem" }}>
@@ -1144,7 +1144,7 @@ export default function PaysDashboard() {
             ) : (
               <p>{t("pays.energie_no_plants")}</p>
             )}
-            <p style={{ fontSize: 12, color: "#666" }}>
+            <p style={{ fontSize: 12, color: "var(--color-texte-clair)" }}>
               {t("pays.energie_source")}
               {lastUpdated?.powerPlants?.lastIngested && (
                 <>{t("pays.energie_source_updated", { date: formatDate(lastUpdated.powerPlants.lastIngested) })}</>
@@ -1153,24 +1153,24 @@ export default function PaysDashboard() {
             </p>
             {summary.electricityGeneration?.length > 0 && (
               <>
-                <p style={{ fontSize: 13, color: "#666", marginTop: "1rem" }}>{t("energie.generation_explain")}</p>
+                <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginTop: "1rem" }}>{t("energie.generation_explain")}</p>
                 <div style={{ display: "grid", gridTemplateColumns: compareCode && compareSummary ? "repeat(auto-fit, minmax(320px, 1fr))" : "1fr", gap: "1rem" }}>
                   <div>
-                    <p style={{ fontSize: 12, color: "#666", fontWeight: 600, marginBottom: 4 }}>{countryName}</p>
+                    <p style={{ fontSize: 12, color: "var(--color-texte-clair)", fontWeight: 600, marginBottom: 4 }}>{countryName}</p>
                     <div style={{ position: "relative", height: 260 }}>
                       <canvas ref={generationCanvasRef} role="img" aria-label={t("energie.generation_title")} />
                     </div>
                   </div>
                   {compareCode && compareSummary && (
                     <div>
-                      <p style={{ fontSize: 12, color: "#666", fontWeight: 600, marginBottom: 4 }}>{localizedCountryName(compareCode, preferredLang)}</p>
+                      <p style={{ fontSize: 12, color: "var(--color-texte-clair)", fontWeight: 600, marginBottom: 4 }}>{localizedCountryName(compareCode, preferredLang)}</p>
                       <div style={{ position: "relative", height: 260 }}>
                         <canvas ref={generationCompareCanvasRef} role="img" aria-label={t("energie.generation_title")} />
                       </div>
                     </div>
                   )}
                 </div>
-                <p style={{ fontSize: 12, color: "#666" }}>
+                <p style={{ fontSize: 12, color: "var(--color-texte-clair)" }}>
                   {t("pays.generation_source")}
                   {lastUpdated?.electricity?.latestYear && (
                     <>{t("pays.generation_source_year", { year: lastUpdated.electricity.latestYear })}</>
@@ -1189,7 +1189,7 @@ export default function PaysDashboard() {
                 }
                 return (
                   <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                    <caption style={{ textAlign: "left", fontSize: 12, color: "#666", marginBottom: 8 }}>
+                    <caption style={{ textAlign: "left", fontSize: 12, color: "var(--color-texte-clair)", marginBottom: 8 }}>
                       {t("pays.biodiversity_sample_caption", { count: list.length })}
                     </caption>
                     <thead>
@@ -1229,19 +1229,19 @@ export default function PaysDashboard() {
               return (
                 <div style={{ display: "grid", gridTemplateColumns: compareCode && compareSummary ? "repeat(auto-fit, minmax(320px, 1fr))" : "1fr", gap: "1rem" }}>
                   <div>
-                    <p style={{ fontSize: 12, color: "#666", fontWeight: 600, marginBottom: 4 }}>{countryName}</p>
+                    <p style={{ fontSize: 12, color: "var(--color-texte-clair)", fontWeight: 600, marginBottom: 4 }}>{countryName}</p>
                     {renderSpeciesTable(speciesList)}
                   </div>
                   {compareCode && compareSummary && (
                     <div>
-                      <p style={{ fontSize: 12, color: "#666", fontWeight: 600, marginBottom: 4 }}>{localizedCountryName(compareCode, preferredLang)}</p>
+                      <p style={{ fontSize: 12, color: "var(--color-texte-clair)", fontWeight: 600, marginBottom: 4 }}>{localizedCountryName(compareCode, preferredLang)}</p>
                       {renderSpeciesTable(compareSpeciesList)}
                     </div>
                   )}
                 </div>
               );
             })()}
-            <p style={{ fontSize: 12, color: "#666" }}>
+            <p style={{ fontSize: 12, color: "var(--color-texte-clair)" }}>
               {t("pays.biodiversity_source")}
               {lastUpdated?.species?.lastIngested && (
                 <>{t("pays.biodiversity_source_updated", { date: formatDate(lastUpdated.species.lastIngested) })}</>
@@ -1251,7 +1251,7 @@ export default function PaysDashboard() {
             {summary.speciesThreatened?.length > 0 && (() => {
               const latest = summary.speciesThreatened[summary.speciesThreatened.length - 1];
               return (
-                <p style={{ fontSize: 12, color: "#666" }}>
+                <p style={{ fontSize: 12, color: "var(--color-texte-clair)" }}>
                   {t("pays.biodiversity_official_count", { year: latest.year, mammals: latest.mammals_threatened ?? "—", birds: latest.birds_threatened ?? "—", fish: latest.fish_threatened ?? "—" })}
                   {" "}<Link href="/especes">{t("pays.biodiversity_detail_link")}</Link>
                 </p>
@@ -1259,10 +1259,10 @@ export default function PaysDashboard() {
             })()}
             {compareCode && compareSummary && (
               <div style={{ background: "#f7f7f7", borderRadius: 8, padding: "0.75rem 1rem", marginTop: "0.75rem" }}>
-                <p style={{ fontSize: 12, color: "#666", fontWeight: 600, marginBottom: 4 }}>
+                <p style={{ fontSize: 12, color: "var(--color-texte-clair)", fontWeight: 600, marginBottom: 4 }}>
                   {localizedCountryName(compareCode, preferredLang)}
                 </p>
-                <p style={{ fontSize: 12, color: "#666", margin: 0 }}>
+                <p style={{ fontSize: 12, color: "var(--color-texte-clair)", margin: 0 }}>
                   {t("pays.biodiversity_compare_sample", { count: compareSpeciesList.length })}
                   {compareSummary.speciesThreatened?.length > 0 && (() => {
                     const latestCompare = compareSummary.speciesThreatened[compareSummary.speciesThreatened.length - 1];
@@ -1294,14 +1294,14 @@ export default function PaysDashboard() {
             <p>{t("pays.fires_no_data")}</p>
           )
         )}
-        <p style={{ fontSize: 12, color: "#666", marginBottom: "0.5rem" }}>
+        <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginBottom: "0.5rem" }}>
           {t("pays.fires_color_legend", { yellow: "🟡", orange: "🟠", red: "🔴" })}
         </p>
         <div style={{ display: "grid", gridTemplateColumns: compareCode && compareSummary ? "repeat(auto-fit, minmax(320px, 1fr))" : "1fr", gap: "1rem" }}>
           <div>
-            <p style={{ fontSize: 12, color: "#666", fontWeight: 600, marginBottom: 4 }}>{countryName}</p>
+            <p style={{ fontSize: 12, color: "var(--color-texte-clair)", fontWeight: 600, marginBottom: 4 }}>{countryName}</p>
             {sobriety ? (
-              <p style={{ fontSize: 13, color: "#666" }}>
+              <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>
                 {t("pays.fires_sobriety_disabled", { link: "" })}{" "}
                 <Link href="/incendies">{t("pays.fires_dedicated_page")}</Link>
               </p>
@@ -1311,19 +1311,19 @@ export default function PaysDashboard() {
           </div>
           {compareCode && compareSummary && (
             <div>
-              <p style={{ fontSize: 12, color: "#666", fontWeight: 600, marginBottom: 4 }}>
+              <p style={{ fontSize: 12, color: "var(--color-texte-clair)", fontWeight: 600, marginBottom: 4 }}>
                 {localizedCountryName(compareCode, preferredLang)} —{" "}
                 {compareFires.length} {t("pays.fires_detections_count", { s: compareFires.length !== 1 ? "s" : "" })}
               </p>
               {sobriety ? (
-                <p style={{ fontSize: 13, color: "#666" }}>{t("pays.fires_sobriety_disabled_short")}</p>
+                <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>{t("pays.fires_sobriety_disabled_short")}</p>
               ) : (
                 <div ref={fireMapCompareContainerRef} style={{ height: 360, borderRadius: 8 }} />
               )}
             </div>
           )}
         </div>
-        <p style={{ fontSize: 12, color: "#666", marginTop: "0.5rem" }}>
+        <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginTop: "0.5rem" }}>
           {t("pays.fires_source")}{" "}
           <Link href="/incendies">{t("pays.fires_fullscreen_link")}</Link>
         </p>
@@ -1343,18 +1343,18 @@ export default function PaysDashboard() {
                 <p>{t("pays.vegetation_no_year_data")}</p>
               );
             })()}
-            <p style={{ fontSize: 13, color: "#666" }}>{t("vegetation.explain_p1")}</p>
-            <p style={{ fontSize: 13, color: "#666" }}>{t("vegetation.explain_p2")}</p>
+            <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>{t("vegetation.explain_p1")}</p>
+            <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>{t("vegetation.explain_p2")}</p>
             <div style={{ display: "grid", gridTemplateColumns: compareCode && compareSummary ? "repeat(auto-fit, minmax(320px, 1fr))" : "1fr", gap: "1rem" }}>
               <div>
-                <p style={{ fontSize: 12, color: "#666", fontWeight: 600, marginBottom: 4 }}>{countryName}</p>
+                <p style={{ fontSize: 12, color: "var(--color-texte-clair)", fontWeight: 600, marginBottom: 4 }}>{countryName}</p>
                 <div style={{ position: "relative", height: 220 }}>
                   <canvas ref={vegetationCanvasRef} role="img" aria-label={`${t("vegetation.title")} — ${countryName}`} />
                 </div>
               </div>
               {compareCode && compareSummary && (
                 <div>
-                  <p style={{ fontSize: 12, color: "#666", fontWeight: 600, marginBottom: 4 }}>{localizedCountryName(compareCode, preferredLang)}</p>
+                  <p style={{ fontSize: 12, color: "var(--color-texte-clair)", fontWeight: 600, marginBottom: 4 }}>{localizedCountryName(compareCode, preferredLang)}</p>
                   <div style={{ position: "relative", height: 220 }}>
                     <canvas ref={vegetationCompareCanvasRef} role="img" aria-label={`${t("vegetation.title")} — ${localizedCountryName(compareCode, preferredLang)}`} />
                   </div>
@@ -1376,7 +1376,7 @@ export default function PaysDashboard() {
         ) : (
           <p>{t("pays.vegetation_no_country_data")}</p>
         )}
-        <p style={{ fontSize: 12, color: "#666" }}>
+        <p style={{ fontSize: 12, color: "var(--color-texte-clair)" }}>
           {t("pays.vegetation_source")}
           {lastUpdated?.vegetation?.latestYear && (
             <>{t("pays.vegetation_source_year", { year: lastUpdated.vegetation.latestYear })}</>
@@ -1410,14 +1410,14 @@ export default function PaysDashboard() {
         {summary?.water?.length > 0 && (
           <div style={{ display: "grid", gridTemplateColumns: compareCode && compareSummary ? "repeat(auto-fit, minmax(320px, 1fr))" : "1fr", gap: "1rem" }}>
             <div>
-              <p style={{ fontSize: 12, color: "#666", fontWeight: 600, marginBottom: 4 }}>{countryName}</p>
+              <p style={{ fontSize: 12, color: "var(--color-texte-clair)", fontWeight: 600, marginBottom: 4 }}>{countryName}</p>
               <div style={{ position: "relative", height: 260 }}>
                 <canvas ref={waterCanvasRef} role="img" aria-label={`${t("eau.title")} — ${countryName}`} />
               </div>
             </div>
             {compareCode && compareSummary && (
               <div>
-                <p style={{ fontSize: 12, color: "#666", fontWeight: 600, marginBottom: 4 }}>{localizedCountryName(compareCode, preferredLang)}</p>
+                <p style={{ fontSize: 12, color: "var(--color-texte-clair)", fontWeight: 600, marginBottom: 4 }}>{localizedCountryName(compareCode, preferredLang)}</p>
                 <div style={{ position: "relative", height: 260 }}>
                   <canvas ref={waterCompareCanvasRef} role="img" aria-label={`${t("eau.title")} — ${localizedCountryName(compareCode, preferredLang)}`} />
                 </div>
@@ -1428,19 +1428,19 @@ export default function PaysDashboard() {
         {summary?.water?.some((d) => d.withdrawal_share_percent) && (
           <>
             <h3 style={{ fontSize: 15, marginTop: "1.5rem", marginBottom: "0.25rem" }}>{t("eau.second_chart_title")}</h3>
-            <p style={{ fontSize: 13, color: "#666", marginBottom: "0.75rem" }}>{t("eau.explain_p1")}</p>
-            <p style={{ fontSize: 13, color: "#666", marginBottom: "0.75rem" }}>{t("eau.explain_p2")}</p>
-            <p style={{ fontSize: 13, color: "#666", marginBottom: "0.75rem" }}>{t("eau.explain_p3")}</p>
+            <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginBottom: "0.75rem" }}>{t("eau.explain_p1")}</p>
+            <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginBottom: "0.75rem" }}>{t("eau.explain_p2")}</p>
+            <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginBottom: "0.75rem" }}>{t("eau.explain_p3")}</p>
             <div style={{ display: "grid", gridTemplateColumns: compareCode && compareSummary ? "repeat(auto-fit, minmax(320px, 1fr))" : "1fr", gap: "1rem" }}>
               <div>
-                <p style={{ fontSize: 12, color: "#666", fontWeight: 600, marginBottom: 4 }}>{countryName}</p>
+                <p style={{ fontSize: 12, color: "var(--color-texte-clair)", fontWeight: 600, marginBottom: 4 }}>{countryName}</p>
                 <div style={{ position: "relative", height: 220 }}>
                   <canvas ref={stressCanvasRef} role="img" aria-label={t("eau.chart_stress")} />
                 </div>
               </div>
               {compareCode && compareSummary && (
                 <div>
-                  <p style={{ fontSize: 12, color: "#666", fontWeight: 600, marginBottom: 4 }}>{localizedCountryName(compareCode, preferredLang)}</p>
+                  <p style={{ fontSize: 12, color: "var(--color-texte-clair)", fontWeight: 600, marginBottom: 4 }}>{localizedCountryName(compareCode, preferredLang)}</p>
                   <div style={{ position: "relative", height: 220 }}>
                     <canvas ref={stressCompareCanvasRef} role="img" aria-label={t("eau.chart_stress")} />
                   </div>
@@ -1449,7 +1449,7 @@ export default function PaysDashboard() {
             </div>
           </>
         )}
-        <p style={{ fontSize: 12, color: "#666" }}>
+        <p style={{ fontSize: 12, color: "var(--color-texte-clair)" }}>
           {t("pays.water_source")}
           {lastUpdated?.water?.latestYear && (
             <>{t("pays.water_source_year", { year: lastUpdated.water.latestYear })}</>

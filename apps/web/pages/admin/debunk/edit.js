@@ -139,7 +139,7 @@ export default function AdminDebunkEdit() {
       <h1>{isEditing ? "Modifier l'entrée" : "Nouvelle entrée"}</h1>
 
       {!token && (
-        <p style={{ fontSize: 13, color: "#666" }}>
+        <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>
           Aucun jeton mémorisé — retourne d&apos;abord sur{" "}
           <Link href="/admin/debunk">la liste</Link> pour te connecter.
         </p>

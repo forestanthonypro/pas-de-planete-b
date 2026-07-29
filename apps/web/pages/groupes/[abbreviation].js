@@ -84,13 +84,13 @@ export default function GroupDetailPage() {
           <h1>{group.name} ({group.abbreviation})</h1>
           <ShareButtons title={`${group.name} (${group.abbreviation})`} />
 
-          <p style={{ color: "#666" }}>
+          <p style={{ color: "var(--color-texte-clair)" }}>
             {group.effectif} {t("groupes.members", { s: group.effectif > 1 ? "s" : "" })} · {t("groupes.avg_participation")}{" "}
             {group.avg_participation_pct != null ? `${group.avg_participation_pct} %` : "—"}
           </p>
 
           <h2 style={{ fontSize: 18, marginTop: "1.5rem" }}>{t("groupes.results_title")}</h2>
-          <p style={{ fontSize: 13, color: "#666", marginBottom: "0.75rem" }}>
+          <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginBottom: "0.75rem" }}>
             {t("groupes.results_explain", { total: totalScrutins })}
           </p>
           {totalScrutins > 0 && (
@@ -112,7 +112,7 @@ export default function GroupDetailPage() {
 
           <h2 style={{ fontSize: 18, marginTop: "1.5rem" }}>{t("groupes.recent_scrutins_title")}</h2>
           {recentScrutins.length === 0 ? (
-            <p style={{ fontSize: 13, color: "#666" }}>{t("groupes.no_scrutins")}</p>
+            <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>{t("groupes.no_scrutins")}</p>
           ) : (
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
@@ -134,7 +134,7 @@ export default function GroupDetailPage() {
                         {s.title || s.objet || `Scrutin n°${s.numero}`}
                       </Link>
                     </td>
-                    <td style={{ padding: 8, fontSize: 13, color: "#666" }}>
+                    <td style={{ padding: 8, fontSize: 13, color: "var(--color-texte-clair)" }}>
                       {t("groupes.vote_breakdown", { pour: s.pour, contre: s.contre, abstention: s.abstention })}
                     </td>
                     <td style={{ padding: 8 }}>{s.result_label || s.result_code || "—"}</td>
@@ -144,7 +144,7 @@ export default function GroupDetailPage() {
             </table>
           )}
 
-          <p style={{ fontSize: 12, color: "#666", marginTop: "1rem" }}>
+          <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginTop: "1rem" }}>
             {t("groupes.detail_source")}{" "}
             <Link href={`/deputes?groupe=${group.abbreviation}`}>{t("groupes.see_group_deputies")}</Link>
           </p>

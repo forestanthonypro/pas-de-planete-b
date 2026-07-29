@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useSobriety } from "../lib/SobrietyContext";
+import { useTheme } from "../lib/ThemeContext";
 import { useT } from "../lib/useT";
-import { IconLeaf } from "./icons";
+import { IconLeaf, IconSun, IconMoon } from "./icons";
 
 const LANGUAGE_LABELS = { fr: "Français", en: "English" };
 
@@ -30,6 +31,7 @@ function LanguageSwitcher() {
 
 export default function Layout({ children }) {
   const { sobriety, setSobriety } = useSobriety();
+  const { theme, setTheme } = useTheme();
   const { t } = useT();
 
   return (
@@ -59,6 +61,27 @@ export default function Layout({ children }) {
 
         <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
           <LanguageSwitcher />
+
+          <button
+            type="button"
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            aria-label={t("common.dark_mode_aria")}
+            title={t("common.dark_mode_toggle")}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              fontSize: 13,
+              background: "var(--color-carte)",
+              border: "1px solid var(--color-bordure)",
+              borderRadius: "var(--radius)",
+              padding: "6px 10px",
+              cursor: "pointer",
+              color: "var(--color-texte)",
+            }}
+          >
+            {theme === "dark" ? <IconMoon size={16} /> : <IconSun size={16} />}
+          </button>
 
           <label
             style={{

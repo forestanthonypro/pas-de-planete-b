@@ -55,10 +55,10 @@ export default function ParticipationPage() {
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
       <h1>{t("deputes.participation_title")}</h1>
-      <p style={{ fontSize: 13, color: "#666", marginBottom: "1rem" }}>
+      <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginBottom: "1rem" }}>
         {t("deputes.participation_intro1", { minVotes })}
       </p>
-      <p style={{ fontSize: 13, color: "#666", marginBottom: "1rem" }}>{t("deputes.participation_intro2")}</p>
+      <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginBottom: "1rem" }}>{t("deputes.participation_intro2")}</p>
 
       <input
         type="text"
@@ -97,7 +97,7 @@ export default function ParticipationPage() {
         </table>
       )}
 
-      <p style={{ fontSize: 12, color: "#666", marginTop: "1rem" }}>
+      <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginTop: "1rem" }}>
         {t("deputes.participation_source")}{" "}
         <Link href="/deputes">{t("deputes.back_to_deputies_list")}</Link>
       </p>

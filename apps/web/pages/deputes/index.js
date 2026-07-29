@@ -70,7 +70,7 @@ export default function DeputesPage() {
       <h1>{t("deputes.title")}</h1>
       <ShareButtons title={t("deputes.title")} />
 
-      <p style={{ fontSize: 13, color: "#666", marginBottom: "1rem" }}>
+      <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginBottom: "1rem" }}>
         {t("deputes.list_intro", { count: deputies.length || "…" })}
       </p>
 
@@ -131,14 +131,14 @@ export default function DeputesPage() {
         </table>
       )}
 
-      <p style={{ fontSize: 13, color: "#666", marginTop: "1.5rem" }}>
+      <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginTop: "1.5rem" }}>
         {t("deputes.coverage_note")}{" "}
         <a href="https://data.assemblee-nationale.fr/" target="_blank" rel="noreferrer">
           data.assemblee-nationale.fr
         </a>.
       </p>
 
-      <p style={{ fontSize: 12, color: "#666", marginTop: "1rem" }}>
+      <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginTop: "1rem" }}>
         {t("deputes.source")}{" "}
         <Link href="/deputes/participation">{t("deputes.participation_link")}</Link> ·{" "}
         <Link href="/scrutins">{t("deputes.scrutins_link")}</Link>

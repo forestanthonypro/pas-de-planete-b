@@ -6,6 +6,8 @@
     "nav_myvotes": "My votes",
     "sobriety_toggle": "Lean mode",
     "sobriety_aria": "Enable lean mode (reduces animations and visuals)",
+    "dark_mode_toggle": "Dark mode",
+    "dark_mode_aria": "Toggle between light and dark mode",
     "footer_ecoconception": "Eco-design: open sources, no account, no advertising trackers.",
     "share_label": "Share:",
     "share_copy": "Copy link",

@@ -56,7 +56,7 @@ export default function DebunkPage() {
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: "1rem" }}>
         <div>
           <h1 style={{ margin: 0 }}>{t("debunk.title")}</h1>
-          <p style={{ fontSize: 13, color: "#666", marginTop: 8, maxWidth: 600 }}>{t("debunk.intro")}</p>
+          <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginTop: 8, maxWidth: 600 }}>{t("debunk.intro")}</p>
         </div>
         {categories.length > 0 && (
           <select
@@ -86,7 +86,7 @@ export default function DebunkPage() {
             <Link
               key={e.slug}
               href={`/debunk/${e.slug}`}
-              style={{ display: "block", background: "#f7f7f5", border: "1px solid #e5e7e0", borderRadius: 12, overflow: "hidden", textDecoration: "none", color: "inherit" }}
+              style={{ display: "block", background: "var(--color-carte)", border: "1px solid #e5e7e0", borderRadius: 12, overflow: "hidden", textDecoration: "none", color: "inherit" }}
             >
               {e.image_url && (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -98,11 +98,11 @@ export default function DebunkPage() {
                 />
               )}
               <div style={{ padding: "1rem" }}>
-                <span style={{ display: "inline-block", background: VERDICT_COLORS[e.verdict] || VERDICT_COLORS.faux, color: e.verdict === "trompeur" ? "#1b1f23" : "white", fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: 20 }}>
+                <span style={{ display: "inline-block", background: VERDICT_COLORS[e.verdict] || VERDICT_COLORS.faux, color: e.verdict === "trompeur" ? "var(--color-texte)" : "white", fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: 20 }}>
                   {verdictLabel(e.verdict).toUpperCase()}
                 </span>
                 <p style={{ fontSize: 15, fontWeight: 500, margin: "10px 0 6px", lineHeight: 1.4 }}>{e.myth}</p>
-                <p style={{ fontSize: 12, color: "#666", margin: 0 }}>
+                <p style={{ fontSize: 12, color: "var(--color-texte-clair)", margin: 0 }}>
                   {e.category ? `${e.category} · ` : ""}
                   {new Date(e.updated_at).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}
                 </p>
@@ -112,7 +112,7 @@ export default function DebunkPage() {
         </div>
       )}
 
-      <p style={{ fontSize: 12, color: "#666", marginTop: "1.5rem" }}>
+      <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginTop: "1.5rem" }}>
         <Link href="/">{t("debunk.back_to_home")}</Link>
       </p>
     </div>

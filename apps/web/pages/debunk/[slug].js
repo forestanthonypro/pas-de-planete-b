@@ -60,11 +60,11 @@ export default function DebunkEntryPage() {
 
       {!loading && !error && entry && (
         <>
-          <span style={{ display: "inline-block", background: VERDICT_COLORS[entry.verdict] || VERDICT_COLORS.faux, color: entry.verdict === "trompeur" ? "#1b1f23" : "white", fontSize: 12, fontWeight: 600, padding: "4px 12px", borderRadius: 20 }}>
+          <span style={{ display: "inline-block", background: VERDICT_COLORS[entry.verdict] || VERDICT_COLORS.faux, color: entry.verdict === "trompeur" ? "var(--color-texte)" : "white", fontSize: 12, fontWeight: 600, padding: "4px 12px", borderRadius: 20 }}>
             {verdictLabel(entry.verdict).toUpperCase()}
           </span>
           <h1 style={{ margin: "12px 0 6px" }}>{entry.myth}</h1>
-          <p style={{ fontSize: 12, color: "#666", marginBottom: "1rem" }}>
+          <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginBottom: "1rem" }}>
             {entry.category && `${entry.category} · `}
             {t("debunk.published_on", { date: formatDate(entry.created_at) })}
             {entry.updated_at && entry.updated_at !== entry.created_at && (
@@ -85,8 +85,8 @@ export default function DebunkEntryPage() {
           )}
 
           {entry.claim_quote && (
-            <div style={{ background: "#f7f7f5", borderLeft: "3px solid #647076", borderRadius: "0 8px 8px 0", padding: "0.75rem 1rem", margin: "1.25rem 0" }}>
-              <p style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.03em", color: "#666", margin: "0 0 4px", fontWeight: 600 }}>
+            <div style={{ background: "var(--color-carte)", borderLeft: "3px solid #647076", borderRadius: "0 8px 8px 0", padding: "0.75rem 1rem", margin: "1.25rem 0" }}>
+              <p style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.03em", color: "var(--color-texte-clair)", margin: "0 0 4px", fontWeight: 600 }}>
                 {t("debunk.claim_title")}
               </p>
               <p style={{ fontSize: 14, fontStyle: "italic", margin: 0 }}>« {entry.claim_quote} »</p>

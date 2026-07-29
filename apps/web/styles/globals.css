@@ -37,6 +37,24 @@
   scroll-behavior: auto !important;
 }
 
+/* Mode sombre : préférence mémorisée en local, jamais liée au mode sobriété
+   (les deux sont indépendants et se combinent librement). Activé via un
+   attribut sur <html> (voir ThemeContext.js). */
+[data-theme="dark"] {
+  --color-forest: #4caf50;
+  --color-sauge: #66bb6a;
+  --color-ocean: #4a90c2;
+  --color-bleu-clair: #7fb0e0;
+  --color-sable: #2a2620;
+  --color-pierre: #333a30;
+  --color-texte: #e8ece6;
+  --color-texte-clair: #9aa39a;
+  --color-fond: #14201a;
+  --color-carte: #1c2620;
+  --color-carte-verte: #23301f;
+  --color-bordure: #2e3a32;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -46,6 +64,7 @@ body {
   font-family: var(--font-sans);
   color: var(--color-texte);
   background: var(--color-fond);
+  transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease;
 }
 
 a {

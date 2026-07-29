@@ -6,6 +6,8 @@
     "nav_myvotes": "Mes votes",
     "sobriety_toggle": "Mode sobriété",
     "sobriety_aria": "Activer le mode sobriété (réduit les animations et les visuels)",
+    "dark_mode_toggle": "Mode sombre",
+    "dark_mode_aria": "Basculer entre le mode clair et le mode sombre",
     "footer_ecoconception": "Écoconception : sources ouvertes, sans compte, sans traceurs publicitaires.",
     "share_label": "Partager :",
     "share_copy": "Copier le lien",

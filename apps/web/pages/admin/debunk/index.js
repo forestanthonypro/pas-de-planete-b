@@ -74,7 +74,7 @@ export default function AdminDebunkList() {
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 800, margin: "0 auto" }}>
       <h1>Administration — Débunk</h1>
-      <p style={{ fontSize: 13, color: "#666" }}>
+      <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>
         Réservé à la rédaction du site. Colle le jeton d&apos;ingestion (le même que pour les
         imports de données, disponible dans <code>apps/api/.env</code>).
       </p>
@@ -99,7 +99,7 @@ export default function AdminDebunkList() {
             <Link href="/admin/debunk/edit">+ Nouvelle entrée</Link>
           </p>
           {entries.length === 0 ? (
-            <p style={{ fontSize: 13, color: "#666" }}>Aucune entrée pour l&apos;instant.</p>
+            <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>Aucune entrée pour l&apos;instant.</p>
           ) : (
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
@@ -115,7 +115,7 @@ export default function AdminDebunkList() {
                   <tr key={e.slug}>
                     <td style={{ padding: 8 }}>{e.myth}</td>
                     <td style={{ padding: 8 }}>
-                      <span style={{ background: VERDICT_COLORS[e.verdict] || "#999", color: e.verdict === "trompeur" ? "#1b1f23" : "white", fontSize: 11, fontWeight: 600, padding: "2px 8px", borderRadius: 20 }}>
+                      <span style={{ background: VERDICT_COLORS[e.verdict] || "#999", color: e.verdict === "trompeur" ? "var(--color-texte)" : "white", fontSize: 11, fontWeight: 600, padding: "2px 8px", borderRadius: 20 }}>
                         {(VERDICT_LABELS[e.verdict] || e.verdict).toUpperCase()}
                       </span>
                     </td>

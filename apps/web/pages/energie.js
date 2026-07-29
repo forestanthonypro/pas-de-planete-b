@@ -271,7 +271,7 @@ export default function EnergiePage() {
           {view === "map" ? t("common.view_as_table") : t("common.view_as_chart")}
         </button>
         {sobriety && (
-          <span style={{ fontSize: 12, color: "#666" }}>{t("energie.map_sobriety_disabled")}</span>
+          <span style={{ fontSize: 12, color: "var(--color-texte-clair)" }}>{t("energie.map_sobriety_disabled")}</span>
         )}
       </div>
 
@@ -279,7 +279,7 @@ export default function EnergiePage() {
       {error && <p role="alert">{t("common.error_prefix")} {error}</p>}
       {!loading && !error && plants.length === 0 && <p>{t("energie.no_plants")}</p>}
 
-      <p style={{ fontSize: 13, color: "#666", marginBottom: "0.75rem" }}>{t("energie.map_explain")}</p>
+      <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginBottom: "0.75rem" }}>{t("energie.map_explain")}</p>
 
       <div style={{ display: view === "map" ? "block" : "none" }}>
         <div ref={mapContainerRef} style={{ height: 480, borderRadius: 8 }} />
@@ -287,7 +287,7 @@ export default function EnergiePage() {
 
       {!loading && !error && view === "table" && (
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
-          <caption style={{ textAlign: "left", fontSize: 12, color: "#666", marginBottom: 8 }}>
+          <caption style={{ textAlign: "left", fontSize: 12, color: "var(--color-texte-clair)", marginBottom: 8 }}>
             {t("energie.table_caption", { country: localizedCountryName(country, preferredLang), fuelType: fuelType ? `(${fuelType})` : "" })}
           </caption>
           <thead>
@@ -318,7 +318,7 @@ export default function EnergiePage() {
               capacity: Math.round(energyMix.reduce((sum, r) => sum + r.total_capacity_mw, 0)).toLocaleString("fr-FR"),
             })}
           </p>
-          <p style={{ fontSize: 13, color: "#666" }}>{t("energie.mix_explain")}</p>
+          <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>{t("energie.mix_explain")}</p>
           <div style={{ position: "relative", height: Math.max(200, energyMix.length * 34) }}>
             <canvas ref={mixCanvasRef} role="img" aria-label={t("energie.mix_title")} />
           </div>
@@ -328,11 +328,11 @@ export default function EnergiePage() {
       {generation.length > 0 && (
         <section style={{ marginTop: "2rem" }}>
           <h2>{t("energie.generation_title")}</h2>
-          <p style={{ fontSize: 13, color: "#666" }}>{t("energie.generation_explain")}</p>
+          <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>{t("energie.generation_explain")}</p>
           <div style={{ position: "relative", height: 320 }}>
             <canvas ref={generationCanvasRef} role="img" aria-label={t("energie.generation_title")} />
           </div>
-          <p style={{ fontSize: 12, color: "#666", marginTop: "0.5rem" }}>
+          <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginTop: "0.5rem" }}>
             {t("energie.generation_source")}
             {lastUpdated?.electricity?.latestYear && (
               <> {t("energie.generation_source_year", { year: lastUpdated.electricity.latestYear })}</>
@@ -342,7 +342,7 @@ export default function EnergiePage() {
         </section>
       )}
 
-      <p style={{ fontSize: 12, color: "#666", marginTop: "1rem" }}>
+      <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginTop: "1rem" }}>
         {t("energie.source")}
         {lastUpdated?.powerPlants?.lastIngested && (
           <> {t("energie.source_last_updated", { date: formatDate(lastUpdated.powerPlants.lastIngested) })}</>

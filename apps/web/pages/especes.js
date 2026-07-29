@@ -153,8 +153,8 @@ export default function EspecesPage() {
       <h1>{t("especes.title")} — {selectedCountryName}</h1>
       <ShareButtons title={`${t("especes.title")} — ${selectedCountryName}`} />
 
-      <p style={{ fontSize: 13, color: "#666", marginBottom: "1rem" }}>{t("especes.intro_p1")}</p>
-      <p style={{ fontSize: 13, color: "#666", marginBottom: "1rem" }}>{t("especes.intro_p2")}</p>
+      <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginBottom: "1rem" }}>{t("especes.intro_p1")}</p>
+      <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginBottom: "1rem" }}>{t("especes.intro_p2")}</p>
 
       <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem", flexWrap: "wrap" }}>
         <CountrySelect
@@ -193,7 +193,7 @@ export default function EspecesPage() {
 
       {!loading && !error && filteredSpecies.length > 0 && (
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
-          <caption style={{ textAlign: "left", fontSize: 12, color: "#666", marginBottom: 8 }}>
+          <caption style={{ textAlign: "left", fontSize: 12, color: "var(--color-texte-clair)", marginBottom: 8 }}>
             {t("especes.table_caption", {
               country: selectedCountryName,
               category: category ? ` (${CATEGORY_INFO[category]?.label || category})` : "",
@@ -244,7 +244,7 @@ export default function EspecesPage() {
         </table>
       )}
 
-      <p style={{ fontSize: 12, color: "#666", marginTop: "1rem" }}>
+      <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginTop: "1rem" }}>
         {t("especes.source")}
         {lastUpdated?.species?.lastIngested && (
           <> {t("especes.source_last_updated", { date: formatDate(lastUpdated.species.lastIngested) })}</>
@@ -254,7 +254,7 @@ export default function EspecesPage() {
 
       <section style={{ marginTop: "2.5rem", borderTop: "1px solid #eee", paddingTop: "1.5rem" }}>
         <h2>{t("especes.official_count_title")}</h2>
-        <p style={{ fontSize: 13, color: "#666" }}>{t("especes.official_count_explain")}</p>
+        <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>{t("especes.official_count_explain")}</p>
         {threatenedCounts.length > 0 ? (
           <div style={{ position: "relative", height: 180 }}>
             <canvas ref={threatenedCanvasRef} role="img" aria-label={t("especes.official_count_title")} />
@@ -266,7 +266,7 @@ export default function EspecesPage() {
         {globalShare.length > 0 && (
           <>
             <h3 style={{ fontSize: 15, marginTop: "1.5rem" }}>{t("especes.world_reference_title")}</h3>
-            <p style={{ fontSize: 13, color: "#666" }}>
+            <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>
               {t("especes.world_reference_explain", { country: selectedCountryName })}
             </p>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
@@ -290,7 +290,7 @@ export default function EspecesPage() {
           </>
         )}
 
-        <p style={{ fontSize: 12, color: "#666", marginTop: "1rem" }}>
+        <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginTop: "1rem" }}>
           {t("especes.world_source")}
           {lastUpdated?.speciesThreatened?.latestYear && (
             <> {t("especes.world_source_year", { year: lastUpdated.speciesThreatened.latestYear })}</>

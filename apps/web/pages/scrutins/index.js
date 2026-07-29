@@ -129,7 +129,7 @@ export default function ScrutinsPage() {
           />
           <button type="submit">{t("scrutins.search_button")}</button>
         </div>
-        <p style={{ fontSize: 12, color: "#666", marginTop: "0.25rem" }}>{t("scrutins.search_scope_note")}</p>
+        <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginTop: "0.25rem" }}>{t("scrutins.search_scope_note")}</p>
       </form>
 
       {searching && <p>{t("scrutins.searching")}</p>}
@@ -141,7 +141,7 @@ export default function ScrutinsPage() {
             {t("scrutins.results_count", { count: searchResults.length, s: searchResults.length !== 1 ? "s" : "", query })}
           </h2>
           {searchResults.length === 0 ? (
-            <p style={{ fontSize: 13, color: "#666" }}>{t("scrutins.no_results")}</p>
+            <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>{t("scrutins.no_results")}</p>
           ) : (
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
@@ -183,7 +183,7 @@ export default function ScrutinsPage() {
       )}
 
       <h2 style={{ fontSize: 18, marginTop: "2rem" }}>{t("scrutins.recent_title")}</h2>
-      <p style={{ fontSize: 13, color: "#666", marginBottom: "1rem" }}>{t("scrutins.recent_explain")}</p>
+      <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginBottom: "1rem" }}>{t("scrutins.recent_explain")}</p>
 
       <label style={{ display: "block", marginBottom: "0.75rem" }}>
         {t("scrutins.filter_result")}{" "}
@@ -233,14 +233,14 @@ export default function ScrutinsPage() {
         </table>
       )}
 
-      <p style={{ fontSize: 13, color: "#666", marginTop: "1.5rem" }}>
+      <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginTop: "1.5rem" }}>
         {t("scrutins.coverage_note")}{" "}
         <a href="https://data.assemblee-nationale.fr/" target="_blank" rel="noreferrer">
           data.assemblee-nationale.fr
         </a>.
       </p>
 
-      <p style={{ fontSize: 12, color: "#666", marginTop: "1rem" }}>
+      <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginTop: "1rem" }}>
         {t("scrutins.source")}{" "}
         <Link href="/deputes">{t("scrutins.back_to_deputies")}</Link>
       </p>

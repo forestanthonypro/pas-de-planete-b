@@ -112,12 +112,12 @@ export default function DeputyPage() {
           <h1>{deputy.full_name}</h1>
           <ShareButtons title={`${deputy.full_name}`} />
 
-          <p style={{ color: "#666" }}>
+          <p style={{ color: "var(--color-texte-clair)" }}>
             {deputy.group_abbreviation && <>{t("deputes.group_label")} : <strong>{deputy.group_abbreviation}</strong> ({deputy.group_name}) — </>}
             {deputy.department && <>{deputy.department}{deputy.circo_number ? t("deputes.circo_suffix_full", { n: deputy.circo_number }) : ""}</>}
           </p>
 
-          <p style={{ fontSize: 13, color: "#666", marginTop: "1rem" }}>
+          <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginTop: "1rem" }}>
             {t("deputes.votes_summary", { count: votes.length })}{" "}
             {Object.keys(tally).length > 0
               ? Object.entries(tally)
@@ -125,7 +125,7 @@ export default function DeputyPage() {
                   .join(" · ")
               : t("deputes.no_data")}
           </p>
-          <p style={{ fontSize: 13, color: "#666" }}>{t("deputes.legislature_note")}</p>
+          <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>{t("deputes.legislature_note")}</p>
 
           {votes.length > 0 && groupStats?.avg_participation_pct != null && (() => {
             const absentCount = votes.filter((v) => v.position === "absent" || v.position === "non-votant").length;
@@ -133,7 +133,7 @@ export default function DeputyPage() {
             const groupAvg = parseFloat(groupStats.avg_participation_pct);
             const diff = Math.round((ownParticipation - groupAvg) * 10) / 10;
             return (
-              <p style={{ fontSize: 13, color: "#666" }}>
+              <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>
                 {t("deputes.participation_compare", {
                   name: deputy.full_name,
                   own: ownParticipation,
@@ -196,7 +196,7 @@ export default function DeputyPage() {
                           {v.title || v.objet || `Scrutin n°${v.numero_scrutin}`}
                         </Link>
                       </td>
-                      <td style={{ padding: 8, color: POSITION_LABELS[v.position]?.color || "#333", fontWeight: 600 }}>
+                      <td style={{ padding: 8, color: POSITION_LABELS[v.position]?.color || "var(--color-texte)", fontWeight: 600 }}>
                         {POSITION_LABELS[v.position]?.label || v.position}
                       </td>
                       <td style={{ padding: 8 }}>{v.result_label || v.result_code || "—"}</td>
@@ -205,12 +205,12 @@ export default function DeputyPage() {
                 </tbody>
               </table>
               {filteredVotes.length === 0 && (
-                <p style={{ fontSize: 13, color: "#666" }}>{t("deputes.no_matching_votes")}</p>
+                <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>{t("deputes.no_matching_votes")}</p>
               )}
             </>
           )}
 
-          <p style={{ fontSize: 12, color: "#666", marginTop: "1rem" }}>{t("deputes.deputy_source")}</p>
+          <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginTop: "1rem" }}>{t("deputes.deputy_source")}</p>
         </>
       )}
     </div>

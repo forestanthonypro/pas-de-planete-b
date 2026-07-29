@@ -60,7 +60,7 @@ export default function CitizenVote({ legislature, numero, resultCode, resultLab
   };
 
   return (
-    <div style={{ background: "#f7f7f5", border: "1px solid #e5e7e0", borderRadius: 12, padding: "1rem", margin: "1.5rem 0" }}>
+    <div style={{ background: "var(--color-carte)", border: "1px solid #e5e7e0", borderRadius: 12, padding: "1rem", margin: "1.5rem 0" }}>
       <p style={{ fontWeight: 600, margin: "0 0 8px" }}>{t("citizenVote.question")}</p>
       <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
         {POSITIONS.map((p) => (
@@ -71,8 +71,8 @@ export default function CitizenVote({ legislature, numero, resultCode, resultLab
             style={{
               padding: "8px 16px",
               borderRadius: 8,
-              border: myVote === p ? "2px solid #1b5e20" : "1px solid #e0e0dc",
-              background: myVote === p ? "#eaf3de" : "white",
+              border: myVote === p ? "2px solid var(--color-forest)" : "1px solid var(--color-bordure)",
+              background: myVote === p ? "var(--color-carte-verte)" : "var(--color-fond)",
               fontWeight: myVote === p ? 600 : 400,
               cursor: "pointer",
             }}
@@ -83,11 +83,11 @@ export default function CitizenVote({ legislature, numero, resultCode, resultLab
       </div>
 
       {myVote && (
-        <div style={{ marginTop: "0.75rem", fontSize: 13, color: "#333" }}>
+        <div style={{ marginTop: "0.75rem", fontSize: 13, color: "var(--color-texte)" }}>
           <p style={{ margin: "0 0 4px" }}>
             {t("citizenVote.your_vote", { position: labels[myVote] })}
           </p>
-          <p style={{ margin: 0, color: "#666" }}>
+          <p style={{ margin: 0, color: "var(--color-texte-clair)" }}>
             {t("citizenVote.assembly_result", {
               result: resultLabel || resultCode || "—",
               pour: tally?.pour || 0,
@@ -97,7 +97,7 @@ export default function CitizenVote({ legislature, numero, resultCode, resultLab
           </p>
           {citizenStats && (
             citizenStats.available ? (
-              <p style={{ margin: "4px 0 0", color: "#666" }}>
+              <p style={{ margin: "4px 0 0", color: "var(--color-texte-clair)" }}>
                 {t("citizenVote.citizens_result", {
                   total: citizenStats.total,
                   pour: citizenStats.counts.pour || 0,
@@ -115,7 +115,7 @@ export default function CitizenVote({ legislature, numero, resultCode, resultLab
       )}
 
       {showConsentPrompt && (
-        <div style={{ marginTop: "1rem", padding: "0.75rem", background: "white", border: "1px solid #e0e0dc", borderRadius: 8 }}>
+        <div style={{ marginTop: "1rem", padding: "0.75rem", background: "var(--color-fond)", border: "1px solid var(--color-bordure)", borderRadius: 8 }}>
           <p style={{ fontSize: 13, margin: "0 0 8px" }}>{t("citizenVote.consent_question")}</p>
           <div style={{ display: "flex", gap: "0.5rem" }}>
             <button type="button" onClick={() => handleConsentDecision(true)} style={{ fontSize: 13 }}>
@@ -131,7 +131,7 @@ export default function CitizenVote({ legislature, numero, resultCode, resultLab
       {saved && <p style={{ fontSize: 12, color: "#1baf7a", marginTop: 8 }}>{t("citizenVote.saved")}</p>}
       {error && <p role="alert" style={{ fontSize: 12, color: "#d63e2a", marginTop: 8 }}>{error}</p>}
 
-      <p style={{ fontSize: 12, color: "#666", marginTop: "0.75rem" }}>
+      <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginTop: "0.75rem" }}>
         <Link href="/mes-votes">{t("citizenVote.manage_link")}</Link>
       </p>
     </div>
