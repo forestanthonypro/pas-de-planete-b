@@ -950,6 +950,35 @@ app.get("/api/debunk/:slug", async (req, res) => {
 
 // Création/mise à jour d'une entrée — protégé, réservé à la rédaction du
 // site. "sources" est un tableau [{label, url}, ...].
+// Lecture admin : toutes les entrées, publiées ou non (contrairement aux
+// routes publiques ci-dessus) — pour l'interface d'administration.
+app.get("/api/admin/debunk", requireIngestToken, async (_req, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT slug, myth, category, verdict, published, updated_at FROM debunk_entries ORDER BY updated_at DESC"
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+  }
+});
+
+app.get("/api/admin/debunk/:slug", requireIngestToken, async (req, res) => {
+  try {
+    const entryResult = await pool.query("SELECT * FROM debunk_entries WHERE slug = $1", [req.params.slug]);
+    if (entryResult.rows.length === 0) {
+      return res.status(404).json({ error: "Entrée non trouvée" });
+    }
+    const sourcesResult = await pool.query(
+      "SELECT label, url FROM debunk_sources WHERE debunk_slug = $1 ORDER BY id",
+      [req.params.slug]
+    );
+    res.json({ entry: entryResult.rows[0], sources: sourcesResult.rows });
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+  }
+});
+
 app.post("/api/admin/debunk", requireIngestToken, async (req, res) => {
   const { slug, myth, reality, category, verdict, claimQuote, published, sources } = req.body || {};
   if (!slug || !myth || !reality) {
