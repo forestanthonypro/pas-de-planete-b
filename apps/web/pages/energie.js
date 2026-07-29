@@ -143,20 +143,50 @@ export default function EnergiePage() {
     };
   }, [generation]);
 
-  // Initialise la carte une seule fois.
+  // Création de la carte (si besoin) PUIS dessin des marqueurs, toujours dans
+  // le même appel — jamais dans deux effets séparés : l'import dynamique de
+  // Leaflet est asynchrone, et rien ne garantissait que la carte soit créée
+  // avant que le dessin des marqueurs ne s'exécute (course, carte vide
+  // observée en pratique).
   useEffect(() => {
-    if (view !== "map" || sobriety || !mapContainerRef.current || mapRef.current) return;
+    if (view !== "map" || sobriety || !mapContainerRef.current) return;
 
     let cancelled = false;
     import("leaflet")
       .then((L) => {
         if (cancelled || !mapContainerRef.current) return;
-        mapRef.current = L.map(mapContainerRef.current).setView([20, 0], 2);
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-          attribution: "&copy; contributeurs OpenStreetMap",
-          maxZoom: 18,
-        }).addTo(mapRef.current);
-        markersLayerRef.current = L.layerGroup().addTo(mapRef.current);
+
+        if (!mapRef.current) {
+          mapRef.current = L.map(mapContainerRef.current).setView([20, 0], 2);
+          L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            attribution: "&copy; contributeurs OpenStreetMap",
+            maxZoom: 18,
+          }).addTo(mapRef.current);
+          markersLayerRef.current = L.layerGroup().addTo(mapRef.current);
+        }
+
+        markersLayerRef.current.clearLayers();
+        plants.forEach((p) => {
+          const color = FUEL_COLORS[p.fuel_type] || DEFAULT_FUEL_COLOR;
+          const radius = p.capacity_mw ? Math.max(4, Math.min(20, Math.sqrt(p.capacity_mw))) : 5;
+
+          L.circleMarker([p.latitude, p.longitude], {
+            radius,
+            color,
+            fillColor: color,
+            fillOpacity: 0.7,
+            weight: 1,
+          })
+            .bindPopup(
+              `<strong>${p.name}</strong><br/>${translateFuel(p.fuel_type)} — ${p.capacity_mw ?? "?"} MW`
+            )
+            .addTo(markersLayerRef.current);
+        });
+
+        if (plants.length > 0) {
+          const bounds = L.latLngBounds(plants.map((p) => [p.latitude, p.longitude]));
+          mapRef.current.fitBounds(bounds, { padding: [20, 20], maxZoom: 8 });
+        }
       })
       .catch((err) => {
         console.error("Échec de l'initialisation de la carte Leaflet :", err);
@@ -166,38 +196,7 @@ export default function EnergiePage() {
     return () => {
       cancelled = true;
     };
-  }, [view, sobriety]);
-
-  // Redessine les marqueurs à chaque changement de données.
-  useEffect(() => {
-    if (view !== "map" || !mapRef.current || !markersLayerRef.current) return;
-
-    import("leaflet").then((L) => {
-      markersLayerRef.current.clearLayers();
-
-      plants.forEach((p) => {
-        const color = FUEL_COLORS[p.fuel_type] || DEFAULT_FUEL_COLOR;
-        const radius = p.capacity_mw ? Math.max(4, Math.min(20, Math.sqrt(p.capacity_mw))) : 5;
-
-        L.circleMarker([p.latitude, p.longitude], {
-          radius,
-          color,
-          fillColor: color,
-          fillOpacity: 0.7,
-          weight: 1,
-        })
-          .bindPopup(
-            `<strong>${p.name}</strong><br/>${translateFuel(p.fuel_type)} — ${p.capacity_mw ?? "?"} MW`
-          )
-          .addTo(markersLayerRef.current);
-      });
-
-      if (plants.length > 0) {
-        const bounds = L.latLngBounds(plants.map((p) => [p.latitude, p.longitude]));
-        mapRef.current.fitBounds(bounds, { padding: [20, 20], maxZoom: 8 });
-      }
-    });
-  }, [plants, view]);
+  }, [view, sobriety, plants]);
 
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>

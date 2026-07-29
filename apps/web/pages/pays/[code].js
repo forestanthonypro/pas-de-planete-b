@@ -894,25 +894,20 @@ export default function PaysDashboard() {
   }, [compareCode, compareSummary, worldBenchmarks]);
 
   useEffect(() => {
-    if (sobriety || !fireMapContainerRef.current || fireMapRef.current) return;
+    if (sobriety || !fireMapContainerRef.current) return;
     let cancelled = false;
     import("leaflet").then((L) => {
       if (cancelled || !fireMapContainerRef.current) return;
-      fireMapRef.current = L.map(fireMapContainerRef.current).setView([20, 0], 2);
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: "&copy; contributeurs OpenStreetMap",
-        maxZoom: 18,
-      }).addTo(fireMapRef.current);
-      fireMarkersLayerRef.current = L.layerGroup().addTo(fireMapRef.current);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [sobriety]);
 
-  useEffect(() => {
-    if (!fireMapRef.current || !fireMarkersLayerRef.current) return;
-    import("leaflet").then((L) => {
+      if (!fireMapRef.current) {
+        fireMapRef.current = L.map(fireMapContainerRef.current).setView([20, 0], 2);
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution: "&copy; contributeurs OpenStreetMap",
+          maxZoom: 18,
+        }).addTo(fireMapRef.current);
+        fireMarkersLayerRef.current = L.layerGroup().addTo(fireMapRef.current);
+      }
+
       fireMarkersLayerRef.current.clearLayers();
       fires.forEach((f) => {
         const frp = f.frp || 0;
@@ -936,7 +931,10 @@ export default function PaysDashboard() {
         fireMapRef.current.setView([20, 0], 2);
       }
     });
-  }, [fires]);
+    return () => {
+      cancelled = true;
+    };
+  }, [sobriety, fires]);
 
   useEffect(() => {
     if (sobriety || !compareCode || !compareSummary || !fireMapCompareContainerRef.current) return;

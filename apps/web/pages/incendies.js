@@ -63,27 +63,21 @@ export default function IncendiesPage() {
   }, [country]);
 
   useEffect(() => {
-    if (view !== "map" || sobriety || !mapContainerRef.current || mapRef.current) return;
+    if (view !== "map" || sobriety || !mapContainerRef.current) return;
     let cancelled = false;
     import("leaflet").then((L) => {
       if (cancelled || !mapContainerRef.current) return;
-      mapRef.current = L.map(mapContainerRef.current).setView([20, 0], 2);
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: "&copy; contributeurs OpenStreetMap",
-        maxZoom: 18,
-      }).addTo(mapRef.current);
-      markersLayerRef.current = L.layerGroup().addTo(mapRef.current);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [view, sobriety]);
 
-  useEffect(() => {
-    if (view !== "map" || !mapRef.current || !markersLayerRef.current) return;
-    import("leaflet").then((L) => {
+      if (!mapRef.current) {
+        mapRef.current = L.map(mapContainerRef.current).setView([20, 0], 2);
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution: "&copy; contributeurs OpenStreetMap",
+          maxZoom: 18,
+        }).addTo(mapRef.current);
+        markersLayerRef.current = L.layerGroup().addTo(mapRef.current);
+      }
+
       markersLayerRef.current.clearLayers();
-
       fires.forEach((f) => {
         const frp = f.frp || 0;
         const color = frp > 50 ? "#d63e2a" : frp > 10 ? "#e67e22" : "#f4b400";
@@ -105,7 +99,10 @@ export default function IncendiesPage() {
         mapRef.current.fitBounds(bounds, { padding: [20, 20], maxZoom: 8 });
       }
     });
-  }, [fires, view]);
+    return () => {
+      cancelled = true;
+    };
+  }, [view, sobriety, fires]);
 
   const selectedCountryName =
     localizedCountryName(country, preferredLang);
