@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { useSobriety } from "../lib/SobrietyContext";
+import { IconLeaf } from "./icons";
 
 export default function Layout({ children }) {
   const { sobriety, setSobriety } = useSobriety();
@@ -18,7 +19,7 @@ export default function Layout({ children }) {
         }}
       >
         <Link href="/" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none", color: "var(--color-texte)" }}>
-          {!sobriety && <span aria-hidden="true" style={{ fontSize: 20 }}>🌍</span>}
+          {!sobriety && <IconLeaf size={22} style={{ color: "var(--color-forest)" }} />}
           <strong style={{ fontSize: 16 }}>Pas de planète B</strong>
         </Link>
 
@@ -41,7 +42,7 @@ export default function Layout({ children }) {
             cursor: "pointer",
           }}
         >
-          {!sobriety && <span aria-hidden="true">🌱</span>}
+          {!sobriety && <IconLeaf size={16} style={{ color: "var(--color-forest)" }} />}
           Mode sobriété
           <input
             type="checkbox"
@@ -66,7 +67,7 @@ export default function Layout({ children }) {
           flexWrap: "wrap",
         }}
       >
-        {!sobriety && <span aria-hidden="true">🌱</span>}
+        {!sobriety && <IconLeaf size={15} style={{ color: "var(--color-forest)" }} />}
         Écoconception : sources ouvertes, sans compte, sans traceurs publicitaires.
       </footer>
     </div>
