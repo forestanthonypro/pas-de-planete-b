@@ -31,6 +31,7 @@ export default function AdminInterviewEdit() {
   const [sourceUrl, setSourceUrl] = useState("");
   const [sourceName, setSourceName] = useState("");
   const [embedUrl, setEmbedUrl] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
   const [category, setCategory] = useState("");
   const [relatedDebunkSlug, setRelatedDebunkSlug] = useState("");
   const [published, setPublished] = useState(false);
@@ -65,6 +66,7 @@ export default function AdminInterviewEdit() {
         setSourceUrl(data.source_url);
         setSourceName(data.source_name || "");
         setEmbedUrl(data.embed_url || "");
+        setImageUrl(data.image_url || "");
         setCategory(data.category || "");
         setRelatedDebunkSlug(data.related_debunk_slug || "");
         setPublished(data.published);
@@ -110,6 +112,7 @@ export default function AdminInterviewEdit() {
         sourceUrl,
         sourceName: sourceName || null,
         embedUrl: embedUrl || null,
+        imageUrl: imageUrl || null,
         category: category || null,
         relatedDebunkSlug: relatedDebunkSlug || null,
         published,
@@ -244,6 +247,30 @@ export default function AdminInterviewEdit() {
               placeholder="https://www.youtube.com/embed/..."
               style={{ width: "100%", padding: "8px 10px" }}
             />
+          </label>
+        )}
+
+        {contentType !== "video" && (
+          <label style={{ display: "block", marginBottom: "0.75rem" }}>
+            <span style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>
+              Image de vignette (optionnel — les vidéos utilisent automatiquement leur miniature YouTube)
+            </span>
+            <input
+              type="url"
+              value={imageUrl}
+              onChange={(e) => setImageUrl(e.target.value)}
+              placeholder="https://..."
+              style={{ width: "100%", padding: "8px 10px" }}
+            />
+            {imageUrl && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={imageUrl}
+                alt=""
+                style={{ marginTop: 8, maxWidth: 240, maxHeight: 140, borderRadius: 8, objectFit: "cover" }}
+                onError={(e) => { e.target.style.display = "none"; }}
+              />
+            )}
           </label>
         )}
 

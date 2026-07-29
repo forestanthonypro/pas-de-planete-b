@@ -1202,7 +1202,7 @@ app.get("/api/science-relays", async (_req, res) => {
   try {
     const result = await pool.query(
       `SELECT slug, title, description, scientist_name, scientist_field, content_type,
-              source_name, category, updated_at
+              source_name, category, embed_url, image_url, updated_at
        FROM science_relays WHERE published = true ORDER BY updated_at DESC`
     );
     res.json(result.rows);
@@ -1229,7 +1229,7 @@ app.get("/api/science-relays/:slug", async (req, res) => {
 app.get("/api/admin/science-relays", requireIngestToken, async (_req, res) => {
   try {
     const result = await pool.query(
-      "SELECT slug, title, content_type, category, published, updated_at FROM science_relays ORDER BY updated_at DESC"
+      "SELECT slug, title, content_type, category, published, image_url, updated_at FROM science_relays ORDER BY updated_at DESC"
     );
     res.json(result.rows);
   } catch (err) {
@@ -1252,7 +1252,7 @@ app.get("/api/admin/science-relays/:slug", requireIngestToken, async (req, res) 
 app.post("/api/admin/science-relays", requireIngestToken, async (req, res) => {
   const {
     slug, title, description, scientistName, scientistField, contentType,
-    sourceUrl, sourceName, embedUrl, category, relatedDebunkSlug, published,
+    sourceUrl, sourceName, embedUrl, imageUrl, category, relatedDebunkSlug, published,
   } = req.body || {};
   if (!slug || !title || !description || !sourceUrl) {
     return res.status(400).json({ error: "slug, title, description et sourceUrl sont requis" });
@@ -1264,17 +1264,18 @@ app.post("/api/admin/science-relays", requireIngestToken, async (req, res) => {
     await pool.query(
       `INSERT INTO science_relays
          (slug, title, description, scientist_name, scientist_field, content_type,
-          source_url, source_name, embed_url, category, related_debunk_slug, published, updated_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, now())
+          source_url, source_name, embed_url, image_url, category, related_debunk_slug, published, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, now())
        ON CONFLICT (slug) DO UPDATE SET
          title = EXCLUDED.title, description = EXCLUDED.description,
          scientist_name = EXCLUDED.scientist_name, scientist_field = EXCLUDED.scientist_field,
          content_type = EXCLUDED.content_type, source_url = EXCLUDED.source_url,
          source_name = EXCLUDED.source_name, embed_url = EXCLUDED.embed_url,
+         image_url = EXCLUDED.image_url,
          category = EXCLUDED.category, related_debunk_slug = EXCLUDED.related_debunk_slug,
          published = EXCLUDED.published, updated_at = now()`,
       [slug, title, description, scientistName || null, scientistField || null, contentType,
-       sourceUrl, sourceName || null, embedUrl || null, category || null, relatedDebunkSlug || null, published === true]
+       sourceUrl, sourceName || null, embedUrl || null, imageUrl || null, category || null, relatedDebunkSlug || null, published === true]
     );
     res.json({ status: "ok" });
   } catch (err) {

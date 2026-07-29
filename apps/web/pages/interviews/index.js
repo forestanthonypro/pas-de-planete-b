@@ -4,6 +4,7 @@ import ShareButtons from "../../components/ShareButtons";
 import PageHeader from "../../components/PageHeader";
 import { IconSearch } from "../../components/icons";
 import { useT } from "../../lib/useT";
+import { toYoutubeThumbnailUrl } from "../../lib/youtube";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -92,25 +93,41 @@ export default function InterviewsPage() {
 
       {!loading && !error && filtered.length > 0 && (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 12 }}>
-          {filtered.map((e) => (
-            <Link
-              key={e.slug}
-              href={`/interviews/${e.slug}`}
-              className="pdpb-card"
-              style={{ display: "block", textDecoration: "none", color: "inherit" }}
-            >
-              <span style={{ fontSize: 11, color: "var(--color-texte-clair)", textTransform: "uppercase", letterSpacing: "0.03em" }}>
-                {TYPE_ICONS[e.content_type]} {typeLabel(e.content_type)}
-              </span>
-              <p style={{ fontSize: 15, fontWeight: 600, margin: "6px 0 4px" }}>{e.title}</p>
-              {e.scientist_name && (
-                <p style={{ fontSize: 12, color: "var(--color-texte-clair)", margin: "0 0 4px" }}>
-                  {e.scientist_name}{e.scientist_field ? ` — ${e.scientist_field}` : ""}
-                </p>
-              )}
-              <p style={{ fontSize: 12, color: "var(--color-texte-clair)", margin: 0 }}>{e.category}</p>
-            </Link>
-          ))}
+          {filtered.map((e) => {
+            const thumbnail = e.content_type === "video" && e.embed_url
+              ? toYoutubeThumbnailUrl(e.embed_url)
+              : e.image_url;
+            return (
+              <Link
+                key={e.slug}
+                href={`/interviews/${e.slug}`}
+                className="pdpb-card"
+                style={{ display: "block", textDecoration: "none", color: "inherit", padding: 0, overflow: "hidden" }}
+              >
+                {thumbnail && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={thumbnail}
+                    alt=""
+                    style={{ width: "100%", height: 140, objectFit: "cover", display: "block" }}
+                    onError={(ev) => { ev.target.style.display = "none"; }}
+                  />
+                )}
+                <div style={{ padding: "1rem" }}>
+                  <span style={{ fontSize: 11, color: "var(--color-texte-clair)", textTransform: "uppercase", letterSpacing: "0.03em" }}>
+                    {TYPE_ICONS[e.content_type]} {typeLabel(e.content_type)}
+                  </span>
+                  <p style={{ fontSize: 15, fontWeight: 600, margin: "6px 0 4px" }}>{e.title}</p>
+                  {e.scientist_name && (
+                    <p style={{ fontSize: 12, color: "var(--color-texte-clair)", margin: "0 0 4px" }}>
+                      {e.scientist_name}{e.scientist_field ? ` — ${e.scientist_field}` : ""}
+                    </p>
+                  )}
+                  <p style={{ fontSize: 12, color: "var(--color-texte-clair)", margin: 0 }}>{e.category}</p>
+                </div>
+              </Link>
+            );
+          })}
         </div>
       )}
 
