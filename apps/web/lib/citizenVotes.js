@@ -25,6 +25,13 @@ export function fetchCitizenAlignment(anonymousId) {
   });
 }
 
+export function fetchCitizenScrutinStats(legislature, numero) {
+  return fetch(`${API_URL}/api/scrutins/${legislature}/${numero}/citizen-stats`).then((res) => {
+    if (!res.ok) throw new Error("Échec du chargement des statistiques citoyennes");
+    return res.json();
+  });
+}
+
 export function deleteAllCitizenVotes(anonymousId) {
   return fetch(`${API_URL}/api/citizen-votes/${anonymousId}`, { method: "DELETE" }).then((res) => {
     if (!res.ok) throw new Error("Échec de la suppression");

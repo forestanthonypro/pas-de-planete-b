@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import ShareButtons from "../../components/ShareButtons";
 import { useT } from "../../lib/useT";
+import { getConsent, getAnonymousId } from "../../lib/anonymousId";
+import { fetchCitizenVotes } from "../../lib/citizenVotes";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -18,6 +20,17 @@ export default function ScrutinsPage() {
   const [searching, setSearching] = useState(false);
   const [searchError, setSearchError] = useState(null);
   const [resultFilter, setResultFilter] = useState("");
+  const [votedScrutins, setVotedScrutins] = useState(new Set());
+
+  useEffect(() => {
+    if (getConsent() !== "yes") return;
+    const id = getAnonymousId();
+    fetchCitizenVotes(id)
+      .then((rows) => {
+        setVotedScrutins(new Set(rows.map((v) => `${v.legislature}-${v.numero_scrutin}`)));
+      })
+      .catch(() => setVotedScrutins(new Set()));
+  }, []);
 
   function handleSearch(e) {
     e.preventDefault();
@@ -206,6 +219,11 @@ export default function ScrutinsPage() {
                     <Link href={`/scrutins/${s.legislature}/${s.numero}`}>
                       {s.title || s.objet || `Scrutin n°${s.numero}`}
                     </Link>
+                    {votedScrutins.has(`${s.legislature}-${s.numero}`) && (
+                      <span style={{ marginLeft: 8, fontSize: 11, color: "#1baf7a", fontWeight: 600 }} title={t("scrutins.already_voted")}>
+                        ✓ {t("scrutins.already_voted")}
+                      </span>
+                    )}
                   </td>
                   <td style={{ padding: 8 }}>{s.type_vote_label || "—"}</td>
                   <td style={{ padding: 8 }}>{s.result_label || s.result_code || "—"}</td>

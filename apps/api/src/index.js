@@ -1161,6 +1161,39 @@ app.delete("/api/citizen-votes/:anonymousId", async (req, res) => {
   }
 });
 
+// Agrégat public (jamais individuel) des votes citoyens sur un scrutin — pas
+// d'authentification requise, aucune donnée personnelle exposée : juste des
+// comptages. Seuil minimum avant affichage pour éviter qu'un tout petit
+// nombre de votes (ex: 1 ou 2) donne une fausse impression de tendance.
+const MIN_CITIZEN_VOTES_FOR_STATS = 5;
+
+app.get("/api/scrutins/:legislature/:numero/citizen-stats", async (req, res) => {
+  const legislatureNum = parseInt(req.params.legislature, 10);
+  const numeroNum = parseInt(req.params.numero, 10);
+  if (Number.isNaN(legislatureNum) || Number.isNaN(numeroNum)) {
+    return res.status(400).json({ error: "Scrutin invalide" });
+  }
+  try {
+    const result = await pool.query(
+      `SELECT position, COUNT(*) AS count FROM citizen_votes
+       WHERE legislature = $1 AND numero_scrutin = $2
+       GROUP BY position`,
+      [legislatureNum, numeroNum]
+    );
+    const total = result.rows.reduce((sum, r) => sum + parseInt(r.count, 10), 0);
+    if (total < MIN_CITIZEN_VOTES_FOR_STATS) {
+      return res.json({ total, available: false, minRequired: MIN_CITIZEN_VOTES_FOR_STATS });
+    }
+    res.json({
+      total,
+      available: true,
+      counts: Object.fromEntries(result.rows.map((r) => [r.position, parseInt(r.count, 10)])),
+    });
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+  }
+});
+
 app.listen(port, () => {
   console.log(`API Pas de planète B à l'écoute sur le port ${port}`);
 });

@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { getAnonymousId, getConsent, setConsent } from "../lib/anonymousId";
-import { saveCitizenVote } from "../lib/citizenVotes";
+import { saveCitizenVote, fetchCitizenScrutinStats } from "../lib/citizenVotes";
 import { useT } from "../lib/useT";
 
 const POSITIONS = ["pour", "contre", "abstention"];
@@ -16,6 +16,17 @@ export default function CitizenVote({ legislature, numero, resultCode, resultLab
   const [showConsentPrompt, setShowConsentPrompt] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState(null);
+  const [citizenStats, setCitizenStats] = useState(null);
+
+  // Statistiques citoyennes agrégées — chargées seulement après le vote,
+  // jamais avant (même logique que la révélation des résultats de
+  // l'Assemblée : ça ne doit pas influencer le vote).
+  useEffect(() => {
+    if (!myVote) return;
+    fetchCitizenScrutinStats(legislature, numero)
+      .then(setCitizenStats)
+      .catch(() => setCitizenStats(null));
+  }, [myVote, legislature, numero]);
 
   function persistVote(position) {
     const id = getAnonymousId();
@@ -84,6 +95,22 @@ export default function CitizenVote({ legislature, numero, resultCode, resultLab
               abstention: tally?.abstention || 0,
             })}
           </p>
+          {citizenStats && (
+            citizenStats.available ? (
+              <p style={{ margin: "4px 0 0", color: "#666" }}>
+                {t("citizenVote.citizens_result", {
+                  total: citizenStats.total,
+                  pour: citizenStats.counts.pour || 0,
+                  contre: citizenStats.counts.contre || 0,
+                  abstention: citizenStats.counts.abstention || 0,
+                })}
+              </p>
+            ) : (
+              <p style={{ margin: "4px 0 0", color: "#999", fontSize: 12 }}>
+                {t("citizenVote.citizens_not_enough", { min: citizenStats.minRequired })}
+              </p>
+            )
+          )}
         </div>
       )}
 
