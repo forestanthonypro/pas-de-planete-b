@@ -18,7 +18,7 @@ export default function Layout({ children }) {
         }}
       >
         <Link href="/" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none", color: "var(--color-texte)" }}>
-          <span aria-hidden="true" style={{ fontSize: 20 }}>🌍</span>
+          {!sobriety && <span aria-hidden="true" style={{ fontSize: 20 }}>🌍</span>}
           <strong style={{ fontSize: 16 }}>Pas de planète B</strong>
         </Link>
 
@@ -41,7 +41,7 @@ export default function Layout({ children }) {
             cursor: "pointer",
           }}
         >
-          <span aria-hidden="true">🌱</span>
+          {!sobriety && <span aria-hidden="true">🌱</span>}
           Mode sobriété
           <input
             type="checkbox"
@@ -66,7 +66,7 @@ export default function Layout({ children }) {
           flexWrap: "wrap",
         }}
       >
-        <span aria-hidden="true">🌱</span>
+        {!sobriety && <span aria-hidden="true">🌱</span>}
         Écoconception : sources ouvertes, sans compte, sans traceurs publicitaires.
       </footer>
     </div>

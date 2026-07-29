@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { detectDefaultCountry } from "../lib/detectCountry";
 import ActionCTA from "../components/ActionCTA";
+import { useSobriety } from "../lib/SobrietyContext";
 
 const ENVIRONMENT_CARDS = [
   { href: "/co2", emoji: "☁️", label: "CO2", desc: "Par pays" },
@@ -20,10 +21,11 @@ const DEMOCRACY_CARDS = [
 ];
 
 function Card({ href, emoji, label, desc }) {
+  const { sobriety } = useSobriety();
   return (
     <Link href={href} className="pdpb-card" style={{ display: "block", textDecoration: "none", color: "var(--color-texte)" }}>
-      <span aria-hidden="true" style={{ fontSize: 20 }}>{emoji}</span>
-      <p style={{ fontSize: 14, fontWeight: 600, margin: "8px 0 2px" }}>{label}</p>
+      {!sobriety && <span aria-hidden="true" style={{ fontSize: 20 }}>{emoji}</span>}
+      <p style={{ fontSize: 14, fontWeight: 600, margin: sobriety ? 0 : "8px 0 2px" }}>{label}</p>
       <p style={{ fontSize: 12, color: "var(--color-texte-clair)", margin: 0 }}>{desc}</p>
     </Link>
   );
