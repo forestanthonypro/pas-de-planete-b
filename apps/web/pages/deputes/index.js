@@ -2,11 +2,10 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import ShareButtons from "../../components/ShareButtons";
+import { useT } from "../../lib/useT";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
-// Retire les accents pour une recherche insensible aux accents, cohérent avec
-// le sélecteur de pays utilisé ailleurs dans l'app.
 function normalize(str) {
   return (str || "")
     .normalize("NFD")
@@ -15,6 +14,7 @@ function normalize(str) {
 }
 
 export default function DeputesPage() {
+  const { t } = useT();
   const [deputies, setDeputies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -31,7 +31,7 @@ export default function DeputesPage() {
     setLoading(true);
     fetch(`${API_URL}/api/deputies`)
       .then((res) => {
-        if (!res.ok) throw new Error("Données indisponibles");
+        if (!res.ok) throw new Error(t("deputes.error_no_data"));
         return res.json();
       })
       .then((rows) => {
@@ -42,6 +42,7 @@ export default function DeputesPage() {
         setError(err.message);
         setLoading(false);
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const groups = useMemo(() => {
@@ -66,13 +67,11 @@ export default function DeputesPage() {
 
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
-      <h1>Députés — Assemblée nationale (17e législature)</h1>
-      <ShareButtons title="Députés — Assemblée nationale (17e législature)" />
+      <h1>{t("deputes.title")}</h1>
+      <ShareButtons title={t("deputes.title")} />
 
       <p style={{ fontSize: 13, color: "#666", marginBottom: "1rem" }}>
-        Liste des {deputies.length || "…"} députés. Informations factuelles (nom, groupe
-        politique, circonscription) sans aucun jugement de valeur — à toi de te faire ton propre
-        avis.
+        {t("deputes.list_intro", { count: deputies.length || "…" })}
       </p>
 
       <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem", flexWrap: "wrap" }}>
@@ -80,22 +79,22 @@ export default function DeputesPage() {
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Rechercher un nom, un département..."
+          placeholder={t("deputes.search_placeholder")}
           style={{ padding: "6px 10px", minWidth: 260 }}
         />
         <label>
-          Groupe{" "}
+          {t("deputes.group_label")}{" "}
           <select value={groupFilter} onChange={(e) => setGroupFilter(e.target.value)}>
-            <option value="">Tous</option>
+            <option value="">{t("deputes.all")}</option>
             {groups.map((g) => (
               <option key={g} value={g}>{g}</option>
             ))}
           </select>
         </label>
         <label>
-          Département{" "}
+          {t("deputes.department_label")}{" "}
           <select value={departmentFilter} onChange={(e) => setDepartmentFilter(e.target.value)}>
-            <option value="">Tous</option>
+            <option value="">{t("deputes.all")}</option>
             {departments.map((d) => (
               <option key={d} value={d}>{d}</option>
             ))}
@@ -103,17 +102,17 @@ export default function DeputesPage() {
         </label>
       </div>
 
-      {loading && <p>Chargement...</p>}
-      {error && <p role="alert">Erreur : {error}</p>}
-      {!loading && !error && filtered.length === 0 && <p>Aucun député trouvé pour ce filtre.</p>}
+      {loading && <p>{t("common.loading")}</p>}
+      {error && <p role="alert">{t("common.error_prefix")} {error}</p>}
+      {!loading && !error && filtered.length === 0 && <p>{t("deputes.no_deputies")}</p>}
 
       {!loading && !error && filtered.length > 0 && (
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
             <tr>
-              <th scope="col" style={{ textAlign: "left", padding: 8 }}>Nom</th>
-              <th scope="col" style={{ textAlign: "left", padding: 8 }}>Groupe</th>
-              <th scope="col" style={{ textAlign: "left", padding: 8 }}>Département / circo.</th>
+              <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("deputes.table_name")}</th>
+              <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("deputes.table_group")}</th>
+              <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("deputes.table_department")}</th>
             </tr>
           </thead>
           <tbody>
@@ -124,7 +123,7 @@ export default function DeputesPage() {
                 </th>
                 <td style={{ padding: 8 }}>{d.group_abbreviation || "—"}</td>
                 <td style={{ padding: 8 }}>
-                  {d.department ? `${d.department}${d.circo_number ? ` (${d.circo_number}e circo.)` : ""}` : "—"}
+                  {d.department ? `${d.department}${d.circo_number ? t("deputes.circo_suffix", { n: d.circo_number }) : ""}` : "—"}
                 </td>
               </tr>
             ))}
@@ -133,19 +132,16 @@ export default function DeputesPage() {
       )}
 
       <p style={{ fontSize: 13, color: "#666", marginTop: "1.5rem" }}>
-        Cette page couvre uniquement les députés en mandat lors de la{" "}
-        <strong>17e législature</strong>, en cours depuis juillet 2024. Pour les législatures
-        précédentes (closes), direction les archives officielles sur{" "}
+        {t("deputes.coverage_note")}{" "}
         <a href="https://data.assemblee-nationale.fr/" target="_blank" rel="noreferrer">
           data.assemblee-nationale.fr
         </a>.
       </p>
 
       <p style={{ fontSize: 12, color: "#666", marginTop: "1rem" }}>
-        Source : CIVIX, à partir des données open data de l&apos;Assemblée nationale (Licence
-        Ouverte / Open Licence 2.0).{" "}
-        <Link href="/deputes/participation">Classement de participation →</Link> ·{" "}
-        <Link href="/scrutins">Voir les derniers scrutins →</Link>
+        {t("deputes.source")}{" "}
+        <Link href="/deputes/participation">{t("deputes.participation_link")}</Link> ·{" "}
+        <Link href="/scrutins">{t("deputes.scrutins_link")}</Link>
       </p>
     </div>
   );

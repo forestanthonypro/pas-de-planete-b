@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useT } from "../../lib/useT";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -11,6 +12,7 @@ function normalize(str) {
 }
 
 export default function ParticipationPage() {
+  const { t } = useT();
   const [deputies, setDeputies] = useState([]);
   const [minVotes, setMinVotes] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -20,7 +22,7 @@ export default function ParticipationPage() {
   useEffect(() => {
     fetch(`${API_URL}/api/deputies/participation`)
       .then((res) => {
-        if (!res.ok) throw new Error("Données indisponibles");
+        if (!res.ok) throw new Error(t("deputes.error_no_data"));
         return res.json();
       })
       .then((data) => {
@@ -32,6 +34,7 @@ export default function ParticipationPage() {
         setError(err.message);
         setLoading(false);
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const withRate = useMemo(
@@ -51,41 +54,32 @@ export default function ParticipationPage() {
 
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
-      <h1>Participation aux votes — par député</h1>
+      <h1>{t("deputes.participation_title")}</h1>
       <p style={{ fontSize: 13, color: "#666", marginBottom: "1rem" }}>
-        Sur la fenêtre de scrutins où on a le détail nominatif (pas l&apos;historique complet de
-        la législature), part des scrutins où chaque député a exprimé un vote (pour, contre ou
-        abstention) plutôt que d&apos;être absent. Limité aux députés avec au moins{" "}
-        <strong>{minVotes}</strong> scrutins dans cette fenêtre, pour éviter qu&apos;un trop petit
-        échantillon fausse le classement.
+        {t("deputes.participation_intro1", { minVotes })}
       </p>
-      <p style={{ fontSize: 13, color: "#666", marginBottom: "1rem" }}>
-        Une absence peut avoir de multiples raisons (mission gouvernementale, maladie, autre
-        engagement parlementaire en commission au même moment...) — ce chiffre ne dit rien sur la
-        qualité du travail parlementaire d&apos;un député, seulement sa présence lors des votes en
-        hémicycle sur cette période.
-      </p>
+      <p style={{ fontSize: 13, color: "#666", marginBottom: "1rem" }}>{t("deputes.participation_intro2")}</p>
 
       <input
         type="text"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        placeholder="Rechercher un nom ou un groupe..."
+        placeholder={t("deputes.search_name_group")}
         style={{ padding: "6px 10px", minWidth: 260, marginBottom: "1rem" }}
       />
 
-      {loading && <p>Chargement...</p>}
-      {error && <p role="alert">Erreur : {error}</p>}
-      {!loading && !error && filtered.length === 0 && <p>Aucun député trouvé pour ce filtre.</p>}
+      {loading && <p>{t("common.loading")}</p>}
+      {error && <p role="alert">{t("common.error_prefix")} {error}</p>}
+      {!loading && !error && filtered.length === 0 && <p>{t("deputes.no_deputies")}</p>}
 
       {!loading && !error && filtered.length > 0 && (
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
             <tr>
-              <th scope="col" style={{ textAlign: "left", padding: 8 }}>Député</th>
-              <th scope="col" style={{ textAlign: "left", padding: 8 }}>Groupe</th>
-              <th scope="col" style={{ textAlign: "right", padding: 8 }}>Scrutins observés</th>
-              <th scope="col" style={{ textAlign: "right", padding: 8 }}>Taux de participation</th>
+              <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("deputes.table_deputy")}</th>
+              <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("deputes.table_group")}</th>
+              <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("deputes.table_observed_scrutins")}</th>
+              <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("deputes.table_participation_rate")}</th>
             </tr>
           </thead>
           <tbody>
@@ -104,8 +98,8 @@ export default function ParticipationPage() {
       )}
 
       <p style={{ fontSize: 12, color: "#666", marginTop: "1rem" }}>
-        Source : Assemblée nationale (open data officiel) (Licence Ouverte / Open Licence 2.0).{" "}
-        <Link href="/deputes">Voir la liste des députés →</Link>
+        {t("deputes.participation_source")}{" "}
+        <Link href="/deputes">{t("deputes.back_to_deputies_list")}</Link>
       </p>
     </div>
   );

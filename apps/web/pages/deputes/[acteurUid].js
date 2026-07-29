@@ -2,18 +2,23 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import ShareButtons from "../../components/ShareButtons";
+import { useT } from "../../lib/useT";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
-const POSITION_LABELS = {
-  pour: { label: "Pour", color: "#1baf7a" },
-  contre: { label: "Contre", color: "#d63e2a" },
-  abstention: { label: "Abstention", color: "#f4b400" },
-  absent: { label: "Absent / non-votant", color: "#95a5a6" },
-  "non-votant": { label: "Absent / non-votant", color: "#95a5a6" },
-};
+function usePositionLabels(t) {
+  return {
+    pour: { label: t("deputes.pos_pour"), color: "#1baf7a" },
+    contre: { label: t("deputes.pos_contre"), color: "#d63e2a" },
+    abstention: { label: t("deputes.pos_abstention"), color: "#f4b400" },
+    absent: { label: t("deputes.pos_absent"), color: "#95a5a6" },
+    "non-votant": { label: t("deputes.pos_absent"), color: "#95a5a6" },
+  };
+}
 
 export default function DeputyPage() {
+  const { t } = useT();
+  const POSITION_LABELS = usePositionLabels(t);
   const router = useRouter();
   const { acteurUid } = router.query;
   const [deputy, setDeputy] = useState(null);
@@ -32,7 +37,7 @@ export default function DeputyPage() {
     setError(null);
     fetch(`${API_URL}/api/deputies/${acteurUid}`)
       .then((res) => {
-        if (!res.ok) throw new Error("Député non trouvé");
+        if (!res.ok) throw new Error(t("deputes.deputy_not_found"));
         return res.json();
       })
       .then((data) => {
@@ -45,6 +50,7 @@ export default function DeputyPage() {
         setError(err.message);
         setLoading(false);
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [acteurUid]);
 
   const tally = votes.reduce((acc, v) => {
@@ -95,35 +101,31 @@ export default function DeputyPage() {
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
       <p style={{ fontSize: 13 }}>
-        <Link href="/deputes">← Retour à la liste des députés</Link>
+        <Link href="/deputes">{t("deputes.back_to_list")}</Link>
       </p>
 
-      {loading && <p>Chargement...</p>}
-      {error && <p role="alert">Erreur : {error}</p>}
+      {loading && <p>{t("common.loading")}</p>}
+      {error && <p role="alert">{t("common.error_prefix")} {error}</p>}
 
       {!loading && !error && deputy && (
         <>
           <h1>{deputy.full_name}</h1>
-      <ShareButtons title={`Député — ${deputy.full_name}`} />
+          <ShareButtons title={`${deputy.full_name}`} />
 
           <p style={{ color: "#666" }}>
-            {deputy.group_abbreviation && <>Groupe : <strong>{deputy.group_abbreviation}</strong> ({deputy.group_name}) — </>}
-            {deputy.department && <>{deputy.department}{deputy.circo_number ? ` (${deputy.circo_number}e circonscription)` : ""}</>}
+            {deputy.group_abbreviation && <>{t("deputes.group_label")} : <strong>{deputy.group_abbreviation}</strong> ({deputy.group_name}) — </>}
+            {deputy.department && <>{deputy.department}{deputy.circo_number ? t("deputes.circo_suffix_full", { n: deputy.circo_number }) : ""}</>}
           </p>
 
           <p style={{ fontSize: 13, color: "#666", marginTop: "1rem" }}>
-            Sur les <strong>{votes.length}</strong> scrutins où on a une donnée de vote pour ce
-            député :{" "}
+            {t("deputes.votes_summary", { count: votes.length })}{" "}
             {Object.keys(tally).length > 0
               ? Object.entries(tally)
                   .map(([pos, count]) => `${POSITION_LABELS[pos]?.label || pos} : ${count}`)
                   .join(" · ")
-              : "aucune donnée."}
+              : t("deputes.no_data")}
           </p>
-          <p style={{ fontSize: 13, color: "#666" }}>
-            Couvre l&apos;ensemble des scrutins de la 17e législature (depuis juillet 2024) pour
-            lesquels ce député était en mandat — pas les législatures précédentes.
-          </p>
+          <p style={{ fontSize: 13, color: "#666" }}>{t("deputes.legislature_note")}</p>
 
           {votes.length > 0 && groupStats?.avg_participation_pct != null && (() => {
             const absentCount = votes.filter((v) => v.position === "absent" || v.position === "non-votant").length;
@@ -132,53 +134,55 @@ export default function DeputyPage() {
             const diff = Math.round((ownParticipation - groupAvg) * 10) / 10;
             return (
               <p style={{ fontSize: 13, color: "#666" }}>
-                Sur cette même fenêtre, {deputy.full_name} a exprimé un vote (hors absences) dans{" "}
-                <strong>{ownParticipation} %</strong> des scrutins, contre une moyenne de{" "}
-                <strong>{groupAvg} %</strong> pour son groupe ({diff >= 0 ? "+" : ""}
-                {diff} point{Math.abs(diff) >= 2 ? "s" : ""}). Ces deux chiffres ne sont pas
-                calculés exactement de la même façon (fenêtres de scrutins différentes), à prendre
-                comme un ordre de grandeur plutôt qu&apos;une comparaison au point près.
+                {t("deputes.participation_compare", {
+                  name: deputy.full_name,
+                  own: ownParticipation,
+                  groupAvg,
+                  sign: diff >= 0 ? "+" : "",
+                  diff,
+                  plural: Math.abs(diff) >= 2 ? "s" : "",
+                })}
               </p>
             );
           })()}
 
           {votes.length > 0 && (
             <div style={{ position: "relative", height: 220, maxWidth: 400 }}>
-              <canvas ref={canvasRef} role="img" aria-label={`Répartition des votes de ${deputy.full_name}`} />
+              <canvas ref={canvasRef} role="img" aria-label={deputy.full_name} />
             </div>
           )}
 
           {votes.length === 0 ? (
-            <p>Aucune donnée de vote disponible pour ce député sur la période couverte.</p>
+            <p>{t("deputes.no_votes")}</p>
           ) : (
             <>
               <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", marginTop: "1rem", marginBottom: "0.5rem" }}>
                 <label>
-                  Position{" "}
+                  {t("deputes.position_label")}{" "}
                   <select value={positionFilter} onChange={(e) => setPositionFilter(e.target.value)}>
-                    <option value="">Toutes</option>
-                    <option value="pour">Pour</option>
-                    <option value="contre">Contre</option>
-                    <option value="abstention">Abstention</option>
-                    <option value="absent">Absent / non-votant</option>
+                    <option value="">{t("deputes.all_positions")}</option>
+                    <option value="pour">{t("deputes.pos_pour")}</option>
+                    <option value="contre">{t("deputes.pos_contre")}</option>
+                    <option value="abstention">{t("deputes.pos_abstention")}</option>
+                    <option value="absent">{t("deputes.pos_absent")}</option>
                   </select>
                 </label>
                 <label>
-                  Résultat du scrutin{" "}
+                  {t("deputes.result_label")}{" "}
                   <select value={resultFilter} onChange={(e) => setResultFilter(e.target.value)}>
-                    <option value="">Tous</option>
-                    <option value="adopté">Adopté</option>
-                    <option value="rejeté">Rejeté</option>
+                    <option value="">{t("deputes.all")}</option>
+                    <option value="adopté">{t("deputes.adopted")}</option>
+                    <option value="rejeté">{t("deputes.rejected")}</option>
                   </select>
                 </label>
               </div>
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead>
                   <tr>
-                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>Date</th>
-                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>Scrutin</th>
-                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>Position</th>
-                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>Résultat</th>
+                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("deputes.table_date")}</th>
+                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("deputes.table_scrutin")}</th>
+                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("deputes.table_position")}</th>
+                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("deputes.table_result")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -201,15 +205,12 @@ export default function DeputyPage() {
                 </tbody>
               </table>
               {filteredVotes.length === 0 && (
-                <p style={{ fontSize: 13, color: "#666" }}>Aucun scrutin ne correspond à ce filtre.</p>
+                <p style={{ fontSize: 13, color: "#666" }}>{t("deputes.no_matching_votes")}</p>
               )}
             </>
           )}
 
-          <p style={{ fontSize: 12, color: "#666", marginTop: "1rem" }}>
-            Source : CIVIX, à partir des données open data de l&apos;Assemblée nationale (Licence
-            Ouverte / Open Licence 2.0).
-          </p>
+          <p style={{ fontSize: 12, color: "#666", marginTop: "1rem" }}>{t("deputes.deputy_source")}</p>
         </>
       )}
     </div>
