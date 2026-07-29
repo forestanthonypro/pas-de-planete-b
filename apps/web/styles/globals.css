@@ -13,6 +13,7 @@
   --color-texte-clair: #647076;
   --color-fond: #ffffff;
   --color-carte: #f7f7f5;
+  --color-carte-verte: #eaf3de;
   --color-bordure: #e0e0dc;
 
   --radius: 10px;
@@ -56,7 +57,11 @@ a {
   border: 1px solid var(--color-bordure);
   border-radius: var(--radius);
   padding: 1rem;
+  box-shadow: 0 1px 3px rgba(27, 31, 35, 0.06);
   transition: transform var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
+}
+[data-sobriety="on"] .pdpb-card {
+  box-shadow: none;
 }
 [data-sobriety="on"] .pdpb-card:hover {
   transform: none;
@@ -64,4 +69,32 @@ a {
 [data-sobriety="off"] .pdpb-card:hover,
 :root:not([data-sobriety]) .pdpb-card:hover {
   transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(27, 31, 35, 0.08);
+}
+
+/* Bandeau d'accueil : léger dégradé en CSS pur (aucune image), aplati en
+   mode sobriété plutôt que retiré, pour que la mise en page ne saute pas. */
+.pdpb-hero {
+  background: linear-gradient(135deg, var(--color-carte-verte, #eaf3de) 0%, var(--color-fond) 70%);
+  border-radius: 16px;
+  padding: 1.5rem;
+}
+[data-sobriety="on"] .pdpb-hero {
+  background: var(--color-carte);
+}
+
+/* Pastille d'icône colorée devant chaque carte — la couleur de fond se
+   fixe en ligne par catégorie (voir pages), cette classe ne pose que la
+   forme commune. */
+.pdpb-icon-badge {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+[data-sobriety="on"] .pdpb-icon-badge {
+  display: none;
 }

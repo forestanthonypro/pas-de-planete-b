@@ -19,31 +19,49 @@ import {
   IconCheck,
 } from "../components/icons";
 
+// Couleur de la pastille par catégorie — la couleur porte du sens (nature,
+// énergie, eau...), pas juste une alternance décorative. Cohérent avec le
+// modèle "Nature épurée" retenu.
+const TINTS = {
+  green: { bg: "#eaf3de", color: "#1b5e20" },
+  amber: { bg: "#fdf1d6", color: "#a86b0a" },
+  blue: { bg: "#e3eef7", color: "#0b3c5d" },
+  tan: { bg: "#f3e9dd", color: "#8a5a2b" },
+  red: { bg: "#fbe4de", color: "#b0401f" },
+  gray: { bg: "#ececeb", color: "#55565a" },
+  slate: { bg: "#eef0f2", color: "#3d4750" },
+};
+
 function useCardGroups(t) {
   const environment = [
-    { href: "/co2", Icon: IconCloud, label: t("home.card_co2_label"), desc: t("home.card_co2_desc") },
-    { href: "/energie", Icon: IconBolt, label: t("home.card_energie_label"), desc: t("home.card_energie_desc") },
-    { href: "/eau", Icon: IconDroplet, label: t("home.card_eau_label"), desc: t("home.card_eau_desc") },
-    { href: "/vegetation", Icon: IconTree, label: t("home.card_vegetation_label"), desc: t("home.card_vegetation_desc") },
-    { href: "/especes", Icon: IconPaw, label: t("home.card_especes_label"), desc: t("home.card_especes_desc") },
-    { href: "/incendies", Icon: IconFlame, label: t("home.card_incendies_label"), desc: t("home.card_incendies_desc") },
-    { href: "/pollution", Icon: IconSmog, label: t("home.card_pollution_label"), desc: t("home.card_pollution_desc") },
+    { href: "/co2", Icon: IconCloud, label: t("home.card_co2_label"), desc: t("home.card_co2_desc"), tint: "green" },
+    { href: "/energie", Icon: IconBolt, label: t("home.card_energie_label"), desc: t("home.card_energie_desc"), tint: "amber" },
+    { href: "/eau", Icon: IconDroplet, label: t("home.card_eau_label"), desc: t("home.card_eau_desc"), tint: "blue" },
+    { href: "/vegetation", Icon: IconTree, label: t("home.card_vegetation_label"), desc: t("home.card_vegetation_desc"), tint: "green" },
+    { href: "/especes", Icon: IconPaw, label: t("home.card_especes_label"), desc: t("home.card_especes_desc"), tint: "tan" },
+    { href: "/incendies", Icon: IconFlame, label: t("home.card_incendies_label"), desc: t("home.card_incendies_desc"), tint: "red" },
+    { href: "/pollution", Icon: IconSmog, label: t("home.card_pollution_label"), desc: t("home.card_pollution_desc"), tint: "gray" },
   ];
   const democracy = [
-    { href: "/deputes", Icon: IconUsers, label: t("home.card_deputes_label"), desc: t("home.card_deputes_desc") },
-    { href: "/groupes", Icon: IconLandmark, label: t("home.card_groupes_label"), desc: t("home.card_groupes_desc") },
-    { href: "/scrutins", Icon: IconScale, label: t("home.card_scrutins_label"), desc: t("home.card_scrutins_desc") },
-    { href: "/mes-votes", Icon: IconCheck, label: t("home.card_mesvotes_label"), desc: t("home.card_mesvotes_desc") },
+    { href: "/deputes", Icon: IconUsers, label: t("home.card_deputes_label"), desc: t("home.card_deputes_desc"), tint: "blue" },
+    { href: "/groupes", Icon: IconLandmark, label: t("home.card_groupes_label"), desc: t("home.card_groupes_desc"), tint: "blue" },
+    { href: "/scrutins", Icon: IconScale, label: t("home.card_scrutins_label"), desc: t("home.card_scrutins_desc"), tint: "blue" },
+    { href: "/mes-votes", Icon: IconCheck, label: t("home.card_mesvotes_label"), desc: t("home.card_mesvotes_desc"), tint: "blue" },
   ];
   return { environment, democracy };
 }
 
-function Card({ href, Icon, label, desc }) {
+function Card({ href, Icon, label, desc, tint }) {
   const { sobriety } = useSobriety();
+  const colors = TINTS[tint] || TINTS.green;
   return (
     <Link href={href} className="pdpb-card" style={{ display: "block", textDecoration: "none", color: "var(--color-texte)" }}>
-      {!sobriety && <Icon size={22} style={{ color: "var(--color-forest)" }} />}
-      <p style={{ fontSize: 14, fontWeight: 600, margin: sobriety ? 0 : "8px 0 2px" }}>{label}</p>
+      {!sobriety && (
+        <div className="pdpb-icon-badge" style={{ background: colors.bg }}>
+          <Icon size={18} style={{ color: colors.color }} />
+        </div>
+      )}
+      <p style={{ fontSize: 14, fontWeight: 600, margin: sobriety ? 0 : "0 0 2px" }}>{label}</p>
       <p style={{ fontSize: 12, color: "var(--color-texte-clair)", margin: 0 }}>{desc}</p>
     </Link>
   );
@@ -60,15 +78,18 @@ export default function Home() {
 
   return (
     <div style={{ maxWidth: 900, margin: "0 auto", padding: "1.5rem" }}>
-      <p style={{ fontSize: 14, color: "var(--color-texte-clair)", margin: "0 0 1rem" }}>
-        {t("home.intro")}
-      </p>
+      <div className="pdpb-hero">
+        <p style={{ fontSize: 14, color: "var(--color-texte-clair)", margin: "0 0 1rem" }}>
+          {t("home.intro")}
+        </p>
+        <p style={{ margin: 0 }}>
+          <Link href={`/pays/${country}`} style={{ fontWeight: 600 }}>{t("home.see_my_country")}</Link>
+        </p>
+      </div>
 
-      <ActionCTA />
-
-      <p>
-        <Link href={`/pays/${country}`} style={{ fontWeight: 600 }}>{t("home.see_my_country")}</Link>
-      </p>
+      <div style={{ marginTop: "1.25rem" }}>
+        <ActionCTA />
+      </div>
 
       <h2 style={{ fontSize: 18, margin: "1.5rem 0 0.75rem" }}>{t("home.section_environment")}</h2>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 12 }}>
@@ -86,7 +107,7 @@ export default function Home() {
 
       <h2 style={{ fontSize: 18, margin: "1.5rem 0 0.75rem" }}>{t("home.section_engage")}</h2>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 12 }}>
-        <Card href="/debunk" Icon={IconSearch} label={t("home.card_debunk_label")} desc={t("home.card_debunk_desc")} />
+        <Card href="/debunk" Icon={IconSearch} label={t("home.card_debunk_label")} desc={t("home.card_debunk_desc")} tint="slate" />
       </div>
     </div>
   );
