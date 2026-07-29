@@ -13,25 +13,29 @@ import CountrySelect from "../../components/CountrySelect";
 import ShareButtons from "../../components/ShareButtons";
 import { useSobriety } from "../../lib/SobrietyContext";
 import { barEndLabelsPlugin } from "../../lib/barEndLabelsPlugin";
+import { useT } from "../../lib/useT";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
-const CATEGORY_INFO = {
-  EX: { label: "Éteinte", color: "#000000" },
-  EW: { label: "Éteinte à l'état sauvage", color: "#3d3d3d" },
-  CR: { label: "En danger critique", color: "#d63e2a" },
-  EN: { label: "En danger", color: "#e67e22" },
-  VU: { label: "Vulnérable", color: "#f4b400" },
-  NT: { label: "Quasi menacée", color: "#cbd423" },
-  LC: { label: "Préoccupation mineure", color: "#1baf7a" },
-  DD: { label: "Données insuffisantes", color: "#95a5a6" },
-};
-
+function useCategoryInfo(t) {
+  return {
+    EX: { label: t("especes.cat_ex"), color: "#000000" },
+    EW: { label: t("especes.cat_ew"), color: "#3d3d3d" },
+    CR: { label: t("especes.cat_cr"), color: "#d63e2a" },
+    EN: { label: t("especes.cat_en"), color: "#e67e22" },
+    VU: { label: t("especes.cat_vu"), color: "#f4b400" },
+    NT: { label: t("especes.cat_nt"), color: "#cbd423" },
+    LC: { label: t("especes.cat_lc"), color: "#1baf7a" },
+    DD: { label: t("especes.cat_dd"), color: "#95a5a6" },
+  };
+}
 
 export default function PaysDashboard() {
   const router = useRouter();
   const { code } = router.query;
   const { sobriety } = useSobriety();
+  const { t, locale } = useT();
+  const CATEGORY_INFO = useCategoryInfo(t);
   const lastUpdated = useLastUpdated();
   const worldBenchmarks = useWorldBenchmarks();
 
@@ -43,9 +47,6 @@ export default function PaysDashboard() {
   const [compareCode, setCompareCode] = useState("");
   const [compareSummary, setCompareSummary] = useState(null);
 
-  // Résumé chiffré du cumul forêt (indépendant du graphique) — même logique
-  // que sur /vegetation, pour donner un chiffre net plutôt que de faire deviner
-  // la valeur finale en lisant une courbe sur un axe partagé.
   const vegetationCumulativeSummary = useMemo(() => {
     const veg = summary?.vegetation;
     if (!veg || veg.length === 0) return null;
@@ -135,7 +136,7 @@ export default function PaysDashboard() {
 
     Promise.all([
       fetch(`${API_URL}/api/country-summary/${code}`).then((res) => {
-        if (!res.ok) throw new Error("Données indisponibles pour ce pays");
+        if (!res.ok) throw new Error(t("pays.co2_no_data"));
         return res.json();
       }),
       fetch(`${API_URL}/api/species?country=${code}`).then((res) => (res.ok ? res.json() : [])),
@@ -151,10 +152,9 @@ export default function PaysDashboard() {
         setError(err.message);
         setLoading(false);
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [code]);
 
-  // Réinitialise la comparaison si on change de pays principal, pour éviter
-  // de comparer un pays avec lui-même par accident.
   useEffect(() => {
     setCompareCode("");
     setCompareSummary(null);
@@ -198,7 +198,7 @@ export default function PaysDashboard() {
 
       const datasets = [
         {
-          label: "Émis dans le pays (Mt)",
+          label: t("co2.chart_label_territorial_total"),
           data: summary.co2.map((d) => d.emissions_mt),
           borderColor: "#2a78d6",
           backgroundColor: "rgba(42,120,214,0.1)",
@@ -210,7 +210,7 @@ export default function PaysDashboard() {
       ];
       if (hasConsumptionData) {
         datasets.push({
-          label: "Lié à ce qu'on achète (Mt)",
+          label: t("co2.chart_label_consumption_total"),
           data: summary.co2.map((d) => d.consumption_co2),
           borderColor: "#e67e22",
           backgroundColor: "rgba(230,126,34,0.1)",
@@ -235,12 +235,9 @@ export default function PaysDashboard() {
     return () => {
       cancelled = true;
     };
-  }, [summary]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [summary, t]);
 
-  // Graphique jumeau du pays comparé — un graphique séparé, jamais superposé
-  // au graphique principal, pour que celui-ci ne varie jamais selon qu'une
-  // comparaison est active ou non (fiabilité : les mêmes données affichées de
-  // la même façon, toujours).
   useEffect(() => {
     if (!compareCode || !compareSummary || compareSummary.co2.length === 0) return;
     const hasConsumptionData = compareSummary.co2.some((d) => d.consumption_co2 !== null && d.consumption_co2 !== undefined);
@@ -252,7 +249,7 @@ export default function PaysDashboard() {
 
       const datasets = [
         {
-          label: "Émis dans le pays (Mt)",
+          label: t("co2.chart_label_territorial_total"),
           data: compareSummary.co2.map((d) => d.emissions_mt),
           borderColor: "#6c3483",
           backgroundColor: "rgba(108,52,131,0.1)",
@@ -264,7 +261,7 @@ export default function PaysDashboard() {
       ];
       if (hasConsumptionData) {
         datasets.push({
-          label: "Lié à ce qu'on achète (Mt)",
+          label: t("co2.chart_label_consumption_total"),
           data: compareSummary.co2.map((d) => d.consumption_co2),
           borderColor: "#e67e22",
           backgroundColor: "rgba(230,126,34,0.1)",
@@ -289,7 +286,8 @@ export default function PaysDashboard() {
     return () => {
       cancelled = true;
     };
-  }, [compareCode, compareSummary]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [compareCode, compareSummary, t]);
 
   function buildEnergyMixChart(energyMixData) {
     const sorted = [...energyMixData].sort(
@@ -298,13 +296,13 @@ export default function PaysDashboard() {
     return {
       type: "bar",
       data: {
-        labels: sorted.map((r) => translateFuel(r.fuel_type)),
+        labels: sorted.map((r) => translateFuel(r.fuel_type, locale)),
         datasets: [
           {
-            label: "Capacité (MW)",
+            label: t("energie.chart_capacity_axis"),
             data: sorted.map((r) => r.total_capacity_mw || 0),
             backgroundColor: sorted.map((r) => FUEL_COLORS[r.fuel_type] || DEFAULT_FUEL_COLOR),
-            plantCounts: sorted.map((r) => r.plant_count),
+            plantLabels: sorted.map((r) => t("energie.plant_count", { count: r.plant_count, s: r.plant_count > 1 ? "s" : "" })),
           },
         ],
       },
@@ -316,7 +314,7 @@ export default function PaysDashboard() {
         layout: { padding: { right: 90 } },
         plugins: { legend: { display: false } },
         scales: {
-          x: { title: { display: true, text: "Capacité (MW)" } },
+          x: { title: { display: true, text: t("energie.chart_capacity_axis") } },
         },
       },
     };
@@ -333,7 +331,8 @@ export default function PaysDashboard() {
     return () => {
       cancelled = true;
     };
-  }, [summary]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [summary, locale]);
 
   useEffect(() => {
     if (!compareCode || !compareSummary || !compareSummary.energyMix || compareSummary.energyMix.length === 0) return;
@@ -346,19 +345,20 @@ export default function PaysDashboard() {
     return () => {
       cancelled = true;
     };
-  }, [compareCode, compareSummary]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [compareCode, compareSummary, locale]);
 
   function buildGenerationChart(generationData) {
     const sources = [
-      { key: "coal_twh", label: translateFuel("Coal"), color: FUEL_COLORS.Coal },
-      { key: "gas_twh", label: translateFuel("Gas"), color: FUEL_COLORS.Gas },
-      { key: "oil_twh", label: translateFuel("Oil"), color: FUEL_COLORS.Oil },
-      { key: "nuclear_twh", label: translateFuel("Nuclear"), color: FUEL_COLORS.Nuclear },
-      { key: "hydro_twh", label: translateFuel("Hydro"), color: FUEL_COLORS.Hydro },
-      { key: "wind_twh", label: translateFuel("Wind"), color: FUEL_COLORS.Wind },
-      { key: "solar_twh", label: translateFuel("Solar"), color: FUEL_COLORS.Solar },
-      { key: "biofuel_twh", label: translateFuel("Biomass"), color: FUEL_COLORS.Biomass },
-      { key: "other_renewable_twh", label: "Autres renouvelables", color: DEFAULT_FUEL_COLOR },
+      { key: "coal_twh", label: translateFuel("Coal", locale), color: FUEL_COLORS.Coal },
+      { key: "gas_twh", label: translateFuel("Gas", locale), color: FUEL_COLORS.Gas },
+      { key: "oil_twh", label: translateFuel("Oil", locale), color: FUEL_COLORS.Oil },
+      { key: "nuclear_twh", label: translateFuel("Nuclear", locale), color: FUEL_COLORS.Nuclear },
+      { key: "hydro_twh", label: translateFuel("Hydro", locale), color: FUEL_COLORS.Hydro },
+      { key: "wind_twh", label: translateFuel("Wind", locale), color: FUEL_COLORS.Wind },
+      { key: "solar_twh", label: translateFuel("Solar", locale), color: FUEL_COLORS.Solar },
+      { key: "biofuel_twh", label: translateFuel("Biomass", locale), color: FUEL_COLORS.Biomass },
+      { key: "other_renewable_twh", label: t("energie.other_renewable"), color: DEFAULT_FUEL_COLOR },
     ];
     return {
       type: "bar",
@@ -373,7 +373,7 @@ export default function PaysDashboard() {
           })),
           {
             type: "line",
-            label: "Consommation réelle (demande)",
+            label: t("energie.chart_demand"),
             data: generationData.map((d) => d.demand_twh),
             borderColor: "#000000",
             borderWidth: 2,
@@ -389,7 +389,7 @@ export default function PaysDashboard() {
         plugins: { legend: { display: true, position: "bottom" } },
         scales: {
           x: { stacked: true },
-          y: { stacked: true, title: { display: true, text: "TWh/an" } },
+          y: { stacked: true, title: { display: true, text: t("energie.axis_twh_year") } },
         },
       },
     };
@@ -406,7 +406,8 @@ export default function PaysDashboard() {
     return () => {
       cancelled = true;
     };
-  }, [summary]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [summary, locale]);
 
   useEffect(() => {
     if (!compareCode || !compareSummary || !compareSummary.electricityGeneration || compareSummary.electricityGeneration.length === 0) return;
@@ -419,21 +420,12 @@ export default function PaysDashboard() {
     return () => {
       cancelled = true;
     };
-  }, [compareCode, compareSummary]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [compareCode, compareSummary, locale]);
 
-  // Comparaison mondiale : les métriques "indice" (CO2, électricité, eau, forêt,
-  // pollution) sont ramenées à 100 = moyenne mondiale, colorées rouge/vert selon
-  // qu'elles sont au-dessus ou en-dessous. La biodiversité est d'une autre nature
-  // (part du total mondial, pas une moyenne à dépasser) — elle est donc affichée
-  // avec une couleur neutre plutôt que de réutiliser à tort le rouge/vert.
   useEffect(() => {
     if (!summary || !worldBenchmarks) return;
 
-    // Cherche, en partant de la dernière année, la première ligne où CE champ
-    // précis existe — nécessaire car eau/végétation ont plusieurs sources avec
-    // des couvertures temporelles différentes (ex: pluviométrie va jusqu'en 2025,
-    // le stress hydrique s'arrête en 2022) : prendre juste "la dernière ligne du
-    // tableau" renvoyait souvent une année où LE CHAMP QU'ON VEUT est vide.
     function latestWithField(array, field) {
       if (!array) return null;
       for (let i = array.length - 1; i >= 0; i--) {
@@ -456,21 +448,21 @@ export default function PaysDashboard() {
       const rows = [];
       if (latestCo2?.emissions_per_capita && worldBenchmarks.co2_per_capita) {
         rows.push({
-          label: "CO2 par habitant",
+          label: t("pays.metric_co2_per_capita"),
           value: (latestCo2.emissions_per_capita / worldBenchmarks.co2_per_capita.value) * 100,
           type: "index",
         });
       }
       if (latestElec?.demand_per_capita_kwh && worldBenchmarks.electricity_demand_per_capita) {
         rows.push({
-          label: "Électricité consommée/hab",
+          label: t("pays.metric_electricity_per_capita"),
           value: (latestElec.demand_per_capita_kwh / worldBenchmarks.electricity_demand_per_capita.value) * 100,
           type: "index",
         });
       }
       if (latestWaterStress?.withdrawal_share_percent && worldBenchmarks.water_stress_share) {
         rows.push({
-          label: "Stress hydrique",
+          label: t("pays.metric_water_stress"),
           value: (latestWaterStress.withdrawal_share_percent / worldBenchmarks.water_stress_share.value) * 100,
           type: "index",
         });
@@ -479,7 +471,7 @@ export default function PaysDashboard() {
       if (latestWaterWithdrawal?.withdrawal_m3 && latestPopulation && worldBenchmarks.water_withdrawal_per_capita) {
         const countryPerCapita = latestWaterWithdrawal.withdrawal_m3 / latestPopulation;
         rows.push({
-          label: "Eau prélevée par habitant",
+          label: t("pays.metric_water_withdrawal_per_capita"),
           value: (countryPerCapita / worldBenchmarks.water_withdrawal_per_capita.value) * 100,
           type: "index",
         });
@@ -487,14 +479,14 @@ export default function PaysDashboard() {
       if (latestVegArea?.forest_area_ha && latestVegLoss?.tree_cover_loss_ha && worldBenchmarks.forest_loss_share_world) {
         const countryShare = (latestVegLoss.tree_cover_loss_ha / latestVegArea.forest_area_ha) * 100;
         rows.push({
-          label: "Déforestation",
+          label: t("pays.metric_deforestation"),
           value: (countryShare / worldBenchmarks.forest_loss_share_world.value) * 100,
           type: "index",
         });
       }
       if (latestPollution?.pm25_ug_m3 && worldBenchmarks.pm25_world_average) {
         rows.push({
-          label: "Pollution de l'air (PM2.5)",
+          label: t("pays.metric_pollution"),
           value: (latestPollution.pm25_ug_m3 / worldBenchmarks.pm25_world_average.value) * 100,
           type: "index",
         });
@@ -507,7 +499,7 @@ export default function PaysDashboard() {
           (worldBenchmarks.fish_threatened_world?.value || 0);
         if (worldTotal > 0 && countryTotal > 0) {
           rows.push({
-            label: "Espèces menacées (% du total mondial)",
+            label: t("pays.metric_species_share"),
             value: (countryTotal / worldTotal) * 100,
             type: "share",
           });
@@ -524,10 +516,8 @@ export default function PaysDashboard() {
     const compareByLabel = Object.fromEntries(compareRows.map((r) => [r.label, r.value]));
     const typeByLabel = Object.fromEntries(mainRows.map((r) => [r.label, r.type]));
     const hasIndexMetric = mainRows.some((r) => r.type === "index");
+    const worldAverageLabel = t("pays.world_average_plain");
 
-    // Ligne verticale à 100 = moyenne mondiale — la couleur des barres identifie
-    // uniquement le pays, jamais si c'est "bon" ou "mauvais" : c'est la position
-    // de la barre par rapport à cette ligne qui le montre.
     const referenceLinePlugin = {
       id: "referenceLine100",
       afterDraw(chart) {
@@ -548,7 +538,7 @@ export default function PaysDashboard() {
         ctx.fillStyle = "#999";
         ctx.font = "11px sans-serif";
         ctx.textAlign = "left";
-        ctx.fillText("Moyenne mondiale", x + 4, yScale.top + 10);
+        ctx.fillText(worldAverageLabel, x + 4, yScale.top + 10);
         ctx.restore();
       },
     };
@@ -593,18 +583,18 @@ export default function PaysDashboard() {
                   const rowLabel = context.label;
                   const datasetLabel = context.dataset.label;
                   const value = context.parsed.x;
-                  if (value === null || value === undefined) return `${datasetLabel} : pas de donnée`;
+                  if (value === null || value === undefined) return t("pays.tooltip_no_data", { dataset: datasetLabel });
                   const rounded = Math.round(value * 10) / 10;
                   if (typeByLabel[rowLabel] === "share") {
-                    return `${datasetLabel} : ${rounded} % du total mondial`;
+                    return t("pays.tooltip_share", { dataset: datasetLabel, value: rounded });
                   }
-                  return `${datasetLabel} : indice ${rounded} (100 = moyenne mondiale, donc ${rounded} % de la moyenne)`;
+                  return t("pays.tooltip_index", { dataset: datasetLabel, value: rounded });
                 },
               },
             },
           },
           scales: {
-            x: { title: { display: true, text: "Indice (100 = moyenne mondiale) — sauf espèces menacées, en % réel du total mondial" } },
+            x: { title: { display: true, text: t("pays.comparison_axis") } },
           },
         },
       });
@@ -612,7 +602,7 @@ export default function PaysDashboard() {
     return () => {
       cancelled = true;
     };
-  }, [summary, worldBenchmarks, code, preferredLang, compareCode, compareSummary]);
+  }, [summary, worldBenchmarks, code, preferredLang, compareCode, compareSummary, t]);
 
   function buildVegetationChart(canvasEl, chartRefObj, vegetationData, worldBenchmarksData, barColor, cumulativeColor) {
     function fillNearestForestArea(rows) {
@@ -646,14 +636,14 @@ export default function PaysDashboard() {
         datasets: [
           {
             type: "bar",
-            label: "Perte de couverture arborée (ha)",
+            label: t("vegetation.chart_loss_ha"),
             data: vegetationData.map((d) => d.tree_cover_loss_ha),
             backgroundColor: barColor,
             yAxisID: "y",
           },
           {
             type: "line",
-            label: "% du couvert perdu",
+            label: t("vegetation.chart_share_year"),
             data: filledVegetation.map((d) =>
               d.forest_area_ha ? (d.tree_cover_loss_ha / d.forest_area_ha) * 100 : null
             ),
@@ -666,7 +656,7 @@ export default function PaysDashboard() {
           },
           {
             type: "line",
-            label: "% cumulé perdu depuis le début des données",
+            label: t("vegetation.chart_cumulative"),
             data: cumulativeShareData,
             borderColor: cumulativeColor,
             backgroundColor: "rgba(108,52,131,0.08)",
@@ -681,7 +671,7 @@ export default function PaysDashboard() {
             ? [
                 {
                   type: "line",
-                  label: "Moyenne mondiale (%)",
+                  label: t("vegetation.chart_world_avg"),
                   data: vegetationData.map(() => worldBenchmarksData.forest_loss_share_world.value),
                   borderColor: "#95a5a6",
                   borderDash: [4, 4],
@@ -699,8 +689,8 @@ export default function PaysDashboard() {
         maintainAspectRatio: false,
         plugins: { legend: { display: true } },
         scales: {
-          y: { type: "linear", position: "left", title: { display: true, text: "Perte (ha)" } },
-          y1: { type: "linear", position: "right", title: { display: true, text: "% perdu" }, grid: { drawOnChartArea: false } },
+          y: { type: "linear", position: "left", title: { display: true, text: t("vegetation.axis_loss_ha") } },
+          y1: { type: "linear", position: "right", title: { display: true, text: t("vegetation.axis_share_lost") }, grid: { drawOnChartArea: false } },
         },
       },
     };
@@ -720,9 +710,9 @@ export default function PaysDashboard() {
     return () => {
       cancelled = true;
     };
-  }, [summary, worldBenchmarks]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [summary, worldBenchmarks, t]);
 
-  // Graphique jumeau du pays comparé — indépendant du graphique principal.
   useEffect(() => {
     if (!compareCode || !compareSummary || !compareSummary.vegetation || compareSummary.vegetation.length === 0) return;
     let cancelled = false;
@@ -737,7 +727,8 @@ export default function PaysDashboard() {
     return () => {
       cancelled = true;
     };
-  }, [compareCode, compareSummary, worldBenchmarks]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [compareCode, compareSummary, worldBenchmarks, t]);
 
   function buildWaterChart(waterData, mainColor) {
     return {
@@ -746,7 +737,7 @@ export default function PaysDashboard() {
         labels: waterData.map((d) => d.year),
         datasets: [
           {
-            label: "Eau douce disponible par habitant (m³/an)",
+            label: t("eau.chart_freshwater"),
             data: waterData.map((d) => d.renewable_freshwater_m3_per_capita),
             borderColor: mainColor,
             backgroundColor: "rgba(42,120,214,0.1)",
@@ -757,7 +748,7 @@ export default function PaysDashboard() {
             borderWidth: 2,
           },
           {
-            label: "Pluviométrie (mm/an)",
+            label: t("eau.chart_precipitation"),
             data: waterData.map((d) => d.precipitation_mm),
             borderColor: "#1baf7a",
             backgroundColor: "rgba(27,175,122,0.1)",
@@ -775,8 +766,8 @@ export default function PaysDashboard() {
         maintainAspectRatio: false,
         plugins: { legend: { display: true } },
         scales: {
-          y: { type: "linear", position: "left", title: { display: true, text: "m³ par habitant et par an" } },
-          y1: { type: "linear", position: "right", title: { display: true, text: "mm/an" }, grid: { drawOnChartArea: false } },
+          y: { type: "linear", position: "left", title: { display: true, text: t("eau.axis_per_capita") } },
+          y1: { type: "linear", position: "right", title: { display: true, text: t("eau.axis_mm_year") }, grid: { drawOnChartArea: false } },
         },
       },
     };
@@ -793,7 +784,8 @@ export default function PaysDashboard() {
     return () => {
       cancelled = true;
     };
-  }, [summary]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [summary, t]);
 
   useEffect(() => {
     if (!compareCode || !compareSummary || !compareSummary.water || compareSummary.water.length === 0) return;
@@ -806,12 +798,13 @@ export default function PaysDashboard() {
     return () => {
       cancelled = true;
     };
-  }, [compareCode, compareSummary]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [compareCode, compareSummary, t]);
 
   function buildStressChart(waterData, worldBenchmarksData, mainColor) {
     const datasets = [
       {
-        label: "Part de l'eau disponible réellement utilisée (%)",
+        label: t("eau.chart_stress"),
         data: waterData.map((d) => d.withdrawal_share_percent),
         borderColor: mainColor,
         backgroundColor: "rgba(142,68,173,0.1)",
@@ -823,7 +816,7 @@ export default function PaysDashboard() {
     ];
     if (worldBenchmarksData?.water_stress_share) {
       datasets.push({
-        label: "Moyenne mondiale",
+        label: t("eau.chart_world_avg"),
         data: waterData.map(() => worldBenchmarksData.water_stress_share.value),
         borderColor: "#95a5a6",
         borderDash: [4, 4],
@@ -839,7 +832,7 @@ export default function PaysDashboard() {
         responsive: true,
         maintainAspectRatio: false,
         plugins: { legend: { display: true } },
-        scales: { y: { title: { display: true, text: "% de l'eau disponible utilisée" } } },
+        scales: { y: { title: { display: true, text: t("eau.axis_share_used") } } },
       },
     };
   }
@@ -857,7 +850,8 @@ export default function PaysDashboard() {
     return () => {
       cancelled = true;
     };
-  }, [summary, worldBenchmarks]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [summary, worldBenchmarks, t]);
 
   useEffect(() => {
     if (!compareCode || !compareSummary || !compareSummary.water || compareSummary.water.length === 0) return;
@@ -872,7 +866,8 @@ export default function PaysDashboard() {
     return () => {
       cancelled = true;
     };
-  }, [compareCode, compareSummary, worldBenchmarks]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [compareCode, compareSummary, worldBenchmarks, t]);
 
   useEffect(() => {
     if (sobriety || !fireMapContainerRef.current) return;
@@ -923,10 +918,6 @@ export default function PaysDashboard() {
     import("leaflet").then((L) => {
       if (cancelled || !fireMapCompareContainerRef.current) return;
 
-      // Création de la carte si elle n'existe pas encore, PUIS dessin des
-      // marqueurs dans le même appel — jamais dans deux effets séparés,
-      // sinon l'import dynamique asynchrone peut faire tourner le dessin des
-      // marqueurs avant que la carte n'existe (course, carte vide observée).
       if (!fireMapCompareRef.current) {
         fireMapCompareRef.current = L.map(fireMapCompareContainerRef.current).setView([20, 0], 2);
         L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -981,228 +972,165 @@ export default function PaysDashboard() {
           value={code || ""}
           onChange={(newCode) => router.push(`/pays/${newCode}`)}
           preferredLang={preferredLang}
-          label="Changer de pays"
+          label={t("pays.change_country")}
         />
       </div>
 
-      {loading && <p>Chargement...</p>}
-      {error && <p role="alert">Erreur : {error}</p>}
+      {loading && <p>{t("common.loading")}</p>}
+      {error && <p role="alert">{t("common.error_prefix")} {error}</p>}
 
       {!loading && !error && summary && (
-        <>
-          <section style={{ marginTop: "1rem", marginBottom: "2rem", padding: "1rem", background: "#f7f7f7", borderRadius: 8 }}>
-            <h2 style={{ marginTop: 0 }}>Comparaison mondiale</h2>
-            <p style={{ fontSize: 13, color: "#666" }}>
-              La <strong>couleur identifie le pays</strong> (voir la légende au-dessus du
-              graphique), rien d&apos;autre — elle ne veut jamais dire &laquo; bon &raquo; ou
-              &laquo; mauvais &raquo;. Pour le CO2, l&apos;électricité, l&apos;eau, la forêt et la
-              pollution, chaque métrique est ramenée à un indice où{" "}
-              <strong>100 = moyenne mondiale</strong> (ligne grise en pointillés sur le graphique) :
-              une barre qui dépasse la ligne est au-dessus de la moyenne mondiale sur cette
-              métrique, une barre qui s&apos;arrête avant est en-dessous. Exemple : à 150, le pays
-              est 50 % au-dessus de la moyenne mondiale ; à 50, il est deux fois en-dessous.
-            </p>
-            <p style={{ fontSize: 13, color: "#666" }}>
-              &laquo; Eau prélevée par habitant &raquo; inclut <strong>tous les usages</strong>{" "}
-              — agriculture, industrie et domestique confondus, pas seulement l&apos;eau du
-              robinet. Un pays avec moins d&apos;agriculture irriguée ou moins d&apos;industrie
-              lourde peut afficher un total par habitant plus bas sans que ses habitants
-              &laquo; consomment moins d&apos;eau au quotidien &raquo; au sens courant — c&apos;est
-              le prélèvement total du pays, réparti par habitant, qui est comparé.
-            </p>
-            <p style={{ fontSize: 13, color: "#666" }}>
-              &laquo; Stress hydrique &raquo; mesure autre chose : quelle part de l&apos;eau qui se
-              renouvelle naturellement chaque année dans le pays est réellement prélevée.
-              Exemple : un indice de 150 ne veut pas dire &laquo; le pays prélève 150 % de son
-              eau &raquo;, mais qu&apos;il est prélevé à un rythme 50 % supérieur à la moyenne
-              mondiale sur ce ratio &laquo; prélevé / disponible &raquo;. Un pays peut prélever peu
-              en valeur absolue mais avoir un stress hydrique élevé s&apos;il dispose de peu de
-              ressources renouvelables au départ (climat sec, peu de pluie).
-            </p>
-            <p style={{ fontSize: 13, color: "#666" }}>
-              &laquo; Déforestation &raquo; ici, c&apos;est le <strong>rythme annuel de perte</strong>{" "}
-              de couverture arborée, rapporté à la taille de la forêt du pays cette année-là (pas
-              un cumul sur plusieurs années — ça, c&apos;est la courbe violette sur le graphique
-              de la page dédiée). Un indice de 60 veut dire que le pays perd sa forêt à un rythme
-              annuel équivalent à 60 % de la moyenne mondiale. Toutes causes confondues (coupe,
-              incendie, agriculture) — pas nécessairement une déforestation permanente, une
-              parcelle peut repousser après une coupe forestière gérée.
-            </p>
-            <p style={{ fontSize: 13, color: "#666" }}>
-              La ligne &laquo; Espèces menacées (% du total mondial) &raquo; est différente : elle
-              montre la part du total mondial que représente ce pays, pas une comparaison à une
-              moyenne — aucun pays ne peut avoir &laquo; 100 % &raquo; des espèces menacées du
-              monde, donc la ligne de référence à 100 n&apos;a pas de sens pour cette ligne-là.
-            </p>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap", marginBottom: "0.75rem" }}>
-              <CountrySelect
-                countries={countries.filter((c) => c.country_code !== code)}
-                value={compareCode}
-                onChange={setCompareCode}
-                preferredLang={preferredLang}
-                label="Comparer aussi avec"
-              />
-              {compareCode && (
-                <button onClick={() => setCompareCode("")} style={{ fontSize: 13 }}>
-                  Retirer la comparaison
-                </button>
-              )}
-            </div>
-            <div style={{ position: "relative", height: 320 }}>
-              <canvas ref={comparisonCanvasRef} role="img" aria-label={`Comparaison de ${countryName} avec les moyennes mondiales`} />
-            </div>
-            {(() => {
-              function speciesLine(summaryData, name) {
-                if (!summaryData?.speciesThreatened?.length || !worldBenchmarks?.mammals_threatened_world) return null;
-                const latest = summaryData.speciesThreatened[summaryData.speciesThreatened.length - 1];
-                const countryTotal = (latest.mammals_threatened || 0) + (latest.birds_threatened || 0) + (latest.fish_threatened || 0);
-                const worldTotal =
-                  worldBenchmarks.mammals_threatened_world.value +
-                  (worldBenchmarks.birds_threatened_world?.value || 0) +
-                  (worldBenchmarks.fish_threatened_world?.value || 0);
-                const share = worldTotal > 0 ? ((countryTotal / worldTotal) * 100).toFixed(2) : null;
-                if (!share) return null;
-                return (
-                  <p key={`species-${name}`} style={{ fontSize: 13, color: "#666" }}>
-                    {name} compte <strong>{countryTotal}</strong> espèces menacées (mammifères/oiseaux/poissons confondus),
-                    soit environ <strong>{share} %</strong> du total mondial comptabilisé ({worldTotal}).
-                  </p>
-                );
-              }
-
-              function pollutionLine(summaryData, name) {
-                if (!worldBenchmarks?.pm25_who_guideline || !summaryData?.pollution?.length) return null;
-                const latest = summaryData.pollution[summaryData.pollution.length - 1];
-                if (!latest.pm25_ug_m3) return null;
-                const ratio = (latest.pm25_ug_m3 / worldBenchmarks.pm25_who_guideline.value).toFixed(1);
-                return (
-                  <p key={`pollution-${name}`} style={{ fontSize: 13, color: "#666" }}>
-                    Pollution de l&apos;air à {name} : {latest.pm25_ug_m3} µg/m³, soit{" "}
-                    <strong>{ratio}×</strong> le seuil recommandé par l&apos;OMS (5 µg/m³).
-                  </p>
-                );
-              }
-
+        <section style={{ marginTop: "1rem", marginBottom: "2rem", padding: "1rem", background: "#f7f7f7", borderRadius: 8 }}>
+          <h2 style={{ marginTop: 0 }}>{t("pays.world_comparison_title")}</h2>
+          <p style={{ fontSize: 13, color: "#666" }}>{t("pays.world_comparison_p1")}</p>
+          <p style={{ fontSize: 13, color: "#666" }}>{t("pays.world_comparison_p2")}</p>
+          <p style={{ fontSize: 13, color: "#666" }}>{t("pays.world_comparison_p3")}</p>
+          <p style={{ fontSize: 13, color: "#666" }}>{t("pays.world_comparison_p4")}</p>
+          <p style={{ fontSize: 13, color: "#666" }}>{t("pays.world_comparison_p5")}</p>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap", marginBottom: "0.75rem" }}>
+            <CountrySelect
+              countries={countries.filter((c) => c.country_code !== code)}
+              value={compareCode}
+              onChange={setCompareCode}
+              preferredLang={preferredLang}
+              label={t("pays.compare_with")}
+            />
+            {compareCode && (
+              <button onClick={() => setCompareCode("")} style={{ fontSize: 13 }}>
+                {t("pays.remove_comparison")}
+              </button>
+            )}
+          </div>
+          <div style={{ position: "relative", height: 320 }}>
+            <canvas ref={comparisonCanvasRef} role="img" aria-label={`${t("pays.world_comparison_title")} — ${countryName}`} />
+          </div>
+          {(() => {
+            function speciesLine(summaryData, name) {
+              if (!summaryData?.speciesThreatened?.length || !worldBenchmarks?.mammals_threatened_world) return null;
+              const latest = summaryData.speciesThreatened[summaryData.speciesThreatened.length - 1];
+              const countryTotal = (latest.mammals_threatened || 0) + (latest.birds_threatened || 0) + (latest.fish_threatened || 0);
+              const worldTotal =
+                worldBenchmarks.mammals_threatened_world.value +
+                (worldBenchmarks.birds_threatened_world?.value || 0) +
+                (worldBenchmarks.fish_threatened_world?.value || 0);
+              const share = worldTotal > 0 ? ((countryTotal / worldTotal) * 100).toFixed(2) : null;
+              if (!share) return null;
               return (
-                <>
-                  {speciesLine(summary, countryName)}
-                  {compareCode && compareSummary && speciesLine(compareSummary, localizedCountryName(compareCode, preferredLang))}
-                  {pollutionLine(summary, countryName)}
-                  {compareCode && compareSummary && pollutionLine(compareSummary, localizedCountryName(compareCode, preferredLang))}
-                </>
+                <p key={`species-${name}`} style={{ fontSize: 13, color: "#666" }}>
+                  {t("pays.species_share_summary", { name, count: countryTotal, share, worldTotal })}
+                </p>
               );
-            })()}
-          </section>
-        </>
+            }
+
+            function pollutionLine(summaryData, name) {
+              if (!worldBenchmarks?.pm25_who_guideline || !summaryData?.pollution?.length) return null;
+              const latest = summaryData.pollution[summaryData.pollution.length - 1];
+              if (!latest.pm25_ug_m3) return null;
+              const ratio = (latest.pm25_ug_m3 / worldBenchmarks.pm25_who_guideline.value).toFixed(1);
+              return (
+                <p key={`pollution-${name}`} style={{ fontSize: 13, color: "#666" }}>
+                  {t("pays.pollution_summary", { name, value: latest.pm25_ug_m3, ratio })}
+                </p>
+              );
+            }
+
+            return (
+              <>
+                {speciesLine(summary, countryName)}
+                {compareCode && compareSummary && speciesLine(compareSummary, localizedCountryName(compareCode, preferredLang))}
+                {pollutionLine(summary, countryName)}
+                {compareCode && compareSummary && pollutionLine(compareSummary, localizedCountryName(compareCode, preferredLang))}
+              </>
+            );
+          })()}
+        </section>
       )}
 
       {!loading && !error && summary && (
         <>
           <section style={{ marginTop: "1.5rem" }}>
-            <h2>Émissions de CO2</h2>
+            <h2>{t("co2.title")}</h2>
             {latestCo2 ? (
               <p>
-                Dernière donnée disponible ({latestCo2.year}) :{" "}
-                <strong>{latestCo2.emissions_mt} Mt</strong>
+                {t("pays.co2_latest", { year: latestCo2.year, value: latestCo2.emissions_mt })}
                 {latestCo2.emissions_per_capita && (
-                  <> — soit {latestCo2.emissions_per_capita} t par habitant</>
+                  <>{t("pays.co2_per_capita_suffix", { value: latestCo2.emissions_per_capita })}</>
                 )}
               </p>
             ) : (
-              <p>Aucune donnée CO2 pour ce pays.</p>
+              <p>{t("pays.co2_no_data")}</p>
             )}
-            <p style={{ fontSize: 13, color: "#666" }}>
-              La courbe bleue, c&apos;est ce qui est physiquement émis sur le sol du pays. La
-              courbe orange en pointillés (si présente), c&apos;est ce qui est lié à ce que les
-              gens du pays achètent — y compris les produits importés.
-            </p>
-            <p style={{ fontSize: 13, color: "#666" }}>
-              Exemple : un objet fabriqué dans une usine à l&apos;étranger, puis acheté et utilisé
-              ici. Sa fabrication a émis du CO2 là où l&apos;usine se trouve (compté dans la
-              courbe bleue de ce pays-là, pas d&apos;ici), mais comme c&apos;est nous qui
-              utilisons l&apos;objet, ce CO2 &laquo; appartient &raquo; en réalité à notre
-              consommation — c&apos;est ce que la courbe orange capte. Si l&apos;orange dépasse
-              le bleu, le pays achète (et fait donc émettre ailleurs) plus de CO2 qu&apos;il
-              n&apos;en émet lui-même.
-            </p>
-            <p style={{ fontSize: 13, color: "#666", fontWeight: 600 }}>
-              Important : ni la bleue ni l&apos;orange n&apos;est &laquo; la vraie &raquo;, et on
-              ne les additionne jamais — ce sont deux façons de découper le même total mondial
-              d&apos;émissions, pas deux morceaux d&apos;un total.
-            </p>
+            <p style={{ fontSize: 13, color: "#666" }}>{t("co2.explain_p1")}</p>
+            <p style={{ fontSize: 13, color: "#666" }}>{t("co2.explain_p2")}</p>
+            <p style={{ fontSize: 13, color: "#666", fontWeight: 600 }}>{t("co2.explain_p3")}</p>
             {summary.co2.length > 0 && (
               <div style={{ display: "grid", gridTemplateColumns: compareCode && compareSummary ? "repeat(auto-fit, minmax(320px, 1fr))" : "1fr", gap: "1rem" }}>
                 <div>
                   <p style={{ fontSize: 12, color: "#666", fontWeight: 600, marginBottom: 4 }}>{countryName}</p>
                   <div style={{ position: "relative", height: 220 }}>
-                    <canvas ref={co2CanvasRef} role="img" aria-label={`Émissions de CO2 pour ${countryName}`} />
+                    <canvas ref={co2CanvasRef} role="img" aria-label={`${t("co2.title")} — ${countryName}`} />
                   </div>
                 </div>
                 {compareCode && compareSummary && (
                   <div>
                     <p style={{ fontSize: 12, color: "#666", fontWeight: 600, marginBottom: 4 }}>{localizedCountryName(compareCode, preferredLang)}</p>
                     <div style={{ position: "relative", height: 220 }}>
-                      <canvas ref={co2CompareCanvasRef} role="img" aria-label={`Émissions de CO2 pour ${localizedCountryName(compareCode, preferredLang)}`} />
+                      <canvas ref={co2CompareCanvasRef} role="img" aria-label={`${t("co2.title")} — ${localizedCountryName(compareCode, preferredLang)}`} />
                     </div>
                   </div>
                 )}
               </div>
             )}
             <p style={{ fontSize: 12, color: "#666" }}>
-              Aviation et transport maritime internationaux non comptés dans aucune des deux.
+              {t("pays.co2_footer_note")}
               {lastUpdated?.co2?.latestYear && (
-                <> Dernière année couverte : {lastUpdated.co2.latestYear}.</>
+                <>{t("pays.co2_footer_year", { year: lastUpdated.co2.latestYear })}</>
               )}
-              {" "}Rafraîchissement automatique mensuel.{" "}
-              <Link href="/co2">Détails et comparaison avec d&apos;autres pays →</Link>
+              {t("pays.co2_footer_refresh")}{" "}
+              <Link href="/co2">{t("pays.co2_details_link")}</Link>
             </p>
           </section>
 
           <section style={{ marginTop: "2rem" }}>
-            <h2>Mix énergétique</h2>
+            <h2>{t("energie.mix_title")}</h2>
             {summary.energyMix.length > 0 ? (
               <>
                 <p>
-                  <strong>{summary.energyMix.length}</strong> types de production,{" "}
-                  <strong>{Math.round(totalCapacity).toLocaleString("fr-FR")} MW</strong> de capacité totale connue.
+                  {t("pays.energie_summary", { count: summary.energyMix.length, capacity: Math.round(totalCapacity).toLocaleString("fr-FR") })}
                 </p>
-                <p style={{ fontSize: 13, color: "#666" }}>
-                  Ce graphique montre la <strong>capacité installée</strong> — la puissance
-                  maximale possible, pas ce qui est réellement produit (un panneau solaire ne
-                  produit rien la nuit).
-                </p>
+                <p style={{ fontSize: 13, color: "#666" }}>{t("energie.map_explain")}</p>
                 <div style={{ display: "grid", gridTemplateColumns: compareCode && compareSummary ? "repeat(auto-fit, minmax(320px, 1fr))" : "1fr", gap: "1rem" }}>
                   <div>
                     <p style={{ fontSize: 12, color: "#666", fontWeight: 600, marginBottom: 4 }}>{countryName}</p>
                     <div style={{ position: "relative", height: Math.max(200, summary.energyMix.length * 34) }}>
-                      <canvas ref={energyCanvasRef} role="img" aria-label={`Mix énergétique de ${countryName}, capacité et nombre de centrales par type`} />
+                      <canvas ref={energyCanvasRef} role="img" aria-label={t("energie.mix_title")} />
                     </div>
                   </div>
                   {compareCode && compareSummary?.energyMix?.length > 0 && (
                     <div>
                       <p style={{ fontSize: 12, color: "#666", fontWeight: 600, marginBottom: 4 }}>{localizedCountryName(compareCode, preferredLang)}</p>
                       <div style={{ position: "relative", height: Math.max(200, compareSummary.energyMix.length * 34) }}>
-                        <canvas ref={energyCompareCanvasRef} role="img" aria-label={`Mix énergétique de ${localizedCountryName(compareCode, preferredLang)}, capacité et nombre de centrales par type`} />
+                        <canvas ref={energyCompareCanvasRef} role="img" aria-label={t("energie.mix_title")} />
                       </div>
                     </div>
                   )}
                 </div>
                 <details style={{ marginTop: "0.75rem" }}>
                   <summary style={{ cursor: "pointer", fontSize: 13, color: "#666" }}>
-                    Voir le détail chiffré en tableau
+                    {t("pays.energie_table_summary")}
                   </summary>
                   <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "0.5rem" }}>
                     <thead>
                       <tr>
-                        <th scope="col" style={{ textAlign: "left", padding: 6 }}>Type</th>
-                        <th scope="col" style={{ textAlign: "right", padding: 6 }}>Centrales</th>
-                        <th scope="col" style={{ textAlign: "right", padding: 6 }}>Capacité (MW)</th>
+                        <th scope="col" style={{ textAlign: "left", padding: 6 }}>{t("pays.energie_table_type")}</th>
+                        <th scope="col" style={{ textAlign: "right", padding: 6 }}>{t("pays.energie_table_plants")}</th>
+                        <th scope="col" style={{ textAlign: "right", padding: 6 }}>{t("pays.energie_table_capacity")}</th>
                       </tr>
                     </thead>
                     <tbody>
                       {summary.energyMix.map((r) => (
                         <tr key={r.fuel_type}>
-                          <th scope="row" style={{ textAlign: "left", padding: 6, fontWeight: 400 }}>{translateFuel(r.fuel_type)}</th>
+                          <th scope="row" style={{ textAlign: "left", padding: 6, fontWeight: 400 }}>{translateFuel(r.fuel_type, locale)}</th>
                           <td style={{ textAlign: "right", padding: 6 }}>{r.plant_count}</td>
                           <td style={{ textAlign: "right", padding: 6 }}>
                             {r.total_capacity_mw ? Math.round(r.total_capacity_mw).toLocaleString("fr-FR") : "—"}
@@ -1214,44 +1142,38 @@ export default function PaysDashboard() {
                 </details>
               </>
             ) : (
-              <p>Aucune centrale répertoriée pour ce pays.</p>
+              <p>{t("pays.energie_no_plants")}</p>
             )}
             <p style={{ fontSize: 12, color: "#666" }}>
-              Global Power Plant Database (WRI) — dernière version (v1.3.0), plus activement
-              maintenue depuis 2021-2022.
+              {t("pays.energie_source")}
               {lastUpdated?.powerPlants?.lastIngested && (
-                <> Dernière mise à jour de notre base : {formatDate(lastUpdated.powerPlants.lastIngested)}.</>
+                <>{t("pays.energie_source_updated", { date: formatDate(lastUpdated.powerPlants.lastIngested) })}</>
               )}
-              {" "}<Link href="/energie">Voir la carte détaillée →</Link>
+              {" "}<Link href="/energie">{t("pays.energie_map_link")}</Link>
             </p>
             {summary.electricityGeneration?.length > 0 && (
               <>
-                <p style={{ fontSize: 13, color: "#666", marginTop: "1rem" }}>
-                  À la différence du graphique ci-dessus (capacité installée, figée), voici ce qui
-                  est réellement produit chaque année. La ligne noire en pointillés, c&apos;est la
-                  consommation réelle : si elle est au-dessus des barres, le pays importe de
-                  l&apos;électricité pour compenser.
-                </p>
+                <p style={{ fontSize: 13, color: "#666", marginTop: "1rem" }}>{t("energie.generation_explain")}</p>
                 <div style={{ display: "grid", gridTemplateColumns: compareCode && compareSummary ? "repeat(auto-fit, minmax(320px, 1fr))" : "1fr", gap: "1rem" }}>
                   <div>
                     <p style={{ fontSize: 12, color: "#666", fontWeight: 600, marginBottom: 4 }}>{countryName}</p>
                     <div style={{ position: "relative", height: 260 }}>
-                      <canvas ref={generationCanvasRef} role="img" aria-label={`Génération électrique réelle par filière pour ${countryName}`} />
+                      <canvas ref={generationCanvasRef} role="img" aria-label={t("energie.generation_title")} />
                     </div>
                   </div>
                   {compareCode && compareSummary && (
                     <div>
                       <p style={{ fontSize: 12, color: "#666", fontWeight: 600, marginBottom: 4 }}>{localizedCountryName(compareCode, preferredLang)}</p>
                       <div style={{ position: "relative", height: 260 }}>
-                        <canvas ref={generationCompareCanvasRef} role="img" aria-label={`Génération électrique réelle par filière pour ${localizedCountryName(compareCode, preferredLang)}`} />
+                        <canvas ref={generationCompareCanvasRef} role="img" aria-label={t("energie.generation_title")} />
                       </div>
                     </div>
                   )}
                 </div>
                 <p style={{ fontSize: 12, color: "#666" }}>
-                  Ember / Energy Institute, via Our World in Data.
+                  {t("pays.generation_source")}
                   {lastUpdated?.electricity?.latestYear && (
-                    <> Dernière année couverte : {lastUpdated.electricity.latestYear}.</>
+                    <>{t("pays.generation_source_year", { year: lastUpdated.electricity.latestYear })}</>
                   )}
                 </p>
               </>
@@ -1259,23 +1181,23 @@ export default function PaysDashboard() {
           </section>
 
           <section style={{ marginTop: "2rem" }}>
-            <h2>Biodiversité (échantillon)</h2>
+            <h2>{t("pays.biodiversity_title")}</h2>
             {(() => {
               function renderSpeciesTable(list) {
                 if (list.length === 0) {
-                  return <p>Aucune espèce de l&apos;échantillon liée à ce pays pour l&apos;instant.</p>;
+                  return <p>{t("pays.biodiversity_no_sample")}</p>;
                 }
                 return (
                   <table style={{ width: "100%", borderCollapse: "collapse" }}>
                     <caption style={{ textAlign: "left", fontSize: 12, color: "#666", marginBottom: 8 }}>
-                      <strong>{list.length}</strong> espèces de l&apos;échantillon observées
+                      {t("pays.biodiversity_sample_caption", { count: list.length })}
                     </caption>
                     <thead>
                       <tr>
-                        <th scope="col" style={{ textAlign: "left", padding: 6 }}>Nom scientifique</th>
-                        <th scope="col" style={{ textAlign: "left", padding: 6 }}>Noms communs</th>
-                        <th scope="col" style={{ textAlign: "left", padding: 6 }}>Groupe</th>
-                        <th scope="col" style={{ textAlign: "left", padding: 6 }}>Catégorie</th>
+                        <th scope="col" style={{ textAlign: "left", padding: 6 }}>{t("especes.table_scientific_name")}</th>
+                        <th scope="col" style={{ textAlign: "left", padding: 6 }}>{t("especes.table_common_names")}</th>
+                        <th scope="col" style={{ textAlign: "left", padding: 6 }}>{t("especes.table_group")}</th>
+                        <th scope="col" style={{ textAlign: "left", padding: 6 }}>{t("especes.table_category")}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -1288,9 +1210,9 @@ export default function PaysDashboard() {
                               {s.scientific_name}
                             </th>
                             <td style={{ textAlign: "left", padding: 6, fontSize: 13, color: names ? "inherit" : "#999" }}>
-                              {names || "non disponible"}
+                              {names || t("especes.name_unavailable")}
                             </td>
-                            <td style={{ textAlign: "left", padding: 6 }}>{speciesGroupLabel(s.kingdom, s.class, s.taxon_order)}</td>
+                            <td style={{ textAlign: "left", padding: 6 }}>{speciesGroupLabel(s.kingdom, s.class, s.taxon_order, locale)}</td>
                             <td style={{ padding: 6 }}>
                               <span style={{ display: "inline-block", padding: "2px 8px", borderRadius: 4, fontSize: 11, color: "white", backgroundColor: info.color, lineHeight: 1.4 }}>
                                 {info.label}
@@ -1320,21 +1242,18 @@ export default function PaysDashboard() {
               );
             })()}
             <p style={{ fontSize: 12, color: "#666" }}>
-              GBIF, occurrences classées par catégorie UICN via la collaboration GBIF-IUCN —
-              échantillon, pas la liste complète des espèces évaluées.
+              {t("pays.biodiversity_source")}
               {lastUpdated?.species?.lastIngested && (
-                <> Dernière mise à jour : {formatDate(lastUpdated.species.lastIngested)}.</>
+                <>{t("pays.biodiversity_source_updated", { date: formatDate(lastUpdated.species.lastIngested) })}</>
               )}
-              {" "}<Link href="/especes">Filtrer par groupe/catégorie →</Link>
+              {" "}<Link href="/especes">{t("pays.biodiversity_filter_link")}</Link>
             </p>
             {summary.speciesThreatened?.length > 0 && (() => {
               const latest = summary.speciesThreatened[summary.speciesThreatened.length - 1];
               return (
                 <p style={{ fontSize: 12, color: "#666" }}>
-                  Comptage officiel IUCN ({latest.year}) — <strong>{latest.mammals_threatened ?? "—"}</strong> mammifères,{" "}
-                  <strong>{latest.birds_threatened ?? "—"}</strong> oiseaux et{" "}
-                  <strong>{latest.fish_threatened ?? "—"}</strong> poissons menacés (nombres absolus, pas de %).
-                  {" "}<Link href="/especes">Voir le détail →</Link>
+                  {t("pays.biodiversity_official_count", { year: latest.year, mammals: latest.mammals_threatened ?? "—", birds: latest.birds_threatened ?? "—", fish: latest.fish_threatened ?? "—" })}
+                  {" "}<Link href="/especes">{t("pays.biodiversity_detail_link")}</Link>
                 </p>
               );
             })()}
@@ -1344,15 +1263,12 @@ export default function PaysDashboard() {
                   {localizedCountryName(compareCode, preferredLang)}
                 </p>
                 <p style={{ fontSize: 12, color: "#666", margin: 0 }}>
-                  <strong>{compareSpeciesList.length}</strong> espèces de l&apos;échantillon observées.
+                  {t("pays.biodiversity_compare_sample", { count: compareSpeciesList.length })}
                   {compareSummary.speciesThreatened?.length > 0 && (() => {
                     const latestCompare = compareSummary.speciesThreatened[compareSummary.speciesThreatened.length - 1];
                     return (
                       <>
-                        {" "}Comptage officiel IUCN ({latestCompare.year}) —{" "}
-                        <strong>{latestCompare.mammals_threatened ?? "—"}</strong> mammifères,{" "}
-                        <strong>{latestCompare.birds_threatened ?? "—"}</strong> oiseaux et{" "}
-                        <strong>{latestCompare.fish_threatened ?? "—"}</strong> poissons menacés.
+                        {" "}{t("pays.biodiversity_official_count_compare", { year: latestCompare.year, mammals: latestCompare.mammals_threatened ?? "—", birds: latestCompare.birds_threatened ?? "—", fish: latestCompare.fish_threatened ?? "—" })}
                       </>
                     );
                   })()}
@@ -1364,33 +1280,30 @@ export default function PaysDashboard() {
       )}
 
       <section style={{ marginTop: "2rem" }}>
-        <h2>Feux actifs</h2>
+        <h2>{t("pays.fires_title")}</h2>
         {!loading && !error && (
           fires.length > 0 ? (
             <p>
-              <strong>{summary?.fires?.fire_count ?? fires.length}</strong> détections satellite sur les 3 derniers jours
+              {t("pays.fires_summary", { count: summary?.fires?.fire_count ?? fires.length })}
               {summary?.fires?.latest_detection && (
-                <> — la plus récente le {new Date(summary.fires.latest_detection).toLocaleString("fr-FR")}</>
+                <>{t("pays.fires_summary_latest", { date: new Date(summary.fires.latest_detection).toLocaleString("fr-FR") })}</>
               )}
               .
             </p>
           ) : (
-            <p>Aucune détection récente pour ce pays (ou pays non encore couvert par cette source).</p>
+            <p>{t("pays.fires_no_data")}</p>
           )
         )}
         <p style={{ fontSize: 12, color: "#666", marginBottom: "0.5rem" }}>
-          Couleur des points : <span style={{ color: "#f4b400", fontWeight: 600 }}>jaune</span>{" "}
-          modéré (souvent un brûlis agricole), <span style={{ color: "#e67e22", fontWeight: 600 }}>orange</span>{" "}
-          intermédiaire, <span style={{ color: "#d63e2a", fontWeight: 600 }}>rouge</span>{" "}
-          intense (plus probablement un vrai feu de forêt).
+          {t("pays.fires_color_legend", { yellow: "🟡", orange: "🟠", red: "🔴" })}
         </p>
         <div style={{ display: "grid", gridTemplateColumns: compareCode && compareSummary ? "repeat(auto-fit, minmax(320px, 1fr))" : "1fr", gap: "1rem" }}>
           <div>
             <p style={{ fontSize: 12, color: "#666", fontWeight: 600, marginBottom: 4 }}>{countryName}</p>
             {sobriety ? (
               <p style={{ fontSize: 13, color: "#666" }}>
-                Carte désactivée en mode sobriété (économise le téléchargement des tuiles) — voir{" "}
-                <Link href="/incendies">la page dédiée</Link> pour la carte ou le tableau.
+                {t("pays.fires_sobriety_disabled", { link: "" })}{" "}
+                <Link href="/incendies">{t("pays.fires_dedicated_page")}</Link>
               </p>
             ) : (
               <div ref={fireMapContainerRef} style={{ height: 360, borderRadius: 8 }} />
@@ -1400,10 +1313,10 @@ export default function PaysDashboard() {
             <div>
               <p style={{ fontSize: 12, color: "#666", fontWeight: 600, marginBottom: 4 }}>
                 {localizedCountryName(compareCode, preferredLang)} —{" "}
-                <strong>{compareFires.length}</strong> détection{compareFires.length !== 1 ? "s" : ""}
+                {compareFires.length} {t("pays.fires_detections_count", { s: compareFires.length !== 1 ? "s" : "" })}
               </p>
               {sobriety ? (
-                <p style={{ fontSize: 13, color: "#666" }}>Carte désactivée en mode sobriété.</p>
+                <p style={{ fontSize: 13, color: "#666" }}>{t("pays.fires_sobriety_disabled_short")}</p>
               ) : (
                 <div ref={fireMapCompareContainerRef} style={{ height: 360, borderRadius: 8 }} />
               )}
@@ -1411,128 +1324,102 @@ export default function PaysDashboard() {
           )}
         </div>
         <p style={{ fontSize: 12, color: "#666", marginTop: "0.5rem" }}>
-          NASA FIRMS (MODIS_NRT) — une détection n&apos;est pas nécessairement un feu de forêt
-          incontrôlé (brûlis agricoles inclus). Couverture limitée à une liste de pays courants.
-          Rafraîchissement automatique toutes les 6 heures.{" "}
-          <Link href="/incendies">Voir en plein écran →</Link>
+          {t("pays.fires_source")}{" "}
+          <Link href="/incendies">{t("pays.fires_fullscreen_link")}</Link>
         </p>
       </section>
 
       <section style={{ marginTop: "2rem" }}>
-        <h2>Perte de couverture arborée</h2>
+        <h2>{t("vegetation.title")}</h2>
         {summary?.vegetation?.length > 0 ? (
           <>
             {(() => {
               const latestLoss = [...summary.vegetation].reverse().find((d) => d.tree_cover_loss_ha != null);
               return latestLoss ? (
                 <p>
-                  Dernière donnée disponible ({latestLoss.year}) :{" "}
-                  <strong>{Math.round(parseFloat(latestLoss.tree_cover_loss_ha)).toLocaleString("fr-FR")} ha</strong>{" "}
-                  perdus.
+                  {t("pays.vegetation_latest", { year: latestLoss.year, value: Math.round(parseFloat(latestLoss.tree_cover_loss_ha)).toLocaleString("fr-FR") })}
                 </p>
               ) : (
-                <p>Aucune donnée de perte pour ce pays.</p>
+                <p>{t("pays.vegetation_no_year_data")}</p>
               );
             })()}
-            <p style={{ fontSize: 13, color: "#666" }}>
-              Imagine la forêt du pays comme une grande réserve. Chaque année, une partie
-              disparaît (coupée, brûlée, défrichée) — c&apos;est la barre orange, en hectares
-              (1 hectare ≈ 1 terrain de foot). Mais un même nombre d&apos;hectares perdus ne pèse
-              pas pareil selon la taille de la réserve : perdre 10 000 hectares dans un petit pays
-              très boisé, c&apos;est énorme ; les mêmes 10 000 hectares dans un pays immense comme
-              le Brésil, c&apos;est presque rien. La courbe rouge (%) corrige ça.
-            </p>
-            <p style={{ fontSize: 13, color: "#666" }}>
-              La courbe violette en pointillés, c&apos;est la perte <strong>additionnée</strong>{" "}
-              depuis la première année disponible, par rapport à la forêt de l&apos;époque : une
-              petite perte chaque année peut représenter beaucoup une fois cumulée sur toute la
-              période.
-            </p>
+            <p style={{ fontSize: 13, color: "#666" }}>{t("vegetation.explain_p1")}</p>
+            <p style={{ fontSize: 13, color: "#666" }}>{t("vegetation.explain_p2")}</p>
             <div style={{ display: "grid", gridTemplateColumns: compareCode && compareSummary ? "repeat(auto-fit, minmax(320px, 1fr))" : "1fr", gap: "1rem" }}>
               <div>
                 <p style={{ fontSize: 12, color: "#666", fontWeight: 600, marginBottom: 4 }}>{countryName}</p>
                 <div style={{ position: "relative", height: 220 }}>
-                  <canvas ref={vegetationCanvasRef} role="img" aria-label={`Perte de couverture arborée pour ${countryName}`} />
+                  <canvas ref={vegetationCanvasRef} role="img" aria-label={`${t("vegetation.title")} — ${countryName}`} />
                 </div>
               </div>
               {compareCode && compareSummary && (
                 <div>
                   <p style={{ fontSize: 12, color: "#666", fontWeight: 600, marginBottom: 4 }}>{localizedCountryName(compareCode, preferredLang)}</p>
                   <div style={{ position: "relative", height: 220 }}>
-                    <canvas ref={vegetationCompareCanvasRef} role="img" aria-label={`Perte de couverture arborée pour ${localizedCountryName(compareCode, preferredLang)}`} />
+                    <canvas ref={vegetationCompareCanvasRef} role="img" aria-label={`${t("vegetation.title")} — ${localizedCountryName(compareCode, preferredLang)}`} />
                   </div>
                 </div>
               )}
             </div>
             {vegetationCumulativeSummary && (
               <p style={{ fontSize: 13 }}>
-                Au total, entre <strong>{vegetationCumulativeSummary.startYear}</strong> et{" "}
-                <strong>{vegetationCumulativeSummary.endYear}</strong>, {countryName} a perdu{" "}
-                <strong>{Math.round(vegetationCumulativeSummary.totalLossHa).toLocaleString("fr-FR")} ha</strong>,
-                soit environ <strong>{vegetationCumulativeSummary.percent.toFixed(2)} %</strong> de
-                la forêt telle qu&apos;elle existait en{" "}
-                <strong>{vegetationCumulativeSummary.startYear}</strong> (première année où on a
-                une donnée de perte).
+                {t("vegetation.cumulative_summary", {
+                  startYear: vegetationCumulativeSummary.startYear,
+                  endYear: vegetationCumulativeSummary.endYear,
+                  country: countryName,
+                  totalLoss: Math.round(vegetationCumulativeSummary.totalLossHa).toLocaleString("fr-FR"),
+                  percent: vegetationCumulativeSummary.percent.toFixed(2),
+                })}
               </p>
             )}
           </>
         ) : (
-          <p>Aucune donnée de végétation pour ce pays.</p>
+          <p>{t("pays.vegetation_no_country_data")}</p>
         )}
         <p style={{ fontSize: 12, color: "#666" }}>
-          Global Forest Watch (Hansen et al.), toutes causes confondues (coupe, incendie,
-          agriculture) — pas nécessairement permanente.
+          {t("pays.vegetation_source")}
           {lastUpdated?.vegetation?.latestYear && (
-            <> Dernière année couverte : {lastUpdated.vegetation.latestYear}.</>
+            <>{t("pays.vegetation_source_year", { year: lastUpdated.vegetation.latestYear })}</>
           )}
-          {" "}<Link href="/vegetation">Voir le détail →</Link>
+          {" "}<Link href="/vegetation">{t("pays.vegetation_detail_link")}</Link>
         </p>
       </section>
 
       <section style={{ marginTop: "2rem" }}>
-        <h2>Ressources en eau</h2>
+        <h2>{t("eau.title")}</h2>
         {summary?.water?.length > 0 ? (
           <p>
-            Dernière donnée disponible ({summary.water[summary.water.length - 1].year}) :{" "}
+            {t("pays.water_latest_prefix", { year: summary.water[summary.water.length - 1].year })}{" "}
             {summary.water[summary.water.length - 1].renewable_freshwater_m3_per_capita && (
-              <>
-                <strong>
-                  {Math.round(summary.water[summary.water.length - 1].renewable_freshwater_m3_per_capita).toLocaleString("fr-FR")} m³
-                </strong>{" "}
-                de ressources renouvelables par habitant
-              </>
+              <>{t("pays.water_renewable", { value: Math.round(summary.water[summary.water.length - 1].renewable_freshwater_m3_per_capita).toLocaleString("fr-FR") })}</>
             )}
             {summary.water[summary.water.length - 1].precipitation_mm && (
-              <>
-                {" "}— <strong>{Math.round(summary.water[summary.water.length - 1].precipitation_mm).toLocaleString("fr-FR")} mm</strong> de précipitations cette année-là
-              </>
+              <>{t("pays.water_precipitation", { value: Math.round(summary.water[summary.water.length - 1].precipitation_mm).toLocaleString("fr-FR") })}</>
             )}
             {(() => {
               const lastWithdrawal = [...summary.water].reverse().find((d) => d.withdrawal_m3);
               return lastWithdrawal ? (
-                <>
-                  {" "}— <strong>{(lastWithdrawal.withdrawal_m3 / 1e9).toFixed(1)} Md m³</strong> prélevés réellement en {lastWithdrawal.year}
-                </>
+                <>{t("pays.water_withdrawal_actual", { value: (lastWithdrawal.withdrawal_m3 / 1e9).toFixed(1), year: lastWithdrawal.year })}</>
               ) : null;
             })()}
             .
           </p>
         ) : (
-          <p>Aucune donnée eau pour ce pays.</p>
+          <p>{t("pays.water_no_data")}</p>
         )}
         {summary?.water?.length > 0 && (
           <div style={{ display: "grid", gridTemplateColumns: compareCode && compareSummary ? "repeat(auto-fit, minmax(320px, 1fr))" : "1fr", gap: "1rem" }}>
             <div>
               <p style={{ fontSize: 12, color: "#666", fontWeight: 600, marginBottom: 4 }}>{countryName}</p>
               <div style={{ position: "relative", height: 260 }}>
-                <canvas ref={waterCanvasRef} role="img" aria-label={`Ressources en eau et pluviométrie pour ${countryName}`} />
+                <canvas ref={waterCanvasRef} role="img" aria-label={`${t("eau.title")} — ${countryName}`} />
               </div>
             </div>
             {compareCode && compareSummary && (
               <div>
                 <p style={{ fontSize: 12, color: "#666", fontWeight: 600, marginBottom: 4 }}>{localizedCountryName(compareCode, preferredLang)}</p>
                 <div style={{ position: "relative", height: 260 }}>
-                  <canvas ref={waterCompareCanvasRef} role="img" aria-label={`Ressources en eau et pluviométrie pour ${localizedCountryName(compareCode, preferredLang)}`} />
+                  <canvas ref={waterCompareCanvasRef} role="img" aria-label={`${t("eau.title")} — ${localizedCountryName(compareCode, preferredLang)}`} />
                 </div>
               </div>
             )}
@@ -1540,38 +1427,22 @@ export default function PaysDashboard() {
         )}
         {summary?.water?.some((d) => d.withdrawal_share_percent) && (
           <>
-            <h3 style={{ fontSize: 15, marginTop: "1.5rem", marginBottom: "0.25rem" }}>
-              Ce deuxième graphique : combien de cette eau est-elle utilisée ?
-            </h3>
-            <p style={{ fontSize: 13, color: "#666", marginBottom: "0.75rem" }}>
-              Le graphique du dessus montre <strong>combien d&apos;eau existe</strong>. Celui-ci
-              montre <strong>combien de cette eau est prélevée</strong> chaque année, en
-              pourcentage. Exemple : à 25 %, le pays utilise un quart de l&apos;eau qui se
-              renouvelle chaque année. À 120 %, il en utilise plus qu&apos;il ne s&apos;en
-              renouvelle — souvent en puisant dans des réserves qui ne se rechargent pas.
-            </p>
-            <p style={{ fontSize: 13, color: "#666", marginBottom: "0.75rem" }}>
-              Seuils de référence (FAO/ONU) : &lt;25 % pas de stress, 25-50 % stress faible, 50-75 %
-              stress moyen, 75-100 % stress élevé, &gt;100 % stress critique.
-            </p>
-            <p style={{ fontSize: 13, color: "#666", marginBottom: "0.75rem" }}>
-              L&apos;eau non prélevée n&apos;est pas perdue : elle continue son cycle naturel
-              (rivières, nappes, évaporation, mer) — le &laquo; prélèvement &raquo; ne compte que
-              ce qui est activement extrait pour l&apos;agriculture, l&apos;industrie et les
-              foyers.
-            </p>
+            <h3 style={{ fontSize: 15, marginTop: "1.5rem", marginBottom: "0.25rem" }}>{t("eau.second_chart_title")}</h3>
+            <p style={{ fontSize: 13, color: "#666", marginBottom: "0.75rem" }}>{t("eau.explain_p1")}</p>
+            <p style={{ fontSize: 13, color: "#666", marginBottom: "0.75rem" }}>{t("eau.explain_p2")}</p>
+            <p style={{ fontSize: 13, color: "#666", marginBottom: "0.75rem" }}>{t("eau.explain_p3")}</p>
             <div style={{ display: "grid", gridTemplateColumns: compareCode && compareSummary ? "repeat(auto-fit, minmax(320px, 1fr))" : "1fr", gap: "1rem" }}>
               <div>
                 <p style={{ fontSize: 12, color: "#666", fontWeight: 600, marginBottom: 4 }}>{countryName}</p>
                 <div style={{ position: "relative", height: 220 }}>
-                  <canvas ref={stressCanvasRef} role="img" aria-label={`Part de l'eau disponible utilisée pour ${countryName}, comparé à la moyenne mondiale`} />
+                  <canvas ref={stressCanvasRef} role="img" aria-label={t("eau.chart_stress")} />
                 </div>
               </div>
               {compareCode && compareSummary && (
                 <div>
                   <p style={{ fontSize: 12, color: "#666", fontWeight: 600, marginBottom: 4 }}>{localizedCountryName(compareCode, preferredLang)}</p>
                   <div style={{ position: "relative", height: 220 }}>
-                    <canvas ref={stressCompareCanvasRef} role="img" aria-label={`Part de l'eau disponible utilisée pour ${localizedCountryName(compareCode, preferredLang)}`} />
+                    <canvas ref={stressCompareCanvasRef} role="img" aria-label={t("eau.chart_stress")} />
                   </div>
                 </div>
               )}
@@ -1579,12 +1450,11 @@ export default function PaysDashboard() {
           </>
         )}
         <p style={{ fontSize: 12, color: "#666" }}>
-          AQUASTAT/FAO via Banque mondiale (ressources renouvelables, estimation long terme) et
-          Copernicus ERA5 (pluviométrie annuelle réelle), via Our World in Data.
+          {t("pays.water_source")}
           {lastUpdated?.water?.latestYear && (
-            <> Dernière année couverte : {lastUpdated.water.latestYear}.</>
+            <>{t("pays.water_source_year", { year: lastUpdated.water.latestYear })}</>
           )}
-          {" "}<Link href="/eau">Voir le graphique détaillé →</Link>
+          {" "}<Link href="/eau">{t("pays.water_detail_link")}</Link>
         </p>
       </section>
     </div>
