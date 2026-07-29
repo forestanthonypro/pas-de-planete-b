@@ -13,7 +13,11 @@
     "error_prefix": "Error:",
     "view_as_table": "View as table",
     "view_as_chart": "View as chart",
-    "back_to_home": "Back to home →"
+    "back_to_home": "Back to home →",
+    "country_label": "Country",
+    "country_search_placeholder": "Search a country...",
+    "country_search_aria": "{label} — search",
+    "no_results": "No results"
   },
   "home": {
     "intro": "Understanding climate change, country by country, with open and sourced data.",
@@ -140,6 +144,7 @@
     "mix_summary": "{count} production types, {capacity} MW of known total capacity.",
     "mix_explain": "Installed capacity by fuel type, with the number of plants — the same chart as on the country page, to find the same information here.",
     "chart_capacity_axis": "Capacity (MW)",
+    "plant_count": "{count} power plant{s}",
     "generation_title": "Actual electricity generation",
     "generation_explain": "Unlike the map above (installed capacity, fixed since 2021), here's what's actually produced each year, by fuel type — the stacked bars show the real production mix. The dashed black line is actual consumption (demand). Example: if the black line is above the stacked bars, the country imports electricity from its neighbors to make up the shortfall; if it's below, it exports.",
     "chart_demand": "Actual consumption (demand)",

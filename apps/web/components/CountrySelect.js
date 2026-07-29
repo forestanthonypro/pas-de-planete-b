@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { localizedCountryName } from "../lib/countryNames";
+import { useT } from "../lib/useT";
 
 // Retire les accents pour une recherche insensible aux accents (ex: "perou"
 // trouve "Pérou", "cote d'ivoire" trouve "Côte d'Ivoire").
@@ -15,7 +16,9 @@ function normalize(str) {
 // parcourir. Accepte soit une liste de codes ISO3 (string[]), soit une liste
 // d'objets {country_code, ...} (comme renvoyés par certains endpoints) : les
 // deux formats coexistent encore selon les pages.
-export default function CountrySelect({ countries, value, onChange, preferredLang, label = "Pays" }) {
+export default function CountrySelect({ countries, value, onChange, preferredLang, label }) {
+  const { t } = useT();
+  const resolvedLabel = label || t("common.country_label");
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
   const [highlighted, setHighlighted] = useState(0);
@@ -74,7 +77,7 @@ export default function CountrySelect({ countries, value, onChange, preferredLan
 
   return (
     <label style={{ position: "relative", display: "inline-block" }} ref={containerRef}>
-      {label}{" "}
+      {resolvedLabel}{" "}
       <input
         type="text"
         value={open ? query : selectedLabel}
@@ -88,8 +91,8 @@ export default function CountrySelect({ countries, value, onChange, preferredLan
           setHighlighted(0);
         }}
         onKeyDown={handleKeyDown}
-        placeholder="Rechercher un pays..."
-        aria-label={`${label} — rechercher`}
+        placeholder={t("common.country_search_placeholder")}
+        aria-label={t("common.country_search_aria", { label: resolvedLabel })}
         style={{ padding: "4px 8px", minWidth: 180 }}
       />
       {open && (
@@ -113,7 +116,7 @@ export default function CountrySelect({ countries, value, onChange, preferredLan
           }}
         >
           {filtered.length === 0 && (
-            <li style={{ padding: "6px 10px", color: "#999", fontSize: 13 }}>Aucun résultat</li>
+            <li style={{ padding: "6px 10px", color: "#999", fontSize: 13 }}>{t("common.no_results")}</li>
           )}
           {filtered.map((code, i) => (
             <li

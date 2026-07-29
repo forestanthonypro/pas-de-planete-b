@@ -13,7 +13,11 @@
     "error_prefix": "Erreur :",
     "view_as_table": "Voir en tableau",
     "view_as_chart": "Voir en graphique",
-    "back_to_home": "Retour à l'accueil →"
+    "back_to_home": "Retour à l'accueil →",
+    "country_label": "Pays",
+    "country_search_placeholder": "Rechercher un pays...",
+    "country_search_aria": "{label} — rechercher",
+    "no_results": "Aucun résultat"
   },
   "home": {
     "intro": "Comprendre le changement climatique, pays par pays, avec des données ouvertes et sourcées.",
@@ -140,6 +144,7 @@
     "mix_summary": "{count} types de production, {capacity} MW de capacité totale connue.",
     "mix_explain": "Capacité installée par filière, avec le nombre de centrales — le même graphique que sur la fiche pays, pour retrouver la même information ici.",
     "chart_capacity_axis": "Capacité (MW)",
+    "plant_count": "{count} centrale{s}",
     "generation_title": "Génération électrique réelle",
     "generation_explain": "À la différence de la carte ci-dessus (capacité installée, figée depuis 2021), voici ce qui est réellement produit chaque année, par filière — les barres empilées montrent le mix réel de production. La ligne noire en pointillés, c'est la consommation réelle (la demande). Exemple : si la ligne noire est au-dessus des barres empilées, le pays importe de l'électricité de ses voisins pour combler le manque ; si elle est en dessous, il en exporte.",
     "chart_demand": "Consommation réelle (demande)",

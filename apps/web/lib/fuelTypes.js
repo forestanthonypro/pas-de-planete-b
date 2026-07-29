@@ -18,6 +18,24 @@ export const FUEL_LABELS_FR = {
   Other: "Autre",
 };
 
+export const FUEL_LABELS_EN = {
+  Nuclear: "Nuclear",
+  Hydro: "Hydro",
+  Wind: "Wind",
+  Gas: "Gas",
+  Solar: "Solar",
+  Oil: "Oil",
+  Coal: "Coal",
+  Biomass: "Biomass",
+  "Wave and Tidal": "Wave and tidal",
+  Geothermal: "Geothermal",
+  Storage: "Storage",
+  Waste: "Waste",
+  Petcoke: "Petroleum coke",
+  Cogeneration: "Cogeneration",
+  Other: "Other",
+};
+
 export const FUEL_COLORS = {
   Nuclear: "#8e44ad",
   Hydro: "#1baf7a",
@@ -34,6 +52,10 @@ export const FUEL_COLORS = {
 };
 export const DEFAULT_FUEL_COLOR = "#3388ff";
 
-export function translateFuel(type) {
-  return FUEL_LABELS_FR[type] || type;
+// "locale" doit venir de router.locale (via useT()) — jamais de la détection
+// navigateur legacy (detectPreferredLanguage), qui est un système séparé et
+// ne change pas quand la personne bascule la langue via le sélecteur.
+export function translateFuel(type, locale = "fr") {
+  const table = locale === "en" ? FUEL_LABELS_EN : FUEL_LABELS_FR;
+  return table[type] || type;
 }

@@ -13,7 +13,7 @@ import { useT } from "../lib/useT";
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 export default function EnergiePage() {
-  const { t } = useT();
+  const { t, locale } = useT();
   const lastUpdated = useLastUpdated();
   const [preferredLang, setPreferredLang] = useState(null);
   const [countries, setCountries] = useState([]);
@@ -99,13 +99,13 @@ export default function EnergiePage() {
       mixChartRef.current = new Chart(mixCanvasRef.current, {
         type: "bar",
         data: {
-          labels: energyMix.map((r) => translateFuel(r.fuel_type)),
+          labels: energyMix.map((r) => translateFuel(r.fuel_type, locale)),
           datasets: [
             {
               label: t("energie.chart_capacity_axis"),
               data: energyMix.map((r) => r.total_capacity_mw),
               backgroundColor: energyMix.map((r) => FUEL_COLORS[r.fuel_type] || DEFAULT_FUEL_COLOR),
-              plantCounts: energyMix.map((r) => r.plant_count),
+              plantLabels: energyMix.map((r) => t("energie.plant_count", { count: r.plant_count, s: r.plant_count > 1 ? "s" : "" })),
             },
           ],
         },
@@ -126,7 +126,7 @@ export default function EnergiePage() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [energyMix]);
+  }, [energyMix, locale]);
 
   useEffect(() => {
     fetch(`${API_URL}/api/electricity/${country}`)
@@ -143,14 +143,14 @@ export default function EnergiePage() {
       if (generationChartRef.current) generationChartRef.current.destroy();
 
       const sources = [
-        { key: "coal_twh", label: translateFuel("Coal"), color: FUEL_COLORS.Coal },
-        { key: "gas_twh", label: translateFuel("Gas"), color: FUEL_COLORS.Gas },
-        { key: "oil_twh", label: translateFuel("Oil"), color: FUEL_COLORS.Oil },
-        { key: "nuclear_twh", label: translateFuel("Nuclear"), color: FUEL_COLORS.Nuclear },
-        { key: "hydro_twh", label: translateFuel("Hydro"), color: FUEL_COLORS.Hydro },
-        { key: "wind_twh", label: translateFuel("Wind"), color: FUEL_COLORS.Wind },
-        { key: "solar_twh", label: translateFuel("Solar"), color: FUEL_COLORS.Solar },
-        { key: "biofuel_twh", label: translateFuel("Biomass"), color: FUEL_COLORS.Biomass },
+        { key: "coal_twh", label: translateFuel("Coal", locale), color: FUEL_COLORS.Coal },
+        { key: "gas_twh", label: translateFuel("Gas", locale), color: FUEL_COLORS.Gas },
+        { key: "oil_twh", label: translateFuel("Oil", locale), color: FUEL_COLORS.Oil },
+        { key: "nuclear_twh", label: translateFuel("Nuclear", locale), color: FUEL_COLORS.Nuclear },
+        { key: "hydro_twh", label: translateFuel("Hydro", locale), color: FUEL_COLORS.Hydro },
+        { key: "wind_twh", label: translateFuel("Wind", locale), color: FUEL_COLORS.Wind },
+        { key: "solar_twh", label: translateFuel("Solar", locale), color: FUEL_COLORS.Solar },
+        { key: "biofuel_twh", label: translateFuel("Biomass", locale), color: FUEL_COLORS.Biomass },
         { key: "other_renewable_twh", label: t("energie.other_renewable"), color: DEFAULT_FUEL_COLOR },
       ];
 
@@ -192,7 +192,7 @@ export default function EnergiePage() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [generation]);
+  }, [generation, locale]);
 
   useEffect(() => {
     if (view !== "map" || sobriety || !mapContainerRef.current) return;
@@ -224,7 +224,7 @@ export default function EnergiePage() {
             weight: 1,
           })
             .bindPopup(
-              `<strong>${p.name}</strong><br/>${translateFuel(p.fuel_type)} — ${p.capacity_mw ?? "?"} MW`
+              `<strong>${p.name}</strong><br/>${translateFuel(p.fuel_type, locale)} — ${p.capacity_mw ?? "?"} MW`
             )
             .addTo(markersLayerRef.current);
         });
@@ -242,7 +242,7 @@ export default function EnergiePage() {
     return () => {
       cancelled = true;
     };
-  }, [view, sobriety, plants, t]);
+  }, [view, sobriety, plants, t, locale]);
 
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
@@ -262,7 +262,7 @@ export default function EnergiePage() {
           <select value={fuelType} onChange={(e) => setFuelType(e.target.value)}>
             <option value="">{t("energie.all")}</option>
             {fuelTypes.map((f) => (
-              <option key={f} value={f}>{translateFuel(f)}</option>
+              <option key={f} value={f}>{translateFuel(f, locale)}</option>
             ))}
           </select>
         </label>
@@ -301,7 +301,7 @@ export default function EnergiePage() {
             {plants.map((p, i) => (
               <tr key={i}>
                 <th scope="row" style={{ textAlign: "left", padding: 8, fontWeight: 400 }}>{p.name}</th>
-                <td style={{ textAlign: "left", padding: 8 }}>{translateFuel(p.fuel_type)}</td>
+                <td style={{ textAlign: "left", padding: 8 }}>{translateFuel(p.fuel_type, locale)}</td>
                 <td style={{ textAlign: "right", padding: 8 }}>{p.capacity_mw ?? "—"}</td>
               </tr>
             ))}
