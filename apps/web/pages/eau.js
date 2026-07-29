@@ -6,10 +6,12 @@ import { localizedCountryName } from "../lib/countryNames";
 import CountrySelect from "../components/CountrySelect";
 import ShareButtons from "../components/ShareButtons";
 import { useWorldBenchmarks } from "../lib/useWorldBenchmarks";
+import { useT } from "../lib/useT";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 export default function EauPage() {
+  const { t } = useT();
   const lastUpdated = useLastUpdated();
   const worldBenchmarks = useWorldBenchmarks();
   const [preferredLang, setPreferredLang] = useState(null);
@@ -44,7 +46,7 @@ export default function EauPage() {
     setError(null);
     fetch(`${API_URL}/api/water/${countryCode}`)
       .then((res) => {
-        if (!res.ok) throw new Error("Données indisponibles pour ce pays");
+        if (!res.ok) throw new Error(t("eau.error_no_data"));
         return res.json();
       })
       .then((rows) => {
@@ -55,6 +57,7 @@ export default function EauPage() {
         setError(err.message);
         setLoading(false);
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [countryCode]);
 
   useEffect(() => {
@@ -70,7 +73,7 @@ export default function EauPage() {
           labels: data.map((d) => d.year),
           datasets: [
             {
-              label: "Eau douce disponible par habitant (m³/an)",
+              label: t("eau.chart_freshwater"),
               data: data.map((d) => d.renewable_freshwater_m3_per_capita),
               borderColor: "#2a78d6",
               backgroundColor: "rgba(42,120,214,0.1)",
@@ -81,7 +84,7 @@ export default function EauPage() {
               borderWidth: 2,
             },
             {
-              label: "Pluviométrie (mm/an)",
+              label: t("eau.chart_precipitation"),
               data: data.map((d) => d.precipitation_mm),
               borderColor: "#1baf7a",
               backgroundColor: "rgba(27,175,122,0.1)",
@@ -99,8 +102,8 @@ export default function EauPage() {
           maintainAspectRatio: false,
           plugins: { legend: { display: true } },
           scales: {
-            y: { type: "linear", position: "left", title: { display: true, text: "m³ par habitant et par an" } },
-            y1: { type: "linear", position: "right", title: { display: true, text: "mm/an" }, grid: { drawOnChartArea: false } },
+            y: { type: "linear", position: "left", title: { display: true, text: t("eau.axis_per_capita") } },
+            y1: { type: "linear", position: "right", title: { display: true, text: t("eau.axis_mm_year") }, grid: { drawOnChartArea: false } },
           },
         },
       });
@@ -108,11 +111,9 @@ export default function EauPage() {
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, view, loading, error]);
 
-  // Second graphique : prélèvements d'eau réels (consommation), en milliards de m³/an —
-  // échelle et nature différentes des ressources disponibles, donc un graphique séparé
-  // plutôt qu'un troisième axe illisible sur le même repère.
   useEffect(() => {
     if (view !== "chart" || loading || error || data.length === 0) return;
     const hasWithdrawal = data.some((d) => d.withdrawal_m3 !== null && d.withdrawal_m3 !== undefined);
@@ -128,7 +129,7 @@ export default function EauPage() {
           labels: data.map((d) => d.year),
           datasets: [
             {
-              label: "Prélèvements d'eau réels (milliards de m³/an)",
+              label: t("eau.chart_withdrawal"),
               data: data.map((d) => (d.withdrawal_m3 ? d.withdrawal_m3 / 1e9 : null)),
               backgroundColor: "#8e44ad",
             },
@@ -139,7 +140,7 @@ export default function EauPage() {
           maintainAspectRatio: false,
           plugins: { legend: { display: false } },
           scales: {
-            y: { title: { display: true, text: "Milliards de m³/an" } },
+            y: { title: { display: true, text: t("eau.axis_billion_m3") } },
           },
         },
       });
@@ -147,12 +148,9 @@ export default function EauPage() {
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, view, loading, error]);
 
-  // Troisième graphique : % des ressources renouvelables réellement prélevé
-  // (stress hydrique), comparé à la moyenne mondiale — c'est la vraie
-  // comparaison possible ici, contrairement aux prélèvements bruts qui
-  // demanderaient une donnée de population qu'on n'a pas.
   useEffect(() => {
     if (view !== "chart" || loading || error || data.length === 0) return;
     const hasStress = data.some((d) => d.withdrawal_share_percent !== null && d.withdrawal_share_percent !== undefined);
@@ -164,7 +162,7 @@ export default function EauPage() {
 
       const datasets = [
         {
-          label: "Part de l'eau disponible réellement utilisée (%)",
+          label: t("eau.chart_stress"),
           data: data.map((d) => d.withdrawal_share_percent),
           borderColor: "#8e44ad",
           backgroundColor: "rgba(142,68,173,0.1)",
@@ -176,7 +174,7 @@ export default function EauPage() {
       ];
       if (worldBenchmarks?.water_stress_share) {
         datasets.push({
-          label: "Moyenne mondiale",
+          label: t("eau.chart_world_avg"),
           data: data.map(() => worldBenchmarks.water_stress_share.value),
           borderColor: "#95a5a6",
           borderDash: [4, 4],
@@ -193,23 +191,22 @@ export default function EauPage() {
           responsive: true,
           maintainAspectRatio: false,
           plugins: { legend: { display: true } },
-          scales: { y: { title: { display: true, text: "% de l'eau disponible utilisée" } } },
+          scales: { y: { title: { display: true, text: t("eau.axis_share_used") } } },
         },
       });
     });
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, view, loading, error, worldBenchmarks]);
 
-  const selectedCountryName =
-    localizedCountryName(countryCode, preferredLang);
+  const selectedCountryName = localizedCountryName(countryCode, preferredLang);
 
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 800, margin: "0 auto" }}>
-      <h1>Ressources en eau — {selectedCountryName}</h1>
-      <ShareButtons title={`Ressources en eau — ${selectedCountryName}`} />
-
+      <h1>{t("eau.title")} — {selectedCountryName}</h1>
+      <ShareButtons title={`${t("eau.title")} — ${selectedCountryName}`} />
 
       <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem", flexWrap: "wrap" }}>
         <CountrySelect
@@ -219,54 +216,33 @@ export default function EauPage() {
           preferredLang={preferredLang}
         />
         <button onClick={() => setView(view === "chart" ? "table" : "chart")}>
-          Voir en {view === "chart" ? "tableau" : "graphique"}
+          {view === "chart" ? t("common.view_as_table") : t("common.view_as_chart")}
         </button>
       </div>
 
-      {loading && <p>Chargement...</p>}
-      {error && <p role="alert">Erreur : {error}</p>}
+      {loading && <p>{t("common.loading")}</p>}
+      {error && <p role="alert">{t("common.error_prefix")} {error}</p>}
 
       {!loading && !error && view === "chart" && (
         <>
           <div style={{ position: "relative", height: 340 }}>
-            <canvas ref={canvasRef} role="img" aria-label={`Ressources en eau et pluviométrie pour ${selectedCountryName}`} />
+            <canvas ref={canvasRef} role="img" aria-label={`${t("eau.title")} — ${selectedCountryName}`} />
           </div>
           {data.some((d) => d.withdrawal_m3) && (
             <div style={{ position: "relative", height: 220, marginTop: "1rem" }}>
-              <canvas ref={withdrawalCanvasRef} role="img" aria-label={`Prélèvements d'eau réels pour ${selectedCountryName}`} />
+              <canvas ref={withdrawalCanvasRef} role="img" aria-label={t("eau.chart_withdrawal")} />
             </div>
           )}
           {data.some((d) => d.withdrawal_share_percent) && (
             <>
               <h2 style={{ fontSize: 18, marginTop: "2rem", marginBottom: "0.25rem" }}>
-                Ce deuxième graphique : combien de cette eau est-elle utilisée ?
+                {t("eau.second_chart_title")}
               </h2>
-              <p style={{ fontSize: 13, color: "#666", marginBottom: "0.75rem" }}>
-                Le graphique du dessus montre <strong>combien d&apos;eau existe</strong>. Celui-ci
-                montre <strong>combien de cette eau est prélevée</strong> chaque année, en
-                pourcentage. Exemple : à 25 %, le pays utilise un quart de l&apos;eau qui se
-                renouvelle chaque année — il en reste les trois quarts. À 120 %, le pays utilise
-                plus d&apos;eau qu&apos;il ne s&apos;en renouvelle chaque année : il puise dans des
-                réserves qui ne se rechargent pas (nappes profondes) ou dessale de l&apos;eau de
-                mer pour compenser.
-              </p>
-              <p style={{ fontSize: 13, color: "#666", marginBottom: "0.75rem" }}>
-                Seuils de référence (FAO/ONU) : en dessous de <strong>25 %</strong>, pas de stress
-                hydrique du tout. Entre <strong>25 et 50 %</strong>, stress faible. Entre{" "}
-                <strong>50 et 75 %</strong>, stress moyen. Entre <strong>75 et 100 %</strong>,
-                stress élevé. Au-dessus de <strong>100 %</strong>, stress critique — le pays puise
-                plus vite que l&apos;eau ne se renouvelle.
-              </p>
-              <p style={{ fontSize: 13, color: "#666", marginBottom: "0.75rem" }}>
-                Et l&apos;eau qui n&apos;est pas prélevée, elle devient quoi ? Elle n&apos;est pas
-                perdue — elle continue simplement son cycle naturel : elle coule dans les rivières
-                (nécessaire pour les écosystèmes aquatiques, diluer la pollution, la navigation),
-                recharge les nappes phréatiques, s&apos;évapore, ou rejoint la mer. Le
-                &laquo; prélèvement &raquo; ne compte que l&apos;eau activement extraite pour
-                l&apos;agriculture, l&apos;industrie et les foyers.
-              </p>
+              <p style={{ fontSize: 13, color: "#666", marginBottom: "0.75rem" }}>{t("eau.explain_p1")}</p>
+              <p style={{ fontSize: 13, color: "#666", marginBottom: "0.75rem" }}>{t("eau.explain_p2")}</p>
+              <p style={{ fontSize: 13, color: "#666", marginBottom: "0.75rem" }}>{t("eau.explain_p3")}</p>
               <div style={{ position: "relative", height: 220 }}>
-                <canvas ref={stressCanvasRef} role="img" aria-label={`Part de l'eau disponible utilisée pour ${selectedCountryName}, comparé à la moyenne mondiale`} />
+                <canvas ref={stressCanvasRef} role="img" aria-label={t("eau.chart_stress")} />
               </div>
             </>
           )}
@@ -276,15 +252,15 @@ export default function EauPage() {
       {!loading && !error && view === "table" && (
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <caption style={{ textAlign: "left", fontSize: 12, color: "#666", marginBottom: 8 }}>
-            Eau pour {selectedCountryName}, par année
+            {t("eau.table_caption", { country: selectedCountryName })}
           </caption>
           <thead>
             <tr>
-              <th scope="col" style={{ textAlign: "left", padding: 8 }}>Année</th>
-              <th scope="col" style={{ textAlign: "right", padding: 8 }}>Eau disponible (m³/hab.)</th>
-              <th scope="col" style={{ textAlign: "right", padding: 8 }}>Pluviométrie (mm)</th>
-              <th scope="col" style={{ textAlign: "right", padding: 8 }}>Prélèvements (Md m³)</th>
-              <th scope="col" style={{ textAlign: "right", padding: 8 }}>% de l&apos;eau utilisée</th>
+              <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("eau.table_year")}</th>
+              <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("eau.table_available")}</th>
+              <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("eau.table_precipitation")}</th>
+              <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("eau.table_withdrawal")}</th>
+              <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("eau.table_share")}</th>
             </tr>
           </thead>
           <tbody>
@@ -310,40 +286,21 @@ export default function EauPage() {
       )}
 
       <details style={{ marginTop: "1rem", fontSize: 13, color: "#555" }}>
-        <summary style={{ cursor: "pointer" }}>Que couvrent ces chiffres exactement ?</summary>
-        <p style={{ marginTop: 8 }}>
-          La courbe bleue montre les <strong>ressources renouvelables en eau douce</strong>
-          disponibles par habitant (rivières internes, recharge des nappes, plus les apports
-          venant de pays voisins) — un indicateur de rareté relative de l&apos;eau, pas de
-          consommation réelle. C&apos;est une estimation de long terme, recalculée chaque année
-          surtout pour tenir compte de l&apos;évolution démographique : la ressource physique
-          sous-jacente change rarement d&apos;une année sur l&apos;autre.
-        </p>
-        <p>
-          La courbe verte en pointillés montre la <strong>pluviométrie annuelle</strong> mesurée
-          par satellite (réanalyse Copernicus ERA5) — celle-ci varie réellement chaque année.
-          Pour les très petits pays, cette mesure peut être moins fiable (résolution de la grille
-          climatique).
-        </p>
-        <p>
-          Le graphique violet montre les <strong>prélèvements d&apos;eau réels</strong>
-          (consommation agricole, industrielle et domestique confondues) — la comparaison directe
-          avec la courbe bleue : si les prélèvements dépassent durablement les ressources
-          renouvelables, c&apos;est le signe d&apos;un recours à des nappes non renouvelables ou au
-          dessalement.
-        </p>
+        <summary style={{ cursor: "pointer" }}>{t("eau.details_summary")}</summary>
+        <p style={{ marginTop: 8 }}>{t("eau.details_p1")}</p>
+        <p>{t("eau.details_p2")}</p>
+        <p>{t("eau.details_p3")}</p>
       </details>
 
       <p style={{ fontSize: 12, color: "#666", marginTop: "1rem" }}>
-        Sources : AQUASTAT/FAO via Banque mondiale (ressources renouvelables et prélèvements),
-        Copernicus ERA5 (pluviométrie), via Our World in Data (CC-BY)
+        {t("eau.source")}
         {lastUpdated?.water?.latestYear && (
-          <> — dernière année couverte : {lastUpdated.water.latestYear}</>
+          <> {t("eau.source_latest_year", { year: lastUpdated.water.latestYear })}</>
         )}
         {lastUpdated?.water?.lastIngested && (
-          <> · dernière mise à jour de notre base : {formatDate(lastUpdated.water.lastIngested)}</>
+          <> {t("eau.source_last_updated", { date: formatDate(lastUpdated.water.lastIngested) })}</>
         )}
-        . Rafraîchissement automatique mensuel.
+        {t("eau.source_refresh")}
       </p>
     </div>
   );

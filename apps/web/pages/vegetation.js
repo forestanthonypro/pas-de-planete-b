@@ -6,10 +6,12 @@ import { localizedCountryName } from "../lib/countryNames";
 import CountrySelect from "../components/CountrySelect";
 import ShareButtons from "../components/ShareButtons";
 import { useWorldBenchmarks } from "../lib/useWorldBenchmarks";
+import { useT } from "../lib/useT";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 export default function VegetationPage() {
+  const { t } = useT();
   const lastUpdated = useLastUpdated();
   const worldBenchmarks = useWorldBenchmarks();
   const [preferredLang, setPreferredLang] = useState(null);
@@ -40,7 +42,7 @@ export default function VegetationPage() {
     setError(null);
     fetch(`${API_URL}/api/vegetation/${countryCode}`)
       .then((res) => {
-        if (!res.ok) throw new Error("Données indisponibles pour ce pays");
+        if (!res.ok) throw new Error(t("vegetation.error_no_data"));
         return res.json();
       })
       .then((rows) => {
@@ -51,11 +53,9 @@ export default function VegetationPage() {
         setError(err.message);
         setLoading(false);
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [countryCode]);
 
-  // Résumé chiffré du cumul (indépendant du graphique) — pour donner un chiffre
-  // net et vérifiable plutôt que de faire deviner la valeur finale en lisant une
-  // courbe sur un axe partagé avec d'autres échelles.
   const cumulativeSummary = useMemo(() => {
     if (data.length === 0) return null;
     const filled = data.map((r) => ({ ...r }));
@@ -91,12 +91,6 @@ export default function VegetationPage() {
       if (cancelled || !canvasRef.current) return;
       if (chartRef.current) chartRef.current.destroy();
 
-      // La surface forestière (FAO) n'est mesurée que tous les quelques années,
-      // alors que la perte est annuelle — sans ça, la plupart des années n'ont
-      // pas de forest_area_ha et les % (annuel comme cumulé) seraient faux ou
-      // absents. On comble les années manquantes avec la valeur connue la plus
-      // proche (la surface forestière ne bouge pas assez vite d'une année sur
-      // l'autre pour que ce soit un problème).
       function fillNearestForestArea(rows) {
         const filled = rows.map((r) => ({ ...r }));
         let last = null;
@@ -113,10 +107,6 @@ export default function VegetationPage() {
       }
       const filledData = fillNearestForestArea(data);
 
-      // Perte cumulée depuis le début des données disponibles, en % de la
-      // surface forestière de la première année connue — pour montrer que même
-      // une petite perte chaque année finit par représenter beaucoup une fois
-      // additionnée sur toute la période.
       const firstLossYear = data.find((d) => d.tree_cover_loss_ha != null)?.year;
       const baselineArea = filledData.find((d) => d.year === firstLossYear)?.forest_area_ha;
       let cumulativeLoss = 0;
@@ -132,14 +122,14 @@ export default function VegetationPage() {
           datasets: [
             {
               type: "bar",
-              label: "Perte de couverture arborée (ha)",
+              label: t("vegetation.chart_loss_ha"),
               data: data.map((d) => d.tree_cover_loss_ha),
               backgroundColor: "#e67e22",
               yAxisID: "y",
             },
             {
               type: "line",
-              label: "% du couvert forestier perdu cette année-là",
+              label: t("vegetation.chart_share_year"),
               data: filledData.map((d) =>
                 d.forest_area_ha ? (d.tree_cover_loss_ha / d.forest_area_ha) * 100 : null
               ),
@@ -152,7 +142,7 @@ export default function VegetationPage() {
             },
             {
               type: "line",
-              label: "% cumulé perdu depuis le début des données",
+              label: t("vegetation.chart_cumulative"),
               data: cumulativeShareData,
               borderColor: "#6c3483",
               backgroundColor: "rgba(108,52,131,0.08)",
@@ -167,7 +157,7 @@ export default function VegetationPage() {
               ? [
                   {
                     type: "line",
-                    label: "Moyenne mondiale (%)",
+                    label: t("vegetation.chart_world_avg"),
                     data: data.map(() => worldBenchmarks.forest_loss_share_world.value),
                     borderColor: "#95a5a6",
                     borderDash: [4, 4],
@@ -185,11 +175,11 @@ export default function VegetationPage() {
           maintainAspectRatio: false,
           plugins: { legend: { display: true } },
           scales: {
-            y: { type: "linear", position: "left", title: { display: true, text: "Perte (ha)" } },
+            y: { type: "linear", position: "left", title: { display: true, text: t("vegetation.axis_loss_ha") } },
             y1: {
               type: "linear",
               position: "right",
-              title: { display: true, text: "% du couvert perdu" },
+              title: { display: true, text: t("vegetation.axis_share_lost") },
               grid: { drawOnChartArea: false },
             },
           },
@@ -199,16 +189,15 @@ export default function VegetationPage() {
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, view, loading, error, worldBenchmarks]);
 
-  const selectedCountryName =
-    localizedCountryName(countryCode, preferredLang);
+  const selectedCountryName = localizedCountryName(countryCode, preferredLang);
 
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 800, margin: "0 auto" }}>
-      <h1>Perte de couverture arborée — {selectedCountryName}</h1>
-      <ShareButtons title={`Perte de couverture arborée — ${selectedCountryName}`} />
-
+      <h1>{t("vegetation.title")} — {selectedCountryName}</h1>
+      <ShareButtons title={`${t("vegetation.title")} — ${selectedCountryName}`} />
 
       <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem", flexWrap: "wrap" }}>
         <CountrySelect
@@ -218,65 +207,47 @@ export default function VegetationPage() {
           preferredLang={preferredLang}
         />
         <button onClick={() => setView(view === "chart" ? "table" : "chart")}>
-          Voir en {view === "chart" ? "tableau" : "graphique"}
+          {view === "chart" ? t("common.view_as_table") : t("common.view_as_chart")}
         </button>
       </div>
 
-      {loading && <p>Chargement...</p>}
-      {error && <p role="alert">Erreur : {error}</p>}
+      {loading && <p>{t("common.loading")}</p>}
+      {error && <p role="alert">{t("common.error_prefix")} {error}</p>}
 
-      <h2 style={{ fontSize: 18, marginBottom: "0.25rem" }}>Que montre ce graphique ?</h2>
-      <p style={{ fontSize: 13, color: "#666", marginBottom: "0.75rem" }}>
-        Imagine la forêt du pays comme une grande réserve. Chaque année, une partie disparaît
-        (coupée, brûlée, défrichée) — c&apos;est la barre orange, en hectares (1 hectare ≈ 1
-        terrain de foot). Mais un même nombre d&apos;hectares perdus ne pèse pas pareil selon la
-        taille de la réserve : perdre 10 000 hectares dans un petit pays très boisé, c&apos;est une
-        part énorme de sa forêt ; perdre les mêmes 10 000 hectares dans un pays immense comme le
-        Brésil, c&apos;est presque rien. La courbe rouge (%) corrige ça : elle dit vraiment
-        &laquo; quelle part de sa forêt le pays perd cette année-là &raquo;.
-      </p>
-      <p style={{ fontSize: 13, color: "#666", marginBottom: "0.75rem" }}>
-        La courbe violette en pointillés montre autre chose : la perte <strong>additionnée</strong>{" "}
-        depuis la première année disponible, rapportée à la taille de la forêt à cette
-        époque-là. Perdre 1 % par an semble peu, mais additionné sur 20 ans, ça peut
-        représenter une bonne partie de la forêt initiale — cette courbe donne l&apos;ampleur
-        réelle sur toute la période couverte par les données.
-      </p>
-      <p style={{ fontSize: 12, color: "#999", marginBottom: "0.75rem" }}>
-        Note technique : la surface forestière totale (FAO) n&apos;est mesurée que tous les
-        quelques années, alors que la perte est annuelle. Entre deux mesures, on utilise la
-        valeur connue la plus proche plutôt que de laisser les courbes en % vides.
-      </p>
+      <h2 style={{ fontSize: 18, marginBottom: "0.25rem" }}>{t("vegetation.what_shows_title")}</h2>
+      <p style={{ fontSize: 13, color: "#666", marginBottom: "0.75rem" }}>{t("vegetation.explain_p1")}</p>
+      <p style={{ fontSize: 13, color: "#666", marginBottom: "0.75rem" }}>{t("vegetation.explain_p2")}</p>
+      <p style={{ fontSize: 12, color: "#999", marginBottom: "0.75rem" }}>{t("vegetation.note_technical")}</p>
 
       {!loading && !error && view === "chart" && (
         <div style={{ position: "relative", height: 320 }}>
-          <canvas ref={canvasRef} role="img" aria-label={`Perte de couverture arborée pour ${selectedCountryName}`} />
+          <canvas ref={canvasRef} role="img" aria-label={`${t("vegetation.title")} — ${selectedCountryName}`} />
         </div>
       )}
 
       {cumulativeSummary && (
         <p style={{ fontSize: 14, marginTop: "0.75rem" }}>
-          Au total, entre <strong>{cumulativeSummary.startYear}</strong> et{" "}
-          <strong>{cumulativeSummary.endYear}</strong>, {selectedCountryName} a perdu{" "}
-          <strong>{Math.round(cumulativeSummary.totalLossHa).toLocaleString("fr-FR")} ha</strong>,
-          soit environ <strong>{cumulativeSummary.percent.toFixed(2)} %</strong> de la forêt
-          telle qu&apos;elle existait en <strong>{cumulativeSummary.startYear}</strong> (première
-          année où on a une donnée de perte) — ce chiffre continue d&apos;augmenter chaque année,
-          il ne s&apos;arrête pas.
+          {t("vegetation.cumulative_summary", {
+            startYear: cumulativeSummary.startYear,
+            endYear: cumulativeSummary.endYear,
+            country: selectedCountryName,
+            totalLoss: Math.round(cumulativeSummary.totalLossHa).toLocaleString("fr-FR"),
+            percent: cumulativeSummary.percent.toFixed(2),
+          })}
         </p>
       )}
 
       {!loading && !error && view === "table" && (
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <caption style={{ textAlign: "left", fontSize: 12, color: "#666", marginBottom: 8 }}>
-            Perte de couverture arborée pour {selectedCountryName}, par année
+            {t("vegetation.table_caption", { country: selectedCountryName })}
           </caption>
           <thead>
             <tr>
-              <th scope="col" style={{ textAlign: "left", padding: 8 }}>Année</th>
-              <th scope="col" style={{ textAlign: "right", padding: 8 }}>Perte (ha)</th>
-              <th scope="col" style={{ textAlign: "right", padding: 8 }}>Surface forestière totale (ha)</th>
-              <th scope="col" style={{ textAlign: "right", padding: 8 }}>% perdu</th>
+              <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("vegetation.table_year")}</th>
+              <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("vegetation.table_loss")}</th>
+              <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("vegetation.table_forest_area")}</th>
+              <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("vegetation.table_share_lost")}</th>
             </tr>
           </thead>
           <tbody>
@@ -301,31 +272,20 @@ export default function VegetationPage() {
       )}
 
       <details style={{ marginTop: "1rem", fontSize: 13, color: "#555" }}>
-        <summary style={{ cursor: "pointer" }}>Que couvrent ces chiffres exactement ?</summary>
-        <p style={{ marginTop: 8 }}>
-          Il s&apos;agit de <strong>perte de couverture arborée</strong> détectée par satellite
-          (résolution 30m, Hansen et al.), toutes causes confondues — coupe rase, incendie,
-          exploitation forestière, agriculture. Ce n&apos;est pas nécessairement de la
-          déforestation permanente : une parcelle peut repousser après coupe forestière gérée.
-          Les données de perte couvrent 2001-2024.
-        </p>
-        <p>
-          La courbe rouge (% perdu) rapporte cette perte annuelle à la{" "}
-          <strong>surface forestière totale</strong> du pays cette année-là (FAO, référentiel
-          recalculé tous les 5 ans et interpolé entre-temps) — pour donner un ordre de grandeur
-          relatif plutôt qu&apos;un chiffre brut en hectares sans contexte.
-        </p>
+        <summary style={{ cursor: "pointer" }}>{t("vegetation.details_summary")}</summary>
+        <p style={{ marginTop: 8 }}>{t("vegetation.details_p1")}</p>
+        <p>{t("vegetation.details_p2")}</p>
       </details>
 
       <p style={{ fontSize: 12, color: "#666", marginTop: "1rem" }}>
-        Source : Global Forest Watch, via Our World in Data (CC-BY)
+        {t("vegetation.source")}
         {lastUpdated?.vegetation?.latestYear && (
-          <> — dernière année couverte par la source : {lastUpdated.vegetation.latestYear}</>
+          <> {t("vegetation.source_latest_year", { year: lastUpdated.vegetation.latestYear })}</>
         )}
         {lastUpdated?.vegetation?.lastIngested && (
-          <> · dernière mise à jour de notre base : {formatDate(lastUpdated.vegetation.lastIngested)}</>
+          <> {t("vegetation.source_last_updated", { date: formatDate(lastUpdated.vegetation.lastIngested) })}</>
         )}
-        . Rafraîchissement automatique mensuel.
+        {t("vegetation.source_refresh")}
       </p>
     </div>
   );

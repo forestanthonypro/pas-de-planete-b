@@ -8,10 +8,12 @@ import CountrySelect from "../components/CountrySelect";
 import ShareButtons from "../components/ShareButtons";
 import { useSobriety } from "../lib/SobrietyContext";
 import { barEndLabelsPlugin } from "../lib/barEndLabelsPlugin";
+import { useT } from "../lib/useT";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 export default function EnergiePage() {
+  const { t } = useT();
   const lastUpdated = useLastUpdated();
   const [preferredLang, setPreferredLang] = useState(null);
   const [countries, setCountries] = useState([]);
@@ -37,9 +39,6 @@ export default function EnergiePage() {
   const generationCanvasRef = useRef(null);
   const generationChartRef = useRef(null);
 
-  // Agrégation par filière (capacité totale + nombre de centrales) à partir
-  // des centrales individuelles déjà chargées pour la carte/le tableau — pas
-  // besoin d'un appel réseau supplémentaire, on recalcule juste côté client.
   const energyMix = useMemo(() => {
     const byFuel = {};
     for (const p of plants) {
@@ -51,13 +50,11 @@ export default function EnergiePage() {
     return Object.values(byFuel).sort((a, b) => b.total_capacity_mw - a.total_capacity_mw);
   }, [plants]);
 
-  // Devine le pays par défaut une fois côté client (évite un décalage serveur/client).
   useEffect(() => {
     setCountry(detectDefaultCountry());
     setPreferredLang(detectPreferredLanguage());
   }, []);
 
-  // Charge les listes pour peupler les filtres, une seule fois.
   useEffect(() => {
     fetch(`${API_URL}/api/power-plants/countries`)
       .then((res) => res.json())
@@ -70,7 +67,6 @@ export default function EnergiePage() {
       .catch(() => setFuelTypes([]));
   }, []);
 
-  // Recharge les centrales à chaque changement de filtre.
   useEffect(() => {
     setLoading(true);
     setError(null);
@@ -79,7 +75,7 @@ export default function EnergiePage() {
 
     fetch(`${API_URL}/api/power-plants?${params}`)
       .then((res) => {
-        if (!res.ok) throw new Error("Données indisponibles pour ce filtre");
+        if (!res.ok) throw new Error(t("energie.error_no_data"));
         return res.json();
       })
       .then((rows) => {
@@ -90,11 +86,9 @@ export default function EnergiePage() {
         setError(err.message);
         setLoading(false);
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [country, fuelType]);
 
-  // Dessine le graphique de mix énergétique (capacité + nombre de centrales
-  // par filière) — même graphique que sur le dashboard pays, pour rester
-  // cohérent partout où cette information est présentée.
   useEffect(() => {
     if (energyMix.length === 0) return;
     let cancelled = false;
@@ -108,7 +102,7 @@ export default function EnergiePage() {
           labels: energyMix.map((r) => translateFuel(r.fuel_type)),
           datasets: [
             {
-              label: "Capacité (MW)",
+              label: t("energie.chart_capacity_axis"),
               data: energyMix.map((r) => r.total_capacity_mw),
               backgroundColor: energyMix.map((r) => FUEL_COLORS[r.fuel_type] || DEFAULT_FUEL_COLOR),
               plantCounts: energyMix.map((r) => r.plant_count),
@@ -123,7 +117,7 @@ export default function EnergiePage() {
           layout: { padding: { right: 90 } },
           plugins: { legend: { display: false } },
           scales: {
-            x: { title: { display: true, text: "Capacité (MW)" } },
+            x: { title: { display: true, text: t("energie.chart_capacity_axis") } },
           },
         },
       });
@@ -131,10 +125,9 @@ export default function EnergiePage() {
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [energyMix]);
 
-  // Génération électrique réelle par filière et par an — comparaison à la
-  // capacité installée statique de la carte ci-dessus.
   useEffect(() => {
     fetch(`${API_URL}/api/electricity/${country}`)
       .then((res) => (res.ok ? res.json() : []))
@@ -142,7 +135,6 @@ export default function EnergiePage() {
       .catch(() => setGeneration([]));
   }, [country]);
 
-  // Dessine le graphique de génération électrique réelle (empilé par filière).
   useEffect(() => {
     if (generation.length === 0) return;
     let cancelled = false;
@@ -159,7 +151,7 @@ export default function EnergiePage() {
         { key: "wind_twh", label: translateFuel("Wind"), color: FUEL_COLORS.Wind },
         { key: "solar_twh", label: translateFuel("Solar"), color: FUEL_COLORS.Solar },
         { key: "biofuel_twh", label: translateFuel("Biomass"), color: FUEL_COLORS.Biomass },
-        { key: "other_renewable_twh", label: "Autres renouvelables", color: DEFAULT_FUEL_COLOR },
+        { key: "other_renewable_twh", label: t("energie.other_renewable"), color: DEFAULT_FUEL_COLOR },
       ];
 
       generationChartRef.current = new Chart(generationCanvasRef.current, {
@@ -175,7 +167,7 @@ export default function EnergiePage() {
             })),
             {
               type: "line",
-              label: "Consommation réelle (demande)",
+              label: t("energie.chart_demand"),
               data: generation.map((d) => d.demand_twh),
               borderColor: "#000000",
               borderWidth: 2,
@@ -191,7 +183,7 @@ export default function EnergiePage() {
           plugins: { legend: { display: true, position: "bottom" } },
           scales: {
             x: { stacked: true },
-            y: { stacked: true, title: { display: true, text: "TWh/an" } },
+            y: { stacked: true, title: { display: true, text: t("energie.axis_twh_year") } },
           },
         },
       });
@@ -199,13 +191,9 @@ export default function EnergiePage() {
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [generation]);
 
-  // Création de la carte (si besoin) PUIS dessin des marqueurs, toujours dans
-  // le même appel — jamais dans deux effets séparés : l'import dynamique de
-  // Leaflet est asynchrone, et rien ne garantissait que la carte soit créée
-  // avant que le dessin des marqueurs ne s'exécute (course, carte vide
-  // observée en pratique).
   useEffect(() => {
     if (view !== "map" || sobriety || !mapContainerRef.current) return;
 
@@ -248,19 +236,18 @@ export default function EnergiePage() {
       })
       .catch((err) => {
         console.error("Échec de l'initialisation de la carte Leaflet :", err);
-        setError("La carte n'a pas pu s'initialiser : " + err.message);
+        setError(t("energie.map_init_error", { message: err.message }));
       });
 
     return () => {
       cancelled = true;
     };
-  }, [view, sobriety, plants]);
+  }, [view, sobriety, plants, t]);
 
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
-      <h1>Centrales électriques</h1>
-      <ShareButtons title="Centrales électriques" />
-
+      <h1>{t("energie.title")}</h1>
+      <ShareButtons title={t("energie.title")} />
 
       <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem", flexWrap: "wrap" }}>
         <CountrySelect
@@ -271,9 +258,9 @@ export default function EnergiePage() {
         />
 
         <label>
-          Type de combustible{" "}
+          {t("energie.fuel_type_label")}{" "}
           <select value={fuelType} onChange={(e) => setFuelType(e.target.value)}>
-            <option value="">Tous</option>
+            <option value="">{t("energie.all")}</option>
             {fuelTypes.map((f) => (
               <option key={f} value={f}>{translateFuel(f)}</option>
             ))}
@@ -281,27 +268,18 @@ export default function EnergiePage() {
         </label>
 
         <button onClick={() => setView(view === "map" ? "table" : "map")} disabled={sobriety}>
-          Voir en {view === "map" ? "tableau" : "carte"}
+          {view === "map" ? t("common.view_as_table") : t("common.view_as_chart")}
         </button>
         {sobriety && (
-          <span style={{ fontSize: 12, color: "#666" }}>
-            Carte désactivée en mode sobriété (économise le téléchargement des tuiles)
-          </span>
+          <span style={{ fontSize: 12, color: "#666" }}>{t("energie.map_sobriety_disabled")}</span>
         )}
       </div>
 
-      {loading && <p>Chargement...</p>}
-      {error && <p role="alert">Erreur : {error}</p>}
-      {!loading && !error && plants.length === 0 && <p>Aucune centrale trouvée pour ce filtre.</p>}
+      {loading && <p>{t("common.loading")}</p>}
+      {error && <p role="alert">{t("common.error_prefix")} {error}</p>}
+      {!loading && !error && plants.length === 0 && <p>{t("energie.no_plants")}</p>}
 
-      <p style={{ fontSize: 13, color: "#666", marginBottom: "0.75rem" }}>
-        Cette carte montre les centrales électriques existantes et leur <strong>capacité
-        installée</strong> — la puissance maximale qu&apos;elles pourraient produire si elles
-        tournaient à plein régime en permanence. Ce n&apos;est pas ce qu&apos;elles produisent
-        réellement : un panneau solaire de 100 MW ne produit rien la nuit, une centrale nucléaire
-        de 100 MW tourne presque tout le temps. Pour voir la production réelle, regarde le
-        graphique plus bas.
-      </p>
+      <p style={{ fontSize: 13, color: "#666", marginBottom: "0.75rem" }}>{t("energie.map_explain")}</p>
 
       <div style={{ display: view === "map" ? "block" : "none" }}>
         <div ref={mapContainerRef} style={{ height: 480, borderRadius: 8 }} />
@@ -310,13 +288,13 @@ export default function EnergiePage() {
       {!loading && !error && view === "table" && (
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <caption style={{ textAlign: "left", fontSize: 12, color: "#666", marginBottom: 8 }}>
-            Centrales électriques — {localizedCountryName(country, preferredLang)} {fuelType ? `(${fuelType})` : ""}
+            {t("energie.table_caption", { country: localizedCountryName(country, preferredLang), fuelType: fuelType ? `(${fuelType})` : "" })}
           </caption>
           <thead>
             <tr>
-              <th scope="col" style={{ textAlign: "left", padding: 8 }}>Nom</th>
-              <th scope="col" style={{ textAlign: "left", padding: 8 }}>Type</th>
-              <th scope="col" style={{ textAlign: "right", padding: 8 }}>Capacité (MW)</th>
+              <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("energie.table_name")}</th>
+              <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("energie.table_type")}</th>
+              <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("energie.table_capacity")}</th>
             </tr>
           </thead>
           <tbody>
@@ -333,55 +311,43 @@ export default function EnergiePage() {
 
       {energyMix.length > 0 && (
         <section style={{ marginTop: "2rem" }}>
-          <h2>Mix énergétique</h2>
+          <h2>{t("energie.mix_title")}</h2>
           <p>
-            <strong>{energyMix.length}</strong> types de production,{" "}
-            <strong>{Math.round(energyMix.reduce((sum, r) => sum + r.total_capacity_mw, 0)).toLocaleString("fr-FR")} MW</strong>{" "}
-            de capacité totale connue.
+            {t("energie.mix_summary", {
+              count: energyMix.length,
+              capacity: Math.round(energyMix.reduce((sum, r) => sum + r.total_capacity_mw, 0)).toLocaleString("fr-FR"),
+            })}
           </p>
-          <p style={{ fontSize: 13, color: "#666" }}>
-            Capacité installée par filière, avec le nombre de centrales — le même graphique que
-            sur la fiche pays, pour retrouver la même information ici.
-          </p>
+          <p style={{ fontSize: 13, color: "#666" }}>{t("energie.mix_explain")}</p>
           <div style={{ position: "relative", height: Math.max(200, energyMix.length * 34) }}>
-            <canvas ref={mixCanvasRef} role="img" aria-label={`Mix énergétique de ${localizedCountryName(country, preferredLang)}, capacité et nombre de centrales par type`} />
+            <canvas ref={mixCanvasRef} role="img" aria-label={t("energie.mix_title")} />
           </div>
         </section>
       )}
 
       {generation.length > 0 && (
         <section style={{ marginTop: "2rem" }}>
-          <h2>Génération électrique réelle</h2>
-          <p style={{ fontSize: 13, color: "#666" }}>
-            À la différence de la carte ci-dessus (capacité installée, figée depuis 2021), voici
-            ce qui est réellement produit chaque année, par filière — les barres empilées montrent
-            le mix réel de production. La ligne noire en pointillés, c&apos;est la consommation
-            réelle (la demande). Exemple : si la ligne noire est au-dessus des barres empilées,
-            le pays importe de l&apos;électricité de ses voisins pour combler le manque ; si elle
-            est en dessous, il en exporte.
-          </p>
+          <h2>{t("energie.generation_title")}</h2>
+          <p style={{ fontSize: 13, color: "#666" }}>{t("energie.generation_explain")}</p>
           <div style={{ position: "relative", height: 320 }}>
-            <canvas ref={generationCanvasRef} role="img" aria-label={`Génération électrique réelle par filière pour ${localizedCountryName(country, preferredLang)}`} />
+            <canvas ref={generationCanvasRef} role="img" aria-label={t("energie.generation_title")} />
           </div>
           <p style={{ fontSize: 12, color: "#666", marginTop: "0.5rem" }}>
-            Source : Ember / Energy Institute, via Our World in Data (CC-BY)
+            {t("energie.generation_source")}
             {lastUpdated?.electricity?.latestYear && (
-              <> — dernière année couverte : {lastUpdated.electricity.latestYear}</>
+              <> {t("energie.generation_source_year", { year: lastUpdated.electricity.latestYear })}</>
             )}
-            . Rafraîchissement automatique mensuel.
+            {t("energie.generation_source_refresh")}
           </p>
         </section>
       )}
 
       <p style={{ fontSize: 12, color: "#666", marginTop: "1rem" }}>
-        Source : Global Power Plant Database, World Resources Institute (CC-BY 4.0) — dernière
-        version publiée (v1.3.0) ; ce projet n&apos;est plus activement maintenu par WRI depuis
-        2021-2022, les données ne reflètent donc pas nécessairement les toutes dernières centrales
-        construites.
+        {t("energie.source")}
         {lastUpdated?.powerPlants?.lastIngested && (
-          <> Dernière mise à jour de notre base : {formatDate(lastUpdated.powerPlants.lastIngested)}.</>
+          <> {t("energie.source_last_updated", { date: formatDate(lastUpdated.powerPlants.lastIngested) })}</>
         )}
-        {" "}Rafraîchissement automatique mensuel (sans effet tant que la source elle-même n&apos;évolue pas).
+        {" "}{t("energie.source_refresh")}
       </p>
     </div>
   );
