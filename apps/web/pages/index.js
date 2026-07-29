@@ -28,8 +28,8 @@ const TINTS = {
   blue: { bg: "#e3eef7", color: "#0b3c5d" },
   tan: { bg: "#f3e9dd", color: "#8a5a2b" },
   red: { bg: "#fbe4de", color: "#b0401f" },
-  gray: { bg: "#ececeb", color: "#55565a" },
-  slate: { bg: "#eef0f2", color: "#3d4750" },
+  mauve: { bg: "#ece5f2", color: "#5c3d7a" },
+  teal: { bg: "#dcf2ee", color: "#0f6e56" },
 };
 
 function useCardGroups(t) {
@@ -40,7 +40,7 @@ function useCardGroups(t) {
     { href: "/vegetation", Icon: IconTree, label: t("home.card_vegetation_label"), desc: t("home.card_vegetation_desc"), tint: "green" },
     { href: "/especes", Icon: IconPaw, label: t("home.card_especes_label"), desc: t("home.card_especes_desc"), tint: "tan" },
     { href: "/incendies", Icon: IconFlame, label: t("home.card_incendies_label"), desc: t("home.card_incendies_desc"), tint: "red" },
-    { href: "/pollution", Icon: IconSmog, label: t("home.card_pollution_label"), desc: t("home.card_pollution_desc"), tint: "gray" },
+    { href: "/pollution", Icon: IconSmog, label: t("home.card_pollution_label"), desc: t("home.card_pollution_desc"), tint: "mauve" },
   ];
   const democracy = [
     { href: "/deputes", Icon: IconUsers, label: t("home.card_deputes_label"), desc: t("home.card_deputes_desc"), tint: "blue" },
@@ -107,7 +107,7 @@ export default function Home() {
 
       <h2 style={{ fontSize: 18, margin: "1.5rem 0 0.75rem" }}>{t("home.section_engage")}</h2>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 12 }}>
-        <Card href="/debunk" Icon={IconSearch} label={t("home.card_debunk_label")} desc={t("home.card_debunk_desc")} tint="slate" />
+        <Card href="/debunk" Icon={IconSearch} label={t("home.card_debunk_label")} desc={t("home.card_debunk_desc")} tint="teal" />
       </div>
     </div>
   );

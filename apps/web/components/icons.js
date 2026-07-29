@@ -73,9 +73,10 @@ export function IconFlame(props) {
 export function IconSmog(props) {
   return (
     <Svg {...props}>
-      <path d="M4 9h9" />
-      <path d="M4 13h13a3 3 0 1 0-2.4-4.8" />
-      <path d="M4 17h9" />
+      <path d="M6 10a3.5 3.5 0 0 1 .6-6.94A4.5 4.5 0 0 1 15 5.5 3 3 0 0 1 14.5 11H7a3 3 0 0 1-1-1Z" />
+      <circle cx="6" cy="16.5" r="0.9" fill="currentColor" stroke="none" />
+      <circle cx="10.5" cy="18.5" r="0.9" fill="currentColor" stroke="none" />
+      <circle cx="15" cy="16.5" r="0.9" fill="currentColor" stroke="none" />
     </Svg>
   );
 }
