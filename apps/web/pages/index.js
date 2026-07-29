@@ -16,6 +16,7 @@ import {
   IconLandmark,
   IconScale,
   IconSearch,
+  IconCheck,
 } from "../components/icons";
 
 function useCardGroups(t) {
@@ -32,6 +33,7 @@ function useCardGroups(t) {
     { href: "/deputes", Icon: IconUsers, label: t("home.card_deputes_label"), desc: t("home.card_deputes_desc") },
     { href: "/groupes", Icon: IconLandmark, label: t("home.card_groupes_label"), desc: t("home.card_groupes_desc") },
     { href: "/scrutins", Icon: IconScale, label: t("home.card_scrutins_label"), desc: t("home.card_scrutins_desc") },
+    { href: "/mes-votes", Icon: IconCheck, label: t("home.card_mesvotes_label"), desc: t("home.card_mesvotes_desc") },
   ];
   return { environment, democracy };
 }

@@ -1,0 +1,111 @@
+import { useState } from "react";
+import Link from "next/link";
+import { getAnonymousId, getConsent, setConsent } from "../lib/anonymousId";
+import { saveCitizenVote } from "../lib/citizenVotes";
+import { useT } from "../lib/useT";
+
+const POSITIONS = ["pour", "contre", "abstention"];
+
+// Permet à la personne de voter (anonymement) sur ce scrutin et de comparer
+// sa réponse à celle de l'Assemblée. Rien n'est envoyé au serveur tant
+// qu'elle n'a pas explicitement confirmé vouloir garder un historique — le
+// premier vote déclenche cette question, une seule fois.
+export default function CitizenVote({ legislature, numero, resultCode, resultLabel, tally }) {
+  const { t } = useT();
+  const [myVote, setMyVote] = useState(null);
+  const [showConsentPrompt, setShowConsentPrompt] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [error, setError] = useState(null);
+
+  function persistVote(position) {
+    const id = getAnonymousId();
+    saveCitizenVote(id, legislature, numero, position)
+      .then(() => setSaved(true))
+      .catch((err) => setError(err.message));
+  }
+
+  function handleVote(position) {
+    setMyVote(position);
+    setError(null);
+    const consent = getConsent();
+    if (consent === "yes") {
+      persistVote(position);
+    } else if (consent === null) {
+      setShowConsentPrompt(true);
+    }
+  }
+
+  function handleConsentDecision(yes) {
+    setConsent(yes);
+    setShowConsentPrompt(false);
+    if (yes && myVote) persistVote(myVote);
+  }
+
+  const labels = {
+    pour: t("scrutins.pos_pour"),
+    contre: t("scrutins.pos_contre"),
+    abstention: t("scrutins.pos_abstention"),
+  };
+
+  return (
+    <div style={{ background: "#f7f7f5", border: "1px solid #e5e7e0", borderRadius: 12, padding: "1rem", margin: "1.5rem 0" }}>
+      <p style={{ fontWeight: 600, margin: "0 0 8px" }}>{t("citizenVote.question")}</p>
+      <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+        {POSITIONS.map((p) => (
+          <button
+            key={p}
+            type="button"
+            onClick={() => handleVote(p)}
+            style={{
+              padding: "8px 16px",
+              borderRadius: 8,
+              border: myVote === p ? "2px solid #1b5e20" : "1px solid #e0e0dc",
+              background: myVote === p ? "#eaf3de" : "white",
+              fontWeight: myVote === p ? 600 : 400,
+              cursor: "pointer",
+            }}
+          >
+            {labels[p]}
+          </button>
+        ))}
+      </div>
+
+      {myVote && (
+        <div style={{ marginTop: "0.75rem", fontSize: 13, color: "#333" }}>
+          <p style={{ margin: "0 0 4px" }}>
+            {t("citizenVote.your_vote", { position: labels[myVote] })}
+          </p>
+          <p style={{ margin: 0, color: "#666" }}>
+            {t("citizenVote.assembly_result", {
+              result: resultLabel || resultCode || "—",
+              pour: tally?.pour || 0,
+              contre: tally?.contre || 0,
+              abstention: tally?.abstention || 0,
+            })}
+          </p>
+        </div>
+      )}
+
+      {showConsentPrompt && (
+        <div style={{ marginTop: "1rem", padding: "0.75rem", background: "white", border: "1px solid #e0e0dc", borderRadius: 8 }}>
+          <p style={{ fontSize: 13, margin: "0 0 8px" }}>{t("citizenVote.consent_question")}</p>
+          <div style={{ display: "flex", gap: "0.5rem" }}>
+            <button type="button" onClick={() => handleConsentDecision(true)} style={{ fontSize: 13 }}>
+              {t("citizenVote.consent_yes")}
+            </button>
+            <button type="button" onClick={() => handleConsentDecision(false)} style={{ fontSize: 13 }}>
+              {t("citizenVote.consent_no")}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {saved && <p style={{ fontSize: 12, color: "#1baf7a", marginTop: 8 }}>{t("citizenVote.saved")}</p>}
+      {error && <p role="alert" style={{ fontSize: 12, color: "#d63e2a", marginTop: 8 }}>{error}</p>}
+
+      <p style={{ fontSize: 12, color: "#666", marginTop: "0.75rem" }}>
+        <Link href="/mes-votes">{t("citizenVote.manage_link")}</Link>
+      </p>
+    </div>
+  );
+}
