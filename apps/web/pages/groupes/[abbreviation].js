@@ -83,7 +83,7 @@ export default function GroupDetailPage() {
 
       {!loading && !error && group && (
         <>
-          <PageHeader Icon={IconLandmark} tint="blue" title={group.name} ({group.abbreviation}) />
+          <PageHeader Icon={IconLandmark} tint="blue" title={`${group.name} (${group.abbreviation})`} />
           <ShareButtons title={`${group.name} (${group.abbreviation})`} />
 
           <p style={{ color: "var(--color-texte-clair)" }}>

@@ -109,7 +109,7 @@ export default function IncendiesPage() {
 
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
-      <PageHeader Icon={IconFlame} tint="red" title={t("incendies.title")} — {selectedCountryName} />
+      <PageHeader Icon={IconFlame} tint="red" title={`${t("incendies.title")} — ${selectedCountryName}`} />
       <ShareButtons title={`${t("incendies.title")} — ${selectedCountryName}`} />
 
       <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginBottom: "1rem" }}>{t("incendies.intro_p1")}</p>

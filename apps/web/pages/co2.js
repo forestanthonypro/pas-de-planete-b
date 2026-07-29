@@ -123,7 +123,7 @@ export default function Co2Page() {
 
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 800, margin: "0 auto" }}>
-      <PageHeader Icon={IconCloud} tint="green" title={t("co2.title")} — {selectedCountryName} />
+      <PageHeader Icon={IconCloud} tint="green" title={`${t("co2.title")} — ${selectedCountryName}`} />
       <ShareButtons title={`${t("co2.title")} — ${selectedCountryName}`} />
 
       <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem", flexWrap: "wrap" }}>

@@ -198,7 +198,7 @@ export default function VegetationPage() {
 
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 800, margin: "0 auto" }}>
-      <PageHeader Icon={IconTree} tint="green" title={t("vegetation.title")} — {selectedCountryName} />
+      <PageHeader Icon={IconTree} tint="green" title={`${t("vegetation.title")} — ${selectedCountryName}`} />
       <ShareButtons title={`${t("vegetation.title")} — ${selectedCountryName}`} />
 
       <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem", flexWrap: "wrap" }}>

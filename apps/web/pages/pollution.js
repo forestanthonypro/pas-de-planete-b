@@ -122,7 +122,7 @@ export default function PollutionPage() {
 
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 800, margin: "0 auto" }}>
-      <PageHeader Icon={IconSmog} tint="mauve" title={t("pollution.title")} — {selectedCountryName} />
+      <PageHeader Icon={IconSmog} tint="mauve" title={`${t("pollution.title")} — ${selectedCountryName}`} />
       <ShareButtons title={`${t("pollution.title")} — ${selectedCountryName}`} />
 
       <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem", flexWrap: "wrap" }}>

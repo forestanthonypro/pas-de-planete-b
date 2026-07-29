@@ -207,7 +207,7 @@ export default function EauPage() {
 
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 800, margin: "0 auto" }}>
-      <PageHeader Icon={IconDroplet} tint="blue" title={t("eau.title")} — {selectedCountryName} />
+      <PageHeader Icon={IconDroplet} tint="blue" title={`${t("eau.title")} — ${selectedCountryName}`} />
       <ShareButtons title={`${t("eau.title")} — ${selectedCountryName}`} />
 
       <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem", flexWrap: "wrap" }}>

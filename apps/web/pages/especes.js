@@ -152,7 +152,7 @@ export default function EspecesPage() {
 
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
-      <PageHeader Icon={IconPaw} tint="tan" title={t("especes.title")} — {selectedCountryName} />
+      <PageHeader Icon={IconPaw} tint="tan" title={`${t("especes.title")} — ${selectedCountryName}`} />
       <ShareButtons title={`${t("especes.title")} — ${selectedCountryName}`} />
 
       <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginBottom: "1rem" }}>{t("especes.intro_p1")}</p>
