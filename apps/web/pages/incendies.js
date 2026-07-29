@@ -6,10 +6,12 @@ import { localizedCountryName } from "../lib/countryNames";
 import CountrySelect from "../components/CountrySelect";
 import ShareButtons from "../components/ShareButtons";
 import { useSobriety } from "../lib/SobrietyContext";
+import { useT } from "../lib/useT";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 export default function IncendiesPage() {
+  const { t } = useT();
   const { sobriety } = useSobriety();
   const lastUpdated = useLastUpdated();
   const [preferredLang, setPreferredLang] = useState(null);
@@ -24,10 +26,6 @@ export default function IncendiesPage() {
   const mapRef = useRef(null);
   const markersLayerRef = useRef(null);
 
-  // Mode sobriété : la carte (tuiles téléchargées à chaque affichage) est le
-  // poste le plus lourd de cette page — on bascule automatiquement sur le
-  // tableau et on n'initialise même pas la carte, plutôt que de la charger
-  // puis la cacher visuellement (ce qui ne ferait rien économiser).
   useEffect(() => {
     if (sobriety) setView("table");
   }, [sobriety]);
@@ -49,7 +47,7 @@ export default function IncendiesPage() {
     setError(null);
     fetch(`${API_URL}/api/fires?country=${country}`)
       .then((res) => {
-        if (!res.ok) throw new Error("Données indisponibles pour ce pays");
+        if (!res.ok) throw new Error(t("incendies.error_no_data"));
         return res.json();
       })
       .then((rows) => {
@@ -60,6 +58,7 @@ export default function IncendiesPage() {
         setError(err.message);
         setLoading(false);
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [country]);
 
   useEffect(() => {
@@ -104,27 +103,19 @@ export default function IncendiesPage() {
     };
   }, [view, sobriety, fires]);
 
-  const selectedCountryName =
-    localizedCountryName(country, preferredLang);
+  const selectedCountryName = localizedCountryName(country, preferredLang);
 
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
-      <h1>Feux actifs — {selectedCountryName}</h1>
-      <ShareButtons title={`Feux actifs — ${selectedCountryName}`} />
+      <h1>{t("incendies.title")} — {selectedCountryName}</h1>
+      <ShareButtons title={`${t("incendies.title")} — ${selectedCountryName}`} />
 
-
+      <p style={{ fontSize: 13, color: "#666", marginBottom: "1rem" }}>{t("incendies.intro_p1")}</p>
       <p style={{ fontSize: 13, color: "#666", marginBottom: "1rem" }}>
-        Détections satellite des 3 derniers jours (NASA FIRMS, capteur MODIS). Une détection
-        n&apos;est pas nécessairement un feu de forêt incontrôlé — cela inclut aussi les brûlis
-        agricoles et d&apos;autres sources de chaleur détectées par satellite.
-      </p>
-      <p style={{ fontSize: 13, color: "#666", marginBottom: "1rem" }}>
-        Les points sur la carte sont colorés selon l&apos;intensité de la chaleur détectée :{" "}
-        <span style={{ color: "#f4b400", fontWeight: 600 }}>jaune</span> pour une détection
-        modérée (souvent un brûlis agricole),{" "}
-        <span style={{ color: "#e67e22", fontWeight: 600 }}>orange</span> pour intermédiaire, et{" "}
-        <span style={{ color: "#d63e2a", fontWeight: 600 }}>rouge</span> pour les foyers les plus
-        intenses, plus susceptibles d&apos;être de vrais feux de forêt.
+        {t("incendies.intro_p2_prefix")}{" "}
+        <span style={{ color: "#f4b400", fontWeight: 600 }}>{t("incendies.color_yellow")}</span> {t("incendies.color_yellow_desc")}{" "}
+        <span style={{ color: "#e67e22", fontWeight: 600 }}>{t("incendies.color_orange")}</span> {t("incendies.color_orange_desc")}{" "}
+        <span style={{ color: "#d63e2a", fontWeight: 600 }}>{t("incendies.color_red")}</span> {t("incendies.color_red_desc")}
       </p>
 
       <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem", flexWrap: "wrap" }}>
@@ -135,18 +126,16 @@ export default function IncendiesPage() {
           preferredLang={preferredLang}
         />
         <button onClick={() => setView(view === "map" ? "table" : "map")} disabled={sobriety}>
-          Voir en {view === "map" ? "tableau" : "carte"}
+          {view === "map" ? t("common.view_as_table") : t("common.view_as_chart")}
         </button>
         {sobriety && (
-          <span style={{ fontSize: 12, color: "#666" }}>
-            Carte désactivée en mode sobriété (économise le téléchargement des tuiles)
-          </span>
+          <span style={{ fontSize: 12, color: "#666" }}>{t("incendies.map_sobriety_disabled")}</span>
         )}
       </div>
 
-      {loading && <p>Chargement...</p>}
-      {error && <p role="alert">Erreur : {error}</p>}
-      {!loading && !error && fires.length === 0 && <p>Aucune détection récente pour ce pays.</p>}
+      {loading && <p>{t("common.loading")}</p>}
+      {error && <p role="alert">{t("common.error_prefix")} {error}</p>}
+      {!loading && !error && fires.length === 0 && <p>{t("incendies.no_recent_detections")}</p>}
 
       <div style={{ display: view === "map" ? "block" : "none" }}>
         <div ref={mapContainerRef} style={{ height: 480, borderRadius: 8 }} />
@@ -155,13 +144,13 @@ export default function IncendiesPage() {
       {!loading && !error && view === "table" && fires.length > 0 && (
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <caption style={{ textAlign: "left", fontSize: 12, color: "#666", marginBottom: 8 }}>
-            Détections — {selectedCountryName}
+            {t("incendies.table_caption", { country: selectedCountryName })}
           </caption>
           <thead>
             <tr>
-              <th scope="col" style={{ textAlign: "left", padding: 8 }}>Détecté le</th>
-              <th scope="col" style={{ textAlign: "right", padding: 8 }}>Puissance radiative (MW)</th>
-              <th scope="col" style={{ textAlign: "right", padding: 8 }}>Confiance (%)</th>
+              <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("incendies.table_detected_at")}</th>
+              <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("incendies.table_frp")}</th>
+              <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("incendies.table_confidence")}</th>
             </tr>
           </thead>
           <tbody>
@@ -179,11 +168,11 @@ export default function IncendiesPage() {
       )}
 
       <p style={{ fontSize: 12, color: "#666", marginTop: "1rem" }}>
-        Source : NASA FIRMS (MODIS_NRT) — données publiques.
+        {t("incendies.source")}
         {lastUpdated?.fires?.latestDetection && (
-          <> Détection la plus récente : {formatDate(lastUpdated.fires.latestDetection)}.</>
+          <> {t("incendies.source_latest", { date: formatDate(lastUpdated.fires.latestDetection) })}</>
         )}
-        {" "}Rafraîchissement automatique toutes les 6 heures.
+        {" "}{t("incendies.source_refresh")}
       </p>
     </div>
   );

@@ -7,21 +7,26 @@ import { useLastUpdated, formatDate } from "../lib/useLastUpdated";
 import { localizedCountryName } from "../lib/countryNames";
 import CountrySelect from "../components/CountrySelect";
 import ShareButtons from "../components/ShareButtons";
+import { useT } from "../lib/useT";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
-const CATEGORY_INFO = {
-  EX: { label: "Éteinte", color: "#000000" },
-  EW: { label: "Éteinte à l'état sauvage", color: "#3d3d3d" },
-  CR: { label: "En danger critique", color: "#d63e2a" },
-  EN: { label: "En danger", color: "#e67e22" },
-  VU: { label: "Vulnérable", color: "#f4b400" },
-  NT: { label: "Quasi menacée", color: "#cbd423" },
-  LC: { label: "Préoccupation mineure", color: "#1baf7a" },
-  DD: { label: "Données insuffisantes", color: "#95a5a6" },
-};
+function useCategoryInfo(t) {
+  return {
+    EX: { label: t("especes.cat_ex"), color: "#000000" },
+    EW: { label: t("especes.cat_ew"), color: "#3d3d3d" },
+    CR: { label: t("especes.cat_cr"), color: "#d63e2a" },
+    EN: { label: t("especes.cat_en"), color: "#e67e22" },
+    VU: { label: t("especes.cat_vu"), color: "#f4b400" },
+    NT: { label: t("especes.cat_nt"), color: "#cbd423" },
+    LC: { label: t("especes.cat_lc"), color: "#1baf7a" },
+    DD: { label: t("especes.cat_dd"), color: "#95a5a6" },
+  };
+}
 
 export default function EspecesPage() {
+  const { t } = useT();
+  const CATEGORY_INFO = useCategoryInfo(t);
   const lastUpdated = useLastUpdated();
   const [preferredLang, setPreferredLang] = useState(null);
   const [countries, setCountries] = useState([]);
@@ -59,8 +64,6 @@ export default function EspecesPage() {
       .catch(() => setGlobalShare([]));
   }, []);
 
-  // Comptage officiel IUCN (mammifères/oiseaux/poissons), à distinguer de
-  // l'échantillon GBIF affiché plus bas — voir la légende pour le détail.
   useEffect(() => {
     fetch(`${API_URL}/api/species-threatened/${country}`)
       .then((res) => (res.ok ? res.json() : []))
@@ -79,10 +82,10 @@ export default function EspecesPage() {
       threatenedChartRef.current = new Chart(threatenedCanvasRef.current, {
         type: "bar",
         data: {
-          labels: ["Mammifères", "Oiseaux", "Poissons"],
+          labels: [t("especes.chart_mammals"), t("especes.chart_birds"), t("especes.chart_fish")],
           datasets: [
             {
-              label: `Espèces menacées (${latest.year})`,
+              label: t("especes.chart_threatened_year", { year: latest.year }),
               data: [latest.mammals_threatened, latest.birds_threatened, latest.fish_threatened],
               backgroundColor: ["#8e44ad", "#4285f4", "#1baf7a"],
             },
@@ -94,7 +97,7 @@ export default function EspecesPage() {
           indexAxis: "y",
           plugins: { legend: { display: false } },
           scales: {
-            x: { title: { display: true, text: "Nombre d'espèces menacées" } },
+            x: { title: { display: true, text: t("especes.axis_threatened_count") } },
           },
         },
       });
@@ -102,6 +105,7 @@ export default function EspecesPage() {
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [threatenedCounts]);
 
   useEffect(() => {
@@ -113,7 +117,7 @@ export default function EspecesPage() {
 
     fetch(`${API_URL}/api/species?${params}`)
       .then((res) => {
-        if (!res.ok) throw new Error("Données indisponibles");
+        if (!res.ok) throw new Error(t("especes.error_no_data"));
         return res.json();
       })
       .then((rows) => {
@@ -124,11 +128,9 @@ export default function EspecesPage() {
         setError(err.message);
         setLoading(false);
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [category, country]);
 
-  // Le groupe (Oiseau, Poisson, Escargot...) est calculé côté client à partir de la
-  // classe/ordre taxonomique — pas une colonne filtrée côté API, donc le filtre
-  // s'applique ici sur les résultats déjà récupérés.
   const availableGroups = useMemo(() => {
     const set = new Set(species.map((s) => speciesGroupLabel(s.kingdom, s.class, s.taxon_order)));
     return Array.from(set).sort();
@@ -139,33 +141,19 @@ export default function EspecesPage() {
     return species.filter((s) => speciesGroupLabel(s.kingdom, s.class, s.taxon_order) === group);
   }, [species, group]);
 
-  // Le pays/la catégorie changent la liste sous-jacente : le groupe sélectionné
-  // peut ne plus exister dans les résultats, on le réinitialise proprement.
   useEffect(() => {
     if (group && !availableGroups.includes(group)) setGroup("");
   }, [availableGroups, group]);
 
-  const selectedCountryName =
-    localizedCountryName(country, preferredLang);
+  const selectedCountryName = localizedCountryName(country, preferredLang);
 
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
-      <h1>Espèces menacées — {selectedCountryName}</h1>
-      <ShareButtons title={`Espèces menacées — ${selectedCountryName}`} />
+      <h1>{t("especes.title")} — {selectedCountryName}</h1>
+      <ShareButtons title={`${t("especes.title")} — ${selectedCountryName}`} />
 
-
-      <p style={{ fontSize: 13, color: "#666", marginBottom: "1rem" }}>
-        Échantillon d&apos;espèces observées dans ce pays, par catégorie d&apos;extinction UICN,
-        à partir des occurrences republiées par GBIF. Ce n&apos;est pas la liste complète des
-        espèces évaluées, mais un aperçu représentatif. Les noms communs sans traduction connue
-        sont indiqués comme tels plutôt que devinés.
-      </p>
-      <p style={{ fontSize: 13, color: "#666", marginBottom: "1rem" }}>
-        Les catégories vont du moins grave au plus grave : &laquo; Vulnérable &raquo; veut dire
-        menacée mais pas de danger immédiat, &laquo; En danger &raquo; veut dire qu&apos;elle
-        pourrait disparaître à moyen terme sans action, et &laquo; En danger critique &raquo;
-        veut dire qu&apos;elle risque de disparaître dans les toutes prochaines années.
-      </p>
+      <p style={{ fontSize: 13, color: "#666", marginBottom: "1rem" }}>{t("especes.intro_p1")}</p>
+      <p style={{ fontSize: 13, color: "#666", marginBottom: "1rem" }}>{t("especes.intro_p2")}</p>
 
       <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem", flexWrap: "wrap" }}>
         <CountrySelect
@@ -176,9 +164,9 @@ export default function EspecesPage() {
         />
 
         <label>
-          Groupe{" "}
+          {t("especes.group_label")}{" "}
           <select value={group} onChange={(e) => setGroup(e.target.value)}>
-            <option value="">Tous</option>
+            <option value="">{t("especes.all_groups")}</option>
             {availableGroups.map((g) => (
               <option key={g} value={g}>{g}</option>
             ))}
@@ -186,9 +174,9 @@ export default function EspecesPage() {
         </label>
 
         <label>
-          Catégorie{" "}
+          {t("especes.category_label")}{" "}
           <select value={category} onChange={(e) => setCategory(e.target.value)}>
-            <option value="">Toutes</option>
+            <option value="">{t("especes.all_categories")}</option>
             {categories.map((c) => (
               <option key={c} value={c}>
                 {CATEGORY_INFO[c]?.label || c}
@@ -198,25 +186,25 @@ export default function EspecesPage() {
         </label>
       </div>
 
-      {loading && <p>Chargement...</p>}
-      {error && <p role="alert">Erreur : {error}</p>}
-      {!loading && !error && filteredSpecies.length === 0 && (
-        <p>Aucune espèce trouvée pour ce filtre dans cet échantillon.</p>
-      )}
+      {loading && <p>{t("common.loading")}</p>}
+      {error && <p role="alert">{t("common.error_prefix")} {error}</p>}
+      {!loading && !error && filteredSpecies.length === 0 && <p>{t("especes.no_species")}</p>}
 
       {!loading && !error && filteredSpecies.length > 0 && (
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <caption style={{ textAlign: "left", fontSize: 12, color: "#666", marginBottom: 8 }}>
-            Espèces — {selectedCountryName}
-            {category ? ` (${CATEGORY_INFO[category]?.label || category})` : ""}
-            {group ? ` — groupe : ${group}` : ""}
+            {t("especes.table_caption", {
+              country: selectedCountryName,
+              category: category ? ` (${CATEGORY_INFO[category]?.label || category})` : "",
+              group: group ? t("especes.table_group_suffix", { group }) : "",
+            })}
           </caption>
           <thead>
             <tr>
-              <th scope="col" style={{ textAlign: "left", padding: 8 }}>Nom scientifique</th>
-              <th scope="col" style={{ textAlign: "left", padding: 8 }}>Noms communs</th>
-              <th scope="col" style={{ textAlign: "left", padding: 8 }}>Groupe</th>
-              <th scope="col" style={{ textAlign: "left", padding: 8 }}>Catégorie</th>
+              <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("especes.table_scientific_name")}</th>
+              <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("especes.table_common_names")}</th>
+              <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("especes.table_group")}</th>
+              <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("especes.table_category")}</th>
             </tr>
           </thead>
           <tbody>
@@ -229,7 +217,7 @@ export default function EspecesPage() {
                     {s.scientific_name}
                   </th>
                   <td style={{ textAlign: "left", padding: 8, color: names ? "inherit" : "#999", fontSize: 13 }}>
-                    {names || "non disponible"}
+                    {names || t("especes.name_unavailable")}
                   </td>
                   <td style={{ textAlign: "left", padding: 8 }}>
                     {speciesGroupLabel(s.kingdom, s.class, s.taxon_order)}
@@ -243,7 +231,6 @@ export default function EspecesPage() {
                         fontSize: 12,
                         color: "white",
                         backgroundColor: info.color,
-                        whiteSpace: "nowrap",
                       }}
                     >
                       {info.label}
@@ -257,46 +244,36 @@ export default function EspecesPage() {
       )}
 
       <p style={{ fontSize: 12, color: "#666", marginTop: "1rem" }}>
-        Source : GBIF, occurrences classées par catégorie UICN via la collaboration GBIF-IUCN (CC-BY)
+        {t("especes.source")}
         {lastUpdated?.species?.lastIngested && (
-          <> · dernière mise à jour de notre base : {formatDate(lastUpdated.species.lastIngested)}</>
+          <> {t("especes.source_last_updated", { date: formatDate(lastUpdated.species.lastIngested) })}</>
         )}
-        . Rafraîchissement automatique mensuel.
+        {t("especes.source_refresh")}
       </p>
 
       <section style={{ marginTop: "2.5rem", borderTop: "1px solid #eee", paddingTop: "1.5rem" }}>
-        <h2>Comptage officiel d&apos;espèces menacées</h2>
-        <p style={{ fontSize: 13, color: "#666" }}>
-          À la différence de l&apos;échantillon GBIF ci-dessus, voici un comptage officiel issu
-          des évaluations IUCN — mais limité à trois groupes seulement (mammifères, oiseaux,
-          poissons), et en <strong>nombre absolu</strong>, pas en pourcentage : aucune source ne
-          publie un total fiable d&apos;espèces présentes par pays pour calculer un vrai %.
-        </p>
+        <h2>{t("especes.official_count_title")}</h2>
+        <p style={{ fontSize: 13, color: "#666" }}>{t("especes.official_count_explain")}</p>
         {threatenedCounts.length > 0 ? (
           <div style={{ position: "relative", height: 180 }}>
-            <canvas ref={threatenedCanvasRef} role="img" aria-label={`Nombre d'espèces menacées par groupe pour ${selectedCountryName}`} />
+            <canvas ref={threatenedCanvasRef} role="img" aria-label={t("especes.official_count_title")} />
           </div>
         ) : (
-          <p>Aucune donnée officielle pour ce pays.</p>
+          <p>{t("especes.no_official_data")}</p>
         )}
 
         {globalShare.length > 0 && (
           <>
-            <h3 style={{ fontSize: 15, marginTop: "1.5rem" }}>Repère mondial (pas par pays)</h3>
+            <h3 style={{ fontSize: 15, marginTop: "1.5rem" }}>{t("especes.world_reference_title")}</h3>
             <p style={{ fontSize: 13, color: "#666" }}>
-              Pour donner un ordre de grandeur : voici le nombre et le % d&apos;espèces menacées{" "}
-              <strong>dans le monde entier</strong>, par grand groupe (IUCN Red List, via Our World
-              in Data) — ce n&apos;est pas spécifique à {selectedCountryName}. Ces chiffres se
-              mettent à jour automatiquement (source ouverte, republiée légalement par OWID — les
-              données brutes de l&apos;IUCN elle-même ne peuvent pas être redistribuées
-              automatiquement selon ses propres conditions d&apos;utilisation).
+              {t("especes.world_reference_explain", { country: selectedCountryName })}
             </p>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr>
-                  <th scope="col" style={{ textAlign: "left", padding: 6 }}>Groupe</th>
-                  <th scope="col" style={{ textAlign: "right", padding: 6 }}>Espèces menacées</th>
-                  <th scope="col" style={{ textAlign: "right", padding: 6 }}>% menacé dans le monde</th>
+                  <th scope="col" style={{ textAlign: "left", padding: 6 }}>{t("especes.table_world_group")}</th>
+                  <th scope="col" style={{ textAlign: "right", padding: 6 }}>{t("especes.table_world_count")}</th>
+                  <th scope="col" style={{ textAlign: "right", padding: 6 }}>{t("especes.table_world_share")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -313,9 +290,9 @@ export default function EspecesPage() {
         )}
 
         <p style={{ fontSize: 12, color: "#666", marginTop: "1rem" }}>
-          IUCN Red List / UNEP-WCMC via Banque mondiale, via Our World in Data (CC-BY)
+          {t("especes.world_source")}
           {lastUpdated?.speciesThreatened?.latestYear && (
-            <> — dernière année couverte : {lastUpdated.speciesThreatened.latestYear}</>
+            <> {t("especes.world_source_year", { year: lastUpdated.speciesThreatened.latestYear })}</>
           )}
           .
         </p>

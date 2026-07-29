@@ -6,10 +6,12 @@ import { useLastUpdated, formatDate } from "../lib/useLastUpdated";
 import { useWorldBenchmarks } from "../lib/useWorldBenchmarks";
 import CountrySelect from "../components/CountrySelect";
 import ShareButtons from "../components/ShareButtons";
+import { useT } from "../lib/useT";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 export default function PollutionPage() {
+  const { t } = useT();
   const lastUpdated = useLastUpdated();
   const benchmarks = useWorldBenchmarks();
   const [preferredLang, setPreferredLang] = useState(null);
@@ -40,7 +42,7 @@ export default function PollutionPage() {
     setError(null);
     fetch(`${API_URL}/api/pollution/${countryCode}`)
       .then((res) => {
-        if (!res.ok) throw new Error("Données indisponibles pour ce pays");
+        if (!res.ok) throw new Error(t("pollution.error_no_data"));
         return res.json();
       })
       .then((rows) => {
@@ -51,6 +53,7 @@ export default function PollutionPage() {
         setError(err.message);
         setLoading(false);
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [countryCode]);
 
   useEffect(() => {
@@ -62,7 +65,7 @@ export default function PollutionPage() {
 
       const datasets = [
         {
-          label: "Exposition PM2.5 (µg/m³)",
+          label: t("pollution.chart_pm25"),
           data: data.map((d) => d.pm25_ug_m3),
           borderColor: "#e67e22",
           backgroundColor: "rgba(230,126,34,0.1)",
@@ -75,7 +78,7 @@ export default function PollutionPage() {
 
       if (benchmarks?.pm25_who_guideline) {
         datasets.push({
-          label: "Seuil recommandé OMS (5 µg/m³)",
+          label: t("pollution.chart_who_threshold"),
           data: data.map(() => benchmarks.pm25_who_guideline.value),
           borderColor: "#1baf7a",
           borderDash: [6, 4],
@@ -86,7 +89,7 @@ export default function PollutionPage() {
       }
       if (benchmarks?.pm25_world_average) {
         datasets.push({
-          label: "Moyenne mondiale",
+          label: t("pollution.chart_world_avg"),
           data: data.map(() => benchmarks.pm25_world_average.value),
           borderColor: "#95a5a6",
           borderDash: [2, 3],
@@ -103,22 +106,22 @@ export default function PollutionPage() {
           responsive: true,
           maintainAspectRatio: false,
           plugins: { legend: { display: true } },
-          scales: { y: { title: { display: true, text: "µg/m³" } } },
+          scales: { y: { title: { display: true, text: t("pollution.axis_ug_m3") } } },
         },
       });
     });
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, view, loading, error, benchmarks]);
 
   const selectedCountryName = localizedCountryName(countryCode, preferredLang);
 
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 800, margin: "0 auto" }}>
-      <h1>Pollution de l&apos;air — {selectedCountryName}</h1>
-      <ShareButtons title={`Pollution de l'air — ${selectedCountryName}`} />
-
+      <h1>{t("pollution.title")} — {selectedCountryName}</h1>
+      <ShareButtons title={`${t("pollution.title")} — ${selectedCountryName}`} />
 
       <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem", flexWrap: "wrap" }}>
         <CountrySelect
@@ -128,38 +131,31 @@ export default function PollutionPage() {
           preferredLang={preferredLang}
         />
         <button onClick={() => setView(view === "chart" ? "table" : "chart")}>
-          Voir en {view === "chart" ? "tableau" : "graphique"}
+          {view === "chart" ? t("common.view_as_table") : t("common.view_as_chart")}
         </button>
       </div>
 
-      {loading && <p>Chargement...</p>}
-      {error && <p role="alert">Erreur : {error}</p>}
+      {loading && <p>{t("common.loading")}</p>}
+      {error && <p role="alert">{t("common.error_prefix")} {error}</p>}
 
-      <h2 style={{ fontSize: 18, marginBottom: "0.25rem" }}>Que montre ce graphique ?</h2>
-      <p style={{ fontSize: 13, color: "#666", marginBottom: "0.75rem" }}>
-        La courbe orange, c&apos;est la quantité de particules fines respirées en moyenne par les
-        habitants du pays. Plus c&apos;est haut, plus l&apos;air est pollué. La ligne verte
-        (5 µg/m³), c&apos;est le seuil que l&apos;OMS recommande de ne pas dépasser pour limiter
-        les risques pour la santé — moins de 15 % des villes du monde le respectent aujourd&apos;hui.
-        Exemple : une valeur à 15 µg/m³ veut dire que le pays respire, en moyenne, 3 fois plus de
-        particules fines que ce que l&apos;OMS recommande.
-      </p>
+      <h2 style={{ fontSize: 18, marginBottom: "0.25rem" }}>{t("pollution.what_shows_title")}</h2>
+      <p style={{ fontSize: 13, color: "#666", marginBottom: "0.75rem" }}>{t("pollution.explain_p1")}</p>
 
       {!loading && !error && view === "chart" && (
         <div style={{ position: "relative", height: 340 }}>
-          <canvas ref={canvasRef} role="img" aria-label={`Exposition PM2.5 pour ${selectedCountryName}`} />
+          <canvas ref={canvasRef} role="img" aria-label={`${t("pollution.title")} — ${selectedCountryName}`} />
         </div>
       )}
 
       {!loading && !error && view === "table" && (
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <caption style={{ textAlign: "left", fontSize: 12, color: "#666", marginBottom: 8 }}>
-            Pollution de l&apos;air pour {selectedCountryName}, par année
+            {t("pollution.table_caption", { country: selectedCountryName })}
           </caption>
           <thead>
             <tr>
-              <th scope="col" style={{ textAlign: "left", padding: 8 }}>Année</th>
-              <th scope="col" style={{ textAlign: "right", padding: 8 }}>PM2.5 (µg/m³)</th>
+              <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("pollution.table_year")}</th>
+              <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("pollution.table_pm25")}</th>
             </tr>
           </thead>
           <tbody>
@@ -174,25 +170,19 @@ export default function PollutionPage() {
       )}
 
       <details style={{ marginTop: "1rem", fontSize: 13, color: "#555" }}>
-        <summary style={{ cursor: "pointer" }}>Que couvre ce chiffre exactement ?</summary>
-        <p style={{ marginTop: 8 }}>
-          Il s&apos;agit de l&apos;<strong>exposition moyenne annuelle aux particules fines PM2.5</strong>,
-          pondérée par la population (les zones les plus peuplées comptent davantage), estimée par
-          modélisation satellite. L&apos;OMS recommande de rester sous 5 µg/m³ pour limiter les
-          risques cardiovasculaires et respiratoires — moins de 15 % des villes du monde respectent
-          ce seuil aujourd&apos;hui.
-        </p>
+        <summary style={{ cursor: "pointer" }}>{t("pollution.details_summary")}</summary>
+        <p style={{ marginTop: 8 }}>{t("pollution.details_p1")}</p>
       </details>
 
       <p style={{ fontSize: 12, color: "#666", marginTop: "1rem" }}>
-        Source : SatPM (Washington University in St. Louis), via Our World in Data (CC-BY)
+        {t("pollution.source")}
         {lastUpdated?.pollution?.latestYear && (
-          <> — dernière année couverte : {lastUpdated.pollution.latestYear}</>
+          <> {t("pollution.source_latest_year", { year: lastUpdated.pollution.latestYear })}</>
         )}
         {lastUpdated?.pollution?.lastIngested && (
-          <> · dernière mise à jour de notre base : {formatDate(lastUpdated.pollution.lastIngested)}</>
+          <> {t("pollution.source_last_updated", { date: formatDate(lastUpdated.pollution.lastIngested) })}</>
         )}
-        . Rafraîchissement automatique mensuel.
+        {t("pollution.source_refresh")}
       </p>
     </div>
   );
