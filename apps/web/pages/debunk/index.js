@@ -81,7 +81,7 @@ export default function DebunkPage() {
       {!loading && !error && entries.length === 0 && <p>{t("debunk.no_entries")}</p>}
 
       {!loading && !error && filtered.length > 0 && (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 12, marginTop: "1.5rem" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 12, marginTop: "1.5rem" }}>
           {filtered.map((e) => (
             <Link
               key={e.slug}
