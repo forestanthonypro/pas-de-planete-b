@@ -12,6 +12,7 @@ import { useWorldBenchmarks } from "../../lib/useWorldBenchmarks";
 import CountrySelect from "../../components/CountrySelect";
 import ShareButtons from "../../components/ShareButtons";
 import { useSobriety } from "../../lib/SobrietyContext";
+import { barEndLabelsPlugin } from "../../lib/barEndLabelsPlugin";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -26,26 +27,6 @@ const CATEGORY_INFO = {
   DD: { label: "Données insuffisantes", color: "#95a5a6" },
 };
 
-const barEndLabelsPlugin = {
-  id: "barEndLabels",
-  afterDatasetsDraw(chart) {
-    const { ctx } = chart;
-    chart.data.datasets.forEach((dataset, datasetIndex) => {
-      const meta = chart.getDatasetMeta(datasetIndex);
-      meta.data.forEach((bar, index) => {
-        const count = dataset.plantCounts?.[index];
-        if (count == null) return;
-        ctx.save();
-        ctx.fillStyle = "#444";
-        ctx.font = "12px sans-serif";
-        ctx.textBaseline = "middle";
-        ctx.textAlign = "left";
-        ctx.fillText(`${count} centrale${count > 1 ? "s" : ""}`, bar.x + 6, bar.y);
-        ctx.restore();
-      });
-    });
-  },
-};
 
 export default function PaysDashboard() {
   const router = useRouter();

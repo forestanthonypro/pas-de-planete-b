@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { detectDefaultCountry } from "../lib/detectCountry";
 import { detectPreferredLanguage } from "../lib/detectLanguage";
 import { FUEL_COLORS, DEFAULT_FUEL_COLOR, translateFuel } from "../lib/fuelTypes";
@@ -7,6 +7,7 @@ import { localizedCountryName } from "../lib/countryNames";
 import CountrySelect from "../components/CountrySelect";
 import ShareButtons from "../components/ShareButtons";
 import { useSobriety } from "../lib/SobrietyContext";
+import { barEndLabelsPlugin } from "../lib/barEndLabelsPlugin";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -31,8 +32,24 @@ export default function EnergiePage() {
   const mapContainerRef = useRef(null);
   const mapRef = useRef(null);
   const markersLayerRef = useRef(null);
+  const mixCanvasRef = useRef(null);
+  const mixChartRef = useRef(null);
   const generationCanvasRef = useRef(null);
   const generationChartRef = useRef(null);
+
+  // Agrégation par filière (capacité totale + nombre de centrales) à partir
+  // des centrales individuelles déjà chargées pour la carte/le tableau — pas
+  // besoin d'un appel réseau supplémentaire, on recalcule juste côté client.
+  const energyMix = useMemo(() => {
+    const byFuel = {};
+    for (const p of plants) {
+      const key = p.fuel_type || "Autre";
+      if (!byFuel[key]) byFuel[key] = { fuel_type: key, total_capacity_mw: 0, plant_count: 0 };
+      byFuel[key].total_capacity_mw += p.capacity_mw || 0;
+      byFuel[key].plant_count += 1;
+    }
+    return Object.values(byFuel).sort((a, b) => b.total_capacity_mw - a.total_capacity_mw);
+  }, [plants]);
 
   // Devine le pays par défaut une fois côté client (évite un décalage serveur/client).
   useEffect(() => {
@@ -74,6 +91,47 @@ export default function EnergiePage() {
         setLoading(false);
       });
   }, [country, fuelType]);
+
+  // Dessine le graphique de mix énergétique (capacité + nombre de centrales
+  // par filière) — même graphique que sur le dashboard pays, pour rester
+  // cohérent partout où cette information est présentée.
+  useEffect(() => {
+    if (energyMix.length === 0) return;
+    let cancelled = false;
+    import("../lib/chartSetup").then(({ default: Chart }) => {
+      if (cancelled || !mixCanvasRef.current) return;
+      if (mixChartRef.current) mixChartRef.current.destroy();
+
+      mixChartRef.current = new Chart(mixCanvasRef.current, {
+        type: "bar",
+        data: {
+          labels: energyMix.map((r) => translateFuel(r.fuel_type)),
+          datasets: [
+            {
+              label: "Capacité (MW)",
+              data: energyMix.map((r) => r.total_capacity_mw),
+              backgroundColor: energyMix.map((r) => FUEL_COLORS[r.fuel_type] || DEFAULT_FUEL_COLOR),
+              plantCounts: energyMix.map((r) => r.plant_count),
+            },
+          ],
+        },
+        plugins: [barEndLabelsPlugin],
+        options: {
+          indexAxis: "y",
+          responsive: true,
+          maintainAspectRatio: false,
+          layout: { padding: { right: 90 } },
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { title: { display: true, text: "Capacité (MW)" } },
+          },
+        },
+      });
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [energyMix]);
 
   // Génération électrique réelle par filière et par an — comparaison à la
   // capacité installée statique de la carte ci-dessus.
@@ -271,6 +329,24 @@ export default function EnergiePage() {
             ))}
           </tbody>
         </table>
+      )}
+
+      {energyMix.length > 0 && (
+        <section style={{ marginTop: "2rem" }}>
+          <h2>Mix énergétique</h2>
+          <p>
+            <strong>{energyMix.length}</strong> types de production,{" "}
+            <strong>{Math.round(energyMix.reduce((sum, r) => sum + r.total_capacity_mw, 0)).toLocaleString("fr-FR")} MW</strong>{" "}
+            de capacité totale connue.
+          </p>
+          <p style={{ fontSize: 13, color: "#666" }}>
+            Capacité installée par filière, avec le nombre de centrales — le même graphique que
+            sur la fiche pays, pour retrouver la même information ici.
+          </p>
+          <div style={{ position: "relative", height: Math.max(200, energyMix.length * 34) }}>
+            <canvas ref={mixCanvasRef} role="img" aria-label={`Mix énergétique de ${localizedCountryName(country, preferredLang)}, capacité et nombre de centrales par type`} />
+          </div>
+        </section>
       )}
 
       {generation.length > 0 && (
