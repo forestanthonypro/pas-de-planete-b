@@ -57,6 +57,20 @@ export default function AdminDebunkList() {
     loadEntries(token);
   }
 
+  function togglePublished(entry) {
+    fetch(`${API_URL}/api/admin/debunk/${entry.slug}/publish`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-ingest-token": token },
+      body: JSON.stringify({ published: !entry.published }),
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Échec de la mise à jour");
+        return res.json();
+      })
+      .then(() => loadEntries(token))
+      .catch((err) => setError(err.message));
+  }
+
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 800, margin: "0 auto" }}>
       <h1>Administration — Débunk</h1>
@@ -109,6 +123,9 @@ export default function AdminDebunkList() {
                       {e.published ? "Publié" : "Brouillon"}
                     </td>
                     <td style={{ padding: 8 }}>
+                      <button type="button" onClick={() => togglePublished(e)} style={{ fontSize: 12, marginRight: 8 }}>
+                        {e.published ? "Dépublier" : "Publier"}
+                      </button>
                       <Link href={`/admin/debunk/edit?slug=${e.slug}`}>Modifier</Link>
                     </td>
                   </tr>

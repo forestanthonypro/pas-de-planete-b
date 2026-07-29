@@ -979,6 +979,27 @@ app.get("/api/admin/debunk/:slug", requireIngestToken, async (req, res) => {
   }
 });
 
+// Bascule rapide publié/brouillon depuis la liste — sans repasser par tout
+// le formulaire, ne touche que ce seul champ.
+app.post("/api/admin/debunk/:slug/publish", requireIngestToken, async (req, res) => {
+  const { published } = req.body || {};
+  if (typeof published !== "boolean") {
+    return res.status(400).json({ error: "published doit être true ou false" });
+  }
+  try {
+    const result = await pool.query(
+      "UPDATE debunk_entries SET published = $1, updated_at = now() WHERE slug = $2 RETURNING slug",
+      [published, req.params.slug]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Entrée non trouvée" });
+    }
+    res.json({ status: "ok" });
+  } catch (err) {
+    res.status(500).json({ error: "Échec de la mise à jour", detail: err.message });
+  }
+});
+
 app.post("/api/admin/debunk", requireIngestToken, async (req, res) => {
   const { slug, myth, reality, category, verdict, claimQuote, published, sources } = req.body || {};
   if (!slug || !myth || !reality) {
