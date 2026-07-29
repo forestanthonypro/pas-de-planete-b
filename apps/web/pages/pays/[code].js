@@ -11,6 +11,7 @@ import { localizedCountryName } from "../../lib/countryNames";
 import { useWorldBenchmarks } from "../../lib/useWorldBenchmarks";
 import CountrySelect from "../../components/CountrySelect";
 import ShareButtons from "../../components/ShareButtons";
+import { useSobriety } from "../../lib/SobrietyContext";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -49,6 +50,7 @@ const barEndLabelsPlugin = {
 export default function PaysDashboard() {
   const router = useRouter();
   const { code } = router.query;
+  const { sobriety } = useSobriety();
   const lastUpdated = useLastUpdated();
   const worldBenchmarks = useWorldBenchmarks();
 
@@ -892,7 +894,7 @@ export default function PaysDashboard() {
   }, [compareCode, compareSummary, worldBenchmarks]);
 
   useEffect(() => {
-    if (!fireMapContainerRef.current || fireMapRef.current) return;
+    if (sobriety || !fireMapContainerRef.current || fireMapRef.current) return;
     let cancelled = false;
     import("leaflet").then((L) => {
       if (cancelled || !fireMapContainerRef.current) return;
@@ -906,7 +908,7 @@ export default function PaysDashboard() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [sobriety]);
 
   useEffect(() => {
     if (!fireMapRef.current || !fireMarkersLayerRef.current) return;
@@ -937,7 +939,7 @@ export default function PaysDashboard() {
   }, [fires]);
 
   useEffect(() => {
-    if (!compareCode || !compareSummary || !fireMapCompareContainerRef.current) return;
+    if (sobriety || !compareCode || !compareSummary || !fireMapCompareContainerRef.current) return;
     let cancelled = false;
     import("leaflet").then((L) => {
       if (cancelled || !fireMapCompareContainerRef.current) return;
@@ -981,7 +983,7 @@ export default function PaysDashboard() {
     return () => {
       cancelled = true;
     };
-  }, [compareCode, compareSummary, compareFires]);
+  }, [compareCode, compareSummary, compareFires, sobriety]);
 
   const countryName = localizedCountryName(code, preferredLang);
   const latestCo2 = summary?.co2?.[summary.co2.length - 1];
@@ -1406,7 +1408,14 @@ export default function PaysDashboard() {
         <div style={{ display: "grid", gridTemplateColumns: compareCode && compareSummary ? "repeat(auto-fit, minmax(320px, 1fr))" : "1fr", gap: "1rem" }}>
           <div>
             <p style={{ fontSize: 12, color: "#666", fontWeight: 600, marginBottom: 4 }}>{countryName}</p>
-            <div ref={fireMapContainerRef} style={{ height: 360, borderRadius: 8 }} />
+            {sobriety ? (
+              <p style={{ fontSize: 13, color: "#666" }}>
+                Carte désactivée en mode sobriété (économise le téléchargement des tuiles) — voir{" "}
+                <Link href="/incendies">la page dédiée</Link> pour la carte ou le tableau.
+              </p>
+            ) : (
+              <div ref={fireMapContainerRef} style={{ height: 360, borderRadius: 8 }} />
+            )}
           </div>
           {compareCode && compareSummary && (
             <div>
@@ -1414,7 +1423,11 @@ export default function PaysDashboard() {
                 {localizedCountryName(compareCode, preferredLang)} —{" "}
                 <strong>{compareFires.length}</strong> détection{compareFires.length !== 1 ? "s" : ""}
               </p>
-              <div ref={fireMapCompareContainerRef} style={{ height: 360, borderRadius: 8 }} />
+              {sobriety ? (
+                <p style={{ fontSize: 13, color: "#666" }}>Carte désactivée en mode sobriété.</p>
+              ) : (
+                <div ref={fireMapCompareContainerRef} style={{ height: 360, borderRadius: 8 }} />
+              )}
             </div>
           )}
         </div>

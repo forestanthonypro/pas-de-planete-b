@@ -6,6 +6,7 @@ import { useLastUpdated, formatDate } from "../lib/useLastUpdated";
 import { localizedCountryName } from "../lib/countryNames";
 import CountrySelect from "../components/CountrySelect";
 import ShareButtons from "../components/ShareButtons";
+import { useSobriety } from "../lib/SobrietyContext";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -21,6 +22,11 @@ export default function EnergiePage() {
   const [view, setView] = useState("map"); // "map" ou "table"
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { sobriety } = useSobriety();
+
+  useEffect(() => {
+    if (sobriety) setView("table");
+  }, [sobriety]);
 
   const mapContainerRef = useRef(null);
   const mapRef = useRef(null);
@@ -139,7 +145,7 @@ export default function EnergiePage() {
 
   // Initialise la carte une seule fois.
   useEffect(() => {
-    if (view !== "map" || !mapContainerRef.current || mapRef.current) return;
+    if (view !== "map" || sobriety || !mapContainerRef.current || mapRef.current) return;
 
     let cancelled = false;
     import("leaflet")
@@ -160,7 +166,7 @@ export default function EnergiePage() {
     return () => {
       cancelled = true;
     };
-  }, [view]);
+  }, [view, sobriety]);
 
   // Redessine les marqueurs à chaque changement de données.
   useEffect(() => {
@@ -217,9 +223,14 @@ export default function EnergiePage() {
           </select>
         </label>
 
-        <button onClick={() => setView(view === "map" ? "table" : "map")}>
+        <button onClick={() => setView(view === "map" ? "table" : "map")} disabled={sobriety}>
           Voir en {view === "map" ? "tableau" : "carte"}
         </button>
+        {sobriety && (
+          <span style={{ fontSize: 12, color: "#666" }}>
+            Carte désactivée en mode sobriété (économise le téléchargement des tuiles)
+          </span>
+        )}
       </div>
 
       {loading && <p>Chargement...</p>}

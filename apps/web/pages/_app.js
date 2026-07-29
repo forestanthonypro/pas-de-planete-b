@@ -1,4 +1,5 @@
 import "../styles/globals.css";
+import "leaflet/dist/leaflet.css";
 import { SobrietyProvider } from "../lib/SobrietyContext";
 import Layout from "../components/Layout";
 

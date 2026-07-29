@@ -5,10 +5,12 @@ import { useLastUpdated, formatDate } from "../lib/useLastUpdated";
 import { localizedCountryName } from "../lib/countryNames";
 import CountrySelect from "../components/CountrySelect";
 import ShareButtons from "../components/ShareButtons";
+import { useSobriety } from "../lib/SobrietyContext";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 export default function IncendiesPage() {
+  const { sobriety } = useSobriety();
   const lastUpdated = useLastUpdated();
   const [preferredLang, setPreferredLang] = useState(null);
   const [countries, setCountries] = useState([]);
@@ -21,6 +23,14 @@ export default function IncendiesPage() {
   const mapContainerRef = useRef(null);
   const mapRef = useRef(null);
   const markersLayerRef = useRef(null);
+
+  // Mode sobriété : la carte (tuiles téléchargées à chaque affichage) est le
+  // poste le plus lourd de cette page — on bascule automatiquement sur le
+  // tableau et on n'initialise même pas la carte, plutôt que de la charger
+  // puis la cacher visuellement (ce qui ne ferait rien économiser).
+  useEffect(() => {
+    if (sobriety) setView("table");
+  }, [sobriety]);
 
   useEffect(() => {
     setCountry(detectDefaultCountry());
@@ -53,7 +63,7 @@ export default function IncendiesPage() {
   }, [country]);
 
   useEffect(() => {
-    if (view !== "map" || !mapContainerRef.current || mapRef.current) return;
+    if (view !== "map" || sobriety || !mapContainerRef.current || mapRef.current) return;
     let cancelled = false;
     import("leaflet").then((L) => {
       if (cancelled || !mapContainerRef.current) return;
@@ -67,7 +77,7 @@ export default function IncendiesPage() {
     return () => {
       cancelled = true;
     };
-  }, [view]);
+  }, [view, sobriety]);
 
   useEffect(() => {
     if (view !== "map" || !mapRef.current || !markersLayerRef.current) return;
@@ -127,9 +137,14 @@ export default function IncendiesPage() {
           onChange={setCountry}
           preferredLang={preferredLang}
         />
-        <button onClick={() => setView(view === "map" ? "table" : "map")}>
+        <button onClick={() => setView(view === "map" ? "table" : "map")} disabled={sobriety}>
           Voir en {view === "map" ? "tableau" : "carte"}
         </button>
+        {sobriety && (
+          <span style={{ fontSize: 12, color: "#666" }}>
+            Carte désactivée en mode sobriété (économise le téléchargement des tuiles)
+          </span>
+        )}
       </div>
 
       {loading && <p>Chargement...</p>}
