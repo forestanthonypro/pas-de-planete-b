@@ -74,6 +74,16 @@ export default function DebunkEntryPage() {
 
           <ShareButtons title={entry.myth} />
 
+          {entry.image_url && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={entry.image_url}
+              alt=""
+              style={{ width: "100%", maxHeight: 360, objectFit: "cover", borderRadius: 12, margin: "1rem 0" }}
+              onError={(e) => { e.target.style.display = "none"; }}
+            />
+          )}
+
           {entry.claim_quote && (
             <div style={{ background: "#f7f7f5", borderLeft: "3px solid #647076", borderRadius: "0 8px 8px 0", padding: "0.75rem 1rem", margin: "1.25rem 0" }}>
               <p style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.03em", color: "#666", margin: "0 0 4px", fontWeight: 600 }}>

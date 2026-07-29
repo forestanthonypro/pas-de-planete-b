@@ -921,7 +921,7 @@ app.post("/api/newsletter/unsubscribe", async (req, res) => {
 app.get("/api/debunk", async (_req, res) => {
   try {
     const result = await pool.query(
-      "SELECT slug, myth, category, verdict, updated_at FROM debunk_entries WHERE published = true ORDER BY updated_at DESC"
+      "SELECT slug, myth, category, verdict, image_url, updated_at FROM debunk_entries WHERE published = true ORDER BY updated_at DESC"
     );
     res.json(result.rows);
   } catch (err) {
@@ -955,7 +955,7 @@ app.get("/api/debunk/:slug", async (req, res) => {
 app.get("/api/admin/debunk", requireIngestToken, async (_req, res) => {
   try {
     const result = await pool.query(
-      "SELECT slug, myth, category, verdict, published, updated_at FROM debunk_entries ORDER BY updated_at DESC"
+      "SELECT slug, myth, category, verdict, published, image_url, updated_at FROM debunk_entries ORDER BY updated_at DESC"
     );
     res.json(result.rows);
   } catch (err) {
@@ -1001,7 +1001,7 @@ app.post("/api/admin/debunk/:slug/publish", requireIngestToken, async (req, res)
 });
 
 app.post("/api/admin/debunk", requireIngestToken, async (req, res) => {
-  const { slug, myth, reality, category, verdict, claimQuote, published, sources } = req.body || {};
+  const { slug, myth, reality, category, verdict, claimQuote, imageUrl, published, sources } = req.body || {};
   if (!slug || !myth || !reality) {
     return res.status(400).json({ error: "slug, myth et reality sont requis" });
   }
@@ -1012,13 +1012,13 @@ app.post("/api/admin/debunk", requireIngestToken, async (req, res) => {
   try {
     await client.query("BEGIN");
     await client.query(
-      `INSERT INTO debunk_entries (slug, myth, reality, category, verdict, claim_quote, published, updated_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, now())
+      `INSERT INTO debunk_entries (slug, myth, reality, category, verdict, claim_quote, image_url, published, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, now())
        ON CONFLICT (slug)
        DO UPDATE SET myth = EXCLUDED.myth, reality = EXCLUDED.reality, category = EXCLUDED.category,
                      verdict = EXCLUDED.verdict, claim_quote = EXCLUDED.claim_quote,
-                     published = EXCLUDED.published, updated_at = now()`,
-      [slug, myth, reality, category || null, verdict || "faux", claimQuote || null, published === true]
+                     image_url = EXCLUDED.image_url, published = EXCLUDED.published, updated_at = now()`,
+      [slug, myth, reality, category || null, verdict || "faux", claimQuote || null, imageUrl || null, published === true]
     );
     if (Array.isArray(sources)) {
       await client.query("DELETE FROM debunk_sources WHERE debunk_slug = $1", [slug]);

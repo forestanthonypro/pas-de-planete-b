@@ -24,6 +24,7 @@ export default function AdminDebunkEdit() {
   const [slugTouched, setSlugTouched] = useState(false);
   const [myth, setMyth] = useState("");
   const [claimQuote, setClaimQuote] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
   const [reality, setReality] = useState("");
   const [category, setCategory] = useState("");
   const [verdict, setVerdict] = useState("faux");
@@ -54,6 +55,7 @@ export default function AdminDebunkEdit() {
         setSlugTouched(true);
         setMyth(data.entry.myth);
         setClaimQuote(data.entry.claim_quote || "");
+        setImageUrl(data.entry.image_url || "");
         setReality(data.entry.reality);
         setCategory(data.entry.category || "");
         setVerdict(data.entry.verdict || "faux");
@@ -97,6 +99,7 @@ export default function AdminDebunkEdit() {
         slug,
         myth,
         claimQuote: claimQuote || null,
+        imageUrl: imageUrl || null,
         reality,
         category: category || null,
         verdict,
@@ -186,6 +189,28 @@ export default function AdminDebunkEdit() {
             rows={2}
             style={{ width: "100%", padding: "8px 10px", fontFamily: "inherit" }}
           />
+        </label>
+
+        <label style={{ display: "block", marginBottom: "0.75rem" }}>
+          <span style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>
+            Image d&apos;illustration — URL (optionnel)
+          </span>
+          <input
+            type="url"
+            value={imageUrl}
+            onChange={(e) => setImageUrl(e.target.value)}
+            placeholder="https://..."
+            style={{ width: "100%", padding: "8px 10px" }}
+          />
+          {imageUrl && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={imageUrl}
+              alt=""
+              style={{ marginTop: 8, maxWidth: 240, maxHeight: 140, borderRadius: 8, objectFit: "cover" }}
+              onError={(e) => { e.target.style.display = "none"; }}
+            />
+          )}
         </label>
 
         <label style={{ display: "block", marginBottom: "0.75rem" }}>
