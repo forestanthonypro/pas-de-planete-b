@@ -408,6 +408,10 @@
     "pos_abstention": "Abstention",
     "pos_absent": "Absent / non-voting",
     "detail_source": "Source: CIVIX, based on National Assembly open data (Licence Ouverte / Open Licence 2.0).",
+    "results_hidden_explain": "This vote's results are hidden by default, so your vote isn't influenced by the Assembly's.",
+    "reveal_now": "See results now",
+    "vote_first": "I'd rather vote first",
+    "results_hidden_note": "Results hidden — vote above or click \"See results now\" to display them.",
     "error_no_data": "Data unavailable"
   },
   "debunk": {

@@ -37,6 +37,8 @@ export default function ScrutinPage() {
   const [error, setError] = useState(null);
   const [groupFilter, setGroupFilter] = useState("");
   const [nameQuery, setNameQuery] = useState("");
+  const [revealed, setRevealed] = useState(false);
+  const [bannerDismissed, setBannerDismissed] = useState(false);
   const canvasRef = useRef(null);
   const chartRef = useRef(null);
 
@@ -44,6 +46,8 @@ export default function ScrutinPage() {
     if (!legislature || !numero) return;
     setLoading(true);
     setError(null);
+    setRevealed(false);
+    setBannerDismissed(false);
     fetch(`${API_URL}/api/scrutins/${legislature}/${numero}`)
       .then((res) => {
         if (!res.ok) throw new Error(t("scrutins.not_found"));
@@ -135,14 +139,33 @@ export default function ScrutinPage() {
             resultCode={scrutin.result_code}
             resultLabel={scrutin.result_label}
             tally={tally}
+            onVoted={() => setRevealed(true)}
           />
+
+          {!revealed && votes.length > 0 && !bannerDismissed && (
+            <div style={{ background: "#fff8e6", border: "1px solid #f4b400", borderRadius: 8, padding: "0.75rem 1rem", margin: "1rem 0" }}>
+              <p style={{ fontSize: 13, margin: "0 0 8px" }}>{t("scrutins.results_hidden_explain")}</p>
+              <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+                <button type="button" onClick={() => setRevealed(true)} style={{ fontSize: 13 }}>
+                  {t("scrutins.reveal_now")}
+                </button>
+                <button type="button" onClick={() => setBannerDismissed(true)} style={{ fontSize: 13 }}>
+                  {t("scrutins.vote_first")}
+                </button>
+              </div>
+            </div>
+          )}
 
           <p style={{ color: "#666" }}>
             {scrutin.scrutin_date && (
               <>{t("scrutins.voted_on", { date: new Date(scrutin.scrutin_date).toLocaleDateString("fr-FR") })} </>
             )}
-            {scrutin.type_vote_label && <>{scrutin.type_vote_label} — </>}
-            {t("scrutins.result_prefix")} <strong>{scrutin.result_label || scrutin.result_code || "—"}</strong>
+            {scrutin.type_vote_label && <>{scrutin.type_vote_label}</>}
+            {revealed && (
+              <>
+                {" — "}{t("scrutins.result_prefix")} <strong>{scrutin.result_label || scrutin.result_code || "—"}</strong>
+              </>
+            )}
           </p>
 
           {votes.length === 0 ? (
@@ -150,7 +173,7 @@ export default function ScrutinPage() {
               {t("scrutins.no_nominative_detail")}{" "}
               <Link href="/scrutins">{t("scrutins.scrutins_list")}</Link>.
             </p>
-          ) : (
+          ) : revealed ? (
             <>
               <p style={{ fontSize: 14 }}>
                 {t("scrutins.assembly_result")}{" "}
@@ -245,6 +268,8 @@ export default function ScrutinPage() {
                 </tbody>
               </table>
             </>
+          ) : (
+            <p style={{ fontSize: 13, color: "#666" }}>{t("scrutins.results_hidden_note")}</p>
           )}
 
           <p style={{ fontSize: 12, color: "#666", marginTop: "1rem" }}>{t("scrutins.detail_source")}</p>

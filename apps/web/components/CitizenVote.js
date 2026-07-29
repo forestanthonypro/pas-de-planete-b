@@ -10,7 +10,7 @@ const POSITIONS = ["pour", "contre", "abstention"];
 // sa réponse à celle de l'Assemblée. Rien n'est envoyé au serveur tant
 // qu'elle n'a pas explicitement confirmé vouloir garder un historique — le
 // premier vote déclenche cette question, une seule fois.
-export default function CitizenVote({ legislature, numero, resultCode, resultLabel, tally }) {
+export default function CitizenVote({ legislature, numero, resultCode, resultLabel, tally, onVoted }) {
   const { t } = useT();
   const [myVote, setMyVote] = useState(null);
   const [showConsentPrompt, setShowConsentPrompt] = useState(false);
@@ -27,6 +27,7 @@ export default function CitizenVote({ legislature, numero, resultCode, resultLab
   function handleVote(position) {
     setMyVote(position);
     setError(null);
+    if (onVoted) onVoted(position);
     const consent = getConsent();
     if (consent === "yes") {
       persistVote(position);
