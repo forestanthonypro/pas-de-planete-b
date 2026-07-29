@@ -527,7 +527,7 @@ export default function PaysDashboard() {
         const x = xScale.getPixelForValue(100);
         const ctx = chart.ctx;
         ctx.save();
-        ctx.strokeStyle = "#999";
+        ctx.strokeStyle = "var(--color-texte-clair)";
         ctx.setLineDash([5, 4]);
         ctx.lineWidth = 1.5;
         ctx.beginPath();
@@ -535,7 +535,7 @@ export default function PaysDashboard() {
         ctx.lineTo(x, yScale.bottom);
         ctx.stroke();
         ctx.setLineDash([]);
-        ctx.fillStyle = "#999";
+        ctx.fillStyle = "var(--color-texte-clair)";
         ctx.font = "11px sans-serif";
         ctx.textAlign = "left";
         ctx.fillText(worldAverageLabel, x + 4, yScale.top + 10);
@@ -1202,14 +1202,14 @@ export default function PaysDashboard() {
                     </thead>
                     <tbody>
                       {list.map((s) => {
-                        const info = CATEGORY_INFO[s.category] || { label: s.category, color: "#999" };
+                        const info = CATEGORY_INFO[s.category] || { label: s.category, color: "var(--color-texte-clair)" };
                         const names = formatCommonNames(s.common_names, preferredLang);
                         return (
                           <tr key={s.scientific_name}>
                             <th scope="row" style={{ textAlign: "left", padding: 6, fontWeight: 400, fontStyle: "italic" }}>
                               {s.scientific_name}
                             </th>
-                            <td style={{ textAlign: "left", padding: 6, fontSize: 13, color: names ? "inherit" : "#999" }}>
+                            <td style={{ textAlign: "left", padding: 6, fontSize: 13, color: names ? "inherit" : "var(--color-texte-clair)" }}>
                               {names || t("especes.name_unavailable")}
                             </td>
                             <td style={{ textAlign: "left", padding: 6 }}>{speciesGroupLabel(s.kingdom, s.class, s.taxon_order, locale)}</td>

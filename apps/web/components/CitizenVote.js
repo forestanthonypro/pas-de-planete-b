@@ -60,7 +60,7 @@ export default function CitizenVote({ legislature, numero, resultCode, resultLab
   };
 
   return (
-    <div style={{ background: "var(--color-carte)", border: "1px solid #e5e7e0", borderRadius: 12, padding: "1rem", margin: "1.5rem 0" }}>
+    <div style={{ background: "var(--color-carte)", border: "1px solid var(--color-bordure)", borderRadius: 12, padding: "1rem", margin: "1.5rem 0" }}>
       <p style={{ fontWeight: 600, margin: "0 0 8px" }}>{t("citizenVote.question")}</p>
       <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
         {POSITIONS.map((p) => (
@@ -106,7 +106,7 @@ export default function CitizenVote({ legislature, numero, resultCode, resultLab
                 })}
               </p>
             ) : (
-              <p style={{ margin: "4px 0 0", color: "#999", fontSize: 12 }}>
+              <p style={{ margin: "4px 0 0", color: "var(--color-texte-clair)", fontSize: 12 }}>
                 {t("citizenVote.citizens_not_enough", { min: citizenStats.minRequired })}
               </p>
             )

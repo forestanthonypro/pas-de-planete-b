@@ -210,14 +210,14 @@ export default function EspecesPage() {
           </thead>
           <tbody>
             {filteredSpecies.map((s) => {
-              const info = CATEGORY_INFO[s.category] || { label: s.category, color: "#999" };
+              const info = CATEGORY_INFO[s.category] || { label: s.category, color: "var(--color-texte-clair)" };
               const names = formatCommonNames(s.common_names, preferredLang);
               return (
                 <tr key={s.scientific_name}>
                   <th scope="row" style={{ textAlign: "left", padding: 8, fontWeight: 400, fontStyle: "italic" }}>
                     {s.scientific_name}
                   </th>
-                  <td style={{ textAlign: "left", padding: 8, color: names ? "inherit" : "#999", fontSize: 13 }}>
+                  <td style={{ textAlign: "left", padding: 8, color: names ? "inherit" : "var(--color-texte-clair)", fontSize: 13 }}>
                     {names || t("especes.name_unavailable")}
                   </td>
                   <td style={{ textAlign: "left", padding: 8 }}>

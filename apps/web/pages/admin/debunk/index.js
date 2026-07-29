@@ -115,11 +115,11 @@ export default function AdminDebunkList() {
                   <tr key={e.slug}>
                     <td style={{ padding: 8 }}>{e.myth}</td>
                     <td style={{ padding: 8 }}>
-                      <span style={{ background: VERDICT_COLORS[e.verdict] || "#999", color: e.verdict === "trompeur" ? "var(--color-texte)" : "white", fontSize: 11, fontWeight: 600, padding: "2px 8px", borderRadius: 20 }}>
+                      <span style={{ background: VERDICT_COLORS[e.verdict] || "var(--color-texte-clair)", color: e.verdict === "trompeur" ? "var(--color-texte)" : "white", fontSize: 11, fontWeight: 600, padding: "2px 8px", borderRadius: 20 }}>
                         {(VERDICT_LABELS[e.verdict] || e.verdict).toUpperCase()}
                       </span>
                     </td>
-                    <td style={{ padding: 8, fontSize: 13, color: e.published ? "#1baf7a" : "#999" }}>
+                    <td style={{ padding: 8, fontSize: 13, color: e.published ? "#1baf7a" : "var(--color-texte-clair)" }}>
                       {e.published ? "Publié" : "Brouillon"}
                     </td>
                     <td style={{ padding: 8 }}>

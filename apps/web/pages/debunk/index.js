@@ -62,7 +62,7 @@ export default function DebunkPage() {
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            style={{ border: "1px solid #e0e0dc", borderRadius: 8, padding: "6px 10px", fontSize: 13 }}
+            style={{ border: "1px solid var(--color-bordure)", borderRadius: 8, padding: "6px 10px", fontSize: 13 }}
           >
             <option value="">{t("debunk.category_all")}</option>
             {categories.map((c) => (
@@ -86,7 +86,7 @@ export default function DebunkPage() {
             <Link
               key={e.slug}
               href={`/debunk/${e.slug}`}
-              style={{ display: "block", background: "var(--color-carte)", border: "1px solid #e5e7e0", borderRadius: 12, overflow: "hidden", textDecoration: "none", color: "inherit" }}
+              style={{ display: "block", background: "var(--color-carte)", border: "1px solid var(--color-bordure)", borderRadius: 12, overflow: "hidden", textDecoration: "none", color: "inherit" }}
             >
               {e.image_url && (
                 // eslint-disable-next-line @next/next/no-img-element

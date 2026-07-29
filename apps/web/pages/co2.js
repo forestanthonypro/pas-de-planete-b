@@ -185,7 +185,7 @@ export default function Co2Page() {
         </table>
       )}
 
-      <details style={{ marginBottom: "1rem", fontSize: 13, color: "#555" }}>
+      <details style={{ marginBottom: "1rem", fontSize: 13, color: "var(--color-texte-clair)" }}>
         <summary style={{ cursor: "pointer" }}>{t("co2.details_summary")}</summary>
         <p style={{ marginTop: 8 }}>{t("co2.details_p1")}</p>
         <p>{t("co2.details_p2")}</p>

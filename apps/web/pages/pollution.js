@@ -169,7 +169,7 @@ export default function PollutionPage() {
         </table>
       )}
 
-      <details style={{ marginTop: "1rem", fontSize: 13, color: "#555" }}>
+      <details style={{ marginTop: "1rem", fontSize: 13, color: "var(--color-texte-clair)" }}>
         <summary style={{ cursor: "pointer" }}>{t("pollution.details_summary")}</summary>
         <p style={{ marginTop: 8 }}>{t("pollution.details_p1")}</p>
       </details>

@@ -93,7 +93,7 @@ export default function DebunkEntryPage() {
             </div>
           )}
 
-          <h2 style={{ fontSize: 16, marginTop: "1.5rem", color: "#1b5e20" }}>{t("debunk.reality_title")}</h2>
+          <h2 style={{ fontSize: 16, marginTop: "1.5rem", color: "var(--color-forest)" }}>{t("debunk.reality_title")}</h2>
           <p style={{ whiteSpace: "pre-wrap" }}>{entry.reality}</p>
 
           {sources.length > 0 && (

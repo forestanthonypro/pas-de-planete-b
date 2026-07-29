@@ -64,7 +64,7 @@ export default function MesVotesPage() {
       <h1>{t("citizenVote.page_title")}</h1>
       <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginBottom: "1.5rem" }}>{t("citizenVote.page_intro")}</p>
 
-      <section style={{ background: "var(--color-carte)", border: "1px solid #e5e7e0", borderRadius: 12, padding: "1rem", marginBottom: "1.5rem" }}>
+      <section style={{ background: "var(--color-carte)", border: "1px solid var(--color-bordure)", borderRadius: 12, padding: "1rem", marginBottom: "1.5rem" }}>
         <h2 style={{ fontSize: 16, marginTop: 0 }}>{t("citizenVote.manage_data_title")}</h2>
         <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>
           {consent === "yes" && t("citizenVote.consent_status_yes")}

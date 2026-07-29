@@ -217,7 +217,7 @@ export default function VegetationPage() {
       <h2 style={{ fontSize: 18, marginBottom: "0.25rem" }}>{t("vegetation.what_shows_title")}</h2>
       <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginBottom: "0.75rem" }}>{t("vegetation.explain_p1")}</p>
       <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginBottom: "0.75rem" }}>{t("vegetation.explain_p2")}</p>
-      <p style={{ fontSize: 12, color: "#999", marginBottom: "0.75rem" }}>{t("vegetation.note_technical")}</p>
+      <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginBottom: "0.75rem" }}>{t("vegetation.note_technical")}</p>
 
       {!loading && !error && view === "chart" && (
         <div style={{ position: "relative", height: 320 }}>
@@ -271,7 +271,7 @@ export default function VegetationPage() {
         </table>
       )}
 
-      <details style={{ marginTop: "1rem", fontSize: 13, color: "#555" }}>
+      <details style={{ marginTop: "1rem", fontSize: 13, color: "var(--color-texte-clair)" }}>
         <summary style={{ cursor: "pointer" }}>{t("vegetation.details_summary")}</summary>
         <p style={{ marginTop: 8 }}>{t("vegetation.details_p1")}</p>
         <p>{t("vegetation.details_p2")}</p>
