@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { detectDefaultCountry } from "../lib/detectCountry";
 import { speciesGroupLabel } from "../lib/speciesGroups";
+import { translateTaxonGroup } from "../lib/taxonGroupNames";
 import { formatCommonNames } from "../lib/commonNames";
 import { detectPreferredLanguage } from "../lib/detectLanguage";
 import { useLastUpdated, formatDate } from "../lib/useLastUpdated";
@@ -25,7 +26,7 @@ function useCategoryInfo(t) {
 }
 
 export default function EspecesPage() {
-  const { t } = useT();
+  const { t, locale } = useT();
   const CATEGORY_INFO = useCategoryInfo(t);
   const lastUpdated = useLastUpdated();
   const [preferredLang, setPreferredLang] = useState(null);
@@ -132,13 +133,13 @@ export default function EspecesPage() {
   }, [category, country]);
 
   const availableGroups = useMemo(() => {
-    const set = new Set(species.map((s) => speciesGroupLabel(s.kingdom, s.class, s.taxon_order)));
+    const set = new Set(species.map((s) => speciesGroupLabel(s.kingdom, s.class, s.taxon_order, locale)));
     return Array.from(set).sort();
   }, [species]);
 
   const filteredSpecies = useMemo(() => {
     if (!group) return species;
-    return species.filter((s) => speciesGroupLabel(s.kingdom, s.class, s.taxon_order) === group);
+    return species.filter((s) => speciesGroupLabel(s.kingdom, s.class, s.taxon_order, locale) === group);
   }, [species, group]);
 
   useEffect(() => {
@@ -220,7 +221,7 @@ export default function EspecesPage() {
                     {names || t("especes.name_unavailable")}
                   </td>
                   <td style={{ textAlign: "left", padding: 8 }}>
-                    {speciesGroupLabel(s.kingdom, s.class, s.taxon_order)}
+                    {speciesGroupLabel(s.kingdom, s.class, s.taxon_order, locale)}
                   </td>
                   <td style={{ padding: 8 }}>
                     <span
@@ -279,7 +280,7 @@ export default function EspecesPage() {
               <tbody>
                 {globalShare.map((g) => (
                   <tr key={g.taxon_group}>
-                    <th scope="row" style={{ textAlign: "left", padding: 6, fontWeight: 400 }}>{g.taxon_group}</th>
+                    <th scope="row" style={{ textAlign: "left", padding: 6, fontWeight: 400 }}>{translateTaxonGroup(g.taxon_group, locale)}</th>
                     <td style={{ textAlign: "right", padding: 6 }}>{g.species_count != null ? g.species_count.toLocaleString("fr-FR") : "—"}</td>
                     <td style={{ textAlign: "right", padding: 6 }}>{g.share_percent} %</td>
                   </tr>
