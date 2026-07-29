@@ -51,7 +51,9 @@
     "card_mesvotes_label": "My votes",
     "card_mesvotes_desc": "Compare yourself to the Assembly",
     "card_debunk_label": "Debunk",
-    "card_debunk_desc": "Common myths, fact-checked"
+    "card_debunk_desc": "Common myths, fact-checked",
+    "card_interviews_label": "Science relay",
+    "card_interviews_desc": "Interviews, articles, videos"
   },
   "co2": {
     "title": "CO2 emissions",
@@ -550,5 +552,23 @@
     "delete_button": "Permanently delete my history",
     "delete_confirm": "Sure? This action is permanent and can't be undone.",
     "delete_done": "History deleted."
+  },
+  "interviews": {
+    "title": "Science relay",
+    "share_title": "Science relay — Pas de planète B",
+    "intro": "Interviews, articles and videos from recognized scientists, on climate and the environment. We always write our own summary — never a long quote reused as-is — and link back to the original source.",
+    "no_entries": "No content published yet — this section is under construction.",
+    "category_all": "All categories",
+    "type_all": "All formats",
+    "type_video": "Video",
+    "type_article": "Article",
+    "type_podcast": "Podcast",
+    "back_to_home": "Back to home →",
+    "back_to_list": "← Back to science relay",
+    "entry_not_found": "Entry not found",
+    "source_label": "Source:",
+    "watch_source": "See the original source →",
+    "related_debunk": "Also see (Debunk):",
+    "error_no_data": "Data unavailable"
   }
 }

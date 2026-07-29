@@ -17,6 +17,7 @@ import {
   IconScale,
   IconSearch,
   IconCheck,
+  IconPlay,
 } from "../components/icons";
 
 // Couleur de la pastille par catégorie — la couleur porte du sens (nature,
@@ -108,6 +109,7 @@ export default function Home() {
       <h2 style={{ fontSize: 18, margin: "1.5rem 0 0.75rem" }}>{t("home.section_engage")}</h2>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 12 }}>
         <Card href="/debunk" Icon={IconSearch} label={t("home.card_debunk_label")} desc={t("home.card_debunk_desc")} tint="teal" />
+        <Card href="/interviews" Icon={IconPlay} label={t("home.card_interviews_label")} desc={t("home.card_interviews_desc")} tint="mauve" />
       </div>
     </div>
   );

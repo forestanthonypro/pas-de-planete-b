@@ -157,3 +157,12 @@ export function IconMoon(props) {
     </Svg>
   );
 }
+
+export function IconPlay(props) {
+  return (
+    <Svg {...props}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M10 8.5l6 3.5-6 3.5Z" fill="currentColor" stroke="none" />
+    </Svg>
+  );
+}

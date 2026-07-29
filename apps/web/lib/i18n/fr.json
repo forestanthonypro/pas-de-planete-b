@@ -51,7 +51,9 @@
     "card_mesvotes_label": "Mes votes",
     "card_mesvotes_desc": "Comparez-vous à l'Assemblée",
     "card_debunk_label": "Débunk",
-    "card_debunk_desc": "Idées reçues passées au crible"
+    "card_debunk_desc": "Idées reçues passées au crible",
+    "card_interviews_label": "Relais scientifique",
+    "card_interviews_desc": "Interviews, articles, vidéos"
   },
   "co2": {
     "title": "Émissions de CO2",
@@ -550,5 +552,23 @@
     "delete_button": "Supprimer définitivement mon historique",
     "delete_confirm": "Sûr ? Cette action est définitive et ne peut pas être annulée.",
     "delete_done": "Historique supprimé."
+  },
+  "interviews": {
+    "title": "Relais scientifique",
+    "share_title": "Relais scientifique — Pas de planète B",
+    "intro": "Interviews, articles et vidéos de scientifiques reconnus, sur le climat et l'environnement. On écrit toujours notre propre résumé — jamais de citation longue reprise telle quelle — et on renvoie vers la source originale.",
+    "no_entries": "Aucun contenu publié pour l'instant — cette rubrique est en cours de construction.",
+    "category_all": "Toutes les catégories",
+    "type_all": "Tous les formats",
+    "type_video": "Vidéo",
+    "type_article": "Article",
+    "type_podcast": "Podcast",
+    "back_to_home": "Retour à l'accueil →",
+    "back_to_list": "← Retour au relais scientifique",
+    "entry_not_found": "Entrée non trouvée",
+    "source_label": "Source :",
+    "watch_source": "Voir la source originale →",
+    "related_debunk": "À lire aussi (Débunk) :",
+    "error_no_data": "Données indisponibles"
   }
 }
