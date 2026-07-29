@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import ShareButtons from "../../components/ShareButtons";
+import { useT } from "../../lib/useT";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 export default function GroupesPage() {
+  const { t } = useT();
   const [groups, setGroups] = useState([]);
   const [cohesion, setCohesion] = useState({});
   const [loading, setLoading] = useState(true);
@@ -17,7 +19,7 @@ export default function GroupesPage() {
   useEffect(() => {
     Promise.all([
       fetch(`${API_URL}/api/an-groups`).then((res) => {
-        if (!res.ok) throw new Error("Données indisponibles");
+        if (!res.ok) throw new Error(t("groupes.error_no_data"));
         return res.json();
       }),
       fetch(`${API_URL}/api/an-groups/cohesion`).then((res) => (res.ok ? res.json() : [])),
@@ -37,6 +39,7 @@ export default function GroupesPage() {
         setError(err.message);
         setLoading(false);
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -54,7 +57,7 @@ export default function GroupesPage() {
           labels: sorted.map((g) => g.abbreviation),
           datasets: [
             {
-              label: "Taux de participation moyen (%)",
+              label: t("groupes.chart_participation_label"),
               data: sorted.map((g) => g.avg_participation_pct),
               backgroundColor: "#6c3483",
             },
@@ -65,7 +68,7 @@ export default function GroupesPage() {
           responsive: true,
           maintainAspectRatio: false,
           plugins: { legend: { display: false } },
-          scales: { x: { title: { display: true, text: "% de participation moyenne aux scrutins" }, max: 100 } },
+          scales: { x: { title: { display: true, text: t("groupes.axis_participation") }, max: 100 } },
         },
       });
 
@@ -80,7 +83,7 @@ export default function GroupesPage() {
           labels: sortedCohesion.map((g) => g.abbreviation),
           datasets: [
             {
-              label: "% de scrutins votés à l'unanimité du groupe",
+              label: t("groupes.chart_cohesion_label"),
               data: sortedCohesion.map((g) => cohesion[g.abbreviation]),
               backgroundColor: "#2a78d6",
             },
@@ -91,57 +94,47 @@ export default function GroupesPage() {
           responsive: true,
           maintainAspectRatio: false,
           plugins: { legend: { display: false } },
-          scales: { x: { title: { display: true, text: "% des scrutins où tout le groupe a voté pareil" }, max: 100 } },
+          scales: { x: { title: { display: true, text: t("groupes.axis_cohesion") }, max: 100 } },
         },
       });
     });
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [groups, cohesion]);
 
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
-      <h1>Groupes politiques — Assemblée nationale (17e législature)</h1>
-      <ShareButtons title="Groupes politiques — Assemblée nationale (17e législature)" />
+      <h1>{t("groupes.title")}</h1>
+      <ShareButtons title={t("groupes.title")} />
 
-      <p style={{ fontSize: 13, color: "#666", marginBottom: "1rem" }}>
-        Taux de participation moyen aux scrutins par groupe. La participation ne dit rien sur le
-        sens des votes — un groupe peut avoir une participation élevée tout en votant de façons
-        très différentes en son sein. Données factuelles, aucun jugement de valeur.
-      </p>
+      <p style={{ fontSize: 13, color: "#666", marginBottom: "1rem" }}>{t("groupes.intro")}</p>
 
-      {loading && <p>Chargement...</p>}
-      {error && <p role="alert">Erreur : {error}</p>}
+      {loading && <p>{t("common.loading")}</p>}
+      {error && <p role="alert">{t("common.error_prefix")} {error}</p>}
 
       {!loading && !error && groups.length > 0 && (
         <>
           <div style={{ position: "relative", height: Math.max(240, groups.length * 34) }}>
-            <canvas ref={canvasRef} role="img" aria-label="Taux de participation moyen par groupe politique" />
+            <canvas ref={canvasRef} role="img" aria-label={t("groupes.chart_alt_participation")} />
           </div>
 
-          <h2 style={{ fontSize: 18, marginTop: "2rem" }}>Cohésion de vote</h2>
-          <p style={{ fontSize: 13, color: "#666", marginBottom: "0.75rem" }}>
-            Sur les scrutins où au moins 2 membres du groupe ont exprimé un vote (pour, contre ou
-            abstention — les absents ne comptent pas comme un désaccord), quelle part voit
-            l&apos;ensemble du groupe choisir la même position. Un chiffre élevé ne veut pas dire
-            &laquo; meilleur &raquo; ou &laquo; pire &raquo; — juste plus ou moins de débat interne
-            au groupe. Calculé sur la fenêtre de scrutins avec détail nominatif disponible (pas
-            l&apos;historique complet).
-          </p>
+          <h2 style={{ fontSize: 18, marginTop: "2rem" }}>{t("groupes.cohesion_title")}</h2>
+          <p style={{ fontSize: 13, color: "#666", marginBottom: "0.75rem" }}>{t("groupes.cohesion_explain")}</p>
           <div style={{ position: "relative", height: Math.max(200, Object.keys(cohesion).length * 34) }}>
-            <canvas ref={cohesionCanvasRef} role="img" aria-label="Cohésion de vote par groupe politique" />
+            <canvas ref={cohesionCanvasRef} role="img" aria-label={t("groupes.chart_alt_cohesion")} />
           </div>
 
           <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "1.5rem" }}>
             <thead>
               <tr>
-                <th scope="col" style={{ textAlign: "left", padding: 8 }}>Groupe</th>
-                <th scope="col" style={{ textAlign: "right", padding: 8 }}>Effectif</th>
-                <th scope="col" style={{ textAlign: "right", padding: 8 }}>Participation moy.</th>
-                <th scope="col" style={{ textAlign: "right", padding: 8 }}>Participation médiane</th>
-                <th scope="col" style={{ textAlign: "right", padding: 8 }}>Cohésion</th>
-                <th scope="col" style={{ textAlign: "right", padding: 8 }}>Scrutins éligibles</th>
+                <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("groupes.table_group")}</th>
+                <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("groupes.table_effectif")}</th>
+                <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("groupes.table_avg_participation")}</th>
+                <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("groupes.table_median_participation")}</th>
+                <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("groupes.table_cohesion")}</th>
+                <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("groupes.table_eligible_scrutins")}</th>
               </tr>
             </thead>
             <tbody>
@@ -165,9 +158,8 @@ export default function GroupesPage() {
       )}
 
       <p style={{ fontSize: 12, color: "#666", marginTop: "1rem" }}>
-        Source : CIVIX et Assemblée nationale (open data officiel) (Licence Ouverte / Open Licence
-        2.0).{" "}
-        <Link href="/deputes">Voir la liste des députés →</Link>
+        {t("groupes.source")}{" "}
+        <Link href="/deputes">{t("groupes.back_to_deputies")}</Link>
       </p>
     </div>
   );

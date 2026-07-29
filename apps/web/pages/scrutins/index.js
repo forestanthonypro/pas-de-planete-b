@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import ShareButtons from "../../components/ShareButtons";
+import { useT } from "../../lib/useT";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 export default function ScrutinsPage() {
+  const { t } = useT();
   const [scrutins, setScrutins] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -21,7 +23,7 @@ export default function ScrutinsPage() {
     e.preventDefault();
     const q = query.trim();
     if (q.length < 3) {
-      setSearchError("Tape au moins 3 caractères.");
+      setSearchError(t("scrutins.search_min_chars"));
       setSearchResults(null);
       return;
     }
@@ -29,7 +31,7 @@ export default function ScrutinsPage() {
     setSearchError(null);
     fetch(`${API_URL}/api/scrutins/search?q=${encodeURIComponent(q)}`)
       .then((res) => {
-        if (!res.ok) throw new Error("Erreur lors de la recherche");
+        if (!res.ok) throw new Error(t("scrutins.search_error"));
         return res.json();
       })
       .then((rows) => {
@@ -45,7 +47,7 @@ export default function ScrutinsPage() {
   useEffect(() => {
     Promise.all([
       fetch(`${API_URL}/api/scrutins?limit=200`).then((res) => {
-        if (!res.ok) throw new Error("Données indisponibles");
+        if (!res.ok) throw new Error(t("scrutins.error_no_data"));
         return res.json();
       }),
       fetch(`${API_URL}/api/scrutins/stats`).then((res) => (res.ok ? res.json() : null)),
@@ -59,6 +61,7 @@ export default function ScrutinsPage() {
         setError(err.message);
         setLoading(false);
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -72,7 +75,7 @@ export default function ScrutinsPage() {
       chartRef.current = new Chart(canvasRef.current, {
         type: "doughnut",
         data: {
-          labels: stats.byResult.map((r) => r.result_code || "inconnu"),
+          labels: stats.byResult.map((r) => r.result_code || t("scrutins.not_found")),
           datasets: [
             {
               data: stats.byResult.map((r) => parseInt(r.count, 10)),
@@ -90,17 +93,17 @@ export default function ScrutinsPage() {
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stats]);
 
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
-      <h1>Scrutins — Assemblée nationale (17e législature)</h1>
-      <ShareButtons title="Scrutins — Assemblée nationale (17e législature)" />
-
+      <h1>{t("scrutins.title")}</h1>
+      <ShareButtons title={t("scrutins.title")} />
 
       <form onSubmit={handleSearch} style={{ marginBottom: "1rem" }}>
         <label htmlFor="scrutin-search" style={{ display: "block", marginBottom: "0.25rem" }}>
-          Rechercher un scrutin par mot-clé (ex : &laquo; cadmium &raquo;, &laquo; acétamipride &raquo;)
+          {t("scrutins.search_label")}
         </label>
         <div style={{ display: "flex", gap: "0.5rem" }}>
           <input
@@ -108,34 +111,31 @@ export default function ScrutinsPage() {
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Rechercher dans le titre et l'objet du scrutin..."
+            placeholder={t("scrutins.search_placeholder")}
             style={{ padding: "6px 10px", minWidth: 320, flex: 1 }}
           />
-          <button type="submit">Rechercher</button>
+          <button type="submit">{t("scrutins.search_button")}</button>
         </div>
-        <p style={{ fontSize: 12, color: "#666", marginTop: "0.25rem" }}>
-          Cherche sur les 8000+ scrutins de la législature, pas seulement les 200 plus récents
-          affichés plus bas.
-        </p>
+        <p style={{ fontSize: 12, color: "#666", marginTop: "0.25rem" }}>{t("scrutins.search_scope_note")}</p>
       </form>
 
-      {searching && <p>Recherche en cours...</p>}
+      {searching && <p>{t("scrutins.searching")}</p>}
       {searchError && <p role="alert">{searchError}</p>}
 
       {searchResults && (
         <section style={{ marginBottom: "2rem", padding: "1rem", background: "#f7f7f7", borderRadius: 8 }}>
           <h2 style={{ fontSize: 16, marginTop: 0 }}>
-            {searchResults.length} résultat{searchResults.length !== 1 ? "s" : ""} pour &laquo; {query} &raquo;
+            {t("scrutins.results_count", { count: searchResults.length, s: searchResults.length !== 1 ? "s" : "", query })}
           </h2>
           {searchResults.length === 0 ? (
-            <p style={{ fontSize: 13, color: "#666" }}>Aucun scrutin trouvé pour ce mot-clé.</p>
+            <p style={{ fontSize: 13, color: "#666" }}>{t("scrutins.no_results")}</p>
           ) : (
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr>
-                  <th scope="col" style={{ textAlign: "left", padding: 8 }}>Date</th>
-                  <th scope="col" style={{ textAlign: "left", padding: 8 }}>Objet</th>
-                  <th scope="col" style={{ textAlign: "left", padding: 8 }}>Résultat</th>
+                  <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("scrutins.table_date")}</th>
+                  <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("scrutins.table_object")}</th>
+                  <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("scrutins.table_result")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -161,42 +161,37 @@ export default function ScrutinsPage() {
       {stats && (
         <>
           <p style={{ fontSize: 14 }}>
-            Sur l&apos;ensemble des <strong>{stats.total.toLocaleString("fr-FR")}</strong> scrutins
-            de la législature :
+            {t("scrutins.stats_intro", { total: stats.total.toLocaleString("fr-FR") })}
           </p>
           <div style={{ position: "relative", height: 200, maxWidth: 400 }}>
-            <canvas ref={canvasRef} role="img" aria-label="Répartition adopté / rejeté sur l'ensemble des scrutins" />
+            <canvas ref={canvasRef} role="img" aria-label={t("scrutins.chart_alt_stats")} />
           </div>
         </>
       )}
 
-      <h2 style={{ fontSize: 18, marginTop: "2rem" }}>Les 200 scrutins les plus récents</h2>
-      <p style={{ fontSize: 13, color: "#666", marginBottom: "1rem" }}>
-        Avec leur résultat officiel. Le détail nominatif (qui a voté quoi) est disponible pour
-        chacun via sa fiche — sauf les rares scrutins qui ne font pas l&apos;objet d&apos;un
-        décompte nominatif individuel.
-      </p>
+      <h2 style={{ fontSize: 18, marginTop: "2rem" }}>{t("scrutins.recent_title")}</h2>
+      <p style={{ fontSize: 13, color: "#666", marginBottom: "1rem" }}>{t("scrutins.recent_explain")}</p>
 
       <label style={{ display: "block", marginBottom: "0.75rem" }}>
-        Filtrer par résultat{" "}
+        {t("scrutins.filter_result")}{" "}
         <select value={resultFilter} onChange={(e) => setResultFilter(e.target.value)}>
-          <option value="">Tous</option>
-          <option value="adopté">Adopté</option>
-          <option value="rejeté">Rejeté</option>
+          <option value="">{t("scrutins.all")}</option>
+          <option value="adopté">{t("scrutins.adopted")}</option>
+          <option value="rejeté">{t("scrutins.rejected")}</option>
         </select>
       </label>
 
-      {loading && <p>Chargement...</p>}
-      {error && <p role="alert">Erreur : {error}</p>}
+      {loading && <p>{t("common.loading")}</p>}
+      {error && <p role="alert">{t("common.error_prefix")} {error}</p>}
 
       {!loading && !error && (
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
             <tr>
-              <th scope="col" style={{ textAlign: "left", padding: 8 }}>Date</th>
-              <th scope="col" style={{ textAlign: "left", padding: 8 }}>Objet</th>
-              <th scope="col" style={{ textAlign: "left", padding: 8 }}>Type</th>
-              <th scope="col" style={{ textAlign: "left", padding: 8 }}>Résultat</th>
+              <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("scrutins.table_date")}</th>
+              <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("scrutins.table_object")}</th>
+              <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("scrutins.table_type")}</th>
+              <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("scrutins.table_result")}</th>
             </tr>
           </thead>
           <tbody>
@@ -221,18 +216,15 @@ export default function ScrutinsPage() {
       )}
 
       <p style={{ fontSize: 13, color: "#666", marginTop: "1.5rem" }}>
-        Cette page couvre uniquement la <strong>17e législature</strong>, en cours depuis juillet
-        2024 — la seule qui continue de changer. Les législatures précédentes sont closes et ne
-        bougeront plus ; pour les consulter, direction les archives officielles sur{" "}
+        {t("scrutins.coverage_note")}{" "}
         <a href="https://data.assemblee-nationale.fr/" target="_blank" rel="noreferrer">
           data.assemblee-nationale.fr
         </a>.
       </p>
 
       <p style={{ fontSize: 12, color: "#666", marginTop: "1rem" }}>
-        Source : CIVIX et Assemblée nationale (open data officiel) (Licence Ouverte / Open Licence
-        2.0).{" "}
-        <Link href="/deputes">Voir la liste des députés →</Link>
+        {t("scrutins.source")}{" "}
+        <Link href="/deputes">{t("scrutins.back_to_deputies")}</Link>
       </p>
     </div>
   );
