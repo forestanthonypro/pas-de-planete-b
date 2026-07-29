@@ -3,6 +3,7 @@ import Link from "next/link";
 import { detectDefaultCountry } from "../lib/detectCountry";
 import ActionCTA from "../components/ActionCTA";
 import { useSobriety } from "../lib/SobrietyContext";
+import { useT } from "../lib/useT";
 import {
   IconCloud,
   IconBolt,
@@ -17,21 +18,23 @@ import {
   IconSearch,
 } from "../components/icons";
 
-const ENVIRONMENT_CARDS = [
-  { href: "/co2", Icon: IconCloud, label: "CO2", desc: "Par pays" },
-  { href: "/energie", Icon: IconBolt, label: "Énergie", desc: "Mix électrique" },
-  { href: "/eau", Icon: IconDroplet, label: "Eau", desc: "Stress hydrique" },
-  { href: "/vegetation", Icon: IconTree, label: "Végétation", desc: "Perte de forêt" },
-  { href: "/especes", Icon: IconPaw, label: "Espèces", desc: "Menacées (UICN)" },
-  { href: "/incendies", Icon: IconFlame, label: "Incendies", desc: "Détections récentes" },
-  { href: "/pollution", Icon: IconSmog, label: "Pollution", desc: "PM2.5" },
-];
-
-const DEMOCRACY_CARDS = [
-  { href: "/deputes", Icon: IconUsers, label: "Députés", desc: "577 en mandat" },
-  { href: "/groupes", Icon: IconLandmark, label: "Groupes", desc: "Participation, cohésion" },
-  { href: "/scrutins", Icon: IconScale, label: "Scrutins", desc: "8434 votes publics" },
-];
+function useCardGroups(t) {
+  const environment = [
+    { href: "/co2", Icon: IconCloud, label: t("home.card_co2_label"), desc: t("home.card_co2_desc") },
+    { href: "/energie", Icon: IconBolt, label: t("home.card_energie_label"), desc: t("home.card_energie_desc") },
+    { href: "/eau", Icon: IconDroplet, label: t("home.card_eau_label"), desc: t("home.card_eau_desc") },
+    { href: "/vegetation", Icon: IconTree, label: t("home.card_vegetation_label"), desc: t("home.card_vegetation_desc") },
+    { href: "/especes", Icon: IconPaw, label: t("home.card_especes_label"), desc: t("home.card_especes_desc") },
+    { href: "/incendies", Icon: IconFlame, label: t("home.card_incendies_label"), desc: t("home.card_incendies_desc") },
+    { href: "/pollution", Icon: IconSmog, label: t("home.card_pollution_label"), desc: t("home.card_pollution_desc") },
+  ];
+  const democracy = [
+    { href: "/deputes", Icon: IconUsers, label: t("home.card_deputes_label"), desc: t("home.card_deputes_desc") },
+    { href: "/groupes", Icon: IconLandmark, label: t("home.card_groupes_label"), desc: t("home.card_groupes_desc") },
+    { href: "/scrutins", Icon: IconScale, label: t("home.card_scrutins_label"), desc: t("home.card_scrutins_desc") },
+  ];
+  return { environment, democracy };
+}
 
 function Card({ href, Icon, label, desc }) {
   const { sobriety } = useSobriety();
@@ -46,6 +49,8 @@ function Card({ href, Icon, label, desc }) {
 
 export default function Home() {
   const [country, setCountry] = useState("FRA");
+  const { t } = useT();
+  const { environment, democracy } = useCardGroups(t);
 
   useEffect(() => {
     setCountry(detectDefaultCountry());
@@ -54,33 +59,32 @@ export default function Home() {
   return (
     <div style={{ maxWidth: 900, margin: "0 auto", padding: "1.5rem" }}>
       <p style={{ fontSize: 14, color: "var(--color-texte-clair)", margin: "0 0 1rem" }}>
-        Comprendre le changement climatique, pays par pays, avec des données ouvertes et
-        sourcées.
+        {t("home.intro")}
       </p>
 
       <ActionCTA />
 
       <p>
-        <Link href={`/pays/${country}`} style={{ fontWeight: 600 }}>Voir le résumé pour mon pays →</Link>
+        <Link href={`/pays/${country}`} style={{ fontWeight: 600 }}>{t("home.see_my_country")}</Link>
       </p>
 
-      <h2 style={{ fontSize: 18, margin: "1.5rem 0 0.75rem" }}>Environnement</h2>
+      <h2 style={{ fontSize: 18, margin: "1.5rem 0 0.75rem" }}>{t("home.section_environment")}</h2>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 12 }}>
-        {ENVIRONMENT_CARDS.map((c) => (
+        {environment.map((c) => (
           <Card key={c.href} {...c} />
         ))}
       </div>
 
-      <h2 style={{ fontSize: 18, margin: "1.5rem 0 0.75rem" }}>Démocratie (France)</h2>
+      <h2 style={{ fontSize: 18, margin: "1.5rem 0 0.75rem" }}>{t("home.section_democracy")}</h2>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 12 }}>
-        {DEMOCRACY_CARDS.map((c) => (
+        {democracy.map((c) => (
           <Card key={c.href} {...c} />
         ))}
       </div>
 
-      <h2 style={{ fontSize: 18, margin: "1.5rem 0 0.75rem" }}>S&apos;engager</h2>
+      <h2 style={{ fontSize: 18, margin: "1.5rem 0 0.75rem" }}>{t("home.section_engage")}</h2>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 12 }}>
-        <Card href="/debunk" Icon={IconSearch} label="Débunk" desc="Idées reçues passées au crible" />
+        <Card href="/debunk" Icon={IconSearch} label={t("home.card_debunk_label")} desc={t("home.card_debunk_desc")} />
       </div>
     </div>
   );

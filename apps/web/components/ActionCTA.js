@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useT } from "../lib/useT";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -8,6 +9,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 // nécessite un service tiers à configurer séparément ; ce composant ne
 // couvre que la collecte du formulaire.
 export default function ActionCTA() {
+  const { t } = useT();
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [areaType, setAreaType] = useState("");
@@ -20,7 +22,7 @@ export default function ActionCTA() {
   function handleSubmit(e) {
     e.preventDefault();
     if (!consent) {
-      setErrorMessage("Merci de confirmer que tu acceptes de recevoir ces emails.");
+      setErrorMessage(t("newsletter.consent_required"));
       return;
     }
     setStatus("sending");
@@ -42,18 +44,15 @@ export default function ActionCTA() {
       .then(() => setStatus("done"))
       .catch((err) => {
         setStatus("error");
-        setErrorMessage(err.message || "Une erreur est survenue, réessaie plus tard.");
+        setErrorMessage(err.message || t("newsletter.generic_error"));
       });
   }
 
   if (status === "done") {
     return (
       <div style={{ background: "#eaf3de", borderRadius: 8, padding: "1rem 1.25rem", margin: "1.5rem 0" }}>
-        <p style={{ margin: 0, fontWeight: 600 }}>Inscription enregistrée !</p>
-        <p style={{ margin: "4px 0 0", fontSize: 13, color: "#555" }}>
-          Tu recevras des actions concrètes adaptées à ta situation dès que la newsletter sera
-          activée.
-        </p>
+        <p style={{ margin: 0, fontWeight: 600 }}>{t("newsletter.done_title")}</p>
+        <p style={{ margin: "4px 0 0", fontSize: 13, color: "#555" }}>{t("newsletter.done_body")}</p>
       </div>
     );
   }
@@ -63,25 +62,23 @@ export default function ActionCTA() {
       {!open ? (
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "0.75rem" }}>
           <div>
-            <p style={{ margin: 0, fontSize: 18, fontWeight: 600 }}>Il est temps d&apos;agir !</p>
-            <p style={{ margin: "4px 0 0", fontSize: 14 }}>
-              Reçois des actions concrètes adaptées à ta situation.
-            </p>
+            <p style={{ margin: 0, fontSize: 18, fontWeight: 600 }}>{t("newsletter.cta_title")}</p>
+            <p style={{ margin: "4px 0 0", fontSize: 14 }}>{t("newsletter.cta_subtitle")}</p>
           </div>
           <button
             type="button"
             onClick={() => setOpen(true)}
             style={{ background: "white", color: "#1baf7a", border: "none", borderRadius: 6, padding: "8px 16px", fontWeight: 600, cursor: "pointer" }}
           >
-            Je m&apos;inscris
+            {t("newsletter.cta_button")}
           </button>
         </div>
       ) : (
         <form onSubmit={handleSubmit}>
-          <p style={{ margin: "0 0 0.75rem", fontSize: 18, fontWeight: 600 }}>Il est temps d&apos;agir !</p>
+          <p style={{ margin: "0 0 0.75rem", fontSize: 18, fontWeight: 600 }}>{t("newsletter.cta_title")}</p>
 
           <label style={{ display: "block", marginBottom: "0.5rem", fontSize: 14 }}>
-            Adresse email
+            {t("newsletter.email_label")}
             <input
               type="email"
               required
@@ -94,47 +91,43 @@ export default function ActionCTA() {
 
           <div style={{ display: "flex", gap: "1.5rem", flexWrap: "wrap", margin: "0.75rem 0", fontSize: 14 }}>
             <fieldset style={{ border: "none", padding: 0, margin: 0 }}>
-              <legend style={{ fontSize: 13, marginBottom: 4 }}>Tu habites plutôt...</legend>
+              <legend style={{ fontSize: 13, marginBottom: 4 }}>{t("newsletter.area_legend")}</legend>
               <label style={{ marginRight: 12 }}>
-                <input type="radio" name="areaType" value="ville" checked={areaType === "ville"} onChange={(e) => setAreaType(e.target.value)} /> En ville
+                <input type="radio" name="areaType" value="ville" checked={areaType === "ville"} onChange={(e) => setAreaType(e.target.value)} /> {t("newsletter.area_city")}
               </label>
               <label>
-                <input type="radio" name="areaType" value="campagne" checked={areaType === "campagne"} onChange={(e) => setAreaType(e.target.value)} /> À la campagne
+                <input type="radio" name="areaType" value="campagne" checked={areaType === "campagne"} onChange={(e) => setAreaType(e.target.value)} /> {t("newsletter.area_country")}
               </label>
             </fieldset>
           </div>
 
           <div style={{ display: "flex", gap: "1.5rem", flexWrap: "wrap", margin: "0.75rem 0", fontSize: 14 }}>
             <fieldset style={{ border: "none", padding: 0, margin: 0 }}>
-              <legend style={{ fontSize: 13, marginBottom: 4 }}>Ton logement</legend>
+              <legend style={{ fontSize: 13, marginBottom: 4 }}>{t("newsletter.housing_legend")}</legend>
               <label style={{ marginRight: 12 }}>
-                <input type="radio" name="housingType" value="maison" checked={housingType === "maison"} onChange={(e) => setHousingType(e.target.value)} /> Maison
+                <input type="radio" name="housingType" value="maison" checked={housingType === "maison"} onChange={(e) => setHousingType(e.target.value)} /> {t("newsletter.housing_house")}
               </label>
               <label>
-                <input type="radio" name="housingType" value="appartement" checked={housingType === "appartement"} onChange={(e) => setHousingType(e.target.value)} /> Appartement
+                <input type="radio" name="housingType" value="appartement" checked={housingType === "appartement"} onChange={(e) => setHousingType(e.target.value)} /> {t("newsletter.housing_apartment")}
               </label>
             </fieldset>
           </div>
 
           <div style={{ margin: "0.75rem 0", fontSize: 14 }}>
             <fieldset style={{ border: "none", padding: 0, margin: 0 }}>
-              <legend style={{ fontSize: 13, marginBottom: 4 }}>Des enfants à la maison ?</legend>
+              <legend style={{ fontSize: 13, marginBottom: 4 }}>{t("newsletter.children_legend")}</legend>
               <label style={{ marginRight: 12 }}>
-                <input type="radio" name="hasChildren" value="oui" checked={hasChildren === "oui"} onChange={(e) => setHasChildren(e.target.value)} /> Oui
+                <input type="radio" name="hasChildren" value="oui" checked={hasChildren === "oui"} onChange={(e) => setHasChildren(e.target.value)} /> {t("newsletter.children_yes")}
               </label>
               <label>
-                <input type="radio" name="hasChildren" value="non" checked={hasChildren === "non"} onChange={(e) => setHasChildren(e.target.value)} /> Non
+                <input type="radio" name="hasChildren" value="non" checked={hasChildren === "non"} onChange={(e) => setHasChildren(e.target.value)} /> {t("newsletter.children_no")}
               </label>
             </fieldset>
           </div>
 
           <label style={{ display: "flex", alignItems: "flex-start", gap: 8, fontSize: 13, margin: "0.75rem 0" }}>
             <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} style={{ marginTop: 2 }} />
-            <span>
-              J&apos;accepte de recevoir des emails avec des actions concrètes à mener. Mes
-              réponses ci-dessus servent uniquement à personnaliser ces emails ; je peux me
-              désabonner à tout moment.
-            </span>
+            <span>{t("newsletter.consent_label")}</span>
           </label>
 
           {errorMessage && <p role="alert" style={{ fontSize: 13, color: "#ffe9e9" }}>{errorMessage}</p>}
@@ -145,14 +138,14 @@ export default function ActionCTA() {
               disabled={status === "sending"}
               style={{ background: "white", color: "#1baf7a", border: "none", borderRadius: 6, padding: "8px 16px", fontWeight: 600, cursor: "pointer" }}
             >
-              {status === "sending" ? "Envoi..." : "Je m'inscris"}
+              {status === "sending" ? t("newsletter.sending") : t("newsletter.cta_button")}
             </button>
             <button
               type="button"
               onClick={() => setOpen(false)}
               style={{ background: "transparent", color: "white", border: "1px solid white", borderRadius: 6, padding: "8px 16px", cursor: "pointer" }}
             >
-              Annuler
+              {t("newsletter.cancel")}
             </button>
           </div>
         </form>

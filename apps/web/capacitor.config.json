@@ -1,0 +1,12 @@
+{
+  "appId": "org.pasdeplaneteb.app",
+  "appName": "Pas de planète B",
+  "webDir": "public",
+  "server": {
+    "url": "https://VOTRE-DOMAINE-A-REMPLACER.exemple",
+    "cleartext": true
+  },
+  "android": {
+    "allowMixedContent": true
+  }
+}

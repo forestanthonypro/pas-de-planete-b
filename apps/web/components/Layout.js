@@ -1,9 +1,36 @@
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { useSobriety } from "../lib/SobrietyContext";
+import { useT } from "../lib/useT";
 import { IconLeaf } from "./icons";
+
+const LANGUAGE_LABELS = { fr: "Français", en: "English" };
+
+function LanguageSwitcher() {
+  const router = useRouter();
+
+  function handleChange(e) {
+    const newLocale = e.target.value;
+    router.push(router.pathname, router.asPath, { locale: newLocale });
+  }
+
+  return (
+    <select
+      value={router.locale}
+      onChange={handleChange}
+      aria-label="Choisir la langue / Choose language"
+      style={{ border: "1px solid var(--color-bordure)", borderRadius: "var(--radius)", padding: "6px 8px", fontSize: 13 }}
+    >
+      {router.locales.map((loc) => (
+        <option key={loc} value={loc}>{LANGUAGE_LABELS[loc] || loc}</option>
+      ))}
+    </select>
+  );
+}
 
 export default function Layout({ children }) {
   const { sobriety, setSobriety } = useSobriety();
+  const { t } = useT();
 
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
@@ -24,33 +51,37 @@ export default function Layout({ children }) {
         </Link>
 
         <nav style={{ display: "flex", gap: "1rem", flexWrap: "wrap", fontSize: 14 }}>
-          <Link href="/co2">Environnement</Link>
-          <Link href="/deputes">Démocratie</Link>
-          <Link href="/debunk">S&apos;engager</Link>
+          <Link href="/co2">{t("common.nav_environment")}</Link>
+          <Link href="/deputes">{t("common.nav_democracy")}</Link>
+          <Link href="/debunk">{t("common.nav_engage")}</Link>
         </nav>
 
-        <label
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 8,
-            fontSize: 13,
-            background: "var(--color-carte)",
-            border: "1px solid var(--color-bordure)",
-            borderRadius: "var(--radius)",
-            padding: "6px 10px",
-            cursor: "pointer",
-          }}
-        >
-          {!sobriety && <IconLeaf size={16} style={{ color: "var(--color-forest)" }} />}
-          Mode sobriété
-          <input
-            type="checkbox"
-            checked={sobriety}
-            onChange={(e) => setSobriety(e.target.checked)}
-            aria-label="Activer le mode sobriété (réduit les animations et les visuels)"
-          />
-        </label>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+          <LanguageSwitcher />
+
+          <label
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              fontSize: 13,
+              background: "var(--color-carte)",
+              border: "1px solid var(--color-bordure)",
+              borderRadius: "var(--radius)",
+              padding: "6px 10px",
+              cursor: "pointer",
+            }}
+          >
+            {!sobriety && <IconLeaf size={16} style={{ color: "var(--color-forest)" }} />}
+            {t("common.sobriety_toggle")}
+            <input
+              type="checkbox"
+              checked={sobriety}
+              onChange={(e) => setSobriety(e.target.checked)}
+              aria-label={t("common.sobriety_aria")}
+            />
+          </label>
+        </div>
       </header>
 
       <main style={{ flex: 1, width: "100%" }}>{children}</main>
@@ -68,7 +99,7 @@ export default function Layout({ children }) {
         }}
       >
         {!sobriety && <IconLeaf size={15} style={{ color: "var(--color-forest)" }} />}
-        Écoconception : sources ouvertes, sans compte, sans traceurs publicitaires.
+        {t("common.footer_ecoconception")}
       </footer>
     </div>
   );
