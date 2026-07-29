@@ -418,7 +418,14 @@
     "entry_not_found": "Entry not found",
     "reality_title": "What's actually true",
     "sources_title": "Sources",
-    "error_no_data": "Data unavailable"
+    "error_no_data": "Data unavailable",
+    "verdict_faux": "False",
+    "verdict_trompeur": "Misleading",
+    "verdict_confirme": "Confirmed",
+    "category_all": "All categories",
+    "claim_title": "The claim",
+    "published_on": "Published on {date}",
+    "updated_on": " · Updated on {date}"
   },
   "pays": {
     "change_country": "Change country",

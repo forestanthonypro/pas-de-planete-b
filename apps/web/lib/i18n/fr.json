@@ -418,7 +418,14 @@
     "entry_not_found": "Entrée non trouvée",
     "reality_title": "Ce qu'il en est vraiment",
     "sources_title": "Sources",
-    "error_no_data": "Données indisponibles"
+    "error_no_data": "Données indisponibles",
+    "verdict_faux": "Faux",
+    "verdict_trompeur": "Trompeur",
+    "verdict_confirme": "Confirmé",
+    "category_all": "Toutes les catégories",
+    "claim_title": "L'affirmation",
+    "published_on": "Publié le {date}",
+    "updated_on": " · Mis à jour le {date}"
   },
   "pays": {
     "change_country": "Changer de pays",

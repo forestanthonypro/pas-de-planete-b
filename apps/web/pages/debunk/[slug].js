@@ -2,9 +2,16 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import ShareButtons from "../../components/ShareButtons";
+import { formatDate } from "../../lib/useLastUpdated";
 import { useT } from "../../lib/useT";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+
+const VERDICT_COLORS = {
+  faux: "#d63e2a",
+  trompeur: "#f4b400",
+  confirme: "#1baf7a",
+};
 
 export default function DebunkEntryPage() {
   const { t } = useT();
@@ -36,8 +43,14 @@ export default function DebunkEntryPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug]);
 
+  function verdictLabel(verdict) {
+    if (verdict === "trompeur") return t("debunk.verdict_trompeur");
+    if (verdict === "confirme") return t("debunk.verdict_confirme");
+    return t("debunk.verdict_faux");
+  }
+
   return (
-    <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
+    <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 800, margin: "0 auto" }}>
       <p style={{ fontSize: 13 }}>
         <Link href="/debunk">{t("debunk.back_to_list")}</Link>
       </p>
@@ -47,10 +60,30 @@ export default function DebunkEntryPage() {
 
       {!loading && !error && entry && (
         <>
-          <h1>{entry.myth}</h1>
+          <span style={{ display: "inline-block", background: VERDICT_COLORS[entry.verdict] || VERDICT_COLORS.faux, color: entry.verdict === "trompeur" ? "#1b1f23" : "white", fontSize: 12, fontWeight: 600, padding: "4px 12px", borderRadius: 20 }}>
+            {verdictLabel(entry.verdict).toUpperCase()}
+          </span>
+          <h1 style={{ margin: "12px 0 6px" }}>{entry.myth}</h1>
+          <p style={{ fontSize: 12, color: "#666", marginBottom: "1rem" }}>
+            {entry.category && `${entry.category} · `}
+            {t("debunk.published_on", { date: formatDate(entry.created_at) })}
+            {entry.updated_at && entry.updated_at !== entry.created_at && (
+              <>{t("debunk.updated_on", { date: formatDate(entry.updated_at) })}</>
+            )}
+          </p>
+
           <ShareButtons title={entry.myth} />
 
-          <h2 style={{ fontSize: 16, marginTop: "1.5rem" }}>{t("debunk.reality_title")}</h2>
+          {entry.claim_quote && (
+            <div style={{ background: "#f7f7f5", borderLeft: "3px solid #647076", borderRadius: "0 8px 8px 0", padding: "0.75rem 1rem", margin: "1.25rem 0" }}>
+              <p style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.03em", color: "#666", margin: "0 0 4px", fontWeight: 600 }}>
+                {t("debunk.claim_title")}
+              </p>
+              <p style={{ fontSize: 14, fontStyle: "italic", margin: 0 }}>« {entry.claim_quote} »</p>
+            </div>
+          )}
+
+          <h2 style={{ fontSize: 16, marginTop: "1.5rem", color: "#1b5e20" }}>{t("debunk.reality_title")}</h2>
           <p style={{ whiteSpace: "pre-wrap" }}>{entry.reality}</p>
 
           {sources.length > 0 && (

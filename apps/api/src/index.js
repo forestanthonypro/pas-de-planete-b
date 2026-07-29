@@ -921,7 +921,7 @@ app.post("/api/newsletter/unsubscribe", async (req, res) => {
 app.get("/api/debunk", async (_req, res) => {
   try {
     const result = await pool.query(
-      "SELECT slug, myth, category, updated_at FROM debunk_entries WHERE published = true ORDER BY updated_at DESC"
+      "SELECT slug, myth, category, verdict, updated_at FROM debunk_entries WHERE published = true ORDER BY updated_at DESC"
     );
     res.json(result.rows);
   } catch (err) {
@@ -951,20 +951,24 @@ app.get("/api/debunk/:slug", async (req, res) => {
 // Création/mise à jour d'une entrée — protégé, réservé à la rédaction du
 // site. "sources" est un tableau [{label, url}, ...].
 app.post("/api/admin/debunk", requireIngestToken, async (req, res) => {
-  const { slug, myth, reality, category, published, sources } = req.body || {};
+  const { slug, myth, reality, category, verdict, claimQuote, published, sources } = req.body || {};
   if (!slug || !myth || !reality) {
     return res.status(400).json({ error: "slug, myth et reality sont requis" });
+  }
+  if (verdict && !["faux", "trompeur", "confirme"].includes(verdict)) {
+    return res.status(400).json({ error: "verdict doit être 'faux', 'trompeur' ou 'confirme'" });
   }
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
     await client.query(
-      `INSERT INTO debunk_entries (slug, myth, reality, category, published, updated_at)
-       VALUES ($1, $2, $3, $4, $5, now())
+      `INSERT INTO debunk_entries (slug, myth, reality, category, verdict, claim_quote, published, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, now())
        ON CONFLICT (slug)
        DO UPDATE SET myth = EXCLUDED.myth, reality = EXCLUDED.reality, category = EXCLUDED.category,
+                     verdict = EXCLUDED.verdict, claim_quote = EXCLUDED.claim_quote,
                      published = EXCLUDED.published, updated_at = now()`,
-      [slug, myth, reality, category || null, published === true]
+      [slug, myth, reality, category || null, verdict || "faux", claimQuote || null, published === true]
     );
     if (Array.isArray(sources)) {
       await client.query("DELETE FROM debunk_sources WHERE debunk_slug = $1", [slug]);
