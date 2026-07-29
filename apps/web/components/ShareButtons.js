@@ -41,7 +41,7 @@ export default function ShareButtons({ title, url }) {
   ];
 
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap", fontSize: 13 }}>
+    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap", fontSize: 13, marginBottom: "1rem" }}>
       <span style={{ color: "var(--color-texte-clair)" }}>{t("common.share_label")}</span>
       {links.map((l) => (
         <a
@@ -57,7 +57,7 @@ export default function ShareButtons({ title, url }) {
       <button
         type="button"
         onClick={handleCopy}
-        style={{ padding: "3px 8px", border: "1px solid var(--color-bordure)", borderRadius: 4, background: "var(--color-fond)", cursor: "pointer", fontSize: 13 }}
+        style={{ padding: "3px 8px", border: "1px solid var(--color-bordure)", borderRadius: 4, background: "var(--color-fond)", color: "var(--color-texte)", cursor: "pointer", fontSize: 13 }}
       >
         {copied ? t("common.share_copied") : t("common.share_copy")}
       </button>
