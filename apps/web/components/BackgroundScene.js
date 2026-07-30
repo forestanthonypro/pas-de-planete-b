@@ -106,6 +106,15 @@ export default function BackgroundScene() {
              C1060 250 1120 260 1200 310 L1200 460 L0 460 Z"
           fill="url(#pdpb-mtn)"
         />
+
+        {/* Arc-en-ciel discret */}
+        <g opacity="0.55" fill="none" strokeLinecap="round">
+          <path d="M120 3600 A260 260 0 0 1 640 3600" stroke="#e74c3c" strokeWidth="6" />
+          <path d="M150 3600 A230 230 0 0 1 610 3600" stroke="#f4b400" strokeWidth="6" />
+          <path d="M180 3600 A200 200 0 0 1 580 3600" stroke="#4a9950" strokeWidth="6" />
+          <path d="M210 3600 A170 170 0 0 1 550 3600" stroke="#2f6fae" strokeWidth="6" />
+          <path d="M240 3600 A140 140 0 0 1 520 3600" stroke="#8e44ad" strokeWidth="6" />
+        </g>
       </svg>
 
       {/* ====== Couche 2 — collines, montagnes proches, éoliennes, village ====== */}
@@ -215,6 +224,58 @@ export default function BackgroundScene() {
           <rect x="-20" y="42" width="40" height="10" fill="#c07f2f" rx="2" />
         </g>
 
+        {/* Potager en rangées */}
+        <g transform="translate(400,1650)" opacity="0.85">
+          <rect x="-90" y="0" width="60" height="18" fill="#6b4423" rx="2" />
+          <rect x="-20" y="0" width="60" height="18" fill="#6b4423" rx="2" />
+          <rect x="50" y="0" width="60" height="18" fill="#6b4423" rx="2" />
+          <g fill="#4a9950">
+            <circle cx="-70" cy="4" r="6" /><circle cx="-55" cy="6" r="6" /><circle cx="-40" cy="4" r="6" />
+            <circle cx="0" cy="4" r="6" /><circle cx="15" cy="6" r="6" /><circle cx="30" cy="4" r="6" />
+            <circle cx="70" cy="4" r="6" /><circle cx="85" cy="6" r="6" /><circle cx="100" cy="4" r="6" />
+          </g>
+        </g>
+
+        {/* Serre */}
+        <g transform="translate(650,1700)" opacity="0.85">
+          <path d="M-50 30 L-50 5 Q-50 -20 0 -20 Q50 -20 50 5 L50 30 Z" fill="#dce8ea" stroke="#a9c0c4" strokeWidth="2" />
+          <path d="M-50 5 Q-50 -20 0 -20 Q50 -20 50 5" fill="none" stroke="#a9c0c4" strokeWidth="1.5" />
+          <path d="M0 -20 L0 30 M-25 -15 L-25 30 M25 -15 L25 30" stroke="#a9c0c4" strokeWidth="1.5" />
+        </g>
+
+        {/* Bac à compost */}
+        <g transform="translate(820,1780)" opacity="0.85">
+          <rect x="-24" y="-14" width="48" height="34" fill="#8a5a2b" stroke="#6b4423" strokeWidth="2" />
+          <rect x="-24" y="-20" width="48" height="8" fill="#6b4423" />
+        </g>
+
+        {/* Tournesols */}
+        <g transform="translate(1080,1600)" opacity="0.9">
+          <path d="M0 50 L0 0" stroke="#4a9950" strokeWidth="4" strokeLinecap="round" />
+          <circle cx="0" cy="-14" r="8" fill="#a86b0a" />
+          <g fill="#f4b400">
+            <ellipse cx="0" cy="-28" rx="6" ry="12" /><ellipse cx="12" cy="-20" rx="6" ry="12" transform="rotate(60 12 -20)" />
+            <ellipse cx="12" cy="-8" rx="6" ry="12" transform="rotate(120 12 -8)" /><ellipse cx="0" cy="-2" rx="6" ry="12" transform="rotate(180 0 -2)" />
+            <ellipse cx="-12" cy="-8" rx="6" ry="12" transform="rotate(240 -12 -8)" /><ellipse cx="-12" cy="-20" rx="6" ry="12" transform="rotate(300 -12 -20)" />
+          </g>
+        </g>
+        <g transform="translate(1110,1660) scale(0.75)" opacity="0.85">
+          <path d="M0 50 L0 0" stroke="#4a9950" strokeWidth="4" strokeLinecap="round" />
+          <circle cx="0" cy="-14" r="8" fill="#a86b0a" />
+          <g fill="#f4b400">
+            <ellipse cx="0" cy="-28" rx="6" ry="12" /><ellipse cx="12" cy="-20" rx="6" ry="12" transform="rotate(60 12 -20)" />
+            <ellipse cx="12" cy="-8" rx="6" ry="12" transform="rotate(120 12 -8)" /><ellipse cx="0" cy="-2" rx="6" ry="12" transform="rotate(180 0 -2)" />
+            <ellipse cx="-12" cy="-8" rx="6" ry="12" transform="rotate(240 -12 -8)" /><ellipse cx="-12" cy="-20" rx="6" ry="12" transform="rotate(300 -12 -20)" />
+          </g>
+        </g>
+
+        {/* Pont en bois au-dessus du ruisseau */}
+        <g transform="translate(600,2130)" opacity="0.85" stroke="#6b4423" strokeWidth="3" fill="none" strokeLinecap="round">
+          <path d="M-60 10 Q0 -18 60 10" />
+          <path d="M-55 14 L-55 24 M-25 4 L-25 16 M5 0 L5 12 M35 6 L35 18 M58 14 L58 24" />
+          <path d="M-60 14 Q0 -14 60 14" opacity="0.5" />
+        </g>
+
         {/* Petites fleurs décoratives sur les collines */}
         <g fill="#e67e22" opacity="0.7">
           <circle cx="100" cy="1150" r="6" /><circle cx="120" cy="1160" r="5" /><circle cx="90" cy="1170" r="5" />
@@ -310,6 +371,35 @@ export default function BackgroundScene() {
           <path className="pdpb-fire" d="M0 20 C-8 8 -10 -4 0 -22 C10 -4 8 8 0 20 Z" fill="#e67e22" />
           <path className="pdpb-fire" d="M0 15 C-4 6 -5 -2 0 -12 C5 -2 4 6 0 15 Z" fill="#f4b400" style={{ animationDelay: "-0.4s" }} />
         </g>
+
+        {/* Papillon */}
+        <g className="pdpb-butterfly" transform="translate(850,1300)">
+          <ellipse cx="-8" cy="0" rx="10" ry="15" fill="#f4b400" transform="rotate(-20 -8 0)" />
+          <ellipse cx="8" cy="0" rx="10" ry="15" fill="#e67e22" transform="rotate(20 8 0)" />
+          <path d="M0 -14 L0 14" stroke="#3d3d3a" strokeWidth="2" />
+        </g>
+
+        {/* Renard */}
+        <g className="pdpb-idle" transform="translate(1070,3700)" fill="#d9702e">
+          <path d="M-30 30 Q-35 0 -20 -10 L-5 -5 Q10 -15 25 -5 Q35 0 30 30 Q20 45 0 45 Q-20 45 -30 30 Z" />
+          <path d="M-25 -8 L-32 -25 L-18 -15 Z" />
+          <path d="M18 -12 L28 -28 L22 -10 Z" />
+          <path d="M25 25 Q45 30 50 15 Q40 10 25 15 Z" />
+        </g>
+        <g transform="translate(1070,3700)" fill="white" opacity="0.9">
+          <ellipse cx="0" cy="20" rx="12" ry="14" />
+        </g>
+
+        {/* Lapin */}
+        <g className="pdpb-idle" transform="translate(180,3900)" fill="#c9b298" style={{ animationDelay: "-2s" }}>
+          <ellipse cx="0" cy="10" rx="22" ry="16" />
+          <circle cx="0" cy="-14" r="13" />
+          <path d="M-8 -22 Q-12 -45 -6 -48 Q-2 -30 -3 -20 Z" />
+          <path d="M8 -22 Q12 -45 6 -48 Q2 -30 3 -20 Z" />
+        </g>
+        <g transform="translate(180,3900)" fill="white" opacity="0.9">
+          <ellipse cx="2" cy="18" rx="8" ry="7" />
+        </g>
       </svg>
 
       <style jsx>{`
@@ -334,6 +424,12 @@ export default function BackgroundScene() {
         .pdpb-fire {
           animation: pdpb-flicker 1.1s ease-in-out infinite;
           transform-origin: center bottom;
+        }
+        .pdpb-butterfly {
+          animation: pdpb-flutter 2.2s ease-in-out infinite;
+        }
+        .pdpb-idle {
+          animation: pdpb-sway 5s ease-in-out infinite;
         }
         @keyframes pdpb-drift {
           from { transform: translateX(0); }
@@ -364,6 +460,10 @@ export default function BackgroundScene() {
         @keyframes pdpb-flicker {
           0%, 100% { transform: scaleY(1) scaleX(1); opacity: 0.95; }
           50% { transform: scaleY(1.15) scaleX(0.92); opacity: 1; }
+        }
+        @keyframes pdpb-flutter {
+          0%, 100% { transform: translate(0, 0) rotate(0deg); }
+          50% { transform: translate(4px, -8px) rotate(8deg); }
         }
       `}</style>
     </div>
