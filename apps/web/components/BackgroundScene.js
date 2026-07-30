@@ -15,10 +15,11 @@ import { useSobriety } from "../lib/SobrietyContext";
 const BG_SPEED = 0.75;
 
 const SPRITES = [
-  { name: "oiseaux", src: "/images/sprite-oiseaux.webp", left: 10, top: 2, width: 24, extraSpeed: 0.15, anim: "pdpb-birds" },
-  { name: "abeilles", src: "/images/sprite-abeilles.webp", left: 68, top: 28, width: 22, extraSpeed: 0.2, anim: "pdpb-bee" },
-  { name: "canards", src: "/images/sprite-canards.webp", left: 24, top: 58, width: 40, extraSpeed: 0.25, anim: "pdpb-ducks" },
-  { name: "feu", src: "/images/sprite-feu.webp", left: 62, top: 78, width: 16, extraSpeed: 0.3, anim: "pdpb-fire" },
+  { name: "oiseaux", src: "/images/sprite-oiseaux.webp", left: 10, top: 2, width: 30, extraSpeed: 0.15, anim: "pdpb-birds" },
+  { name: "abeilles", src: "/images/sprite-abeilles.webp", left: 70, top: 30, width: 14, extraSpeed: 0.2, anim: "pdpb-bee" },
+  { name: "cerf", src: "/images/sprite-cerf.webp", left: 2, top: 54, width: 16, extraSpeed: 0.1, anim: "pdpb-deer" },
+  { name: "canards", src: "/images/sprite-canards.webp", left: 22, top: 70, width: 30, extraSpeed: 0.25, anim: "pdpb-ducks" },
+  { name: "feu", src: "/images/sprite-feu.webp", left: 42, top: 90, width: 14, extraSpeed: 0.3, anim: "pdpb-fire" },
 ];
 
 export default function BackgroundScene() {
@@ -92,6 +93,9 @@ export default function BackgroundScene() {
         .pdpb-bee {
           animation: pdpb-buzz 1.8s ease-in-out infinite;
         }
+        .pdpb-deer {
+          animation: pdpb-sway 6s ease-in-out infinite;
+        }
         .pdpb-ducks {
           animation: pdpb-bob 3s ease-in-out infinite;
         }
@@ -108,6 +112,10 @@ export default function BackgroundScene() {
           25% { transform: translate(3px, -2px); }
           50% { transform: translate(-2px, 2px); }
           75% { transform: translate(2px, 2px); }
+        }
+        @keyframes pdpb-sway {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-2px); }
         }
         @keyframes pdpb-bob {
           0%, 100% { transform: translateY(0); }
