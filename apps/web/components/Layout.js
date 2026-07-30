@@ -4,6 +4,7 @@ import { useSobriety } from "../lib/SobrietyContext";
 import { useTheme } from "../lib/ThemeContext";
 import { useT } from "../lib/useT";
 import { IconLeaf, IconSun, IconMoon, IconScroll } from "./icons";
+import BackgroundScene from "./BackgroundScene";
 
 const LANGUAGE_LABELS = { fr: "Français", en: "English" };
 
@@ -36,8 +37,12 @@ export default function Layout({ children }) {
 
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+      <BackgroundScene />
+
       <header
         style={{
+          position: "relative",
+          zIndex: 2,
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
@@ -45,6 +50,7 @@ export default function Layout({ children }) {
           gap: "0.75rem",
           padding: "0.85rem 1.5rem",
           borderBottom: "1px solid var(--color-bordure)",
+          background: "var(--color-fond)",
         }}
       >
         <Link href="/" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none", color: "var(--color-texte)" }}>
@@ -155,10 +161,12 @@ export default function Layout({ children }) {
         </div>
       </header>
 
-      <main style={{ flex: 1, width: "100%" }}>{children}</main>
+      <main style={{ position: "relative", zIndex: 1, flex: 1, width: "100%" }}>{children}</main>
 
       <footer
         style={{
+          position: "relative",
+          zIndex: 1,
           borderTop: "1px solid var(--color-bordure)",
           padding: "1rem 1.5rem",
           fontSize: 12,
@@ -167,6 +175,7 @@ export default function Layout({ children }) {
           alignItems: "center",
           gap: 8,
           flexWrap: "wrap",
+          background: "var(--color-fond)",
         }}
       >
         {!sobriety && <IconLeaf size={15} style={{ color: "var(--color-forest)" }} />}
