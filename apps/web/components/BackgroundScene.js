@@ -18,8 +18,8 @@ const SPRITES = [
   { name: "oiseaux", src: "/images/sprite-oiseaux.webp", left: 10, top: 2, width: 30, extraSpeed: 0.15, anim: "pdpb-birds" },
   { name: "abeilles", src: "/images/sprite-abeilles.webp", left: 68, top: 38, width: 14, extraSpeed: 0.2, anim: "pdpb-bee" },
   { name: "cerf", src: "/images/sprite-cerf.webp", left: 2, top: 65, width: 16, extraSpeed: 0.1, anim: "pdpb-deer" },
-  { name: "canards", src: "/images/sprite-canards.webp", left: 28, top: 73, width: 26, extraSpeed: 0.25, anim: "pdpb-ducks" },
-  { name: "feu", src: "/images/sprite-feu.webp", left: 50, top: 90, width: 13, extraSpeed: 0.3, anim: "pdpb-fire" },
+  { name: "canards", src: "/images/sprite-canards.webp", left: 28, top: 76, width: 26, extraSpeed: 0.25, anim: "pdpb-ducks" },
+  { name: "feu", src: "/images/sprite-feu.webp", left: 50, top: 93, width: 13, extraSpeed: 0.3, anim: "pdpb-fire" },
 ];
 
 export default function BackgroundScene() {
@@ -80,7 +80,7 @@ export default function BackgroundScene() {
               top: `${s.top}%`,
               left: `${s.left}%`,
               width: `${s.width}%`,
-              opacity: 0.55,
+              opacity: 0.4,
             }}
           />
         ))}
