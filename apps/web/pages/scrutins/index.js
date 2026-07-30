@@ -2,12 +2,14 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import ShareButtons from "../../components/ShareButtons";
 import PageHeader from "../../components/PageHeader";
+import Pagination from "../../components/Pagination";
 import { IconScale } from "../../components/icons";
 import { useT } from "../../lib/useT";
 import { getConsent, getAnonymousId } from "../../lib/anonymousId";
 import { fetchCitizenVotes } from "../../lib/citizenVotes";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+const PAGE_SIZE = 30;
 
 export default function ScrutinsPage() {
   const { t } = useT();
@@ -23,6 +25,8 @@ export default function ScrutinsPage() {
   const [searchError, setSearchError] = useState(null);
   const [resultFilter, setResultFilter] = useState("");
   const [votedScrutins, setVotedScrutins] = useState(new Set());
+  const [page, setPage] = useState(1);
+  const [searchPage, setSearchPage] = useState(1);
 
   useEffect(() => {
     if (getConsent() !== "yes") return;
@@ -51,6 +55,7 @@ export default function ScrutinsPage() {
       })
       .then((rows) => {
         setSearchResults(rows);
+        setSearchPage(1);
         setSearching(false);
       })
       .catch((err) => {
@@ -58,6 +63,10 @@ export default function ScrutinsPage() {
         setSearching(false);
       });
   }
+
+  useEffect(() => {
+    setPage(1);
+  }, [resultFilter]);
 
   useEffect(() => {
     Promise.all([
@@ -144,7 +153,11 @@ export default function ScrutinsPage() {
           </h2>
           {searchResults.length === 0 ? (
             <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>{t("scrutins.no_results")}</p>
-          ) : (
+          ) : (() => {
+            const searchTotalPages = Math.max(1, Math.ceil(searchResults.length / PAGE_SIZE));
+            const searchPageItems = searchResults.slice((searchPage - 1) * PAGE_SIZE, searchPage * PAGE_SIZE);
+            return (
+            <>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr>
@@ -154,7 +167,7 @@ export default function ScrutinsPage() {
                 </tr>
               </thead>
               <tbody>
-                {searchResults.map((s) => (
+                {searchPageItems.map((s) => (
                   <tr key={s.numero}>
                     <td style={{ padding: 8, whiteSpace: "nowrap" }}>
                       {s.scrutin_date ? new Date(s.scrutin_date).toLocaleDateString("fr-FR") : "—"}
@@ -169,7 +182,10 @@ export default function ScrutinsPage() {
                 ))}
               </tbody>
             </table>
-          )}
+            <Pagination page={searchPage} totalPages={searchTotalPages} onChange={setSearchPage} />
+            </>
+            );
+          })()}
         </section>
       )}
 
@@ -199,7 +215,12 @@ export default function ScrutinsPage() {
       {loading && <p>{t("common.loading")}</p>}
       {error && <p role="alert">{t("common.error_prefix")} {error}</p>}
 
-      {!loading && !error && (
+      {!loading && !error && (() => {
+        const filteredScrutins = scrutins.filter((s) => !resultFilter || s.result_code === resultFilter);
+        const totalPages = Math.max(1, Math.ceil(filteredScrutins.length / PAGE_SIZE));
+        const pageItems = filteredScrutins.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+        return (
+          <>
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
             <tr>
@@ -210,8 +231,7 @@ export default function ScrutinsPage() {
             </tr>
           </thead>
           <tbody>
-            {scrutins
-              .filter((s) => !resultFilter || s.result_code === resultFilter)
+            {pageItems
               .map((s) => (
                 <tr key={s.numero}>
                   <td style={{ padding: 8, whiteSpace: "nowrap" }}>
@@ -233,7 +253,10 @@ export default function ScrutinsPage() {
               ))}
           </tbody>
         </table>
-      )}
+        <Pagination page={page} totalPages={totalPages} onChange={setPage} />
+          </>
+        );
+      })()}
 
       <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginTop: "1.5rem" }}>
         {t("scrutins.coverage_note")}{" "}

@@ -3,10 +3,12 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import ShareButtons from "../../components/ShareButtons";
 import PageHeader from "../../components/PageHeader";
+import Pagination from "../../components/Pagination";
 import { IconUsers } from "../../components/icons";
 import { useT } from "../../lib/useT";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+const PAGE_SIZE = 30;
 
 function normalize(str) {
   return (str || "")
@@ -23,6 +25,7 @@ export default function DeputesPage() {
   const [query, setQuery] = useState("");
   const [groupFilter, setGroupFilter] = useState("");
   const [departmentFilter, setDepartmentFilter] = useState("");
+  const [page, setPage] = useState(1);
   const router = useRouter();
 
   useEffect(() => {
@@ -66,6 +69,13 @@ export default function DeputesPage() {
       return normalize(d.full_name).includes(q) || normalize(d.department).includes(q);
     });
   }, [deputies, query, groupFilter, departmentFilter]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [query, groupFilter, departmentFilter]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const pageItems = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
@@ -118,7 +128,7 @@ export default function DeputesPage() {
             </tr>
           </thead>
           <tbody>
-            {filtered.map((d) => (
+            {pageItems.map((d) => (
               <tr key={d.acteur_uid}>
                 <th scope="row" style={{ textAlign: "left", padding: 8, fontWeight: 400 }}>
                   <Link href={`/deputes/${d.acteur_uid}`}>{d.full_name}</Link>
@@ -131,6 +141,10 @@ export default function DeputesPage() {
             ))}
           </tbody>
         </table>
+      )}
+
+      {!loading && !error && filtered.length > PAGE_SIZE && (
+        <Pagination page={page} totalPages={totalPages} onChange={setPage} />
       )}
 
       <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginTop: "1.5rem" }}>
