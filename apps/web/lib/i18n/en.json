@@ -55,7 +55,9 @@
     "card_interviews_label": "Science relay",
     "card_interviews_desc": "Interviews, articles, videos",
     "card_paysans_label": "We're all becoming farmers",
-    "card_paysans_desc": "Practical resources, by topic"
+    "card_paysans_desc": "Practical resources, by topic",
+    "card_ressources_label": "Resources",
+    "card_ressources_desc": "Places and exchange platforms"
   },
   "co2": {
     "title": "CO2 emissions",
@@ -589,6 +591,20 @@
     "entry_not_found": "Entry not found",
     "source_label": "Source:",
     "watch_source": "See the original source →",
+    "error_no_data": "Data unavailable"
+  },
+  "ressources": {
+    "title": "Resources",
+    "share_title": "Resources — Pas de planète B",
+    "intro": "Places near you (shared gardens, farm co-ops, recycling centers...) and online platforms to exchange, give, or barter.",
+    "tab_map": "Places (map)",
+    "tab_online": "Online",
+    "category_all": "All categories",
+    "no_locations": "No places published yet.",
+    "no_online": "No online resources published yet.",
+    "links_title": "Links",
+    "back_to_home": "Back to home →",
+    "visit_link": "Visit →",
     "error_no_data": "Data unavailable"
   }
 }

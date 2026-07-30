@@ -1,0 +1,247 @@
+import { useEffect, useState } from "react";
+import Link from "next/link";
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+const TOKEN_STORAGE_KEY = "pdpb-admin-token";
+
+function slugify(text) {
+  return text
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
+
+export default function AdminRessourcesList() {
+  const [token, setToken] = useState("");
+  const [locations, setLocations] = useState([]);
+  const [online, setOnline] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [newCategory, setNewCategory] = useState("");
+  const [loaded, setLoaded] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  function loadAll(currentToken) {
+    setLoading(true);
+    setError(null);
+    Promise.all([
+      fetch(`${API_URL}/api/admin/resource-locations`, { headers: { "x-ingest-token": currentToken } }),
+      fetch(`${API_URL}/api/admin/resource-online`, { headers: { "x-ingest-token": currentToken } }),
+      fetch(`${API_URL}/api/resource-categories`),
+    ])
+      .then(async ([resLocations, resOnline, resCategories]) => {
+        if (resLocations.status === 401) throw new Error("Jeton invalide");
+        if (!resLocations.ok || !resOnline.ok) throw new Error("Erreur de chargement");
+        setLocations(await resLocations.json());
+        setOnline(await resOnline.json());
+        setCategories(resCategories.ok ? await resCategories.json() : []);
+        setLoaded(true);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err.message);
+        setLoading(false);
+      });
+  }
+
+  useEffect(() => {
+    const stored = window.localStorage.getItem(TOKEN_STORAGE_KEY);
+    if (stored) {
+      setToken(stored);
+      loadAll(stored);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function handleTokenSubmit(e) {
+    e.preventDefault();
+    window.localStorage.setItem(TOKEN_STORAGE_KEY, token);
+    loadAll(token);
+  }
+
+  function toggleLocationPublished(entry) {
+    fetch(`${API_URL}/api/admin/resource-locations/${entry.slug}/publish`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-ingest-token": token },
+      body: JSON.stringify({ published: !entry.published }),
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Échec de la mise à jour");
+        return res.json();
+      })
+      .then(() => loadAll(token))
+      .catch((err) => setError(err.message));
+  }
+
+  function toggleOnlinePublished(entry) {
+    fetch(`${API_URL}/api/admin/resource-online/${entry.slug}/publish`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-ingest-token": token },
+      body: JSON.stringify({ published: !entry.published }),
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Échec de la mise à jour");
+        return res.json();
+      })
+      .then(() => loadAll(token))
+      .catch((err) => setError(err.message));
+  }
+
+  function addCategory(e) {
+    e.preventDefault();
+    if (!newCategory.trim()) return;
+    fetch(`${API_URL}/api/admin/resource-categories`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-ingest-token": token },
+      body: JSON.stringify({ name: newCategory.trim(), slug: slugify(newCategory.trim()) }),
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Échec de l'ajout");
+        return res.json();
+      })
+      .then(() => {
+        setNewCategory("");
+        loadAll(token);
+      })
+      .catch((err) => setError(err.message));
+  }
+
+  function removeCategory(id) {
+    fetch(`${API_URL}/api/admin/resource-categories/${id}`, {
+      method: "DELETE",
+      headers: { "x-ingest-token": token },
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Échec de la suppression");
+        return res.json();
+      })
+      .then(() => loadAll(token))
+      .catch((err) => setError(err.message));
+  }
+
+  return (
+    <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 800, margin: "0 auto" }}>
+      <h1>Administration — Ressources</h1>
+      <p style={{ fontSize: 13, color: "#666" }}>Même jeton que pour les autres rubriques éditoriales.</p>
+
+      <form onSubmit={handleTokenSubmit} style={{ display: "flex", gap: "0.5rem", marginBottom: "1.5rem" }}>
+        <input
+          type="password"
+          value={token}
+          onChange={(e) => setToken(e.target.value)}
+          placeholder="Jeton d'administration"
+          style={{ padding: "6px 10px", flex: 1 }}
+        />
+        <button type="submit">Se connecter</button>
+      </form>
+
+      {loading && <p>Chargement...</p>}
+      {error && <p role="alert" style={{ color: "#d63e2a" }}>{error}</p>}
+
+      {loaded && !error && (
+        <>
+          <section style={{ background: "#f7f7f5", border: "1px solid #e5e7e0", borderRadius: 12, padding: "1rem", marginBottom: "1.5rem" }}>
+            <h2 style={{ fontSize: 16, marginTop: 0 }}>Catégories</h2>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: "0.75rem" }}>
+              {categories.map((c) => (
+                <span key={c.id} style={{ display: "flex", alignItems: "center", gap: 6, background: "white", border: "1px solid #e0e0dc", borderRadius: 20, padding: "3px 6px 3px 12px", fontSize: 13 }}>
+                  {c.name}
+                  <button type="button" onClick={() => removeCategory(c.id)} style={{ border: "none", background: "transparent", cursor: "pointer", color: "#d63e2a", fontSize: 13 }} title="Supprimer">
+                    ×
+                  </button>
+                </span>
+              ))}
+              {categories.length === 0 && <span style={{ fontSize: 13, color: "#666" }}>Aucune catégorie pour l&apos;instant.</span>}
+            </div>
+            <form onSubmit={addCategory} style={{ display: "flex", gap: "0.5rem" }}>
+              <input
+                type="text"
+                value={newCategory}
+                onChange={(e) => setNewCategory(e.target.value)}
+                placeholder="Nouvelle catégorie (ex : Jardin partagé, AMAP...)"
+                style={{ flex: 1, padding: "6px 10px" }}
+              />
+              <button type="submit">Ajouter</button>
+            </form>
+          </section>
+
+          <section style={{ marginBottom: "2rem" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.75rem" }}>
+              <h2 style={{ fontSize: 16, margin: 0 }}>Lieux (carte)</h2>
+              <Link href="/admin/ressources/location-edit">+ Nouveau lieu</Link>
+            </div>
+            {locations.length === 0 ? (
+              <p style={{ fontSize: 13, color: "#666" }}>Aucun lieu pour l&apos;instant.</p>
+            ) : (
+              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <thead>
+                  <tr>
+                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>Nom</th>
+                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>Catégorie</th>
+                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>Statut</th>
+                    <th scope="col" style={{ textAlign: "left", padding: 8 }}></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {locations.map((l) => (
+                    <tr key={l.slug}>
+                      <td style={{ padding: 8 }}>{l.name}</td>
+                      <td style={{ padding: 8 }}>{l.category_name || "—"}</td>
+                      <td style={{ padding: 8, fontSize: 13, color: l.published ? "#1baf7a" : "#999" }}>
+                        {l.published ? "Publié" : "Brouillon"}
+                      </td>
+                      <td style={{ padding: 8 }}>
+                        <button type="button" onClick={() => toggleLocationPublished(l)} style={{ fontSize: 12, marginRight: 8 }}>
+                          {l.published ? "Dépublier" : "Publier"}
+                        </button>
+                        <Link href={`/admin/ressources/location-edit?slug=${l.slug}`}>Modifier</Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </section>
+
+          <section>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.75rem" }}>
+              <h2 style={{ fontSize: 16, margin: 0 }}>En ligne</h2>
+              <Link href="/admin/ressources/online-edit">+ Nouvelle ressource</Link>
+            </div>
+            {online.length === 0 ? (
+              <p style={{ fontSize: 13, color: "#666" }}>Aucune ressource en ligne pour l&apos;instant.</p>
+            ) : (
+              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <thead>
+                  <tr>
+                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>Titre</th>
+                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>Statut</th>
+                    <th scope="col" style={{ textAlign: "left", padding: 8 }}></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {online.map((o) => (
+                    <tr key={o.slug}>
+                      <td style={{ padding: 8 }}>{o.title}</td>
+                      <td style={{ padding: 8, fontSize: 13, color: o.published ? "#1baf7a" : "#999" }}>
+                        {o.published ? "Publié" : "Brouillon"}
+                      </td>
+                      <td style={{ padding: 8 }}>
+                        <button type="button" onClick={() => toggleOnlinePublished(o)} style={{ fontSize: 12, marginRight: 8 }}>
+                          {o.published ? "Dépublier" : "Publier"}
+                        </button>
+                        <Link href={`/admin/ressources/online-edit?slug=${o.slug}`}>Modifier</Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </section>
+        </>
+      )}
+    </div>
+  );
+}

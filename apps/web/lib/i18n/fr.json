@@ -55,7 +55,9 @@
     "card_interviews_label": "Relais scientifique",
     "card_interviews_desc": "Interviews, articles, vidéos",
     "card_paysans_label": "On devient tous paysans",
-    "card_paysans_desc": "Ressources pratiques, par thème"
+    "card_paysans_desc": "Ressources pratiques, par thème",
+    "card_ressources_label": "Ressources",
+    "card_ressources_desc": "Lieux et plateformes d'échange"
   },
   "co2": {
     "title": "Émissions de CO2",
@@ -589,6 +591,20 @@
     "entry_not_found": "Entrée non trouvée",
     "source_label": "Source :",
     "watch_source": "Voir la source originale →",
+    "error_no_data": "Données indisponibles"
+  },
+  "ressources": {
+    "title": "Ressources",
+    "share_title": "Ressources — Pas de planète B",
+    "intro": "Des lieux près de chez toi (jardins partagés, AMAP, recycleries...) et des plateformes en ligne pour échanger, donner, troquer.",
+    "tab_map": "Lieux (carte)",
+    "tab_online": "En ligne",
+    "category_all": "Toutes les catégories",
+    "no_locations": "Aucun lieu publié pour l'instant.",
+    "no_online": "Aucune ressource en ligne publiée pour l'instant.",
+    "links_title": "Liens",
+    "back_to_home": "Retour à l'accueil →",
+    "visit_link": "Visiter →",
     "error_no_data": "Données indisponibles"
   }
 }
