@@ -110,8 +110,11 @@ export default function ScrutinPage() {
           indexAxis: "y",
           responsive: true,
           maintainAspectRatio: false,
-          scales: { x: { stacked: true }, y: { stacked: true } },
-          plugins: { legend: { position: "bottom" } },
+          scales: {
+            x: { stacked: true, ticks: { color: "#9aa3a0" } },
+            y: { stacked: true, ticks: { color: "#9aa3a0" } },
+          },
+          plugins: { legend: { position: "bottom", labels: { color: "#9aa3a0" } } },
         },
       });
     });

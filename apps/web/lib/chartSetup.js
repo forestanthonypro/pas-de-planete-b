@@ -36,5 +36,13 @@ Chart.register(
   Filler
 );
 
+// Couleur de texte par défaut pour TOUS les graphiques du site (libellés
+// d'axes, légendes) — un gris moyen qui reste lisible aussi bien sur fond
+// clair que sur fond sombre. Sans ça, Chart.js retombe sur un gris foncé
+// par défaut, invisible en mode sombre (graphiques qui semblent "vides").
+// Un seul réglage ici plutôt que de le répéter dans chaque graphique.
+Chart.defaults.color = "#9aa3a0";
+Chart.defaults.scale.grid.color = "rgba(154, 163, 160, 0.2)";
+
 export { Chart };
 export default Chart;
