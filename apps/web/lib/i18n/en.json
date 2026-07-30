@@ -53,7 +53,9 @@
     "card_debunk_label": "Debunk",
     "card_debunk_desc": "Common myths, fact-checked",
     "card_interviews_label": "Science relay",
-    "card_interviews_desc": "Interviews, articles, videos"
+    "card_interviews_desc": "Interviews, articles, videos",
+    "card_paysans_label": "We're all becoming farmers",
+    "card_paysans_desc": "Practical resources, by topic"
   },
   "co2": {
     "title": "CO2 emissions",
@@ -569,6 +571,24 @@
     "source_label": "Source:",
     "watch_source": "See the original source →",
     "related_debunk": "Also see (Debunk):",
+    "error_no_data": "Data unavailable"
+  },
+  "paysans": {
+    "title": "We're all becoming farmers",
+    "share_title": "We're all becoming farmers — Pas de planète B",
+    "intro": "Practical resources to grow your own food, compost, exchange know-how — videos, articles, podcasts and documents, organized by topic.",
+    "no_entries": "No resources published yet — this section is under construction.",
+    "category_all": "All categories",
+    "type_all": "All formats",
+    "type_video": "Video",
+    "type_article": "Article",
+    "type_podcast": "Podcast",
+    "type_document": "Document",
+    "back_to_home": "Back to home →",
+    "back_to_list": "← Back to We're all becoming farmers",
+    "entry_not_found": "Entry not found",
+    "source_label": "Source:",
+    "watch_source": "See the original source →",
     "error_no_data": "Data unavailable"
   }
 }

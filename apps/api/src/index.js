@@ -1302,6 +1302,421 @@ app.post("/api/admin/science-relays/:slug/publish", requireIngestToken, async (r
   }
 });
 
+// --- "On devient tous paysans" ---
+// Mêmes principes que Debunk/Relais scientifique : contenu éditorial géré
+// via l'admin. Catégories gérables séparément (pas du texte libre), pour
+// garder un filtre cohérent dans le temps.
+
+app.get("/api/paysan-categories", async (_req, res) => {
+  try {
+    const result = await pool.query("SELECT id, name, slug FROM paysan_categories ORDER BY name");
+    res.json(result.rows);
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+  }
+});
+
+app.post("/api/admin/paysan-categories", requireIngestToken, async (req, res) => {
+  const { name, slug } = req.body || {};
+  if (!name || !slug) {
+    return res.status(400).json({ error: "name et slug sont requis" });
+  }
+  try {
+    const result = await pool.query(
+      `INSERT INTO paysan_categories (name, slug) VALUES ($1, $2)
+       ON CONFLICT (slug) DO UPDATE SET name = EXCLUDED.name
+       RETURNING id, name, slug`,
+      [name, slug]
+    );
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: "Échec de l'enregistrement", detail: err.message });
+  }
+});
+
+app.delete("/api/admin/paysan-categories/:id", requireIngestToken, async (req, res) => {
+  try {
+    await pool.query("DELETE FROM paysan_categories WHERE id = $1", [req.params.id]);
+    res.json({ status: "ok" });
+  } catch (err) {
+    res.status(500).json({ error: "Échec de la suppression", detail: err.message });
+  }
+});
+
+app.get("/api/paysan-resources", async (req, res) => {
+  const { category } = req.query;
+  try {
+    const params = [];
+    let where = "WHERE r.published = true";
+    if (category) {
+      params.push(category);
+      where += ` AND c.slug = $${params.length}`;
+    }
+    const result = await pool.query(
+      `SELECT r.slug, r.title, r.description, r.content_type, r.source_name,
+              r.embed_url, r.image_url, c.name AS category_name, c.slug AS category_slug, r.updated_at
+       FROM paysan_resources r
+       LEFT JOIN paysan_categories c ON c.id = r.category_id
+       ${where}
+       ORDER BY r.updated_at DESC`,
+      params
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+  }
+});
+
+app.get("/api/paysan-resources/:slug", async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT r.*, c.name AS category_name, c.slug AS category_slug
+       FROM paysan_resources r
+       LEFT JOIN paysan_categories c ON c.id = r.category_id
+       WHERE r.slug = $1 AND r.published = true`,
+      [req.params.slug]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Entrée non trouvée" });
+    }
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+  }
+});
+
+app.get("/api/admin/paysan-resources", requireIngestToken, async (_req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT r.slug, r.title, r.content_type, r.published, r.updated_at, c.name AS category_name
+       FROM paysan_resources r
+       LEFT JOIN paysan_categories c ON c.id = r.category_id
+       ORDER BY r.updated_at DESC`
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+  }
+});
+
+app.get("/api/admin/paysan-resources/:slug", requireIngestToken, async (req, res) => {
+  try {
+    const result = await pool.query("SELECT * FROM paysan_resources WHERE slug = $1", [req.params.slug]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Entrée non trouvée" });
+    }
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+  }
+});
+
+app.post("/api/admin/paysan-resources", requireIngestToken, async (req, res) => {
+  const {
+    slug, title, description, contentType, sourceUrl, sourceName,
+    embedUrl, imageUrl, categoryId, published,
+  } = req.body || {};
+  if (!slug || !title || !description || !sourceUrl) {
+    return res.status(400).json({ error: "slug, title, description et sourceUrl sont requis" });
+  }
+  if (!["video", "article", "podcast", "document"].includes(contentType)) {
+    return res.status(400).json({ error: "contentType invalide" });
+  }
+  try {
+    await pool.query(
+      `INSERT INTO paysan_resources
+         (slug, title, description, content_type, source_url, source_name, embed_url, image_url, category_id, published, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, now())
+       ON CONFLICT (slug) DO UPDATE SET
+         title = EXCLUDED.title, description = EXCLUDED.description, content_type = EXCLUDED.content_type,
+         source_url = EXCLUDED.source_url, source_name = EXCLUDED.source_name, embed_url = EXCLUDED.embed_url,
+         image_url = EXCLUDED.image_url, category_id = EXCLUDED.category_id,
+         published = EXCLUDED.published, updated_at = now()`,
+      [slug, title, description, contentType, sourceUrl, sourceName || null, embedUrl || null, imageUrl || null, categoryId || null, published === true]
+    );
+    res.json({ status: "ok" });
+  } catch (err) {
+    res.status(500).json({ error: "Échec de l'enregistrement", detail: err.message });
+  }
+});
+
+app.post("/api/admin/paysan-resources/:slug/publish", requireIngestToken, async (req, res) => {
+  const { published } = req.body || {};
+  if (typeof published !== "boolean") {
+    return res.status(400).json({ error: "published doit être true ou false" });
+  }
+  try {
+    const result = await pool.query(
+      "UPDATE paysan_resources SET published = $1, updated_at = now() WHERE slug = $2 RETURNING slug",
+      [published, req.params.slug]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Entrée non trouvée" });
+    }
+    res.json({ status: "ok" });
+  } catch (err) {
+    res.status(500).json({ error: "Échec de la mise à jour", detail: err.message });
+  }
+});
+
+// --- Ressources ---
+// Volet 1 : lieux physiques (carte) — jardins partagés, AMAP, recycleries...
+// Volet 2 : ressources non physiques (trocs, plateformes d'échange en ligne).
+// Catégories partagées entre les deux volets.
+
+app.get("/api/resource-categories", async (_req, res) => {
+  try {
+    const result = await pool.query("SELECT id, name, slug FROM resource_categories ORDER BY name");
+    res.json(result.rows);
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+  }
+});
+
+app.post("/api/admin/resource-categories", requireIngestToken, async (req, res) => {
+  const { name, slug } = req.body || {};
+  if (!name || !slug) {
+    return res.status(400).json({ error: "name et slug sont requis" });
+  }
+  try {
+    const result = await pool.query(
+      `INSERT INTO resource_categories (name, slug) VALUES ($1, $2)
+       ON CONFLICT (slug) DO UPDATE SET name = EXCLUDED.name
+       RETURNING id, name, slug`,
+      [name, slug]
+    );
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: "Échec de l'enregistrement", detail: err.message });
+  }
+});
+
+app.delete("/api/admin/resource-categories/:id", requireIngestToken, async (req, res) => {
+  try {
+    await pool.query("DELETE FROM resource_categories WHERE id = $1", [req.params.id]);
+    res.json({ status: "ok" });
+  } catch (err) {
+    res.status(500).json({ error: "Échec de la suppression", detail: err.message });
+  }
+});
+
+// Lieux physiques — toujours renvoyés avec leurs liens joints, pour éviter
+// un aller-retour supplémentaire (une carte affiche tout d'un coup).
+app.get("/api/resource-locations", async (req, res) => {
+  const { category } = req.query;
+  try {
+    const params = [];
+    let where = "WHERE l.published = true";
+    if (category) {
+      params.push(category);
+      where += ` AND c.slug = $${params.length}`;
+    }
+    const locations = await pool.query(
+      `SELECT l.slug, l.name, l.description, l.address, l.latitude, l.longitude,
+              c.name AS category_name, c.slug AS category_slug
+       FROM resource_locations l
+       LEFT JOIN resource_categories c ON c.id = l.category_id
+       ${where}
+       ORDER BY l.name`,
+      params
+    );
+    const links = await pool.query(
+      `SELECT location_slug, label, url FROM resource_location_links
+       WHERE location_slug = ANY($1::text[]) ORDER BY id`,
+      [locations.rows.map((l) => l.slug)]
+    );
+    const linksBySlug = {};
+    for (const l of links.rows) {
+      if (!linksBySlug[l.location_slug]) linksBySlug[l.location_slug] = [];
+      linksBySlug[l.location_slug].push({ label: l.label, url: l.url });
+    }
+    res.json(locations.rows.map((l) => ({ ...l, links: linksBySlug[l.slug] || [] })));
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+  }
+});
+
+app.get("/api/admin/resource-locations", requireIngestToken, async (_req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT l.slug, l.name, l.published, l.updated_at, c.name AS category_name
+       FROM resource_locations l
+       LEFT JOIN resource_categories c ON c.id = l.category_id
+       ORDER BY l.updated_at DESC`
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+  }
+});
+
+app.get("/api/admin/resource-locations/:slug", requireIngestToken, async (req, res) => {
+  try {
+    const location = await pool.query("SELECT * FROM resource_locations WHERE slug = $1", [req.params.slug]);
+    if (location.rows.length === 0) {
+      return res.status(404).json({ error: "Entrée non trouvée" });
+    }
+    const links = await pool.query(
+      "SELECT label, url FROM resource_location_links WHERE location_slug = $1 ORDER BY id",
+      [req.params.slug]
+    );
+    res.json({ location: location.rows[0], links: links.rows });
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+  }
+});
+
+app.post("/api/admin/resource-locations", requireIngestToken, async (req, res) => {
+  const { slug, name, description, address, latitude, longitude, categoryId, published, links } = req.body || {};
+  if (!slug || !name || !description || latitude === undefined || longitude === undefined) {
+    return res.status(400).json({ error: "slug, name, description, latitude et longitude sont requis" });
+  }
+  const lat = parseFloat(latitude);
+  const lng = parseFloat(longitude);
+  if (Number.isNaN(lat) || Number.isNaN(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+    return res.status(400).json({ error: "Coordonnées invalides" });
+  }
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    await client.query(
+      `INSERT INTO resource_locations (slug, name, description, address, latitude, longitude, category_id, published, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, now())
+       ON CONFLICT (slug) DO UPDATE SET
+         name = EXCLUDED.name, description = EXCLUDED.description, address = EXCLUDED.address,
+         latitude = EXCLUDED.latitude, longitude = EXCLUDED.longitude, category_id = EXCLUDED.category_id,
+         published = EXCLUDED.published, updated_at = now()`,
+      [slug, name, description, address || null, lat, lng, categoryId || null, published === true]
+    );
+    if (Array.isArray(links)) {
+      await client.query("DELETE FROM resource_location_links WHERE location_slug = $1", [slug]);
+      for (const l of links) {
+        if (l?.label && l?.url) {
+          await client.query(
+            "INSERT INTO resource_location_links (location_slug, label, url) VALUES ($1, $2, $3)",
+            [slug, l.label, l.url]
+          );
+        }
+      }
+    }
+    await client.query("COMMIT");
+    res.json({ status: "ok" });
+  } catch (err) {
+    await client.query("ROLLBACK");
+    res.status(500).json({ error: "Échec de l'enregistrement", detail: err.message });
+  } finally {
+    client.release();
+  }
+});
+
+app.post("/api/admin/resource-locations/:slug/publish", requireIngestToken, async (req, res) => {
+  const { published } = req.body || {};
+  if (typeof published !== "boolean") {
+    return res.status(400).json({ error: "published doit être true ou false" });
+  }
+  try {
+    const result = await pool.query(
+      "UPDATE resource_locations SET published = $1, updated_at = now() WHERE slug = $2 RETURNING slug",
+      [published, req.params.slug]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Entrée non trouvée" });
+    }
+    res.json({ status: "ok" });
+  } catch (err) {
+    res.status(500).json({ error: "Échec de la mise à jour", detail: err.message });
+  }
+});
+
+// Ressources non physiques (trocs, plateformes d'échange...).
+app.get("/api/resource-online", async (req, res) => {
+  const { category } = req.query;
+  try {
+    const params = [];
+    let where = "WHERE o.published = true";
+    if (category) {
+      params.push(category);
+      where += ` AND c.slug = $${params.length}`;
+    }
+    const result = await pool.query(
+      `SELECT o.slug, o.title, o.description, o.url, c.name AS category_name, c.slug AS category_slug
+       FROM resource_online o
+       LEFT JOIN resource_categories c ON c.id = o.category_id
+       ${where}
+       ORDER BY o.title`,
+      params
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+  }
+});
+
+app.get("/api/admin/resource-online", requireIngestToken, async (_req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT o.slug, o.title, o.published, o.updated_at, c.name AS category_name
+       FROM resource_online o
+       LEFT JOIN resource_categories c ON c.id = o.category_id
+       ORDER BY o.updated_at DESC`
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+  }
+});
+
+app.get("/api/admin/resource-online/:slug", requireIngestToken, async (req, res) => {
+  try {
+    const result = await pool.query("SELECT * FROM resource_online WHERE slug = $1", [req.params.slug]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Entrée non trouvée" });
+    }
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+  }
+});
+
+app.post("/api/admin/resource-online", requireIngestToken, async (req, res) => {
+  const { slug, title, description, url, categoryId, published } = req.body || {};
+  if (!slug || !title || !description || !url) {
+    return res.status(400).json({ error: "slug, title, description et url sont requis" });
+  }
+  try {
+    await pool.query(
+      `INSERT INTO resource_online (slug, title, description, url, category_id, published, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, now())
+       ON CONFLICT (slug) DO UPDATE SET
+         title = EXCLUDED.title, description = EXCLUDED.description, url = EXCLUDED.url,
+         category_id = EXCLUDED.category_id, published = EXCLUDED.published, updated_at = now()`,
+      [slug, title, description, url, categoryId || null, published === true]
+    );
+    res.json({ status: "ok" });
+  } catch (err) {
+    res.status(500).json({ error: "Échec de l'enregistrement", detail: err.message });
+  }
+});
+
+app.post("/api/admin/resource-online/:slug/publish", requireIngestToken, async (req, res) => {
+  const { published } = req.body || {};
+  if (typeof published !== "boolean") {
+    return res.status(400).json({ error: "published doit être true ou false" });
+  }
+  try {
+    const result = await pool.query(
+      "UPDATE resource_online SET published = $1, updated_at = now() WHERE slug = $2 RETURNING slug",
+      [published, req.params.slug]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Entrée non trouvée" });
+    }
+    res.json({ status: "ok" });
+  } catch (err) {
+    res.status(500).json({ error: "Échec de la mise à jour", detail: err.message });
+  }
+});
+
 app.listen(port, () => {
   console.log(`API Pas de planète B à l'écoute sur le port ${port}`);
 });
