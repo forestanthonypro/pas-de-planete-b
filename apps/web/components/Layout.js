@@ -87,12 +87,12 @@ export default function Layout({ children }) {
           aria-label={t("common.nav_charter_title")}
           style={
             sobriety
-              ? { color: "var(--color-forest)", fontWeight: 600, textDecoration: "underline" }
+              ? { color: "#1b5e20", fontWeight: 600, textDecoration: "underline" }
               : {
                   display: "flex",
                   alignItems: "center",
                   gap: 6,
-                  background: "var(--color-forest)",
+                  background: "#1b5e20",
                   color: "white",
                   padding: "6px 14px",
                   borderRadius: 20,
