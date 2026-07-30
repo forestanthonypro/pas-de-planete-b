@@ -13,19 +13,23 @@ const TYPE_ICONS = { video: "▶", article: "📄", podcast: "🎙" };
 export default function InterviewsPage() {
   const { t } = useT();
   const [entries, setEntries] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [categoryFilter, setCategoryFilter] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch(`${API_URL}/api/science-relays`)
-      .then((res) => {
+    Promise.all([
+      fetch(`${API_URL}/api/science-relays`).then((res) => {
         if (!res.ok) throw new Error(t("interviews.error_no_data"));
         return res.json();
-      })
-      .then((rows) => {
-        setEntries(Array.isArray(rows) ? rows : []);
+      }),
+      fetch(`${API_URL}/api/interview-categories`).then((res) => (res.ok ? res.json() : [])),
+    ])
+      .then(([entryRows, categoryRows]) => {
+        setEntries(Array.isArray(entryRows) ? entryRows : []);
+        setCategories(Array.isArray(categoryRows) ? categoryRows : []);
         setLoading(false);
       })
       .catch((err) => {
@@ -35,14 +39,9 @@ export default function InterviewsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const categories = useMemo(() => {
-    const set = new Set(entries.map((e) => e.category).filter(Boolean));
-    return [...set].sort();
-  }, [entries]);
-
   const filtered = useMemo(() => {
     return entries.filter((e) => {
-      if (categoryFilter && e.category !== categoryFilter) return false;
+      if (categoryFilter && e.category_slug !== categoryFilter) return false;
       if (typeFilter && e.content_type !== typeFilter) return false;
       return true;
     });
@@ -71,7 +70,7 @@ export default function InterviewsPage() {
           >
             <option value="">{t("interviews.category_all")}</option>
             {categories.map((c) => (
-              <option key={c} value={c}>{c}</option>
+              <option key={c.slug} value={c.slug}>{c.name}</option>
             ))}
           </select>
         )}
@@ -123,7 +122,7 @@ export default function InterviewsPage() {
                       {e.scientist_name}{e.scientist_field ? ` — ${e.scientist_field}` : ""}
                     </p>
                   )}
-                  <p style={{ fontSize: 12, color: "var(--color-texte-clair)", margin: 0 }}>{e.category}</p>
+                  <p style={{ fontSize: 12, color: "var(--color-texte-clair)", margin: 0 }}>{e.category_name}</p>
                 </div>
               </Link>
             );

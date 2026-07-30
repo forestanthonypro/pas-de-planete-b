@@ -16,18 +16,22 @@ const VERDICT_COLORS = {
 export default function DebunkPage() {
   const { t } = useT();
   const [entries, setEntries] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [categoryFilter, setCategoryFilter] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch(`${API_URL}/api/debunk`)
-      .then((res) => {
+    Promise.all([
+      fetch(`${API_URL}/api/debunk`).then((res) => {
         if (!res.ok) throw new Error(t("debunk.error_no_data"));
         return res.json();
-      })
-      .then((rows) => {
-        setEntries(Array.isArray(rows) ? rows : []);
+      }),
+      fetch(`${API_URL}/api/debunk-categories`).then((res) => (res.ok ? res.json() : [])),
+    ])
+      .then(([entryRows, categoryRows]) => {
+        setEntries(Array.isArray(entryRows) ? entryRows : []);
+        setCategories(Array.isArray(categoryRows) ? categoryRows : []);
         setLoading(false);
       })
       .catch((err) => {
@@ -37,14 +41,9 @@ export default function DebunkPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const categories = useMemo(() => {
-    const set = new Set(entries.map((e) => e.category).filter(Boolean));
-    return [...set].sort();
-  }, [entries]);
-
   const filtered = useMemo(() => {
     if (!categoryFilter) return entries;
-    return entries.filter((e) => e.category === categoryFilter);
+    return entries.filter((e) => e.category_slug === categoryFilter);
   }, [entries, categoryFilter]);
 
   function verdictLabel(verdict) {
@@ -67,7 +66,7 @@ export default function DebunkPage() {
           >
             <option value="">{t("debunk.category_all")}</option>
             {categories.map((c) => (
-              <option key={c} value={c}>{c}</option>
+              <option key={c.slug} value={c.slug}>{c.name}</option>
             ))}
           </select>
         )}
@@ -104,7 +103,7 @@ export default function DebunkPage() {
                 </span>
                 <p style={{ fontSize: 15, fontWeight: 500, margin: "10px 0 6px", lineHeight: 1.4 }}>{e.myth}</p>
                 <p style={{ fontSize: 12, color: "var(--color-texte-clair)", margin: 0 }}>
-                  {e.category ? `${e.category} · ` : ""}
+                  {e.category_name ? `${e.category_name} · ` : ""}
                   {new Date(e.updated_at).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}
                 </p>
               </div>

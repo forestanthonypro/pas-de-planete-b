@@ -32,7 +32,8 @@ export default function AdminInterviewEdit() {
   const [sourceName, setSourceName] = useState("");
   const [embedUrl, setEmbedUrl] = useState("");
   const [imageUrl, setImageUrl] = useState("");
-  const [category, setCategory] = useState("");
+  const [categoryId, setCategoryId] = useState("");
+  const [categories, setCategories] = useState([]);
   const [relatedDebunkSlug, setRelatedDebunkSlug] = useState("");
   const [published, setPublished] = useState(false);
 
@@ -44,6 +45,14 @@ export default function AdminInterviewEdit() {
     const stored = window.localStorage.getItem(TOKEN_STORAGE_KEY);
     if (stored) setToken(stored);
   }, []);
+
+  useEffect(() => {
+    if (!token) return;
+    fetch(`${API_URL}/api/interview-categories`)
+      .then((res) => (res.ok ? res.json() : []))
+      .then(setCategories)
+      .catch(() => setCategories([]));
+  }, [token]);
 
   useEffect(() => {
     if (!editSlug || !token) return;
@@ -67,7 +76,7 @@ export default function AdminInterviewEdit() {
         setSourceName(data.source_name || "");
         setEmbedUrl(data.embed_url || "");
         setImageUrl(data.image_url || "");
-        setCategory(data.category || "");
+        setCategoryId(data.category_id || "");
         setRelatedDebunkSlug(data.related_debunk_slug || "");
         setPublished(data.published);
         setLoading(false);
@@ -113,7 +122,7 @@ export default function AdminInterviewEdit() {
         sourceName: sourceName || null,
         embedUrl: embedUrl || null,
         imageUrl: imageUrl || null,
-        category: category || null,
+        categoryId: categoryId || null,
         relatedDebunkSlug: relatedDebunkSlug || null,
         published,
       }),
@@ -281,9 +290,19 @@ export default function AdminInterviewEdit() {
           </label>
           <label style={{ flex: 1, minWidth: 180 }}>
             <span style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>Catégorie</span>
-            <input type="text" value={category} onChange={(e) => setCategory(e.target.value)} placeholder="ex : Climat" style={{ width: "100%", padding: "8px 10px" }} />
+            <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)} style={{ width: "100%", padding: "8px 10px" }}>
+              <option value="">— Aucune —</option>
+              {categories.map((c) => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </select>
           </label>
         </div>
+        {categories.length === 0 && (
+          <p style={{ fontSize: 12, color: "#666", marginTop: -8, marginBottom: "0.75rem" }}>
+            Aucune catégorie créée — ajoutes-en depuis <Link href="/admin/interviews">la liste</Link>.
+          </p>
+        )}
 
         <label style={{ display: "block", marginBottom: "0.75rem" }}>
           <span style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>

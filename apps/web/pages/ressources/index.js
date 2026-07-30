@@ -70,7 +70,13 @@ export default function RessourcesPage() {
         const linksHtml = (loc.links || [])
           .map((link) => `<a href="${link.url}" target="_blank" rel="noopener noreferrer">${link.label}</a>`)
           .join(" · ");
-        L.marker([loc.latitude, loc.longitude])
+        L.circleMarker([loc.latitude, loc.longitude], {
+          radius: 8,
+          color: "#1b5e20",
+          fillColor: "#1baf7a",
+          fillOpacity: 0.85,
+          weight: 2,
+        })
           .bindPopup(
             `<strong>${loc.name}</strong><br/>${loc.description}${loc.address ? `<br/><em>${loc.address}</em>` : ""}${linksHtml ? `<br/>${linksHtml}` : ""}`
           )

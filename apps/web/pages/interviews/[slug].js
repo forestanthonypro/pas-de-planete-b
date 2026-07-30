@@ -52,7 +52,7 @@ export default function InterviewDetailPage() {
       {!loading && !error && entry && (
         <>
           <span style={{ fontSize: 11, color: "var(--color-texte-clair)", textTransform: "uppercase", letterSpacing: "0.03em" }}>
-            {typeLabel(entry.content_type)}{entry.category ? ` · ${entry.category}` : ""}
+            {typeLabel(entry.content_type)}{entry.category_name ? ` · ${entry.category_name}` : ""}
           </span>
           <h1 style={{ margin: "6px 0" }}>{entry.title}</h1>
           {entry.scientist_name && (

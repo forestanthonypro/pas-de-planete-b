@@ -65,7 +65,7 @@ export default function DebunkEntryPage() {
           </span>
           <h1 style={{ margin: "12px 0 6px" }}>{entry.myth}</h1>
           <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginBottom: "1rem" }}>
-            {entry.category && `${entry.category} · `}
+            {entry.category_name && `${entry.category_name} · `}
             {t("debunk.published_on", { date: formatDate(entry.created_at) })}
             {entry.updated_at && entry.updated_at !== entry.created_at && (
               <>{t("debunk.updated_on", { date: formatDate(entry.updated_at) })}</>

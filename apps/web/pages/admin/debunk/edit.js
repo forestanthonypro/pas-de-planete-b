@@ -26,7 +26,8 @@ export default function AdminDebunkEdit() {
   const [claimQuote, setClaimQuote] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [reality, setReality] = useState("");
-  const [category, setCategory] = useState("");
+  const [categoryId, setCategoryId] = useState("");
+  const [categories, setCategories] = useState([]);
   const [verdict, setVerdict] = useState("faux");
   const [published, setPublished] = useState(false);
   const [sources, setSources] = useState([{ label: "", url: "" }]);
@@ -39,6 +40,14 @@ export default function AdminDebunkEdit() {
     const stored = window.localStorage.getItem(TOKEN_STORAGE_KEY);
     if (stored) setToken(stored);
   }, []);
+
+  useEffect(() => {
+    if (!token) return;
+    fetch(`${API_URL}/api/debunk-categories`)
+      .then((res) => (res.ok ? res.json() : []))
+      .then(setCategories)
+      .catch(() => setCategories([]));
+  }, [token]);
 
   useEffect(() => {
     if (!editSlug || !token) return;
@@ -57,7 +66,7 @@ export default function AdminDebunkEdit() {
         setClaimQuote(data.entry.claim_quote || "");
         setImageUrl(data.entry.image_url || "");
         setReality(data.entry.reality);
-        setCategory(data.entry.category || "");
+        setCategoryId(data.entry.category_id || "");
         setVerdict(data.entry.verdict || "faux");
         setPublished(data.entry.published);
         setSources(data.sources.length > 0 ? data.sources : [{ label: "", url: "" }]);
@@ -101,7 +110,7 @@ export default function AdminDebunkEdit() {
         claimQuote: claimQuote || null,
         imageUrl: imageUrl || null,
         reality,
-        category: category || null,
+        categoryId: categoryId || null,
         verdict,
         published,
         sources: sources.filter((s) => s.label && s.url),
@@ -229,13 +238,12 @@ export default function AdminDebunkEdit() {
         <div style={{ display: "flex", gap: "1rem", marginBottom: "0.75rem", flexWrap: "wrap" }}>
           <label style={{ flex: 1, minWidth: 180 }}>
             <span style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>Catégorie</span>
-            <input
-              type="text"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              placeholder="ex : Énergie, Climat, Biodiversité"
-              style={{ width: "100%", padding: "8px 10px" }}
-            />
+            <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)} style={{ width: "100%", padding: "8px 10px" }}>
+              <option value="">— Aucune —</option>
+              {categories.map((c) => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </select>
           </label>
 
           <label style={{ flex: 1, minWidth: 180 }}>
@@ -247,6 +255,11 @@ export default function AdminDebunkEdit() {
             </select>
           </label>
         </div>
+        {categories.length === 0 && (
+          <p style={{ fontSize: 12, color: "#666", marginTop: -8, marginBottom: "0.75rem" }}>
+            Aucune catégorie créée — ajoutes-en depuis <Link href="/admin/debunk">la liste</Link>.
+          </p>
+        )}
 
         <label style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: "1rem", fontSize: 14 }}>
           <input type="checkbox" checked={published} onChange={(e) => setPublished(e.target.checked)} />

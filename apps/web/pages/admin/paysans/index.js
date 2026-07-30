@@ -107,6 +107,9 @@ export default function AdminPaysansList() {
 
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 800, margin: "0 auto" }}>
+      <p style={{ fontSize: 13, marginBottom: "0.5rem" }}>
+        <Link href="/admin">← Retour à l&apos;administration</Link>
+      </p>
       <h1>Administration — On devient tous paysans</h1>
       <p style={{ fontSize: 13, color: "#666" }}>Même jeton que pour Débunk et le relais scientifique.</p>
 

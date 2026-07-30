@@ -918,10 +918,32 @@ app.post("/api/newsletter/unsubscribe", async (req, res) => {
 // d'ingestion. Seules les entrées "published = true" sont visibles
 // publiquement.
 
-app.get("/api/debunk", async (_req, res) => {
+app.get("/api/debunk-categories", async (_req, res) => {
   try {
+    const result = await pool.query("SELECT id, name, slug FROM debunk_categories ORDER BY name");
+    res.json(result.rows);
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+  }
+});
+
+app.get("/api/debunk", async (req, res) => {
+  const { category } = req.query;
+  try {
+    const params = [];
+    let where = "WHERE d.published = true";
+    if (category) {
+      params.push(category);
+      where += ` AND c.slug = $${params.length}`;
+    }
     const result = await pool.query(
-      "SELECT slug, myth, category, verdict, image_url, updated_at FROM debunk_entries WHERE published = true ORDER BY updated_at DESC"
+      `SELECT d.slug, d.myth, d.verdict, d.image_url, d.updated_at,
+              c.name AS category_name, c.slug AS category_slug
+       FROM debunk_entries d
+       LEFT JOIN debunk_categories c ON c.id = d.category_id
+       ${where}
+       ORDER BY d.updated_at DESC`,
+      params
     );
     res.json(result.rows);
   } catch (err) {
@@ -932,7 +954,10 @@ app.get("/api/debunk", async (_req, res) => {
 app.get("/api/debunk/:slug", async (req, res) => {
   try {
     const entryResult = await pool.query(
-      "SELECT * FROM debunk_entries WHERE slug = $1 AND published = true",
+      `SELECT d.*, c.name AS category_name, c.slug AS category_slug
+       FROM debunk_entries d
+       LEFT JOIN debunk_categories c ON c.id = d.category_id
+       WHERE d.slug = $1 AND d.published = true`,
       [req.params.slug]
     );
     if (entryResult.rows.length === 0) {
@@ -955,11 +980,41 @@ app.get("/api/debunk/:slug", async (req, res) => {
 app.get("/api/admin/debunk", requireIngestToken, async (_req, res) => {
   try {
     const result = await pool.query(
-      "SELECT slug, myth, category, verdict, published, image_url, updated_at FROM debunk_entries ORDER BY updated_at DESC"
+      `SELECT d.slug, d.myth, d.verdict, d.published, d.image_url, d.updated_at, c.name AS category_name
+       FROM debunk_entries d
+       LEFT JOIN debunk_categories c ON c.id = d.category_id
+       ORDER BY d.updated_at DESC`
     );
     res.json(result.rows);
   } catch (err) {
     res.status(503).json({ error: "Données non initialisées", detail: err.message });
+  }
+});
+
+app.post("/api/admin/debunk-categories", requireIngestToken, async (req, res) => {
+  const { name, slug } = req.body || {};
+  if (!name || !slug) {
+    return res.status(400).json({ error: "name et slug sont requis" });
+  }
+  try {
+    const result = await pool.query(
+      `INSERT INTO debunk_categories (name, slug) VALUES ($1, $2)
+       ON CONFLICT (slug) DO UPDATE SET name = EXCLUDED.name
+       RETURNING id, name, slug`,
+      [name, slug]
+    );
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: "Échec de l'enregistrement", detail: err.message });
+  }
+});
+
+app.delete("/api/admin/debunk-categories/:id", requireIngestToken, async (req, res) => {
+  try {
+    await pool.query("DELETE FROM debunk_categories WHERE id = $1", [req.params.id]);
+    res.json({ status: "ok" });
+  } catch (err) {
+    res.status(500).json({ error: "Échec de la suppression", detail: err.message });
   }
 });
 
@@ -1001,7 +1056,7 @@ app.post("/api/admin/debunk/:slug/publish", requireIngestToken, async (req, res)
 });
 
 app.post("/api/admin/debunk", requireIngestToken, async (req, res) => {
-  const { slug, myth, reality, category, verdict, claimQuote, imageUrl, published, sources } = req.body || {};
+  const { slug, myth, reality, categoryId, verdict, claimQuote, imageUrl, published, sources } = req.body || {};
   if (!slug || !myth || !reality) {
     return res.status(400).json({ error: "slug, myth et reality sont requis" });
   }
@@ -1012,13 +1067,13 @@ app.post("/api/admin/debunk", requireIngestToken, async (req, res) => {
   try {
     await client.query("BEGIN");
     await client.query(
-      `INSERT INTO debunk_entries (slug, myth, reality, category, verdict, claim_quote, image_url, published, updated_at)
+      `INSERT INTO debunk_entries (slug, myth, reality, category_id, verdict, claim_quote, image_url, published, updated_at)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, now())
        ON CONFLICT (slug)
-       DO UPDATE SET myth = EXCLUDED.myth, reality = EXCLUDED.reality, category = EXCLUDED.category,
+       DO UPDATE SET myth = EXCLUDED.myth, reality = EXCLUDED.reality, category_id = EXCLUDED.category_id,
                      verdict = EXCLUDED.verdict, claim_quote = EXCLUDED.claim_quote,
                      image_url = EXCLUDED.image_url, published = EXCLUDED.published, updated_at = now()`,
-      [slug, myth, reality, category || null, verdict || "faux", claimQuote || null, imageUrl || null, published === true]
+      [slug, myth, reality, categoryId || null, verdict || "faux", claimQuote || null, imageUrl || null, published === true]
     );
     if (Array.isArray(sources)) {
       await client.query("DELETE FROM debunk_sources WHERE debunk_slug = $1", [slug]);
@@ -1198,12 +1253,59 @@ app.get("/api/scrutins/:legislature/:numero/citizen-stats", async (req, res) => 
 // Même principe que Debunk : contenu éditorial géré via l'interface admin,
 // jamais ingéré automatiquement.
 
-app.get("/api/science-relays", async (_req, res) => {
+app.get("/api/interview-categories", async (_req, res) => {
+  try {
+    const result = await pool.query("SELECT id, name, slug FROM interview_categories ORDER BY name");
+    res.json(result.rows);
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+  }
+});
+
+app.post("/api/admin/interview-categories", requireIngestToken, async (req, res) => {
+  const { name, slug } = req.body || {};
+  if (!name || !slug) {
+    return res.status(400).json({ error: "name et slug sont requis" });
+  }
   try {
     const result = await pool.query(
-      `SELECT slug, title, description, scientist_name, scientist_field, content_type,
-              source_name, category, embed_url, image_url, updated_at
-       FROM science_relays WHERE published = true ORDER BY updated_at DESC`
+      `INSERT INTO interview_categories (name, slug) VALUES ($1, $2)
+       ON CONFLICT (slug) DO UPDATE SET name = EXCLUDED.name
+       RETURNING id, name, slug`,
+      [name, slug]
+    );
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: "Échec de l'enregistrement", detail: err.message });
+  }
+});
+
+app.delete("/api/admin/interview-categories/:id", requireIngestToken, async (req, res) => {
+  try {
+    await pool.query("DELETE FROM interview_categories WHERE id = $1", [req.params.id]);
+    res.json({ status: "ok" });
+  } catch (err) {
+    res.status(500).json({ error: "Échec de la suppression", detail: err.message });
+  }
+});
+
+app.get("/api/science-relays", async (req, res) => {
+  const { category } = req.query;
+  try {
+    const params = [];
+    let where = "WHERE r.published = true";
+    if (category) {
+      params.push(category);
+      where += ` AND c.slug = $${params.length}`;
+    }
+    const result = await pool.query(
+      `SELECT r.slug, r.title, r.description, r.scientist_name, r.scientist_field, r.content_type,
+              r.source_name, r.embed_url, r.image_url, c.name AS category_name, c.slug AS category_slug, r.updated_at
+       FROM science_relays r
+       LEFT JOIN interview_categories c ON c.id = r.category_id
+       ${where}
+       ORDER BY r.updated_at DESC`,
+      params
     );
     res.json(result.rows);
   } catch (err) {
@@ -1214,7 +1316,10 @@ app.get("/api/science-relays", async (_req, res) => {
 app.get("/api/science-relays/:slug", async (req, res) => {
   try {
     const result = await pool.query(
-      "SELECT * FROM science_relays WHERE slug = $1 AND published = true",
+      `SELECT r.*, c.name AS category_name, c.slug AS category_slug
+       FROM science_relays r
+       LEFT JOIN interview_categories c ON c.id = r.category_id
+       WHERE r.slug = $1 AND r.published = true`,
       [req.params.slug]
     );
     if (result.rows.length === 0) {
@@ -1229,7 +1334,10 @@ app.get("/api/science-relays/:slug", async (req, res) => {
 app.get("/api/admin/science-relays", requireIngestToken, async (_req, res) => {
   try {
     const result = await pool.query(
-      "SELECT slug, title, content_type, category, published, image_url, updated_at FROM science_relays ORDER BY updated_at DESC"
+      `SELECT r.slug, r.title, r.content_type, r.published, r.image_url, r.updated_at, c.name AS category_name
+       FROM science_relays r
+       LEFT JOIN interview_categories c ON c.id = r.category_id
+       ORDER BY r.updated_at DESC`
     );
     res.json(result.rows);
   } catch (err) {
@@ -1252,7 +1360,7 @@ app.get("/api/admin/science-relays/:slug", requireIngestToken, async (req, res) 
 app.post("/api/admin/science-relays", requireIngestToken, async (req, res) => {
   const {
     slug, title, description, scientistName, scientistField, contentType,
-    sourceUrl, sourceName, embedUrl, imageUrl, category, relatedDebunkSlug, published,
+    sourceUrl, sourceName, embedUrl, imageUrl, categoryId, relatedDebunkSlug, published,
   } = req.body || {};
   if (!slug || !title || !description || !sourceUrl) {
     return res.status(400).json({ error: "slug, title, description et sourceUrl sont requis" });
@@ -1264,7 +1372,7 @@ app.post("/api/admin/science-relays", requireIngestToken, async (req, res) => {
     await pool.query(
       `INSERT INTO science_relays
          (slug, title, description, scientist_name, scientist_field, content_type,
-          source_url, source_name, embed_url, image_url, category, related_debunk_slug, published, updated_at)
+          source_url, source_name, embed_url, image_url, category_id, related_debunk_slug, published, updated_at)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, now())
        ON CONFLICT (slug) DO UPDATE SET
          title = EXCLUDED.title, description = EXCLUDED.description,
@@ -1272,10 +1380,10 @@ app.post("/api/admin/science-relays", requireIngestToken, async (req, res) => {
          content_type = EXCLUDED.content_type, source_url = EXCLUDED.source_url,
          source_name = EXCLUDED.source_name, embed_url = EXCLUDED.embed_url,
          image_url = EXCLUDED.image_url,
-         category = EXCLUDED.category, related_debunk_slug = EXCLUDED.related_debunk_slug,
+         category_id = EXCLUDED.category_id, related_debunk_slug = EXCLUDED.related_debunk_slug,
          published = EXCLUDED.published, updated_at = now()`,
       [slug, title, description, scientistName || null, scientistField || null, contentType,
-       sourceUrl, sourceName || null, embedUrl || null, imageUrl || null, category || null, relatedDebunkSlug || null, published === true]
+       sourceUrl, sourceName || null, embedUrl || null, imageUrl || null, categoryId || null, relatedDebunkSlug || null, published === true]
     );
     res.json({ status: "ok" });
   } catch (err) {
