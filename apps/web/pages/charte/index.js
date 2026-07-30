@@ -7,6 +7,7 @@ import { useT } from "../../lib/useT";
 import { getAnonymousId } from "../../lib/anonymousId";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+const MIN_ALTERNATIVE_LENGTH = 30;
 
 export default function CharterPage() {
   const { t } = useT();
@@ -16,6 +17,10 @@ export default function CharterPage() {
   const [error, setError] = useState(null);
   const [suggestionText, setSuggestionText] = useState("");
   const [suggestionStatus, setSuggestionStatus] = useState("idle"); // idle | sending | done | error
+  const [nuancePromptItemId, setNuancePromptItemId] = useState(null);
+  const [nuanceAlternative, setNuanceAlternative] = useState("");
+  const [nuanceSubmitting, setNuanceSubmitting] = useState(false);
+  const [declinedItemId, setDeclinedItemId] = useState(null);
 
   useEffect(() => {
     const anonymousId = getAnonymousId();
@@ -74,6 +79,52 @@ export default function CharterPage() {
       // Échec silencieux : le vote reste affiché localement, on ne casse
       // pas l'expérience pour un souci réseau ponctuel.
     });
+  }
+
+  // Cliquer sur "À nuancer" n'enregistre rien tout de suite — ça ouvre
+  // d'abord un petit parcours qui encourage un retour constructif, plutôt
+  // que de compter silencieusement un désaccord sans contenu.
+  function openNuancePrompt(itemId) {
+    setNuancePromptItemId(itemId);
+    setNuanceAlternative("");
+    setDeclinedItemId(null);
+  }
+
+  function closeNuancePrompt() {
+    setNuancePromptItemId(null);
+    setNuanceAlternative("");
+  }
+
+  function switchToAdhereFromPrompt(itemId) {
+    vote(itemId, "adhere");
+    closeNuancePrompt();
+  }
+
+  function declineNuancePrompt(itemId) {
+    closeNuancePrompt();
+    setDeclinedItemId(itemId);
+  }
+
+  function confirmNuanceWithAlternative(itemId, itemTitle) {
+    if (nuanceAlternative.trim().length < MIN_ALTERNATIVE_LENGTH) return;
+    setNuanceSubmitting(true);
+    vote(itemId, "nuance");
+    fetch(`${API_URL}/api/charter-suggestions`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: `Concernant « ${itemTitle} » : ${nuanceAlternative.trim()}` }),
+    })
+      .then(() => {
+        setNuanceSubmitting(false);
+        closeNuancePrompt();
+      })
+      .catch(() => {
+        // Le vote est déjà enregistré ; seule la proposition d'alternative
+        // a échoué à partir — on referme quand même plutôt que bloquer la
+        // personne sur un souci réseau ponctuel.
+        setNuanceSubmitting(false);
+        closeNuancePrompt();
+      });
   }
 
   function handleSuggestionSubmit(e) {
@@ -141,7 +192,7 @@ export default function CharterPage() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => vote(item.id, "nuance")}
+                    onClick={() => openNuancePrompt(item.id)}
                     style={{
                       padding: "6px 12px",
                       borderRadius: 20,
@@ -156,6 +207,46 @@ export default function CharterPage() {
                     🤔 {t("charter.vote_nuance")} · {item.nuanceCount}
                   </button>
                 </div>
+
+                {nuancePromptItemId === item.id && (
+                  <div style={{ marginTop: 10, padding: "0.75rem", background: "var(--color-fond)", border: "1px solid #a86b0a", borderRadius: 8 }}>
+                    <p style={{ fontSize: 13, margin: "0 0 10px" }}>{t("charter.nuance_prompt")}</p>
+                    <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginBottom: 10 }}>
+                      <button type="button" onClick={() => switchToAdhereFromPrompt(item.id)} style={{ fontSize: 13 }}>
+                        {t("charter.nuance_switch_to_yes")}
+                      </button>
+                      <button type="button" onClick={() => declineNuancePrompt(item.id)} style={{ fontSize: 13 }}>
+                        {t("charter.nuance_decline")}
+                      </button>
+                    </div>
+                    <p style={{ fontSize: 12, fontWeight: 600, margin: "0 0 4px" }}>{t("charter.nuance_alternative_label")}</p>
+                    <textarea
+                      value={nuanceAlternative}
+                      onChange={(e) => setNuanceAlternative(e.target.value)}
+                      placeholder={t("charter.nuance_alternative_placeholder")}
+                      rows={4}
+                      maxLength={2000}
+                      style={{ width: "100%", padding: "8px 10px", fontFamily: "inherit", marginBottom: 4 }}
+                    />
+                    <p style={{ fontSize: 12, color: nuanceAlternative.trim().length < MIN_ALTERNATIVE_LENGTH ? "var(--color-texte-clair)" : "#1baf7a", margin: "0 0 8px" }}>
+                      {t("charter.nuance_char_count", { count: nuanceAlternative.trim().length, min: MIN_ALTERNATIVE_LENGTH })}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => confirmNuanceWithAlternative(item.id, item.title)}
+                      disabled={nuanceAlternative.trim().length < MIN_ALTERNATIVE_LENGTH || nuanceSubmitting}
+                      style={{ fontSize: 13, fontWeight: 600 }}
+                    >
+                      {nuanceSubmitting ? t("charter.nuance_sending") : t("charter.nuance_confirm")}
+                    </button>
+                  </div>
+                )}
+
+                {declinedItemId === item.id && (
+                  <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginTop: 10, fontStyle: "italic" }}>
+                    {t("charter.nuance_declined_message")}
+                  </p>
+                )}
               </div>
             );
           })}
