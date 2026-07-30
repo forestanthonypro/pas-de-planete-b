@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { detectDefaultCountry } from "../lib/detectCountry";
 import ActionCTA from "../components/ActionCTA";
 import { useSobriety } from "../lib/SobrietyContext";
@@ -71,48 +72,79 @@ function Card({ href, Icon, label, desc, tint }) {
 export default function Home() {
   const [country, setCountry] = useState("FRA");
   const { t } = useT();
+  const router = useRouter();
   const { environment, democracy } = useCardGroups(t);
 
   useEffect(() => {
     setCountry(detectDefaultCountry());
   }, []);
 
+  // Filtrage par section : /?section=environnement|democratie|sengager —
+  // ne montre que la section demandée, avec un lien pour revenir à la vue
+  // complète. Sans paramètre, l'accueil affiche tout comme avant.
+  const section = typeof router.query.section === "string" ? router.query.section : null;
+  const showEnvironment = !section || section === "environnement";
+  const showDemocratie = !section || section === "democratie";
+  const showEngager = !section || section === "sengager";
+
   return (
     <div style={{ maxWidth: 900, margin: "0 auto", padding: "1.5rem" }}>
-      <div className="pdpb-hero">
-        <p style={{ fontSize: 14, color: "var(--color-texte-clair)", margin: "0 0 1rem" }}>
-          {t("home.intro")}
+      {!section && (
+        <div className="pdpb-hero">
+          <p style={{ fontSize: 14, color: "var(--color-texte-clair)", margin: "0 0 1rem" }}>
+            {t("home.intro")}
+          </p>
+          <p style={{ margin: 0 }}>
+            <Link href={`/pays/${country}`} style={{ fontWeight: 600 }}>{t("home.see_my_country")}</Link>
+          </p>
+        </div>
+      )}
+
+      {!section && (
+        <div style={{ marginTop: "1.25rem" }}>
+          <ActionCTA />
+        </div>
+      )}
+
+      {section && (
+        <p style={{ fontSize: 13, marginBottom: "1rem" }}>
+          <Link href="/">← {t("home.see_all_sections")}</Link>
         </p>
-        <p style={{ margin: 0 }}>
-          <Link href={`/pays/${country}`} style={{ fontWeight: 600 }}>{t("home.see_my_country")}</Link>
-        </p>
-      </div>
+      )}
 
-      <div style={{ marginTop: "1.25rem" }}>
-        <ActionCTA />
-      </div>
+      {showEnvironment && (
+        <>
+          <h2 style={{ fontSize: 18, margin: "1.5rem 0 0.75rem" }}>{t("home.section_environment")}</h2>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 12 }}>
+            {environment.map((c) => (
+              <Card key={c.href} {...c} />
+            ))}
+          </div>
+        </>
+      )}
 
-      <h2 id="environnement" style={{ fontSize: 18, margin: "1.5rem 0 0.75rem", scrollMarginTop: "5rem" }}>{t("home.section_environment")}</h2>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 12 }}>
-        {environment.map((c) => (
-          <Card key={c.href} {...c} />
-        ))}
-      </div>
+      {showDemocratie && (
+        <>
+          <h2 style={{ fontSize: 18, margin: "1.5rem 0 0.75rem" }}>{t("home.section_democracy")}</h2>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 12 }}>
+            {democracy.map((c) => (
+              <Card key={c.href} {...c} />
+            ))}
+          </div>
+        </>
+      )}
 
-      <h2 id="democratie" style={{ fontSize: 18, margin: "1.5rem 0 0.75rem", scrollMarginTop: "5rem" }}>{t("home.section_democracy")}</h2>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 12 }}>
-        {democracy.map((c) => (
-          <Card key={c.href} {...c} />
-        ))}
-      </div>
-
-      <h2 id="sengager" style={{ fontSize: 18, margin: "1.5rem 0 0.75rem", scrollMarginTop: "5rem" }}>{t("home.section_engage")}</h2>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 12 }}>
-        <Card href="/debunk" Icon={IconSearch} label={t("home.card_debunk_label")} desc={t("home.card_debunk_desc")} tint="teal" />
-        <Card href="/interviews" Icon={IconPlay} label={t("home.card_interviews_label")} desc={t("home.card_interviews_desc")} tint="mauve" />
-        <Card href="/paysans" Icon={IconTree} label={t("home.card_paysans_label")} desc={t("home.card_paysans_desc")} tint="green" />
-        <Card href="/ressources" Icon={IconLandmark} label={t("home.card_ressources_label")} desc={t("home.card_ressources_desc")} tint="blue" />
-      </div>
+      {showEngager && (
+        <>
+          <h2 style={{ fontSize: 18, margin: "1.5rem 0 0.75rem" }}>{t("home.section_engage")}</h2>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 12 }}>
+            <Card href="/debunk" Icon={IconSearch} label={t("home.card_debunk_label")} desc={t("home.card_debunk_desc")} tint="teal" />
+            <Card href="/interviews" Icon={IconPlay} label={t("home.card_interviews_label")} desc={t("home.card_interviews_desc")} tint="mauve" />
+            <Card href="/paysans" Icon={IconTree} label={t("home.card_paysans_label")} desc={t("home.card_paysans_desc")} tint="green" />
+            <Card href="/ressources" Icon={IconLandmark} label={t("home.card_ressources_label")} desc={t("home.card_ressources_desc")} tint="blue" />
+          </div>
+        </>
+      )}
     </div>
   );
 }

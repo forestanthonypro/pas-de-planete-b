@@ -53,9 +53,9 @@ export default function Layout({ children }) {
         </Link>
 
         <nav style={{ display: "flex", gap: "1rem", flexWrap: "wrap", fontSize: 14 }}>
-          <Link href="/#environnement">{t("common.nav_environment")}</Link>
-          <Link href="/#democratie">{t("common.nav_democracy")}</Link>
-          <Link href="/#sengager">{t("common.nav_engage")}</Link>
+          <Link href="/?section=environnement">{t("common.nav_environment")}</Link>
+          <Link href="/?section=democratie">{t("common.nav_democracy")}</Link>
+          <Link href="/?section=sengager">{t("common.nav_engage")}</Link>
           <Link href="/mes-votes">{t("common.nav_myvotes")}</Link>
         </nav>
 
