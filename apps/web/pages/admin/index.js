@@ -34,7 +34,7 @@ export default function AdminHub() {
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 800, margin: "0 auto" }}>
       <h1>Administration</h1>
-      <p style={{ fontSize: 13, color: "#666", marginBottom: "1.5rem" }}>
+      <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginBottom: "1.5rem" }}>
         Toutes les rubriques éditoriales du site, réunies ici. Même jeton d&apos;administration
         partout (disponible dans <code>.env</code>, ligne <code>INGEST_TOKEN</code>).
       </p>
@@ -44,11 +44,11 @@ export default function AdminHub() {
           <Link
             key={s.href}
             href={s.href}
-            style={{ display: "block", background: "#f7f7f5", border: "1px solid #e5e7e0", borderRadius: 12, padding: "1rem", textDecoration: "none", color: "inherit" }}
+            style={{ display: "block", background: "var(--color-carte)", border: "1px solid var(--color-bordure)", borderRadius: 12, padding: "1rem", textDecoration: "none", color: "inherit" }}
           >
             <span style={{ fontSize: 22 }}>{s.icon}</span>
             <p style={{ fontSize: 15, fontWeight: 600, margin: "8px 0 4px" }}>{s.title}</p>
-            <p style={{ fontSize: 13, color: "#666", margin: 0 }}>{s.description}</p>
+            <p style={{ fontSize: 13, color: "var(--color-texte-clair)", margin: 0 }}>{s.description}</p>
           </Link>
         ))}
       </div>

@@ -988,7 +988,7 @@ export default function PaysDashboard() {
       {error && <p role="alert">{t("common.error_prefix")} {error}</p>}
 
       {!loading && !error && summary && (
-        <section style={{ marginTop: "1rem", marginBottom: "2rem", padding: "1rem", background: "#f7f7f7", borderRadius: 8 }}>
+        <section style={{ marginTop: "1rem", marginBottom: "2rem", padding: "1rem", background: "var(--color-carte)", borderRadius: 8 }}>
           <h2 style={{ marginTop: 0 }}>{t("pays.world_comparison_title")}</h2>
           <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>{t("pays.world_comparison_p1")}</p>
           <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>{t("pays.world_comparison_p2")}</p>
@@ -1266,7 +1266,7 @@ export default function PaysDashboard() {
               );
             })()}
             {compareCode && compareSummary && (
-              <div style={{ background: "#f7f7f7", borderRadius: 8, padding: "0.75rem 1rem", marginTop: "0.75rem" }}>
+              <div style={{ background: "var(--color-carte)", borderRadius: 8, padding: "0.75rem 1rem", marginTop: "0.75rem" }}>
                 <p style={{ fontSize: 12, color: "var(--color-texte-clair)", fontWeight: 600, marginBottom: 4 }}>
                   {localizedCountryName(compareCode, preferredLang)}
                 </p>

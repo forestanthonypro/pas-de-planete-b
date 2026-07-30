@@ -127,7 +127,7 @@ export default function AdminRessourcesList() {
         <Link href="/admin">← Retour à l&apos;administration</Link>
       </p>
       <h1>Administration — Ressources</h1>
-      <p style={{ fontSize: 13, color: "#666" }}>Même jeton que pour les autres rubriques éditoriales.</p>
+      <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>Même jeton que pour les autres rubriques éditoriales.</p>
 
       <form onSubmit={handleTokenSubmit} style={{ display: "flex", gap: "0.5rem", marginBottom: "1.5rem" }}>
         <input
@@ -145,18 +145,18 @@ export default function AdminRessourcesList() {
 
       {loaded && !error && (
         <>
-          <section style={{ background: "#f7f7f5", border: "1px solid #e5e7e0", borderRadius: 12, padding: "1rem", marginBottom: "1.5rem" }}>
+          <section style={{ background: "var(--color-carte)", border: "1px solid var(--color-bordure)", borderRadius: 12, padding: "1rem", marginBottom: "1.5rem" }}>
             <h2 style={{ fontSize: 16, marginTop: 0 }}>Catégories</h2>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: "0.75rem" }}>
               {categories.map((c) => (
-                <span key={c.id} style={{ display: "flex", alignItems: "center", gap: 6, background: "white", border: "1px solid #e0e0dc", borderRadius: 20, padding: "3px 6px 3px 12px", fontSize: 13 }}>
+                <span key={c.id} style={{ display: "flex", alignItems: "center", gap: 6, background: "var(--color-fond)", border: "1px solid var(--color-bordure)", borderRadius: 20, padding: "3px 6px 3px 12px", fontSize: 13 }}>
                   {c.name}
                   <button type="button" onClick={() => removeCategory(c.id)} style={{ border: "none", background: "transparent", cursor: "pointer", color: "#d63e2a", fontSize: 13 }} title="Supprimer">
                     ×
                   </button>
                 </span>
               ))}
-              {categories.length === 0 && <span style={{ fontSize: 13, color: "#666" }}>Aucune catégorie pour l&apos;instant.</span>}
+              {categories.length === 0 && <span style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>Aucune catégorie pour l&apos;instant.</span>}
             </div>
             <form onSubmit={addCategory} style={{ display: "flex", gap: "0.5rem" }}>
               <input
@@ -176,7 +176,7 @@ export default function AdminRessourcesList() {
               <Link href="/admin/ressources/location-edit">+ Nouveau lieu</Link>
             </div>
             {locations.length === 0 ? (
-              <p style={{ fontSize: 13, color: "#666" }}>Aucun lieu pour l&apos;instant.</p>
+              <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>Aucun lieu pour l&apos;instant.</p>
             ) : (
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead>
@@ -192,7 +192,7 @@ export default function AdminRessourcesList() {
                     <tr key={l.slug}>
                       <td style={{ padding: 8 }}>{l.name}</td>
                       <td style={{ padding: 8 }}>{l.category_name || "—"}</td>
-                      <td style={{ padding: 8, fontSize: 13, color: l.published ? "#1baf7a" : "#999" }}>
+                      <td style={{ padding: 8, fontSize: 13, color: l.published ? "#1baf7a" : "var(--color-texte-clair)" }}>
                         {l.published ? "Publié" : "Brouillon"}
                       </td>
                       <td style={{ padding: 8 }}>
@@ -214,7 +214,7 @@ export default function AdminRessourcesList() {
               <Link href="/admin/ressources/online-edit">+ Nouvelle ressource</Link>
             </div>
             {online.length === 0 ? (
-              <p style={{ fontSize: 13, color: "#666" }}>Aucune ressource en ligne pour l&apos;instant.</p>
+              <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>Aucune ressource en ligne pour l&apos;instant.</p>
             ) : (
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead>
@@ -228,7 +228,7 @@ export default function AdminRessourcesList() {
                   {online.map((o) => (
                     <tr key={o.slug}>
                       <td style={{ padding: 8 }}>{o.title}</td>
-                      <td style={{ padding: 8, fontSize: 13, color: o.published ? "#1baf7a" : "#999" }}>
+                      <td style={{ padding: 8, fontSize: 13, color: o.published ? "#1baf7a" : "var(--color-texte-clair)" }}>
                         {o.published ? "Publié" : "Brouillon"}
                       </td>
                       <td style={{ padding: 8 }}>

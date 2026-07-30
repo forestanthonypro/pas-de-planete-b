@@ -256,7 +256,7 @@ export default function AdminDebunkEdit() {
           </label>
         </div>
         {categories.length === 0 && (
-          <p style={{ fontSize: 12, color: "#666", marginTop: -8, marginBottom: "0.75rem" }}>
+          <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginTop: -8, marginBottom: "0.75rem" }}>
             Aucune catégorie créée — ajoutes-en depuis <Link href="/admin/debunk">la liste</Link>.
           </p>
         )}

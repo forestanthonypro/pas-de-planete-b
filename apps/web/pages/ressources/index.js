@@ -153,9 +153,37 @@ export default function RessourcesPage() {
       {!loading && !error && tab === "map" && (
         <>
           {sobriety ? (
-            <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>
-              Carte désactivée en mode sobriété. {filteredLocations.length} lieu(x) référencé(s) — désactive le mode sobriété pour les voir sur la carte.
-            </p>
+            filteredLocations.length === 0 ? (
+              <p>{t("ressources.no_locations")}</p>
+            ) : (
+              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <thead>
+                  <tr>
+                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>Nom</th>
+                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>Catégorie</th>
+                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>Adresse</th>
+                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>Liens</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredLocations.map((loc) => (
+                    <tr key={loc.slug}>
+                      <th scope="row" style={{ textAlign: "left", padding: 8, fontWeight: 600 }}>{loc.name}</th>
+                      <td style={{ padding: 8 }}>{loc.category_name || "—"}</td>
+                      <td style={{ padding: 8, fontSize: 13 }}>{loc.address || "—"}</td>
+                      <td style={{ padding: 8, fontSize: 13 }}>
+                        {(loc.links || []).map((link, i) => (
+                          <span key={link.url}>
+                            {i > 0 && " · "}
+                            <a href={link.url} target="_blank" rel="noopener noreferrer">{link.label}</a>
+                          </span>
+                        ))}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )
           ) : filteredLocations.length === 0 ? (
             <p>{t("ressources.no_locations")}</p>
           ) : (

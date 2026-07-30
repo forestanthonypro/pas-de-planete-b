@@ -138,7 +138,7 @@ export default function ScrutinsPage() {
       {searchError && <p role="alert">{searchError}</p>}
 
       {searchResults && (
-        <section style={{ marginBottom: "2rem", padding: "1rem", background: "#f7f7f7", borderRadius: 8 }}>
+        <section style={{ marginBottom: "2rem", padding: "1rem", background: "var(--color-carte)", borderRadius: 8 }}>
           <h2 style={{ fontSize: 16, marginTop: 0 }}>
             {t("scrutins.results_count", { count: searchResults.length, s: searchResults.length !== 1 ? "s" : "", query })}
           </h2>

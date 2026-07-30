@@ -120,7 +120,7 @@ export default function AdminOnlineResourceEdit() {
       <h1>{isEditing ? "Modifier la ressource" : "Nouvelle ressource en ligne"}</h1>
 
       {!token && (
-        <p style={{ fontSize: 13, color: "#666" }}>
+        <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>
           Aucun jeton mémorisé — retourne d&apos;abord sur{" "}
           <Link href="/admin/ressources">la liste</Link> pour te connecter.
         </p>

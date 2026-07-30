@@ -128,7 +128,7 @@ export default function CountrySelect({ countries, value, onChange, preferredLan
                 padding: "6px 10px",
                 cursor: "pointer",
                 fontSize: 14,
-                background: i === highlighted ? "#f0f0f0" : code === value ? "#f7f7f7" : "white",
+                background: i === highlighted ? "#f0f0f0" : code === value ? "var(--color-carte)" : "white",
               }}
             >
               {localizedCountryName(code, preferredLang)}

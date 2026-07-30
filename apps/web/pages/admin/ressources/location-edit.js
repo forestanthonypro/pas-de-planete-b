@@ -148,7 +148,7 @@ export default function AdminLocationEdit() {
       <h1>{isEditing ? "Modifier le lieu" : "Nouveau lieu"}</h1>
 
       {!token && (
-        <p style={{ fontSize: 13, color: "#666" }}>
+        <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>
           Aucun jeton mémorisé — retourne d&apos;abord sur{" "}
           <Link href="/admin/ressources">la liste</Link> pour te connecter.
         </p>
@@ -200,7 +200,7 @@ export default function AdminLocationEdit() {
             <input type="number" step="any" required value={longitude} onChange={(e) => setLongitude(e.target.value)} placeholder="ex : 5.7245" style={{ width: "100%", padding: "8px 10px" }} />
           </label>
         </div>
-        <p style={{ fontSize: 12, color: "#666", marginTop: 0, marginBottom: "0.75rem" }}>
+        <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginTop: 0, marginBottom: "0.75rem" }}>
           Astuce : trouve les coordonnées sur{" "}
           <a href="https://www.openstreetmap.org" target="_blank" rel="noopener noreferrer">OpenStreetMap</a>{" "}
           (clic droit sur le lieu → « Afficher l&apos;adresse »).
@@ -216,7 +216,7 @@ export default function AdminLocationEdit() {
           </select>
         </label>
         {categories.length === 0 && (
-          <p style={{ fontSize: 12, color: "#666", marginTop: -8, marginBottom: "0.75rem" }}>
+          <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginTop: -8, marginBottom: "0.75rem" }}>
             Aucune catégorie créée — ajoutes-en depuis <Link href="/admin/ressources">la liste</Link>.
           </p>
         )}
