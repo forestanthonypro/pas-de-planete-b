@@ -87,6 +87,14 @@ export default function RessourcesPage() {
         const bounds = L.latLngBounds(filteredLocations.map((l) => [l.latitude, l.longitude]));
         mapRef.current.fitBounds(bounds, { padding: [30, 30], maxZoom: 12 });
       }
+
+      // Le conteneur peut avoir été masqué (display: none) le temps d'un
+      // passage sur l'onglet "En ligne" — Leaflet garde alors une taille
+      // interne obsolète. On la recalcule après un court délai (le temps que
+      // le CSS s'applique) pour éviter une carte mal dimensionnée au retour.
+      setTimeout(() => {
+        if (!cancelled && mapRef.current) mapRef.current.invalidateSize();
+      }, 50);
     });
     return () => {
       cancelled = true;
@@ -150,47 +158,49 @@ export default function RessourcesPage() {
       {loading && <p>{t("common.loading")}</p>}
       {error && <p role="alert">{t("common.error_prefix")} {error}</p>}
 
-      {!loading && !error && tab === "map" && (
-        <>
-          {sobriety ? (
-            filteredLocations.length === 0 ? (
-              <p>{t("ressources.no_locations")}</p>
-            ) : (
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                <thead>
-                  <tr>
-                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>Nom</th>
-                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>Catégorie</th>
-                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>Adresse</th>
-                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>Liens</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredLocations.map((loc) => (
-                    <tr key={loc.slug}>
-                      <th scope="row" style={{ textAlign: "left", padding: 8, fontWeight: 600 }}>{loc.name}</th>
-                      <td style={{ padding: 8 }}>{loc.category_name || "—"}</td>
-                      <td style={{ padding: 8, fontSize: 13 }}>{loc.address || "—"}</td>
-                      <td style={{ padding: 8, fontSize: 13 }}>
-                        {(loc.links || []).map((link, i) => (
-                          <span key={link.url}>
-                            {i > 0 && " · "}
-                            <a href={link.url} target="_blank" rel="noopener noreferrer">{link.label}</a>
-                          </span>
-                        ))}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )
-          ) : filteredLocations.length === 0 ? (
+      <div style={{ display: !loading && !error && tab === "map" ? "block" : "none" }}>
+        {sobriety ? (
+          filteredLocations.length === 0 ? (
             <p>{t("ressources.no_locations")}</p>
           ) : (
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <thead>
+                <tr>
+                  <th scope="col" style={{ textAlign: "left", padding: 8 }}>Nom</th>
+                  <th scope="col" style={{ textAlign: "left", padding: 8 }}>Catégorie</th>
+                  <th scope="col" style={{ textAlign: "left", padding: 8 }}>Adresse</th>
+                  <th scope="col" style={{ textAlign: "left", padding: 8 }}>Liens</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredLocations.map((loc) => (
+                  <tr key={loc.slug}>
+                    <th scope="row" style={{ textAlign: "left", padding: 8, fontWeight: 600 }}>{loc.name}</th>
+                    <td style={{ padding: 8 }}>{loc.category_name || "—"}</td>
+                    <td style={{ padding: 8, fontSize: 13 }}>{loc.address || "—"}</td>
+                    <td style={{ padding: 8, fontSize: 13 }}>
+                      {(loc.links || []).map((link, i) => (
+                        <span key={link.url}>
+                          {i > 0 && " · "}
+                          <a href={link.url} target="_blank" rel="noopener noreferrer">{link.label}</a>
+                        </span>
+                      ))}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )
+        ) : (
+          <>
+            {filteredLocations.length === 0 && <p>{t("ressources.no_locations")}</p>}
+            {/* Le conteneur reste toujours monté dans le DOM (jamais retiré en
+                changeant d'onglet) — sinon Leaflet perd la référence à son
+                élément et la carte ne réapparaît plus au retour sur cet onglet. */}
             <div ref={mapContainerRef} style={{ height: 480, borderRadius: 8 }} />
-          )}
-        </>
-      )}
+          </>
+        )}
+      </div>
 
       {!loading && !error && tab === "online" && (
         filteredOnline.length === 0 ? (
