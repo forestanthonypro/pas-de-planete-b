@@ -92,21 +92,21 @@ export default function Home() {
         <ActionCTA />
       </div>
 
-      <h2 style={{ fontSize: 18, margin: "1.5rem 0 0.75rem" }}>{t("home.section_environment")}</h2>
+      <h2 id="environnement" style={{ fontSize: 18, margin: "1.5rem 0 0.75rem", scrollMarginTop: "5rem" }}>{t("home.section_environment")}</h2>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 12 }}>
         {environment.map((c) => (
           <Card key={c.href} {...c} />
         ))}
       </div>
 
-      <h2 style={{ fontSize: 18, margin: "1.5rem 0 0.75rem" }}>{t("home.section_democracy")}</h2>
+      <h2 id="democratie" style={{ fontSize: 18, margin: "1.5rem 0 0.75rem", scrollMarginTop: "5rem" }}>{t("home.section_democracy")}</h2>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 12 }}>
         {democracy.map((c) => (
           <Card key={c.href} {...c} />
         ))}
       </div>
 
-      <h2 style={{ fontSize: 18, margin: "1.5rem 0 0.75rem" }}>{t("home.section_engage")}</h2>
+      <h2 id="sengager" style={{ fontSize: 18, margin: "1.5rem 0 0.75rem", scrollMarginTop: "5rem" }}>{t("home.section_engage")}</h2>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 12 }}>
         <Card href="/debunk" Icon={IconSearch} label={t("home.card_debunk_label")} desc={t("home.card_debunk_desc")} tint="teal" />
         <Card href="/interviews" Icon={IconPlay} label={t("home.card_interviews_label")} desc={t("home.card_interviews_desc")} tint="mauve" />
