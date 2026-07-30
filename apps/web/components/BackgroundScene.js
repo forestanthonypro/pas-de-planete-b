@@ -28,7 +28,7 @@ export default function BackgroundScene() {
       if (ticking) return;
       ticking = true;
       requestAnimationFrame(() => {
-        el.style.transform = `translateY(${-window.scrollY * 0.12}px)`;
+        el.style.transform = `translateY(${-window.scrollY * 0.85}px)`;
         ticking = false;
       });
     }
