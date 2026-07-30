@@ -670,30 +670,6 @@ app.get("/api/an-groups", async (_req, res) => {
 // Cohésion de groupe : sur les scrutins où au moins 2 membres du groupe ont
 // voté (hors absents, qui ne reflètent pas un désaccord de fond), quelle part
 // des scrutins voit tous les votants du groupe choisir la même position.
-app.get("/api/an-groups/cohesion", async (_req, res) => {
-  try {
-    const result = await pool.query(`
-      SELECT group_abbreviation,
-             COUNT(*) FILTER (WHERE distinct_positions = 1) AS unanimous_count,
-             COUNT(*) AS total_count
-      FROM (
-        SELECT d.group_abbreviation, dv.legislature, dv.numero_scrutin,
-               COUNT(DISTINCT dv.position) AS distinct_positions
-        FROM deputy_votes dv
-        JOIN deputies d ON d.acteur_uid = dv.acteur_uid
-        WHERE dv.position IN ('pour', 'contre', 'abstention') AND d.group_abbreviation IS NOT NULL
-        GROUP BY d.group_abbreviation, dv.legislature, dv.numero_scrutin
-        HAVING COUNT(*) >= 2
-      ) sub
-      GROUP BY group_abbreviation
-      ORDER BY unanimous_count::float / NULLIF(total_count, 0) DESC
-    `);
-    res.json(result.rows);
-  } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
-  }
-});
-
 // Détail d'un groupe : ses infos + le résultat (adopté/rejeté) des scrutins
 // où au moins un de ses membres a voté, en pourcentage — puisque les votes
 // sont individuels, on ne peut pas dire que "le groupe a fait adopter" un
