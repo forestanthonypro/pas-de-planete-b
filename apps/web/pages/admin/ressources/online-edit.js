@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import AdminAuthGate from "../../components/AdminAuthGate";
 import Link from "next/link";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
-const TOKEN_STORAGE_KEY = "pdpb-admin-token";
 
 function slugify(text) {
   return text
@@ -14,12 +14,10 @@ function slugify(text) {
     .replace(/(^-|-$)/g, "");
 }
 
-export default function AdminOnlineResourceEdit() {
+function AdminOnlineResourceEditInner({ session }) {
   const router = useRouter();
   const { slug: editSlug } = router.query;
   const isEditing = Boolean(editSlug);
-
-  const [token, setToken] = useState("");
   const [categories, setCategories] = useState([]);
   const [slug, setSlug] = useState("");
   const [slugTouched, setSlugTouched] = useState(false);
@@ -33,24 +31,19 @@ export default function AdminOnlineResourceEdit() {
   const [error, setError] = useState(null);
   const [status, setStatus] = useState("idle");
 
-  useEffect(() => {
-    const stored = window.localStorage.getItem(TOKEN_STORAGE_KEY);
-    if (stored) setToken(stored);
-  }, []);
 
   useEffect(() => {
-    if (!token) return;
     fetch(`${API_URL}/api/resource-categories`)
       .then((res) => (res.ok ? res.json() : []))
       .then(setCategories)
       .catch(() => setCategories([]));
-  }, [token]);
+  }, [session]);
 
   useEffect(() => {
-    if (!editSlug || !token) return;
+    if (!editSlug) return;
     setLoading(true);
     fetch(`${API_URL}/api/admin/resource-online/${editSlug}`, {
-      headers: { "x-ingest-token": token },
+      headers: { ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
     })
       .then((res) => {
         if (!res.ok) throw new Error("Entrée non trouvée");
@@ -70,7 +63,7 @@ export default function AdminOnlineResourceEdit() {
         setError(err.message);
         setLoading(false);
       });
-  }, [editSlug, token]);
+  }, [editSlug, session]);
 
   function handleTitleChange(value) {
     setTitle(value);
@@ -81,11 +74,10 @@ export default function AdminOnlineResourceEdit() {
     e.preventDefault();
     setStatus("saving");
     setError(null);
-    window.localStorage.setItem(TOKEN_STORAGE_KEY, token);
 
     fetch(`${API_URL}/api/admin/resource-online`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-ingest-token": token },
+      headers: { "Content-Type": "application/json", ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
       body: JSON.stringify({ slug, title, description, url, categoryId: categoryId || null, published }),
     })
       .then((res) => {
@@ -119,12 +111,6 @@ export default function AdminOnlineResourceEdit() {
       </p>
       <h1>{isEditing ? "Modifier la ressource" : "Nouvelle ressource en ligne"}</h1>
 
-      {!token && (
-        <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>
-          Aucun jeton mémorisé — retourne d&apos;abord sur{" "}
-          <Link href="/admin/ressources">la liste</Link> pour te connecter.
-        </p>
-      )}
 
       {loading && <p>Chargement...</p>}
       {error && <p role="alert" style={{ color: "#d63e2a" }}>{error}</p>}
@@ -177,10 +163,14 @@ export default function AdminOnlineResourceEdit() {
           Publier (visible sur la page publique)
         </label>
 
-        <button type="submit" disabled={status === "saving" || !token}>
+        <button type="submit" disabled={status === "saving"}>
           {status === "saving" ? "Enregistrement..." : "Enregistrer"}
         </button>
       </form>
     </div>
   );
+}
+
+export default function AdminOnlineResourceEdit() {
+  return <AdminAuthGate>{(session) => <AdminOnlineResourceEditInner session={session} />}</AdminAuthGate>;
 }

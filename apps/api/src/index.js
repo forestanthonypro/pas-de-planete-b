@@ -15,6 +15,8 @@ import { ingestDeputies } from "./ingest/deputies.js";
 import { ingestGroups } from "./ingest/an_groups.js";
 import { ingestScrutins } from "./ingest/scrutins.js";
 import { ingestDeputyVotes } from "./ingest/deputy_votes.js";
+import { verifyTotp } from "./totp.js";
+import crypto from "crypto";
 
 const app = express();
 const port = process.env.API_PORT || 4000;
@@ -37,6 +39,64 @@ function requireIngestToken(req, res, next) {
   }
   next();
 }
+
+// Authentification admin par code TOTP (Google Authenticator, Authy...) —
+// remplace le jeton statique partagé pour toutes les routes d'administration
+// de CONTENU (pas les routes d'ingestion CI/CD ci-dessus, qui restent sur
+// INGEST_TOKEN puisqu'elles tournent sans intervention humaine).
+const SESSION_DURATION_MS = 12 * 60 * 60 * 1000; // 12h
+
+async function requireAdminSession(req, res, next) {
+  const auth = req.header("authorization") || "";
+  const token = auth.startsWith("Bearer ") ? auth.slice(7) : null;
+  if (!token) {
+    return res.status(401).json({ error: "Session admin requise" });
+  }
+  try {
+    const result = await pool.query(
+      "SELECT session_token FROM admin_sessions WHERE session_token = $1 AND expires_at > now()",
+      [token]
+    );
+    if (result.rows.length === 0) {
+      return res.status(401).json({ error: "Session expirée ou invalide" });
+    }
+    next();
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+  }
+}
+
+app.post("/api/admin/auth/verify-otp", async (req, res) => {
+  const { code } = req.body || {};
+  if (!process.env.ADMIN_TOTP_SECRET) {
+    return res.status(500).json({ error: "ADMIN_TOTP_SECRET n'est pas configuré côté serveur" });
+  }
+  if (!verifyTotp(process.env.ADMIN_TOTP_SECRET, code)) {
+    return res.status(401).json({ error: "Code invalide" });
+  }
+  try {
+    const sessionToken = crypto.randomBytes(32).toString("hex");
+    const expiresAt = new Date(Date.now() + SESSION_DURATION_MS);
+    await pool.query(
+      "INSERT INTO admin_sessions (session_token, expires_at) VALUES ($1, $2)",
+      [sessionToken, expiresAt]
+    );
+    // Purge discrète des sessions expirées pour ne pas accumuler indéfiniment.
+    pool.query("DELETE FROM admin_sessions WHERE expires_at < now()").catch(() => {});
+    res.json({ sessionToken, expiresAt });
+  } catch (err) {
+    res.status(500).json({ error: "Échec de la création de session", detail: err.message });
+  }
+});
+
+app.post("/api/admin/auth/logout", async (req, res) => {
+  const auth = req.header("authorization") || "";
+  const token = auth.startsWith("Bearer ") ? auth.slice(7) : null;
+  if (token) {
+    await pool.query("DELETE FROM admin_sessions WHERE session_token = $1", [token]).catch(() => {});
+  }
+  res.json({ status: "ok" });
+});
 
 app.get("/health", (_req, res) => {
   res.json({ status: "ok" });
@@ -953,7 +1013,7 @@ app.get("/api/debunk/:slug", async (req, res) => {
 // site. "sources" est un tableau [{label, url}, ...].
 // Lecture admin : toutes les entrées, publiées ou non (contrairement aux
 // routes publiques ci-dessus) — pour l'interface d'administration.
-app.get("/api/admin/debunk", requireIngestToken, async (_req, res) => {
+app.get("/api/admin/debunk", requireAdminSession, async (_req, res) => {
   try {
     const result = await pool.query(
       `SELECT d.slug, d.myth, d.verdict, d.published, d.image_url, d.updated_at, c.name AS category_name
@@ -967,7 +1027,7 @@ app.get("/api/admin/debunk", requireIngestToken, async (_req, res) => {
   }
 });
 
-app.post("/api/admin/debunk-categories", requireIngestToken, async (req, res) => {
+app.post("/api/admin/debunk-categories", requireAdminSession, async (req, res) => {
   const { name, slug } = req.body || {};
   if (!name || !slug) {
     return res.status(400).json({ error: "name et slug sont requis" });
@@ -985,7 +1045,7 @@ app.post("/api/admin/debunk-categories", requireIngestToken, async (req, res) =>
   }
 });
 
-app.delete("/api/admin/debunk-categories/:id", requireIngestToken, async (req, res) => {
+app.delete("/api/admin/debunk-categories/:id", requireAdminSession, async (req, res) => {
   try {
     await pool.query("DELETE FROM debunk_categories WHERE id = $1", [req.params.id]);
     res.json({ status: "ok" });
@@ -994,7 +1054,7 @@ app.delete("/api/admin/debunk-categories/:id", requireIngestToken, async (req, r
   }
 });
 
-app.get("/api/admin/debunk/:slug", requireIngestToken, async (req, res) => {
+app.get("/api/admin/debunk/:slug", requireAdminSession, async (req, res) => {
   try {
     const entryResult = await pool.query("SELECT * FROM debunk_entries WHERE slug = $1", [req.params.slug]);
     if (entryResult.rows.length === 0) {
@@ -1012,7 +1072,7 @@ app.get("/api/admin/debunk/:slug", requireIngestToken, async (req, res) => {
 
 // Bascule rapide publié/brouillon depuis la liste — sans repasser par tout
 // le formulaire, ne touche que ce seul champ.
-app.post("/api/admin/debunk/:slug/publish", requireIngestToken, async (req, res) => {
+app.post("/api/admin/debunk/:slug/publish", requireAdminSession, async (req, res) => {
   const { published } = req.body || {};
   if (typeof published !== "boolean") {
     return res.status(400).json({ error: "published doit être true ou false" });
@@ -1031,7 +1091,7 @@ app.post("/api/admin/debunk/:slug/publish", requireIngestToken, async (req, res)
   }
 });
 
-app.post("/api/admin/debunk", requireIngestToken, async (req, res) => {
+app.post("/api/admin/debunk", requireAdminSession, async (req, res) => {
   const { slug, myth, reality, categoryId, verdict, claimQuote, imageUrl, published, sources } = req.body || {};
   if (!slug || !myth || !reality) {
     return res.status(400).json({ error: "slug, myth et reality sont requis" });
@@ -1238,7 +1298,7 @@ app.get("/api/interview-categories", async (_req, res) => {
   }
 });
 
-app.post("/api/admin/interview-categories", requireIngestToken, async (req, res) => {
+app.post("/api/admin/interview-categories", requireAdminSession, async (req, res) => {
   const { name, slug } = req.body || {};
   if (!name || !slug) {
     return res.status(400).json({ error: "name et slug sont requis" });
@@ -1256,7 +1316,7 @@ app.post("/api/admin/interview-categories", requireIngestToken, async (req, res)
   }
 });
 
-app.delete("/api/admin/interview-categories/:id", requireIngestToken, async (req, res) => {
+app.delete("/api/admin/interview-categories/:id", requireAdminSession, async (req, res) => {
   try {
     await pool.query("DELETE FROM interview_categories WHERE id = $1", [req.params.id]);
     res.json({ status: "ok" });
@@ -1307,7 +1367,7 @@ app.get("/api/science-relays/:slug", async (req, res) => {
   }
 });
 
-app.get("/api/admin/science-relays", requireIngestToken, async (_req, res) => {
+app.get("/api/admin/science-relays", requireAdminSession, async (_req, res) => {
   try {
     const result = await pool.query(
       `SELECT r.slug, r.title, r.content_type, r.published, r.image_url, r.updated_at, c.name AS category_name
@@ -1321,7 +1381,7 @@ app.get("/api/admin/science-relays", requireIngestToken, async (_req, res) => {
   }
 });
 
-app.get("/api/admin/science-relays/:slug", requireIngestToken, async (req, res) => {
+app.get("/api/admin/science-relays/:slug", requireAdminSession, async (req, res) => {
   try {
     const result = await pool.query("SELECT * FROM science_relays WHERE slug = $1", [req.params.slug]);
     if (result.rows.length === 0) {
@@ -1333,7 +1393,7 @@ app.get("/api/admin/science-relays/:slug", requireIngestToken, async (req, res) 
   }
 });
 
-app.post("/api/admin/science-relays", requireIngestToken, async (req, res) => {
+app.post("/api/admin/science-relays", requireAdminSession, async (req, res) => {
   const {
     slug, title, description, scientistName, scientistField, contentType,
     sourceUrl, sourceName, embedUrl, imageUrl, categoryId, relatedDebunkSlug, published,
@@ -1367,7 +1427,7 @@ app.post("/api/admin/science-relays", requireIngestToken, async (req, res) => {
   }
 });
 
-app.post("/api/admin/science-relays/:slug/publish", requireIngestToken, async (req, res) => {
+app.post("/api/admin/science-relays/:slug/publish", requireAdminSession, async (req, res) => {
   const { published } = req.body || {};
   if (typeof published !== "boolean") {
     return res.status(400).json({ error: "published doit être true ou false" });
@@ -1400,7 +1460,7 @@ app.get("/api/paysan-categories", async (_req, res) => {
   }
 });
 
-app.post("/api/admin/paysan-categories", requireIngestToken, async (req, res) => {
+app.post("/api/admin/paysan-categories", requireAdminSession, async (req, res) => {
   const { name, slug } = req.body || {};
   if (!name || !slug) {
     return res.status(400).json({ error: "name et slug sont requis" });
@@ -1418,7 +1478,7 @@ app.post("/api/admin/paysan-categories", requireIngestToken, async (req, res) =>
   }
 });
 
-app.delete("/api/admin/paysan-categories/:id", requireIngestToken, async (req, res) => {
+app.delete("/api/admin/paysan-categories/:id", requireAdminSession, async (req, res) => {
   try {
     await pool.query("DELETE FROM paysan_categories WHERE id = $1", [req.params.id]);
     res.json({ status: "ok" });
@@ -1469,7 +1529,7 @@ app.get("/api/paysan-resources/:slug", async (req, res) => {
   }
 });
 
-app.get("/api/admin/paysan-resources", requireIngestToken, async (_req, res) => {
+app.get("/api/admin/paysan-resources", requireAdminSession, async (_req, res) => {
   try {
     const result = await pool.query(
       `SELECT r.slug, r.title, r.content_type, r.published, r.updated_at, c.name AS category_name
@@ -1483,7 +1543,7 @@ app.get("/api/admin/paysan-resources", requireIngestToken, async (_req, res) => 
   }
 });
 
-app.get("/api/admin/paysan-resources/:slug", requireIngestToken, async (req, res) => {
+app.get("/api/admin/paysan-resources/:slug", requireAdminSession, async (req, res) => {
   try {
     const result = await pool.query("SELECT * FROM paysan_resources WHERE slug = $1", [req.params.slug]);
     if (result.rows.length === 0) {
@@ -1495,7 +1555,7 @@ app.get("/api/admin/paysan-resources/:slug", requireIngestToken, async (req, res
   }
 });
 
-app.post("/api/admin/paysan-resources", requireIngestToken, async (req, res) => {
+app.post("/api/admin/paysan-resources", requireAdminSession, async (req, res) => {
   const {
     slug, title, description, contentType, sourceUrl, sourceName,
     embedUrl, imageUrl, categoryId, published,
@@ -1524,7 +1584,7 @@ app.post("/api/admin/paysan-resources", requireIngestToken, async (req, res) => 
   }
 });
 
-app.post("/api/admin/paysan-resources/:slug/publish", requireIngestToken, async (req, res) => {
+app.post("/api/admin/paysan-resources/:slug/publish", requireAdminSession, async (req, res) => {
   const { published } = req.body || {};
   if (typeof published !== "boolean") {
     return res.status(400).json({ error: "published doit être true ou false" });
@@ -1557,7 +1617,7 @@ app.get("/api/resource-categories", async (_req, res) => {
   }
 });
 
-app.post("/api/admin/resource-categories", requireIngestToken, async (req, res) => {
+app.post("/api/admin/resource-categories", requireAdminSession, async (req, res) => {
   const { name, slug } = req.body || {};
   if (!name || !slug) {
     return res.status(400).json({ error: "name et slug sont requis" });
@@ -1575,7 +1635,7 @@ app.post("/api/admin/resource-categories", requireIngestToken, async (req, res) 
   }
 });
 
-app.delete("/api/admin/resource-categories/:id", requireIngestToken, async (req, res) => {
+app.delete("/api/admin/resource-categories/:id", requireAdminSession, async (req, res) => {
   try {
     await pool.query("DELETE FROM resource_categories WHERE id = $1", [req.params.id]);
     res.json({ status: "ok" });
@@ -1620,7 +1680,7 @@ app.get("/api/resource-locations", async (req, res) => {
   }
 });
 
-app.get("/api/admin/resource-locations", requireIngestToken, async (_req, res) => {
+app.get("/api/admin/resource-locations", requireAdminSession, async (_req, res) => {
   try {
     const result = await pool.query(
       `SELECT l.slug, l.name, l.published, l.updated_at, c.name AS category_name
@@ -1634,7 +1694,7 @@ app.get("/api/admin/resource-locations", requireIngestToken, async (_req, res) =
   }
 });
 
-app.get("/api/admin/resource-locations/:slug", requireIngestToken, async (req, res) => {
+app.get("/api/admin/resource-locations/:slug", requireAdminSession, async (req, res) => {
   try {
     const location = await pool.query("SELECT * FROM resource_locations WHERE slug = $1", [req.params.slug]);
     if (location.rows.length === 0) {
@@ -1650,7 +1710,7 @@ app.get("/api/admin/resource-locations/:slug", requireIngestToken, async (req, r
   }
 });
 
-app.post("/api/admin/resource-locations", requireIngestToken, async (req, res) => {
+app.post("/api/admin/resource-locations", requireAdminSession, async (req, res) => {
   const { slug, name, description, address, latitude, longitude, categoryId, published, links } = req.body || {};
   if (!slug || !name || !description || latitude === undefined || longitude === undefined) {
     return res.status(400).json({ error: "slug, name, description, latitude et longitude sont requis" });
@@ -1693,7 +1753,7 @@ app.post("/api/admin/resource-locations", requireIngestToken, async (req, res) =
   }
 });
 
-app.post("/api/admin/resource-locations/:slug/publish", requireIngestToken, async (req, res) => {
+app.post("/api/admin/resource-locations/:slug/publish", requireAdminSession, async (req, res) => {
   const { published } = req.body || {};
   if (typeof published !== "boolean") {
     return res.status(400).json({ error: "published doit être true ou false" });
@@ -1736,7 +1796,7 @@ app.get("/api/resource-online", async (req, res) => {
   }
 });
 
-app.get("/api/admin/resource-online", requireIngestToken, async (_req, res) => {
+app.get("/api/admin/resource-online", requireAdminSession, async (_req, res) => {
   try {
     const result = await pool.query(
       `SELECT o.slug, o.title, o.published, o.updated_at, c.name AS category_name
@@ -1750,7 +1810,7 @@ app.get("/api/admin/resource-online", requireIngestToken, async (_req, res) => {
   }
 });
 
-app.get("/api/admin/resource-online/:slug", requireIngestToken, async (req, res) => {
+app.get("/api/admin/resource-online/:slug", requireAdminSession, async (req, res) => {
   try {
     const result = await pool.query("SELECT * FROM resource_online WHERE slug = $1", [req.params.slug]);
     if (result.rows.length === 0) {
@@ -1762,7 +1822,7 @@ app.get("/api/admin/resource-online/:slug", requireIngestToken, async (req, res)
   }
 });
 
-app.post("/api/admin/resource-online", requireIngestToken, async (req, res) => {
+app.post("/api/admin/resource-online", requireAdminSession, async (req, res) => {
   const { slug, title, description, url, categoryId, published } = req.body || {};
   if (!slug || !title || !description || !url) {
     return res.status(400).json({ error: "slug, title, description et url sont requis" });
@@ -1782,7 +1842,7 @@ app.post("/api/admin/resource-online", requireIngestToken, async (req, res) => {
   }
 });
 
-app.post("/api/admin/resource-online/:slug/publish", requireIngestToken, async (req, res) => {
+app.post("/api/admin/resource-online/:slug/publish", requireAdminSession, async (req, res) => {
   const { published } = req.body || {};
   if (typeof published !== "boolean") {
     return res.status(400).json({ error: "published doit être true ou false" });
@@ -1903,7 +1963,7 @@ app.post("/api/charter-suggestions", async (req, res) => {
 
 // -- Administration : sections --
 
-app.get("/api/admin/charter-sections", requireIngestToken, async (_req, res) => {
+app.get("/api/admin/charter-sections", requireAdminSession, async (_req, res) => {
   try {
     const result = await pool.query("SELECT id, name, display_order FROM charter_sections ORDER BY display_order");
     res.json(result.rows);
@@ -1912,7 +1972,7 @@ app.get("/api/admin/charter-sections", requireIngestToken, async (_req, res) => 
   }
 });
 
-app.post("/api/admin/charter-sections", requireIngestToken, async (req, res) => {
+app.post("/api/admin/charter-sections", requireAdminSession, async (req, res) => {
   const { id, name } = req.body || {};
   if (!name || !name.trim()) {
     return res.status(400).json({ error: "name est requis" });
@@ -1934,7 +1994,7 @@ app.post("/api/admin/charter-sections", requireIngestToken, async (req, res) => 
   }
 });
 
-app.delete("/api/admin/charter-sections/:id", requireIngestToken, async (req, res) => {
+app.delete("/api/admin/charter-sections/:id", requireAdminSession, async (req, res) => {
   try {
     await pool.query("DELETE FROM charter_sections WHERE id = $1", [req.params.id]);
     res.json({ status: "ok" });
@@ -1943,7 +2003,7 @@ app.delete("/api/admin/charter-sections/:id", requireIngestToken, async (req, re
   }
 });
 
-app.post("/api/admin/charter-sections/:id/move", requireIngestToken, async (req, res) => {
+app.post("/api/admin/charter-sections/:id/move", requireAdminSession, async (req, res) => {
   const { direction } = req.body || {};
   if (!["up", "down"].includes(direction)) {
     return res.status(400).json({ error: "direction doit être 'up' ou 'down'" });
@@ -1975,7 +2035,7 @@ app.post("/api/admin/charter-sections/:id/move", requireIngestToken, async (req,
 
 // -- Administration : éléments --
 
-app.get("/api/admin/charter-items", requireIngestToken, async (_req, res) => {
+app.get("/api/admin/charter-items", requireAdminSession, async (_req, res) => {
   try {
     const result = await pool.query(
       `SELECT i.id, i.title, i.published, i.display_order, i.section_id, s.name AS section_name
@@ -1989,7 +2049,7 @@ app.get("/api/admin/charter-items", requireIngestToken, async (_req, res) => {
   }
 });
 
-app.get("/api/admin/charter-items/:id", requireIngestToken, async (req, res) => {
+app.get("/api/admin/charter-items/:id", requireAdminSession, async (req, res) => {
   try {
     const result = await pool.query("SELECT * FROM charter_items WHERE id = $1", [req.params.id]);
     if (result.rows.length === 0) return res.status(404).json({ error: "Élément non trouvé" });
@@ -1999,7 +2059,7 @@ app.get("/api/admin/charter-items/:id", requireIngestToken, async (req, res) => 
   }
 });
 
-app.post("/api/admin/charter-items", requireIngestToken, async (req, res) => {
+app.post("/api/admin/charter-items", requireAdminSession, async (req, res) => {
   const { id, sectionId, title, description, published } = req.body || {};
   if (!sectionId || !title || !title.trim()) {
     return res.status(400).json({ error: "sectionId et title sont requis" });
@@ -2028,7 +2088,7 @@ app.post("/api/admin/charter-items", requireIngestToken, async (req, res) => {
   }
 });
 
-app.delete("/api/admin/charter-items/:id", requireIngestToken, async (req, res) => {
+app.delete("/api/admin/charter-items/:id", requireAdminSession, async (req, res) => {
   try {
     await pool.query("DELETE FROM charter_items WHERE id = $1", [req.params.id]);
     res.json({ status: "ok" });
@@ -2037,7 +2097,7 @@ app.delete("/api/admin/charter-items/:id", requireIngestToken, async (req, res) 
   }
 });
 
-app.post("/api/admin/charter-items/:id/publish", requireIngestToken, async (req, res) => {
+app.post("/api/admin/charter-items/:id/publish", requireAdminSession, async (req, res) => {
   const { published } = req.body || {};
   if (typeof published !== "boolean") {
     return res.status(400).json({ error: "published doit être true ou false" });
@@ -2050,7 +2110,7 @@ app.post("/api/admin/charter-items/:id/publish", requireIngestToken, async (req,
   }
 });
 
-app.post("/api/admin/charter-items/:id/move", requireIngestToken, async (req, res) => {
+app.post("/api/admin/charter-items/:id/move", requireAdminSession, async (req, res) => {
   const { direction } = req.body || {};
   if (!["up", "down"].includes(direction)) {
     return res.status(400).json({ error: "direction doit être 'up' ou 'down'" });
@@ -2082,7 +2142,7 @@ app.post("/api/admin/charter-items/:id/move", requireIngestToken, async (req, re
 
 // -- Administration : suggestions (boîte à idées, modération) --
 
-app.get("/api/admin/charter-suggestions", requireIngestToken, async (_req, res) => {
+app.get("/api/admin/charter-suggestions", requireAdminSession, async (_req, res) => {
   try {
     const result = await pool.query(
       "SELECT id, text, status, submitted_at FROM charter_suggestions ORDER BY submitted_at DESC"
@@ -2093,7 +2153,7 @@ app.get("/api/admin/charter-suggestions", requireIngestToken, async (_req, res) 
   }
 });
 
-app.post("/api/admin/charter-suggestions/:id/status", requireIngestToken, async (req, res) => {
+app.post("/api/admin/charter-suggestions/:id/status", requireAdminSession, async (req, res) => {
   const { status } = req.body || {};
   if (!["pending", "published", "draft", "rejected"].includes(status)) {
     return res.status(400).json({ error: "Statut invalide" });
@@ -2164,7 +2224,7 @@ app.get("/api/future-idea-votes/:anonymousId", async (req, res) => {
   }
 });
 
-app.get("/api/admin/future-ideas", requireIngestToken, async (_req, res) => {
+app.get("/api/admin/future-ideas", requireAdminSession, async (_req, res) => {
   try {
     const result = await pool.query(
       `SELECT i.slug, i.title, i.published, i.updated_at, COUNT(v.anonymous_id) AS support_count
@@ -2179,7 +2239,7 @@ app.get("/api/admin/future-ideas", requireIngestToken, async (_req, res) => {
   }
 });
 
-app.get("/api/admin/future-ideas/:slug", requireIngestToken, async (req, res) => {
+app.get("/api/admin/future-ideas/:slug", requireAdminSession, async (req, res) => {
   try {
     const result = await pool.query("SELECT * FROM future_ideas WHERE slug = $1", [req.params.slug]);
     if (result.rows.length === 0) return res.status(404).json({ error: "Idée non trouvée" });
@@ -2189,7 +2249,7 @@ app.get("/api/admin/future-ideas/:slug", requireIngestToken, async (req, res) =>
   }
 });
 
-app.post("/api/admin/future-ideas", requireIngestToken, async (req, res) => {
+app.post("/api/admin/future-ideas", requireAdminSession, async (req, res) => {
   const { slug, title, description, published } = req.body || {};
   if (!slug || !title || !title.trim()) {
     return res.status(400).json({ error: "slug et title sont requis" });
@@ -2209,7 +2269,7 @@ app.post("/api/admin/future-ideas", requireIngestToken, async (req, res) => {
   }
 });
 
-app.delete("/api/admin/future-ideas/:slug", requireIngestToken, async (req, res) => {
+app.delete("/api/admin/future-ideas/:slug", requireAdminSession, async (req, res) => {
   try {
     await pool.query("DELETE FROM future_ideas WHERE slug = $1", [req.params.slug]);
     res.json({ status: "ok" });
@@ -2218,7 +2278,7 @@ app.delete("/api/admin/future-ideas/:slug", requireIngestToken, async (req, res)
   }
 });
 
-app.post("/api/admin/future-ideas/:slug/publish", requireIngestToken, async (req, res) => {
+app.post("/api/admin/future-ideas/:slug/publish", requireAdminSession, async (req, res) => {
   const { published } = req.body || {};
   if (typeof published !== "boolean") {
     return res.status(400).json({ error: "published doit être true ou false" });
@@ -2229,6 +2289,60 @@ app.post("/api/admin/future-ideas/:slug/publish", requireIngestToken, async (req
       [published, req.params.slug]
     );
     if (result.rows.length === 0) return res.status(404).json({ error: "Idée non trouvée" });
+    res.json({ status: "ok" });
+  } catch (err) {
+    res.status(500).json({ error: "Échec de la mise à jour", detail: err.message });
+  }
+});
+
+// Boîte à idées pour "Les enfants d'aujourd'hui et de demain" — jamais
+// publié directement, toujours modéré manuellement (même principe que la
+// boîte à idées de la charte éthique).
+app.post("/api/future-idea-suggestions", async (req, res) => {
+  const { text } = req.body || {};
+  if (!text || !text.trim()) {
+    return res.status(400).json({ error: "text est requis" });
+  }
+  if (text.length > 2000) {
+    return res.status(400).json({ error: "Texte trop long (2000 caractères max)" });
+  }
+  try {
+    await pool.query("INSERT INTO future_idea_suggestions (text, status) VALUES ($1, 'pending')", [text.trim()]);
+    res.json({ status: "ok" });
+  } catch (err) {
+    res.status(500).json({ error: "Échec de l'enregistrement", detail: err.message });
+  }
+});
+
+app.get("/api/future-idea-suggestions/published", async (_req, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT id, text FROM future_idea_suggestions WHERE status = 'published' ORDER BY submitted_at DESC"
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+  }
+});
+
+app.get("/api/admin/future-idea-suggestions", requireAdminSession, async (_req, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT id, text, status, submitted_at FROM future_idea_suggestions ORDER BY submitted_at DESC"
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+  }
+});
+
+app.post("/api/admin/future-idea-suggestions/:id/status", requireAdminSession, async (req, res) => {
+  const { status } = req.body || {};
+  if (!["pending", "published", "draft", "rejected"].includes(status)) {
+    return res.status(400).json({ error: "Statut invalide" });
+  }
+  try {
+    await pool.query("UPDATE future_idea_suggestions SET status = $1 WHERE id = $2", [status, req.params.id]);
     res.json({ status: "ok" });
   } catch (err) {
     res.status(500).json({ error: "Échec de la mise à jour", detail: err.message });

@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import AdminAuthGate from "../../components/AdminAuthGate";
+import Pagination from "../../components/Pagination";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
-const TOKEN_STORAGE_KEY = "pdpb-admin-token";
+const PAGE_SIZE = 20;
 
 function slugify(text) {
   return text
@@ -13,8 +15,7 @@ function slugify(text) {
     .replace(/(^-|-$)/g, "");
 }
 
-export default function AdminRessourcesList() {
-  const [token, setToken] = useState("");
+function AdminRessourcesListInner({ session }) {
   const [locations, setLocations] = useState([]);
   const [online, setOnline] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -22,13 +23,21 @@ export default function AdminRessourcesList() {
   const [loaded, setLoaded] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [locationsPage, setLocationsPage] = useState(1);
+  const [onlinePage, setOnlinePage] = useState(1);
+
+  useEffect(() => {
+    loadAll(session.sessionToken);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
 
   function loadAll(currentToken) {
     setLoading(true);
     setError(null);
     Promise.all([
-      fetch(`${API_URL}/api/admin/resource-locations`, { headers: { "x-ingest-token": currentToken } }),
-      fetch(`${API_URL}/api/admin/resource-online`, { headers: { "x-ingest-token": currentToken } }),
+      fetch(`${API_URL}/api/admin/resource-locations`, { headers: { ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) } }),
+      fetch(`${API_URL}/api/admin/resource-online`, { headers: { ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) } }),
       fetch(`${API_URL}/api/resource-categories`),
     ])
       .then(async ([resLocations, resOnline, resCategories]) => {
@@ -46,46 +55,33 @@ export default function AdminRessourcesList() {
       });
   }
 
-  useEffect(() => {
-    const stored = window.localStorage.getItem(TOKEN_STORAGE_KEY);
-    if (stored) {
-      setToken(stored);
-      loadAll(stored);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
-  function handleTokenSubmit(e) {
-    e.preventDefault();
-    window.localStorage.setItem(TOKEN_STORAGE_KEY, token);
-    loadAll(token);
-  }
 
   function toggleLocationPublished(entry) {
     fetch(`${API_URL}/api/admin/resource-locations/${entry.slug}/publish`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-ingest-token": token },
+      headers: { "Content-Type": "application/json", ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
       body: JSON.stringify({ published: !entry.published }),
     })
       .then((res) => {
         if (!res.ok) throw new Error("Échec de la mise à jour");
         return res.json();
       })
-      .then(() => loadAll(token))
+      .then(() => loadAll(session.sessionToken))
       .catch((err) => setError(err.message));
   }
 
   function toggleOnlinePublished(entry) {
     fetch(`${API_URL}/api/admin/resource-online/${entry.slug}/publish`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-ingest-token": token },
+      headers: { "Content-Type": "application/json", ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
       body: JSON.stringify({ published: !entry.published }),
     })
       .then((res) => {
         if (!res.ok) throw new Error("Échec de la mise à jour");
         return res.json();
       })
-      .then(() => loadAll(token))
+      .then(() => loadAll(session.sessionToken))
       .catch((err) => setError(err.message));
   }
 
@@ -94,7 +90,7 @@ export default function AdminRessourcesList() {
     if (!newCategory.trim()) return;
     fetch(`${API_URL}/api/admin/resource-categories`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-ingest-token": token },
+      headers: { "Content-Type": "application/json", ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
       body: JSON.stringify({ name: newCategory.trim(), slug: slugify(newCategory.trim()) }),
     })
       .then((res) => {
@@ -103,7 +99,7 @@ export default function AdminRessourcesList() {
       })
       .then(() => {
         setNewCategory("");
-        loadAll(token);
+        loadAll(session.sessionToken);
       })
       .catch((err) => setError(err.message));
   }
@@ -111,13 +107,13 @@ export default function AdminRessourcesList() {
   function removeCategory(id) {
     fetch(`${API_URL}/api/admin/resource-categories/${id}`, {
       method: "DELETE",
-      headers: { "x-ingest-token": token },
+      headers: { ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
     })
       .then((res) => {
         if (!res.ok) throw new Error("Échec de la suppression");
         return res.json();
       })
-      .then(() => loadAll(token))
+      .then(() => loadAll(session.sessionToken))
       .catch((err) => setError(err.message));
   }
 
@@ -129,16 +125,6 @@ export default function AdminRessourcesList() {
       <h1>Administration — Ressources</h1>
       <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>Même jeton que pour les autres rubriques éditoriales.</p>
 
-      <form onSubmit={handleTokenSubmit} style={{ display: "flex", gap: "0.5rem", marginBottom: "1.5rem" }}>
-        <input
-          type="password"
-          value={token}
-          onChange={(e) => setToken(e.target.value)}
-          placeholder="Jeton d'administration"
-          style={{ padding: "6px 10px", flex: 1 }}
-        />
-        <button type="submit">Se connecter</button>
-      </form>
 
       {loading && <p>Chargement...</p>}
       {error && <p role="alert" style={{ color: "#d63e2a" }}>{error}</p>}
@@ -188,7 +174,7 @@ export default function AdminRessourcesList() {
                   </tr>
                 </thead>
                 <tbody>
-                  {locations.map((l) => (
+                  {locations.slice((locationsPage - 1) * PAGE_SIZE, locationsPage * PAGE_SIZE).map((l) => (
                     <tr key={l.slug}>
                       <td style={{ padding: 8 }}>{l.name}</td>
                       <td style={{ padding: 8 }}>{l.category_name || "—"}</td>
@@ -205,6 +191,9 @@ export default function AdminRessourcesList() {
                   ))}
                 </tbody>
               </table>
+            )}
+            {locations.length > PAGE_SIZE && (
+              <Pagination page={locationsPage} totalPages={Math.max(1, Math.ceil(locations.length / PAGE_SIZE))} onChange={setLocationsPage} />
             )}
           </section>
 
@@ -225,7 +214,7 @@ export default function AdminRessourcesList() {
                   </tr>
                 </thead>
                 <tbody>
-                  {online.map((o) => (
+                  {online.slice((onlinePage - 1) * PAGE_SIZE, onlinePage * PAGE_SIZE).map((o) => (
                     <tr key={o.slug}>
                       <td style={{ padding: 8 }}>{o.title}</td>
                       <td style={{ padding: 8, fontSize: 13, color: o.published ? "#1baf7a" : "var(--color-texte-clair)" }}>
@@ -242,9 +231,16 @@ export default function AdminRessourcesList() {
                 </tbody>
               </table>
             )}
+            {online.length > PAGE_SIZE && (
+              <Pagination page={onlinePage} totalPages={Math.max(1, Math.ceil(online.length / PAGE_SIZE))} onChange={setOnlinePage} />
+            )}
           </section>
         </>
       )}
     </div>
   );
+}
+
+export default function AdminRessourcesList() {
+  return <AdminAuthGate>{(session) => <AdminRessourcesListInner session={session} />}</AdminAuthGate>;
 }

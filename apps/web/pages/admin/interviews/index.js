@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import AdminAuthGate from "../../components/AdminAuthGate";
+import Pagination from "../../components/Pagination";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
-const TOKEN_STORAGE_KEY = "pdpb-admin-token";
+const PAGE_SIZE = 20;
 
 const TYPE_LABELS = { video: "Vidéo", article: "Article", podcast: "Podcast" };
 
@@ -15,20 +17,26 @@ function slugify(text) {
     .replace(/(^-|-$)/g, "");
 }
 
-export default function AdminInterviewsList() {
-  const [token, setToken] = useState("");
+function AdminInterviewsListInner({ session }) {
   const [entries, setEntries] = useState([]);
   const [categories, setCategories] = useState([]);
   const [newCategory, setNewCategory] = useState("");
   const [loaded, setLoaded] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [page, setPage] = useState(1);
+
+  useEffect(() => {
+    loadEntries(session.sessionToken);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
 
   function loadEntries(currentToken) {
     setLoading(true);
     setError(null);
     Promise.all([
-      fetch(`${API_URL}/api/admin/science-relays`, { headers: { "x-ingest-token": currentToken } }),
+      fetch(`${API_URL}/api/admin/science-relays`, { headers: { ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) } }),
       fetch(`${API_URL}/api/interview-categories`),
     ])
       .then(async ([resEntries, resCategories]) => {
@@ -45,32 +53,19 @@ export default function AdminInterviewsList() {
       });
   }
 
-  useEffect(() => {
-    const stored = window.localStorage.getItem(TOKEN_STORAGE_KEY);
-    if (stored) {
-      setToken(stored);
-      loadEntries(stored);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
-  function handleTokenSubmit(e) {
-    e.preventDefault();
-    window.localStorage.setItem(TOKEN_STORAGE_KEY, token);
-    loadEntries(token);
-  }
 
   function togglePublished(entry) {
     fetch(`${API_URL}/api/admin/science-relays/${entry.slug}/publish`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-ingest-token": token },
+      headers: { "Content-Type": "application/json", ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
       body: JSON.stringify({ published: !entry.published }),
     })
       .then((res) => {
         if (!res.ok) throw new Error("Échec de la mise à jour");
         return res.json();
       })
-      .then(() => loadEntries(token))
+      .then(() => loadEntries(session.sessionToken))
       .catch((err) => setError(err.message));
   }
 
@@ -79,7 +74,7 @@ export default function AdminInterviewsList() {
     if (!newCategory.trim()) return;
     fetch(`${API_URL}/api/admin/interview-categories`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-ingest-token": token },
+      headers: { "Content-Type": "application/json", ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
       body: JSON.stringify({ name: newCategory.trim(), slug: slugify(newCategory.trim()) }),
     })
       .then((res) => {
@@ -88,7 +83,7 @@ export default function AdminInterviewsList() {
       })
       .then(() => {
         setNewCategory("");
-        loadEntries(token);
+        loadEntries(session.sessionToken);
       })
       .catch((err) => setError(err.message));
   }
@@ -96,13 +91,13 @@ export default function AdminInterviewsList() {
   function removeCategory(id) {
     fetch(`${API_URL}/api/admin/interview-categories/${id}`, {
       method: "DELETE",
-      headers: { "x-ingest-token": token },
+      headers: { ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
     })
       .then((res) => {
         if (!res.ok) throw new Error("Échec de la suppression");
         return res.json();
       })
-      .then(() => loadEntries(token))
+      .then(() => loadEntries(session.sessionToken))
       .catch((err) => setError(err.message));
   }
 
@@ -112,20 +107,6 @@ export default function AdminInterviewsList() {
         <Link href="/admin">← Retour à l&apos;administration</Link>
       </p>
       <h1>Administration — Relais scientifique</h1>
-      <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>
-        Réservé à la rédaction du site. Même jeton que pour Débunk et les imports de données.
-      </p>
-
-      <form onSubmit={handleTokenSubmit} style={{ display: "flex", gap: "0.5rem", marginBottom: "1.5rem" }}>
-        <input
-          type="password"
-          value={token}
-          onChange={(e) => setToken(e.target.value)}
-          placeholder="Jeton d'administration"
-          style={{ padding: "6px 10px", flex: 1 }}
-        />
-        <button type="submit">Se connecter</button>
-      </form>
 
       {loading && <p>Chargement...</p>}
       {error && <p role="alert" style={{ color: "#d63e2a" }}>{error}</p>}
@@ -174,7 +155,7 @@ export default function AdminInterviewsList() {
                 </tr>
               </thead>
               <tbody>
-                {entries.map((e) => (
+                {entries.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE).map((e) => (
                   <tr key={e.slug}>
                     <td style={{ padding: 8 }}>{e.title}</td>
                     <td style={{ padding: 8 }}>{TYPE_LABELS[e.content_type] || e.content_type}</td>
@@ -193,8 +174,15 @@ export default function AdminInterviewsList() {
               </tbody>
             </table>
           )}
+          {entries.length > PAGE_SIZE && (
+            <Pagination page={page} totalPages={Math.max(1, Math.ceil(entries.length / PAGE_SIZE))} onChange={setPage} />
+          )}
         </>
       )}
     </div>
   );
+}
+
+export default function AdminInterviewsList() {
+  return <AdminAuthGate>{(session) => <AdminInterviewsListInner session={session} />}</AdminAuthGate>;
 }

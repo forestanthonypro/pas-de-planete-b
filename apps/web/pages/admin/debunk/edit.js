@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import AdminAuthGate from "../../components/AdminAuthGate";
 import Link from "next/link";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
-const TOKEN_STORAGE_KEY = "pdpb-admin-token";
 
 function slugify(text) {
   return text
@@ -14,12 +14,10 @@ function slugify(text) {
     .replace(/(^-|-$)/g, "");
 }
 
-export default function AdminDebunkEdit() {
+function AdminDebunkEditInner({ session }) {
   const router = useRouter();
   const { slug: editSlug } = router.query;
   const isEditing = Boolean(editSlug);
-
-  const [token, setToken] = useState("");
   const [slug, setSlug] = useState("");
   const [slugTouched, setSlugTouched] = useState(false);
   const [myth, setMyth] = useState("");
@@ -36,24 +34,19 @@ export default function AdminDebunkEdit() {
   const [error, setError] = useState(null);
   const [status, setStatus] = useState("idle"); // idle | saving | done
 
-  useEffect(() => {
-    const stored = window.localStorage.getItem(TOKEN_STORAGE_KEY);
-    if (stored) setToken(stored);
-  }, []);
 
   useEffect(() => {
-    if (!token) return;
     fetch(`${API_URL}/api/debunk-categories`)
       .then((res) => (res.ok ? res.json() : []))
       .then(setCategories)
       .catch(() => setCategories([]));
-  }, [token]);
+  }, [session]);
 
   useEffect(() => {
-    if (!editSlug || !token) return;
+    if (!editSlug) return;
     setLoading(true);
     fetch(`${API_URL}/api/admin/debunk/${editSlug}`, {
-      headers: { "x-ingest-token": token },
+      headers: { ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
     })
       .then((res) => {
         if (!res.ok) throw new Error("Entrée non trouvée");
@@ -76,7 +69,7 @@ export default function AdminDebunkEdit() {
         setError(err.message);
         setLoading(false);
       });
-  }, [editSlug, token]);
+  }, [editSlug, session]);
 
   function handleMythChange(value) {
     setMyth(value);
@@ -99,11 +92,10 @@ export default function AdminDebunkEdit() {
     e.preventDefault();
     setStatus("saving");
     setError(null);
-    window.localStorage.setItem(TOKEN_STORAGE_KEY, token);
 
     fetch(`${API_URL}/api/admin/debunk`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-ingest-token": token },
+      headers: { "Content-Type": "application/json", ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
       body: JSON.stringify({
         slug,
         myth,
@@ -147,12 +139,6 @@ export default function AdminDebunkEdit() {
       </p>
       <h1>{isEditing ? "Modifier l'entrée" : "Nouvelle entrée"}</h1>
 
-      {!token && (
-        <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>
-          Aucun jeton mémorisé — retourne d&apos;abord sur{" "}
-          <Link href="/admin/debunk">la liste</Link> pour te connecter.
-        </p>
-      )}
 
       {loading && <p>Chargement...</p>}
       {error && <p role="alert" style={{ color: "#d63e2a" }}>{error}</p>}
@@ -293,11 +279,15 @@ export default function AdminDebunkEdit() {
         </button>
 
         <div>
-          <button type="submit" disabled={status === "saving" || !token}>
+          <button type="submit" disabled={status === "saving"}>
             {status === "saving" ? "Enregistrement..." : "Enregistrer"}
           </button>
         </div>
       </form>
     </div>
   );
+}
+
+export default function AdminDebunkEdit() {
+  return <AdminAuthGate>{(session) => <AdminDebunkEditInner session={session} />}</AdminAuthGate>;
 }

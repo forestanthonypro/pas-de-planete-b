@@ -14,6 +14,9 @@ export default function FutureIdeasPage() {
   const [mySupports, setMySupports] = useState(new Set());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [publishedSuggestions, setPublishedSuggestions] = useState([]);
+  const [suggestionText, setSuggestionText] = useState("");
+  const [suggestionStatus, setSuggestionStatus] = useState("idle"); // idle | sending | done | error
 
   useEffect(() => {
     const anonymousId = getAnonymousId();
@@ -23,10 +26,12 @@ export default function FutureIdeasPage() {
         return res.json();
       }),
       anonymousId ? fetch(`${API_URL}/api/future-idea-votes/${anonymousId}`).then((res) => (res.ok ? res.json() : [])) : Promise.resolve([]),
+      fetch(`${API_URL}/api/future-idea-suggestions/published`).then((res) => (res.ok ? res.json() : [])),
     ])
-      .then(([ideaRows, mySlugs]) => {
+      .then(([ideaRows, mySlugs, suggestionRows]) => {
         setIdeas(Array.isArray(ideaRows) ? ideaRows : []);
         setMySupports(new Set(mySlugs));
+        setPublishedSuggestions(Array.isArray(suggestionRows) ? suggestionRows : []);
         setLoading(false);
       })
       .catch((err) => {
@@ -66,6 +71,26 @@ export default function FutureIdeasPage() {
   }
 
   const sortedIdeas = [...ideas].sort((a, b) => b.support_count - a.support_count);
+
+  function handleSuggestionSubmit(e) {
+    e.preventDefault();
+    if (!suggestionText.trim()) return;
+    setSuggestionStatus("sending");
+    fetch(`${API_URL}/api/future-idea-suggestions`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: suggestionText.trim() }),
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error();
+        return res.json();
+      })
+      .then(() => {
+        setSuggestionStatus("done");
+        setSuggestionText("");
+      })
+      .catch(() => setSuggestionStatus("error"));
+  }
 
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 800, margin: "0 auto" }}>
@@ -112,6 +137,43 @@ export default function FutureIdeasPage() {
           </div>
         );
       })}
+
+      {!loading && !error && publishedSuggestions.length > 0 && (
+        <section style={{ marginTop: "2rem" }}>
+          <h2 style={{ fontSize: 18 }}>{t("futureIdeas.suggestions_title")}</h2>
+          <ul>
+            {publishedSuggestions.map((s) => (
+              <li key={s.id} style={{ fontSize: 14, marginBottom: 6 }}>{s.text}</li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      <section style={{ marginTop: "2.5rem", background: "var(--color-carte-verte)", borderRadius: 12, padding: "1.25rem" }}>
+        <h2 style={{ fontSize: 17, marginTop: 0 }}>{t("futureIdeas.propose_title")}</h2>
+        <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>{t("futureIdeas.propose_intro")}</p>
+
+        {suggestionStatus === "done" ? (
+          <p style={{ fontSize: 14, fontWeight: 600 }}>{t("futureIdeas.propose_done")}</p>
+        ) : (
+          <form onSubmit={handleSuggestionSubmit}>
+            <textarea
+              value={suggestionText}
+              onChange={(e) => setSuggestionText(e.target.value)}
+              placeholder={t("futureIdeas.propose_placeholder")}
+              rows={3}
+              maxLength={2000}
+              style={{ width: "100%", padding: "8px 10px", fontFamily: "inherit", marginBottom: "0.5rem" }}
+            />
+            <button type="submit" disabled={suggestionStatus === "sending" || !suggestionText.trim()}>
+              {suggestionStatus === "sending" ? t("futureIdeas.propose_sending") : t("futureIdeas.propose_button")}
+            </button>
+            {suggestionStatus === "error" && (
+              <p role="alert" style={{ fontSize: 13, color: "#d63e2a" }}>{t("futureIdeas.propose_error")}</p>
+            )}
+          </form>
+        )}
+      </section>
 
       <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginTop: "1.5rem" }}>
         <Link href="/">{t("futureIdeas.back_to_home")}</Link>

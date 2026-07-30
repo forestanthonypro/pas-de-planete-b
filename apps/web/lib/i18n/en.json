@@ -644,6 +644,14 @@
     "no_ideas": "No ideas published yet — check back soon.",
     "support_button": "I support this",
     "supported_button": "Supported",
+    "suggestions_title": "Ideas proposed by the community",
+    "propose_title": "What ideas would you like to add?",
+    "propose_intro": "Share your ideas for a better world for today's and tomorrow's children. They'll be reviewed before publication.",
+    "propose_placeholder": "Your idea...",
+    "propose_button": "Send",
+    "propose_sending": "Sending...",
+    "propose_done": "Thank you! Your suggestion will be reviewed before publication.",
+    "propose_error": "Failed to send, try again later.",
     "back_to_home": "Back to home →",
     "error_no_data": "Data unavailable"
   }

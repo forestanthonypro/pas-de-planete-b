@@ -1,20 +1,51 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import AdminAuthGate from "../../components/AdminAuthGate";
+import Pagination from "../../components/Pagination";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
-const TOKEN_STORAGE_KEY = "pdpb-admin-token";
+const PAGE_SIZE = 20;
 
-export default function AdminFutureIdeasList() {
-  const [token, setToken] = useState("");
+function AdminFutureIdeasListInner({ session }) {
   const [ideas, setIdeas] = useState([]);
   const [loaded, setLoaded] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [page, setPage] = useState(1);
+  const [suggestions, setSuggestions] = useState([]);
+
+  useEffect(() => {
+    loadIdeas(session.sessionToken);
+    loadSuggestions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function loadSuggestions() {
+    fetch(`${API_URL}/api/admin/future-idea-suggestions`, { headers: { ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) } })
+      .then((res) => (res.ok ? res.json() : []))
+      .then((rows) => setSuggestions(Array.isArray(rows) ? rows : []))
+      .catch(() => setSuggestions([]));
+  }
+
+  function updateSuggestionStatus(id, status) {
+    fetch(`${API_URL}/api/admin/future-idea-suggestions/${id}/status`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
+      body: JSON.stringify({ status }),
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Échec de la mise à jour");
+        return res.json();
+      })
+      .then(() => loadSuggestions())
+      .catch((err) => setError(err.message));
+  }
+
 
   function loadIdeas(currentToken) {
     setLoading(true);
     setError(null);
-    fetch(`${API_URL}/api/admin/future-ideas`, { headers: { "x-ingest-token": currentToken } })
+    fetch(`${API_URL}/api/admin/future-ideas`, { headers: { ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) } })
       .then((res) => {
         if (res.status === 401) throw new Error("Jeton invalide");
         if (!res.ok) throw new Error("Erreur de chargement");
@@ -31,45 +62,32 @@ export default function AdminFutureIdeasList() {
       });
   }
 
-  useEffect(() => {
-    const stored = window.localStorage.getItem(TOKEN_STORAGE_KEY);
-    if (stored) {
-      setToken(stored);
-      loadIdeas(stored);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
-  function handleTokenSubmit(e) {
-    e.preventDefault();
-    window.localStorage.setItem(TOKEN_STORAGE_KEY, token);
-    loadIdeas(token);
-  }
 
   function togglePublished(idea) {
     fetch(`${API_URL}/api/admin/future-ideas/${idea.slug}/publish`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-ingest-token": token },
+      headers: { "Content-Type": "application/json", ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
       body: JSON.stringify({ published: !idea.published }),
     })
       .then((res) => {
         if (!res.ok) throw new Error("Échec de la mise à jour");
         return res.json();
       })
-      .then(() => loadIdeas(token))
+      .then(() => loadIdeas(session.sessionToken))
       .catch((err) => setError(err.message));
   }
 
   function removeIdea(slug) {
     fetch(`${API_URL}/api/admin/future-ideas/${slug}`, {
       method: "DELETE",
-      headers: { "x-ingest-token": token },
+      headers: { ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
     })
       .then((res) => {
         if (!res.ok) throw new Error("Échec de la suppression");
         return res.json();
       })
-      .then(() => loadIdeas(token))
+      .then(() => loadIdeas(session.sessionToken))
       .catch((err) => setError(err.message));
   }
 
@@ -79,18 +97,8 @@ export default function AdminFutureIdeasList() {
         <Link href="/admin">← Retour à l&apos;administration</Link>
       </p>
       <h1>Administration — Les enfants d&apos;aujourd&apos;hui et de demain</h1>
-      <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>Même jeton que pour les autres rubriques éditoriales.</p>
+      <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>Protégé par code d&apos;authentification à 6 chiffres.</p>
 
-      <form onSubmit={handleTokenSubmit} style={{ display: "flex", gap: "0.5rem", marginBottom: "1.5rem" }}>
-        <input
-          type="password"
-          value={token}
-          onChange={(e) => setToken(e.target.value)}
-          placeholder="Jeton d'administration"
-          style={{ padding: "6px 10px", flex: 1 }}
-        />
-        <button type="submit">Se connecter</button>
-      </form>
 
       {loading && <p>Chargement...</p>}
       {error && <p role="alert" style={{ color: "#d63e2a" }}>{error}</p>}
@@ -113,7 +121,7 @@ export default function AdminFutureIdeasList() {
                 </tr>
               </thead>
               <tbody>
-                {ideas.map((idea) => (
+                {ideas.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE).map((idea) => (
                   <tr key={idea.slug}>
                     <td style={{ padding: 8 }}>{idea.title}</td>
                     <td style={{ padding: 8, textAlign: "right", fontWeight: 600 }}>{idea.support_count}</td>
@@ -132,8 +140,54 @@ export default function AdminFutureIdeasList() {
               </tbody>
             </table>
           )}
+          {ideas.length > PAGE_SIZE && (
+            <Pagination page={page} totalPages={Math.max(1, Math.ceil(ideas.length / PAGE_SIZE))} onChange={setPage} />
+          )}
         </>
       )}
+
+      <section style={{ marginTop: "2rem" }}>
+        <h2 style={{ fontSize: 16 }}>Boîte à idées — modération</h2>
+        {suggestions.length === 0 ? (
+          <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>Aucune suggestion pour l&apos;instant.</p>
+        ) : (
+          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <thead>
+              <tr>
+                <th scope="col" style={{ textAlign: "left", padding: 8 }}>Texte</th>
+                <th scope="col" style={{ textAlign: "left", padding: 8 }}>Statut</th>
+                <th scope="col" style={{ textAlign: "left", padding: 8 }}></th>
+              </tr>
+            </thead>
+            <tbody>
+              {suggestions.map((s) => (
+                <tr key={s.id}>
+                  <td style={{ padding: 8, fontSize: 13 }}>{s.text}</td>
+                  <td style={{ padding: 8, fontSize: 13 }}>
+                    {{ pending: "En attente", published: "Publiée", draft: "Brouillon", rejected: "Rejetée" }[s.status] || s.status}
+                  </td>
+                  <td style={{ padding: 8, whiteSpace: "nowrap" }}>
+                    <select
+                      value={s.status}
+                      onChange={(e) => updateSuggestionStatus(s.id, e.target.value)}
+                      style={{ fontSize: 12, padding: "4px 6px" }}
+                    >
+                      <option value="pending">En attente</option>
+                      <option value="published">Publiée</option>
+                      <option value="draft">Brouillon</option>
+                      <option value="rejected">Rejetée</option>
+                    </select>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </section>
     </div>
   );
+}
+
+export default function AdminFutureIdeasList() {
+  return <AdminAuthGate>{(session) => <AdminFutureIdeasListInner session={session} />}</AdminAuthGate>;
 }

@@ -1,16 +1,14 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import AdminAuthGate from "../../components/AdminAuthGate";
 import Link from "next/link";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
-const TOKEN_STORAGE_KEY = "pdpb-admin-token";
 
-export default function AdminCharterItemEdit() {
+function AdminCharterItemEditInner({ session }) {
   const router = useRouter();
   const { id: editId, sectionId: presetSectionId } = router.query;
   const isEditing = Boolean(editId);
-
-  const [token, setToken] = useState("");
   const [sections, setSections] = useState([]);
   const [sectionId, setSectionId] = useState("");
   const [title, setTitle] = useState("");
@@ -21,14 +19,9 @@ export default function AdminCharterItemEdit() {
   const [error, setError] = useState(null);
   const [status, setStatus] = useState("idle");
 
-  useEffect(() => {
-    const stored = window.localStorage.getItem(TOKEN_STORAGE_KEY);
-    if (stored) setToken(stored);
-  }, []);
 
   useEffect(() => {
-    if (!token) return;
-    fetch(`${API_URL}/api/admin/charter-sections`, { headers: { "x-ingest-token": token } })
+    fetch(`${API_URL}/api/admin/charter-sections`, { headers: { ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) } })
       .then((res) => (res.ok ? res.json() : []))
       .then((rows) => {
         setSections(rows);
@@ -36,12 +29,12 @@ export default function AdminCharterItemEdit() {
       })
       .catch(() => setSections([]));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token, presetSectionId]);
+  }, [session, presetSectionId]);
 
   useEffect(() => {
-    if (!editId || !token) return;
+    if (!editId) return;
     setLoading(true);
-    fetch(`${API_URL}/api/admin/charter-items/${editId}`, { headers: { "x-ingest-token": token } })
+    fetch(`${API_URL}/api/admin/charter-items/${editId}`, { headers: { ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) } })
       .then((res) => {
         if (!res.ok) throw new Error("Élément non trouvé");
         return res.json();
@@ -57,17 +50,16 @@ export default function AdminCharterItemEdit() {
         setError(err.message);
         setLoading(false);
       });
-  }, [editId, token]);
+  }, [editId, session]);
 
   function handleSubmit(e) {
     e.preventDefault();
     setStatus("saving");
     setError(null);
-    window.localStorage.setItem(TOKEN_STORAGE_KEY, token);
 
     fetch(`${API_URL}/api/admin/charter-items`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-ingest-token": token },
+      headers: { "Content-Type": "application/json", ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
       body: JSON.stringify({
         id: isEditing ? editId : undefined,
         sectionId,
@@ -107,12 +99,6 @@ export default function AdminCharterItemEdit() {
       </p>
       <h1>{isEditing ? "Modifier l'élément" : "Nouvel élément"}</h1>
 
-      {!token && (
-        <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>
-          Aucun jeton mémorisé — retourne d&apos;abord sur{" "}
-          <Link href="/admin/charte">la page charte</Link> pour te connecter.
-        </p>
-      )}
 
       {loading && <p>Chargement...</p>}
       {error && <p role="alert" style={{ color: "#d63e2a" }}>{error}</p>}
@@ -143,10 +129,14 @@ export default function AdminCharterItemEdit() {
           Publier (visible sur la page publique)
         </label>
 
-        <button type="submit" disabled={status === "saving" || !token || !sectionId}>
+        <button type="submit" disabled={status === "saving" || !sectionId}>
           {status === "saving" ? "Enregistrement..." : "Enregistrer"}
         </button>
       </form>
     </div>
   );
+}
+
+export default function AdminCharterItemEdit() {
+  return <AdminAuthGate>{(session) => <AdminCharterItemEditInner session={session} />}</AdminAuthGate>;
 }

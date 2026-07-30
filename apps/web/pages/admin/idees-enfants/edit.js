@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import AdminAuthGate from "../../components/AdminAuthGate";
 import Link from "next/link";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
-const TOKEN_STORAGE_KEY = "pdpb-admin-token";
 
 function slugify(text) {
   return text
@@ -14,12 +14,10 @@ function slugify(text) {
     .replace(/(^-|-$)/g, "");
 }
 
-export default function AdminFutureIdeaEdit() {
+function AdminFutureIdeaEditInner({ session }) {
   const router = useRouter();
   const { slug: editSlug } = router.query;
   const isEditing = Boolean(editSlug);
-
-  const [token, setToken] = useState("");
   const [slug, setSlug] = useState("");
   const [slugTouched, setSlugTouched] = useState(false);
   const [title, setTitle] = useState("");
@@ -30,15 +28,11 @@ export default function AdminFutureIdeaEdit() {
   const [error, setError] = useState(null);
   const [status, setStatus] = useState("idle");
 
-  useEffect(() => {
-    const stored = window.localStorage.getItem(TOKEN_STORAGE_KEY);
-    if (stored) setToken(stored);
-  }, []);
 
   useEffect(() => {
-    if (!editSlug || !token) return;
+    if (!editSlug) return;
     setLoading(true);
-    fetch(`${API_URL}/api/admin/future-ideas/${editSlug}`, { headers: { "x-ingest-token": token } })
+    fetch(`${API_URL}/api/admin/future-ideas/${editSlug}`, { headers: { ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) } })
       .then((res) => {
         if (!res.ok) throw new Error("Idée non trouvée");
         return res.json();
@@ -55,7 +49,7 @@ export default function AdminFutureIdeaEdit() {
         setError(err.message);
         setLoading(false);
       });
-  }, [editSlug, token]);
+  }, [editSlug, session]);
 
   function handleTitleChange(value) {
     setTitle(value);
@@ -66,11 +60,10 @@ export default function AdminFutureIdeaEdit() {
     e.preventDefault();
     setStatus("saving");
     setError(null);
-    window.localStorage.setItem(TOKEN_STORAGE_KEY, token);
 
     fetch(`${API_URL}/api/admin/future-ideas`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-ingest-token": token },
+      headers: { "Content-Type": "application/json", ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
       body: JSON.stringify({ slug, title, description: description || null, published }),
     })
       .then((res) => {
@@ -104,12 +97,6 @@ export default function AdminFutureIdeaEdit() {
       </p>
       <h1>{isEditing ? "Modifier l'idée" : "Nouvelle idée"}</h1>
 
-      {!token && (
-        <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>
-          Aucun jeton mémorisé — retourne d&apos;abord sur{" "}
-          <Link href="/admin/idees-enfants">la liste</Link> pour te connecter.
-        </p>
-      )}
 
       {loading && <p>Chargement...</p>}
       {error && <p role="alert" style={{ color: "#d63e2a" }}>{error}</p>}
@@ -147,10 +134,14 @@ export default function AdminFutureIdeaEdit() {
           Publier (visible sur la page publique)
         </label>
 
-        <button type="submit" disabled={status === "saving" || !token}>
+        <button type="submit" disabled={status === "saving"}>
           {status === "saving" ? "Enregistrement..." : "Enregistrer"}
         </button>
       </form>
     </div>
   );
+}
+
+export default function AdminFutureIdeaEdit() {
+  return <AdminAuthGate>{(session) => <AdminFutureIdeaEditInner session={session} />}</AdminAuthGate>;
 }

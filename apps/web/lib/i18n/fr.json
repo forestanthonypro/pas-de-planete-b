@@ -644,6 +644,14 @@
     "no_ideas": "Aucune idée publiée pour l'instant — reviens bientôt.",
     "support_button": "Je soutiens",
     "supported_button": "Soutenu",
+    "suggestions_title": "Idées proposées par la communauté",
+    "propose_title": "Et vous, quelles idées voudriez-vous ajouter ?",
+    "propose_intro": "Partagez vos idées pour un monde meilleur pour les enfants d'aujourd'hui et de demain. Elles seront examinées avant publication.",
+    "propose_placeholder": "Votre idée...",
+    "propose_button": "Envoyer",
+    "propose_sending": "Envoi...",
+    "propose_done": "Merci ! Ta suggestion sera examinée avant publication.",
+    "propose_error": "Échec de l'envoi, réessaie plus tard.",
     "back_to_home": "Retour à l'accueil →",
     "error_no_data": "Données indisponibles"
   }

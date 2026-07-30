@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import AdminAuthGate from "../../components/AdminAuthGate";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
-const TOKEN_STORAGE_KEY = "pdpb-admin-token";
 
 const STATUS_LABELS = { pending: "En attente", published: "Publiée", draft: "Brouillon", rejected: "Rejetée" };
 
-export default function AdminCharterPage() {
-  const [token, setToken] = useState("");
+function AdminCharterPageInner({ session }) {
   const [sections, setSections] = useState([]);
   const [items, setItems] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
@@ -16,13 +15,19 @@ export default function AdminCharterPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  useEffect(() => {
+    loadAll(session.sessionToken);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+
   function loadAll(currentToken) {
     setLoading(true);
     setError(null);
     Promise.all([
-      fetch(`${API_URL}/api/admin/charter-sections`, { headers: { "x-ingest-token": currentToken } }),
-      fetch(`${API_URL}/api/admin/charter-items`, { headers: { "x-ingest-token": currentToken } }),
-      fetch(`${API_URL}/api/admin/charter-suggestions`, { headers: { "x-ingest-token": currentToken } }),
+      fetch(`${API_URL}/api/admin/charter-sections`, { headers: { ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) } }),
+      fetch(`${API_URL}/api/admin/charter-items`, { headers: { ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) } }),
+      fetch(`${API_URL}/api/admin/charter-suggestions`, { headers: { ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) } }),
     ])
       .then(async ([resSections, resItems, resSuggestions]) => {
         if (resSections.status === 401) throw new Error("Jeton invalide");
@@ -39,27 +44,14 @@ export default function AdminCharterPage() {
       });
   }
 
-  useEffect(() => {
-    const stored = window.localStorage.getItem(TOKEN_STORAGE_KEY);
-    if (stored) {
-      setToken(stored);
-      loadAll(stored);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
-  function handleTokenSubmit(e) {
-    e.preventDefault();
-    window.localStorage.setItem(TOKEN_STORAGE_KEY, token);
-    loadAll(token);
-  }
 
   function addSection(e) {
     e.preventDefault();
     if (!newSectionName.trim()) return;
     fetch(`${API_URL}/api/admin/charter-sections`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-ingest-token": token },
+      headers: { "Content-Type": "application/json", ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
       body: JSON.stringify({ name: newSectionName.trim() }),
     })
       .then((res) => {
@@ -68,7 +60,7 @@ export default function AdminCharterPage() {
       })
       .then(() => {
         setNewSectionName("");
-        loadAll(token);
+        loadAll(session.sessionToken);
       })
       .catch((err) => setError(err.message));
   }
@@ -76,82 +68,82 @@ export default function AdminCharterPage() {
   function moveSection(id, direction) {
     fetch(`${API_URL}/api/admin/charter-sections/${id}/move`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-ingest-token": token },
+      headers: { "Content-Type": "application/json", ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
       body: JSON.stringify({ direction }),
     })
       .then((res) => {
         if (!res.ok) throw new Error("Échec du déplacement");
         return res.json();
       })
-      .then(() => loadAll(token))
+      .then(() => loadAll(session.sessionToken))
       .catch((err) => setError(err.message));
   }
 
   function removeSection(id) {
     fetch(`${API_URL}/api/admin/charter-sections/${id}`, {
       method: "DELETE",
-      headers: { "x-ingest-token": token },
+      headers: { ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
     })
       .then((res) => {
         if (!res.ok) throw new Error("Échec de la suppression");
         return res.json();
       })
-      .then(() => loadAll(token))
+      .then(() => loadAll(session.sessionToken))
       .catch((err) => setError(err.message));
   }
 
   function moveItem(id, direction) {
     fetch(`${API_URL}/api/admin/charter-items/${id}/move`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-ingest-token": token },
+      headers: { "Content-Type": "application/json", ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
       body: JSON.stringify({ direction }),
     })
       .then((res) => {
         if (!res.ok) throw new Error("Échec du déplacement");
         return res.json();
       })
-      .then(() => loadAll(token))
+      .then(() => loadAll(session.sessionToken))
       .catch((err) => setError(err.message));
   }
 
   function toggleItemPublished(item) {
     fetch(`${API_URL}/api/admin/charter-items/${item.id}/publish`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-ingest-token": token },
+      headers: { "Content-Type": "application/json", ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
       body: JSON.stringify({ published: !item.published }),
     })
       .then((res) => {
         if (!res.ok) throw new Error("Échec de la mise à jour");
         return res.json();
       })
-      .then(() => loadAll(token))
+      .then(() => loadAll(session.sessionToken))
       .catch((err) => setError(err.message));
   }
 
   function removeItem(id) {
     fetch(`${API_URL}/api/admin/charter-items/${id}`, {
       method: "DELETE",
-      headers: { "x-ingest-token": token },
+      headers: { ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
     })
       .then((res) => {
         if (!res.ok) throw new Error("Échec de la suppression");
         return res.json();
       })
-      .then(() => loadAll(token))
+      .then(() => loadAll(session.sessionToken))
       .catch((err) => setError(err.message));
   }
 
   function updateSuggestionStatus(id, status) {
     fetch(`${API_URL}/api/admin/charter-suggestions/${id}/status`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-ingest-token": token },
+      headers: { "Content-Type": "application/json", ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
       body: JSON.stringify({ status }),
     })
       .then((res) => {
         if (!res.ok) throw new Error("Échec de la mise à jour");
         return res.json();
       })
-      .then(() => loadAll(token))
+      .then(() => loadAll(session.sessionToken))
       .catch((err) => setError(err.message));
   }
 
@@ -169,16 +161,6 @@ export default function AdminCharterPage() {
       <h1>Administration — Charte éthique</h1>
       <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>Même jeton que pour les autres rubriques éditoriales.</p>
 
-      <form onSubmit={handleTokenSubmit} style={{ display: "flex", gap: "0.5rem", marginBottom: "1.5rem" }}>
-        <input
-          type="password"
-          value={token}
-          onChange={(e) => setToken(e.target.value)}
-          placeholder="Jeton d'administration"
-          style={{ padding: "6px 10px", flex: 1 }}
-        />
-        <button type="submit">Se connecter</button>
-      </form>
 
       {loading && <p>Chargement...</p>}
       {error && <p role="alert" style={{ color: "#d63e2a" }}>{error}</p>}
@@ -281,4 +263,8 @@ export default function AdminCharterPage() {
       )}
     </div>
   );
+}
+
+export default function AdminCharterPage() {
+  return <AdminAuthGate>{(session) => <AdminCharterPageInner session={session} />}</AdminAuthGate>;
 }
