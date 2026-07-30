@@ -166,3 +166,13 @@ export function IconPlay(props) {
     </Svg>
   );
 }
+
+export function IconScroll(props) {
+  return (
+    <Svg {...props}>
+      <path d="M6 3h11a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V3Z" />
+      <path d="M6 3a2 2 0 1 0 0 4" />
+      <path d="M9 8h7M9 12h7M9 16h4" />
+    </Svg>
+  );
+}

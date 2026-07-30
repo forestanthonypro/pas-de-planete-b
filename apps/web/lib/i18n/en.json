@@ -4,6 +4,7 @@
     "nav_democracy": "Democracy",
     "nav_engage": "Get involved",
     "nav_myvotes": "My votes",
+    "nav_charter": "Ethical charter — Today's and tomorrow's children",
     "sobriety_toggle": "Lean mode",
     "sobriety_aria": "Enable lean mode (reduces animations and visuals)",
     "dark_mode_toggle": "Dark mode",
@@ -606,6 +607,24 @@
     "links_title": "Links",
     "back_to_home": "Back to home →",
     "visit_link": "Visit →",
+    "error_no_data": "Data unavailable"
+  },
+  "charter": {
+    "title": "Today's and tomorrow's children",
+    "share_title": "Today's and tomorrow's children — Pas de planète B",
+    "intro": "Support ideas by voting to help make them real.",
+    "no_content": "The charter is under construction — check back soon.",
+    "vote_adhere": "I agree",
+    "vote_nuance": "Needs nuance",
+    "back_to_home": "Back to home →",
+    "suggestions_title": "Ideas proposed by the community",
+    "propose_title": "What values or actions would you like to add?",
+    "propose_intro": "Share your ideas, your strong words, your non-negotiables. Together, let's make this charter a powerful, transformative manifesto!",
+    "propose_placeholder": "Your idea...",
+    "propose_button": "Send",
+    "propose_sending": "Sending...",
+    "propose_done": "Thank you! Your suggestion will be reviewed before publication.",
+    "propose_error": "Failed to send, try again later.",
     "error_no_data": "Data unavailable"
   }
 }

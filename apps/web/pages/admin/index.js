@@ -25,6 +25,12 @@ const SECTIONS = [
     href: "/admin/ressources",
     icon: "📍",
   },
+  {
+    title: "Charte éthique",
+    description: "Sections, éléments numérotés et réordonnables, boîte à idées modérée.",
+    href: "/admin/charte",
+    icon: "📜",
+  },
 ];
 
 // Point d'entrée unique pour toute l'administration éditoriale — évite

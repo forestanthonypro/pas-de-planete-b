@@ -1,0 +1,152 @@
+import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
+import Link from "next/link";
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+const TOKEN_STORAGE_KEY = "pdpb-admin-token";
+
+export default function AdminCharterItemEdit() {
+  const router = useRouter();
+  const { id: editId, sectionId: presetSectionId } = router.query;
+  const isEditing = Boolean(editId);
+
+  const [token, setToken] = useState("");
+  const [sections, setSections] = useState([]);
+  const [sectionId, setSectionId] = useState("");
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [published, setPublished] = useState(false);
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [status, setStatus] = useState("idle");
+
+  useEffect(() => {
+    const stored = window.localStorage.getItem(TOKEN_STORAGE_KEY);
+    if (stored) setToken(stored);
+  }, []);
+
+  useEffect(() => {
+    if (!token) return;
+    fetch(`${API_URL}/api/admin/charter-sections`, { headers: { "x-ingest-token": token } })
+      .then((res) => (res.ok ? res.json() : []))
+      .then((rows) => {
+        setSections(rows);
+        if (!isEditing && presetSectionId) setSectionId(String(presetSectionId));
+      })
+      .catch(() => setSections([]));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token, presetSectionId]);
+
+  useEffect(() => {
+    if (!editId || !token) return;
+    setLoading(true);
+    fetch(`${API_URL}/api/admin/charter-items/${editId}`, { headers: { "x-ingest-token": token } })
+      .then((res) => {
+        if (!res.ok) throw new Error("Élément non trouvé");
+        return res.json();
+      })
+      .then((data) => {
+        setSectionId(String(data.section_id));
+        setTitle(data.title);
+        setDescription(data.description || "");
+        setPublished(data.published);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err.message);
+        setLoading(false);
+      });
+  }, [editId, token]);
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    setStatus("saving");
+    setError(null);
+    window.localStorage.setItem(TOKEN_STORAGE_KEY, token);
+
+    fetch(`${API_URL}/api/admin/charter-items`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-ingest-token": token },
+      body: JSON.stringify({
+        id: isEditing ? editId : undefined,
+        sectionId,
+        title,
+        description: description || null,
+        published,
+      }),
+    })
+      .then((res) => {
+        if (res.status === 401) throw new Error("Jeton invalide");
+        if (!res.ok) return res.json().then((d) => Promise.reject(new Error(d.error || "Erreur")));
+        return res.json();
+      })
+      .then(() => setStatus("done"))
+      .catch((err) => {
+        setError(err.message);
+        setStatus("idle");
+      });
+  }
+
+  if (status === "done") {
+    return (
+      <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 700, margin: "0 auto" }}>
+        <p>Élément enregistré.</p>
+        <p>
+          <Link href="/admin/charte">← Retour à la charte</Link> ·{" "}
+          <Link href="/charte">Voir la page publique →</Link>
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 700, margin: "0 auto" }}>
+      <p style={{ fontSize: 13 }}>
+        <Link href="/admin/charte">← Retour à la charte</Link>
+      </p>
+      <h1>{isEditing ? "Modifier l'élément" : "Nouvel élément"}</h1>
+
+      {!token && (
+        <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>
+          Aucun jeton mémorisé — retourne d&apos;abord sur{" "}
+          <Link href="/admin/charte">la page charte</Link> pour te connecter.
+        </p>
+      )}
+
+      {loading && <p>Chargement...</p>}
+      {error && <p role="alert" style={{ color: "#d63e2a" }}>{error}</p>}
+
+      <form onSubmit={handleSubmit}>
+        <label style={{ display: "block", marginBottom: "0.75rem" }}>
+          <span style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>Section</span>
+          <select required value={sectionId} onChange={(e) => setSectionId(e.target.value)} style={{ width: "100%", padding: "8px 10px" }}>
+            <option value="">— Choisir —</option>
+            {sections.map((s) => (
+              <option key={s.id} value={s.id}>{s.name}</option>
+            ))}
+          </select>
+        </label>
+
+        <label style={{ display: "block", marginBottom: "0.75rem" }}>
+          <span style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>Titre</span>
+          <input type="text" required value={title} onChange={(e) => setTitle(e.target.value)} style={{ width: "100%", padding: "8px 10px" }} />
+        </label>
+
+        <label style={{ display: "block", marginBottom: "0.75rem" }}>
+          <span style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>Description (optionnel)</span>
+          <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={4} style={{ width: "100%", padding: "8px 10px", fontFamily: "inherit" }} />
+        </label>
+
+        <label style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: "1rem", fontSize: 14 }}>
+          <input type="checkbox" checked={published} onChange={(e) => setPublished(e.target.checked)} />
+          Publier (visible sur la page publique)
+        </label>
+
+        <button type="submit" disabled={status === "saving" || !token || !sectionId}>
+          {status === "saving" ? "Enregistrement..." : "Enregistrer"}
+        </button>
+      </form>
+    </div>
+  );
+}

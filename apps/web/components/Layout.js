@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import { useSobriety } from "../lib/SobrietyContext";
 import { useTheme } from "../lib/ThemeContext";
 import { useT } from "../lib/useT";
-import { IconLeaf, IconSun, IconMoon } from "./icons";
+import { IconLeaf, IconSun, IconMoon, IconScroll } from "./icons";
 
 const LANGUAGE_LABELS = { fr: "Français", en: "English" };
 
@@ -58,6 +58,15 @@ export default function Layout({ children }) {
           <Link href="/?section=sengager">{t("common.nav_engage")}</Link>
           <Link href="/mes-votes">{t("common.nav_myvotes")}</Link>
         </nav>
+
+        <Link
+          href="/charte"
+          title={t("common.nav_charter")}
+          aria-label={t("common.nav_charter")}
+          style={{ display: "flex", alignItems: "center", color: "var(--color-forest)" }}
+        >
+          <IconScroll size={20} />
+        </Link>
 
         <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
           <LanguageSwitcher />
