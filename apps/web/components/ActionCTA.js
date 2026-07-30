@@ -58,7 +58,7 @@ export default function ActionCTA() {
   }
 
   return (
-    <div style={{ background: "#1baf7a", borderRadius: 8, padding: "1.25rem", margin: "1.5rem 0", color: "white" }}>
+    <div style={{ background: "#1b5e20", borderRadius: 8, padding: "1.25rem", margin: "1.5rem 0", color: "white" }}>
       {!open ? (
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "0.75rem" }}>
           <div>
@@ -68,7 +68,7 @@ export default function ActionCTA() {
           <button
             type="button"
             onClick={() => setOpen(true)}
-            style={{ background: "white", color: "#1baf7a", border: "none", borderRadius: 6, padding: "8px 16px", fontWeight: 600, cursor: "pointer" }}
+            style={{ background: "white", color: "#1b5e20", border: "none", borderRadius: 6, padding: "8px 16px", fontWeight: 600, cursor: "pointer" }}
           >
             {t("newsletter.cta_button")}
           </button>
@@ -136,7 +136,7 @@ export default function ActionCTA() {
             <button
               type="submit"
               disabled={status === "sending"}
-              style={{ background: "white", color: "#1baf7a", border: "none", borderRadius: 6, padding: "8px 16px", fontWeight: 600, cursor: "pointer" }}
+              style={{ background: "white", color: "#1b5e20", border: "none", borderRadius: 6, padding: "8px 16px", fontWeight: 600, cursor: "pointer" }}
             >
               {status === "sending" ? t("newsletter.sending") : t("newsletter.cta_button")}
             </button>
