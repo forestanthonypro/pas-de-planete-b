@@ -79,7 +79,7 @@ export default function ScrutinPage() {
   }, {});
 
   useEffect(() => {
-    if (votes.length === 0 || groups.length === 0) return;
+    if (votes.length === 0 || groups.length === 0 || !revealed) return;
     let cancelled = false;
     import("../../../lib/chartSetup").then(({ default: Chart }) => {
       if (cancelled || !canvasRef.current) return;
@@ -122,7 +122,7 @@ export default function ScrutinPage() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [votes]);
+  }, [votes, revealed]);
 
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
