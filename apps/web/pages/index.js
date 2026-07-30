@@ -73,6 +73,7 @@ export default function Home() {
   const [country, setCountry] = useState("FRA");
   const { t } = useT();
   const router = useRouter();
+  const { sobriety } = useSobriety();
   const { environment, democracy } = useCardGroups(t);
 
   useEffect(() => {
@@ -90,14 +91,56 @@ export default function Home() {
   return (
     <div style={{ maxWidth: 900, margin: "0 auto", padding: "1.5rem" }}>
       {!section && (
-        <div className="pdpb-hero">
-          <p style={{ fontSize: 14, color: "var(--color-texte-clair)", margin: "0 0 1rem" }}>
-            {t("home.intro")}
-          </p>
-          <p style={{ margin: 0 }}>
-            <Link href={`/pays/${country}`} style={{ fontWeight: 600 }}>{t("home.see_my_country")}</Link>
-          </p>
-        </div>
+        sobriety ? (
+          <div className="pdpb-hero">
+            <p style={{ fontSize: 14, color: "var(--color-texte-clair)", margin: "0 0 1rem" }}>
+              {t("home.intro")}
+            </p>
+            <p style={{ margin: 0 }}>
+              <Link href={`/pays/${country}`} style={{ fontWeight: 600 }}>{t("home.see_my_country")}</Link>
+            </p>
+          </div>
+        ) : (
+          <div
+            style={{
+              position: "relative",
+              borderRadius: 16,
+              padding: "2rem 1.75rem",
+              overflow: "hidden",
+              background: "linear-gradient(180deg, #bfe0f5 0%, #d9ecd0 55%, #8fc793 100%)",
+            }}
+          >
+            <div
+              style={{
+                position: "absolute",
+                top: -40,
+                right: -30,
+                width: 150,
+                height: 150,
+                borderRadius: "50%",
+                background: "radial-gradient(circle, rgba(255,246,214,0.9) 0%, rgba(255,246,214,0) 70%)",
+              }}
+            />
+            <p style={{ fontSize: 15, color: "#1b2b1d", margin: "0 0 1.25rem", maxWidth: 460, position: "relative" }}>
+              {t("home.intro")}
+            </p>
+            <Link
+              href={`/pays/${country}`}
+              style={{
+                position: "relative",
+                display: "inline-block",
+                background: "#1b5e20",
+                color: "white",
+                padding: "10px 22px",
+                borderRadius: 24,
+                fontWeight: 600,
+                textDecoration: "none",
+              }}
+            >
+              {t("home.see_my_country")}
+            </Link>
+          </div>
+        )
       )}
 
       {!section && (

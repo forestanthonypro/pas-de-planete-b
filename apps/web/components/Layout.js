@@ -52,20 +52,58 @@ export default function Layout({ children }) {
           <strong style={{ fontSize: 16 }}>Pas de planète B</strong>
         </Link>
 
-        <nav style={{ display: "flex", gap: "1rem", flexWrap: "wrap", fontSize: 14 }}>
-          <Link href="/?section=environnement">{t("common.nav_environment")}</Link>
-          <Link href="/?section=democratie">{t("common.nav_democracy")}</Link>
-          <Link href="/?section=sengager">{t("common.nav_engage")}</Link>
-          <Link href="/mes-votes">{t("common.nav_myvotes")}</Link>
+        <nav style={{ display: "flex", gap: sobriety ? "1rem" : "0.5rem", flexWrap: "wrap", fontSize: 14 }}>
+          {[
+            { href: "/?section=environnement", label: t("common.nav_environment") },
+            { href: "/?section=democratie", label: t("common.nav_democracy") },
+            { href: "/?section=sengager", label: t("common.nav_engage") },
+            { href: "/mes-votes", label: t("common.nav_myvotes") },
+          ].map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              style={
+                sobriety
+                  ? { color: "var(--color-bleu-clair)" }
+                  : {
+                      background: "var(--color-carte)",
+                      border: "1px solid var(--color-bordure)",
+                      borderRadius: 20,
+                      padding: "6px 14px",
+                      color: "var(--color-texte)",
+                      textDecoration: "none",
+                      fontWeight: 500,
+                    }
+              }
+            >
+              {item.label}
+            </Link>
+          ))}
         </nav>
 
         <Link
           href="/charte"
-          title={t("common.nav_charter")}
-          aria-label={t("common.nav_charter")}
-          style={{ display: "flex", alignItems: "center", color: "var(--color-forest)" }}
+          title={t("common.nav_charter_title")}
+          aria-label={t("common.nav_charter_title")}
+          style={
+            sobriety
+              ? { color: "var(--color-forest)", fontWeight: 600, textDecoration: "underline" }
+              : {
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  background: "var(--color-forest)",
+                  color: "white",
+                  padding: "6px 14px",
+                  borderRadius: 20,
+                  textDecoration: "none",
+                  fontWeight: 600,
+                  fontSize: 13,
+                }
+          }
         >
-          <IconScroll size={20} />
+          {!sobriety && <IconScroll size={16} />}
+          {t("common.nav_charter")}
         </Link>
 
         <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
