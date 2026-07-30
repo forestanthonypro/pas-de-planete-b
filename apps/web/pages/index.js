@@ -142,6 +142,7 @@ export default function Home() {
             <Card href="/interviews" Icon={IconPlay} label={t("home.card_interviews_label")} desc={t("home.card_interviews_desc")} tint="mauve" />
             <Card href="/paysans" Icon={IconTree} label={t("home.card_paysans_label")} desc={t("home.card_paysans_desc")} tint="green" />
             <Card href="/ressources" Icon={IconLandmark} label={t("home.card_ressources_label")} desc={t("home.card_ressources_desc")} tint="blue" />
+        <Card href="/idees-enfants" Icon={IconCheck} label={t("home.card_futureideas_label")} desc={t("home.card_futureideas_desc")} tint="blue" />
           </div>
         </>
       )}

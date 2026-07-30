@@ -4,7 +4,7 @@
     "nav_democracy": "Démocratie",
     "nav_engage": "S'engager",
     "nav_myvotes": "Mes votes",
-    "nav_charter": "Charte éthique — Les enfants d'aujourd'hui et de demain",
+    "nav_charter": "Charte éthique",
     "sobriety_toggle": "Mode sobriété",
     "sobriety_aria": "Activer le mode sobriété (réduit les animations et les visuels)",
     "dark_mode_toggle": "Mode sombre",
@@ -59,7 +59,9 @@
     "card_paysans_label": "On devient tous paysans",
     "card_paysans_desc": "Ressources pratiques, par thème",
     "card_ressources_label": "Ressources",
-    "card_ressources_desc": "Lieux et plateformes d'échange"
+    "card_ressources_desc": "Lieux et plateformes d'échange",
+    "card_futureideas_label": "Les enfants d'aujourd'hui et de demain",
+    "card_futureideas_desc": "Soutenez les idées par le vote"
   },
   "co2": {
     "title": "Émissions de CO2",
@@ -610,8 +612,8 @@
     "error_no_data": "Données indisponibles"
   },
   "charter": {
-    "title": "Les enfants d'aujourd'hui et de demain",
-    "share_title": "Les enfants d'aujourd'hui et de demain — Pas de planète B",
+    "title": "Charte éthique",
+    "share_title": "Charte éthique — Pas de planète B",
     "intro": "Soutenez les idées en votant pour concrétiser celles-ci.",
     "no_content": "La charte est en cours de construction — reviens bientôt.",
     "vote_adhere": "J'adhère",
@@ -634,6 +636,16 @@
     "propose_sending": "Envoi...",
     "propose_done": "Merci ! Ta suggestion sera examinée avant publication.",
     "propose_error": "Échec de l'envoi, réessaie plus tard.",
+    "error_no_data": "Données indisponibles"
+  },
+  "futureIdeas": {
+    "title": "Les enfants d'aujourd'hui et de demain",
+    "share_title": "Les enfants d'aujourd'hui et de demain — Pas de planète B",
+    "intro": "Soutenez les idées en votant pour concrétiser celles-ci.",
+    "no_ideas": "Aucune idée publiée pour l'instant — reviens bientôt.",
+    "support_button": "Je soutiens",
+    "supported_button": "Soutenu",
+    "back_to_home": "Retour à l'accueil →",
     "error_no_data": "Données indisponibles"
   }
 }

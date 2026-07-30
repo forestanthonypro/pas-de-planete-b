@@ -2130,6 +2130,135 @@ app.post("/api/admin/charter-suggestions/:id/status", requireIngestToken, async 
   }
 });
 
+// --- "Les enfants d'aujourd'hui et de demain" ---
+// Espace d'idées à soutenir par le vote — indépendant de la charte éthique.
+// Classement par popularité (nombre de soutiens), pas d'ordre géré à la main.
+
+app.get("/api/future-ideas", async (_req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT i.slug, i.title, i.description, i.updated_at,
+              COUNT(v.anonymous_id) AS support_count
+       FROM future_ideas i
+       LEFT JOIN future_idea_votes v ON v.idea_slug = i.slug
+       WHERE i.published = true
+       GROUP BY i.slug
+       ORDER BY support_count DESC, i.updated_at DESC`
+    );
+    res.json(result.rows.map((r) => ({ ...r, support_count: parseInt(r.support_count, 10) })));
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+  }
+});
+
+app.post("/api/future-idea-votes", async (req, res) => {
+  const { anonymousId, ideaSlug } = req.body || {};
+  if (!anonymousId || !UUID_RE.test(anonymousId)) {
+    return res.status(400).json({ error: "Identifiant anonyme invalide" });
+  }
+  if (!ideaSlug) {
+    return res.status(400).json({ error: "ideaSlug est requis" });
+  }
+  try {
+    const existing = await pool.query(
+      "SELECT 1 FROM future_idea_votes WHERE anonymous_id = $1 AND idea_slug = $2",
+      [anonymousId, ideaSlug]
+    );
+    if (existing.rows.length > 0) {
+      await pool.query("DELETE FROM future_idea_votes WHERE anonymous_id = $1 AND idea_slug = $2", [anonymousId, ideaSlug]);
+      return res.json({ status: "ok", voted: false });
+    }
+    await pool.query("INSERT INTO future_idea_votes (anonymous_id, idea_slug) VALUES ($1, $2)", [anonymousId, ideaSlug]);
+    res.json({ status: "ok", voted: true });
+  } catch (err) {
+    res.status(500).json({ error: "Échec de l'enregistrement", detail: err.message });
+  }
+});
+
+app.get("/api/future-idea-votes/:anonymousId", async (req, res) => {
+  const { anonymousId } = req.params;
+  if (!UUID_RE.test(anonymousId)) {
+    return res.status(400).json({ error: "Identifiant anonyme invalide" });
+  }
+  try {
+    const result = await pool.query("SELECT idea_slug FROM future_idea_votes WHERE anonymous_id = $1", [anonymousId]);
+    res.json(result.rows.map((r) => r.idea_slug));
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+  }
+});
+
+app.get("/api/admin/future-ideas", requireIngestToken, async (_req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT i.slug, i.title, i.published, i.updated_at, COUNT(v.anonymous_id) AS support_count
+       FROM future_ideas i
+       LEFT JOIN future_idea_votes v ON v.idea_slug = i.slug
+       GROUP BY i.slug
+       ORDER BY i.updated_at DESC`
+    );
+    res.json(result.rows.map((r) => ({ ...r, support_count: parseInt(r.support_count, 10) })));
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+  }
+});
+
+app.get("/api/admin/future-ideas/:slug", requireIngestToken, async (req, res) => {
+  try {
+    const result = await pool.query("SELECT * FROM future_ideas WHERE slug = $1", [req.params.slug]);
+    if (result.rows.length === 0) return res.status(404).json({ error: "Idée non trouvée" });
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+  }
+});
+
+app.post("/api/admin/future-ideas", requireIngestToken, async (req, res) => {
+  const { slug, title, description, published } = req.body || {};
+  if (!slug || !title || !title.trim()) {
+    return res.status(400).json({ error: "slug et title sont requis" });
+  }
+  try {
+    await pool.query(
+      `INSERT INTO future_ideas (slug, title, description, published, updated_at)
+       VALUES ($1, $2, $3, $4, now())
+       ON CONFLICT (slug) DO UPDATE SET
+         title = EXCLUDED.title, description = EXCLUDED.description,
+         published = EXCLUDED.published, updated_at = now()`,
+      [slug, title.trim(), description || null, published === true]
+    );
+    res.json({ status: "ok" });
+  } catch (err) {
+    res.status(500).json({ error: "Échec de l'enregistrement", detail: err.message });
+  }
+});
+
+app.delete("/api/admin/future-ideas/:slug", requireIngestToken, async (req, res) => {
+  try {
+    await pool.query("DELETE FROM future_ideas WHERE slug = $1", [req.params.slug]);
+    res.json({ status: "ok" });
+  } catch (err) {
+    res.status(500).json({ error: "Échec de la suppression", detail: err.message });
+  }
+});
+
+app.post("/api/admin/future-ideas/:slug/publish", requireIngestToken, async (req, res) => {
+  const { published } = req.body || {};
+  if (typeof published !== "boolean") {
+    return res.status(400).json({ error: "published doit être true ou false" });
+  }
+  try {
+    const result = await pool.query(
+      "UPDATE future_ideas SET published = $1, updated_at = now() WHERE slug = $2 RETURNING slug",
+      [published, req.params.slug]
+    );
+    if (result.rows.length === 0) return res.status(404).json({ error: "Idée non trouvée" });
+    res.json({ status: "ok" });
+  } catch (err) {
+    res.status(500).json({ error: "Échec de la mise à jour", detail: err.message });
+  }
+});
+
 app.listen(port, () => {
   console.log(`API Pas de planète B à l'écoute sur le port ${port}`);
 });

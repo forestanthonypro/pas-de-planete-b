@@ -31,6 +31,12 @@ const SECTIONS = [
     href: "/admin/charte",
     icon: "📜",
   },
+  {
+    title: "Les enfants d'aujourd'hui et de demain",
+    description: "Idées à soutenir par le vote, classées par popularité.",
+    href: "/admin/idees-enfants",
+    icon: "🌍",
+  },
 ];
 
 // Point d'entrée unique pour toute l'administration éditoriale — évite

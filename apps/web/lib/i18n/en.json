@@ -4,7 +4,7 @@
     "nav_democracy": "Democracy",
     "nav_engage": "Get involved",
     "nav_myvotes": "My votes",
-    "nav_charter": "Ethical charter — Today's and tomorrow's children",
+    "nav_charter": "Ethical charter",
     "sobriety_toggle": "Lean mode",
     "sobriety_aria": "Enable lean mode (reduces animations and visuals)",
     "dark_mode_toggle": "Dark mode",
@@ -59,7 +59,9 @@
     "card_paysans_label": "We're all becoming farmers",
     "card_paysans_desc": "Practical resources, by topic",
     "card_ressources_label": "Resources",
-    "card_ressources_desc": "Places and exchange platforms"
+    "card_ressources_desc": "Places and exchange platforms",
+    "card_futureideas_label": "Today's and tomorrow's children",
+    "card_futureideas_desc": "Support ideas through voting"
   },
   "co2": {
     "title": "CO2 emissions",
@@ -610,8 +612,8 @@
     "error_no_data": "Data unavailable"
   },
   "charter": {
-    "title": "Today's and tomorrow's children",
-    "share_title": "Today's and tomorrow's children — Pas de planète B",
+    "title": "Ethical charter",
+    "share_title": "Ethical charter — Pas de planète B",
     "intro": "Support ideas by voting to help make them real.",
     "no_content": "The charter is under construction — check back soon.",
     "vote_adhere": "I agree",
@@ -634,6 +636,16 @@
     "propose_sending": "Sending...",
     "propose_done": "Thank you! Your suggestion will be reviewed before publication.",
     "propose_error": "Failed to send, try again later.",
+    "error_no_data": "Data unavailable"
+  },
+  "futureIdeas": {
+    "title": "Today's and tomorrow's children",
+    "share_title": "Today's and tomorrow's children — Pas de planète B",
+    "intro": "Support ideas by voting to help make them real.",
+    "no_ideas": "No ideas published yet — check back soon.",
+    "support_button": "I support this",
+    "supported_button": "Supported",
+    "back_to_home": "Back to home →",
     "error_no_data": "Data unavailable"
   }
 }
