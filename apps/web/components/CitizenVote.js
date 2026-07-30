@@ -72,7 +72,8 @@ export default function CitizenVote({ legislature, numero, resultCode, resultLab
               padding: "8px 16px",
               borderRadius: 8,
               border: myVote === p ? "2px solid var(--color-forest)" : "1px solid var(--color-bordure)",
-              background: myVote === p ? "var(--color-carte-verte)" : "var(--color-fond)",
+              background: myVote === p ? "var(--color-carte-verte)" : "var(--color-carte)",
+              color: "var(--color-texte)",
               fontWeight: myVote === p ? 600 : 400,
               cursor: "pointer",
             }}

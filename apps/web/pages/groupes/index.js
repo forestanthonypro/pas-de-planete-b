@@ -70,7 +70,10 @@ export default function GroupesPage() {
           responsive: true,
           maintainAspectRatio: false,
           plugins: { legend: { display: false } },
-          scales: { x: { title: { display: true, text: t("groupes.axis_participation") }, max: 100 } },
+          scales: {
+            x: { title: { display: true, text: t("groupes.axis_participation"), color: "#9aa3a0" }, max: 100, ticks: { color: "#9aa3a0" } },
+            y: { ticks: { color: "#9aa3a0" } },
+          },
         },
       });
 
@@ -96,7 +99,10 @@ export default function GroupesPage() {
           responsive: true,
           maintainAspectRatio: false,
           plugins: { legend: { display: false } },
-          scales: { x: { title: { display: true, text: t("groupes.axis_cohesion") }, max: 100 } },
+          scales: {
+            x: { title: { display: true, text: t("groupes.axis_cohesion"), color: "#9aa3a0" }, max: 100, ticks: { color: "#9aa3a0" } },
+            y: { ticks: { color: "#9aa3a0" } },
+          },
         },
       });
     });

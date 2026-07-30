@@ -133,6 +133,11 @@ export default function ScrutinPage() {
       {!loading && !error && scrutin && (
         <>
           <PageHeader Icon={IconScale} tint="blue" title={scrutin.title || scrutin.objet || `Scrutin n°${scrutin.numero}`} />
+          <p style={{ fontSize: 13, marginTop: -8, marginBottom: "0.75rem" }}>
+            <a href={`https://www.assemblee-nationale.fr/dyn/${legislature}/scrutins/${scrutin.numero}`} target="_blank" rel="noopener noreferrer">
+              {t("scrutins.full_text_link")}
+            </a>
+          </p>
           <ShareButtons title={scrutin.title || scrutin.objet || `Scrutin n°${scrutin.numero}`} />
 
           <CitizenVote
@@ -146,7 +151,7 @@ export default function ScrutinPage() {
 
           {!revealed && votes.length > 0 && !bannerDismissed && (
             <div style={{ background: "#fff8e6", border: "1px solid #f4b400", borderRadius: 8, padding: "0.75rem 1rem", margin: "1rem 0" }}>
-              <p style={{ fontSize: 13, margin: "0 0 8px" }}>{t("scrutins.results_hidden_explain")}</p>
+              <p style={{ fontSize: 13, margin: "0 0 8px", color: "#3d2c05" }}>{t("scrutins.results_hidden_explain")}</p>
               <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
                 <button type="button" onClick={() => setRevealed(true)} style={{ fontSize: 13 }}>
                   {t("scrutins.reveal_now")}

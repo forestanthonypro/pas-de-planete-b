@@ -427,6 +427,7 @@
     "reveal_now": "See results now",
     "vote_first": "I'd rather vote first",
     "results_hidden_note": "Results hidden — vote above or click \"See results now\" to display them.",
+    "full_text_link": "See the full text of this vote on the National Assembly's website →",
     "error_no_data": "Data unavailable"
   },
   "debunk": {
