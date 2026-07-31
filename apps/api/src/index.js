@@ -34,9 +34,16 @@ app.use(
   })
 );
 
+// CORS_ORIGIN accepte une ou plusieurs origines séparées par des virgules
+// (ex: pour autoriser à la fois le navigateur classique en localhost et
+// l'app mobile Capacitor qui charge le site via l'IP réseau locale).
+const allowedOrigins = (process.env.CORS_ORIGIN || "http://localhost:3000")
+  .split(",")
+  .map((o) => o.trim());
+
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || "http://localhost:3000",
+    origin: allowedOrigins,
   })
 );
 app.use(express.json());
