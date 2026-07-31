@@ -1,4 +1,5 @@
 import Link from "next/link";
+import AdminAuthGate from "../../components/AdminAuthGate";
 
 const SECTIONS = [
   {
@@ -39,18 +40,16 @@ const SECTIONS = [
   },
 ];
 
-// Point d'entrée unique pour toute l'administration éditoriale — évite
-// d'avoir à retenir chaque URL /admin/... séparément. Même jeton partagé
-// partout, réservé à la rédaction du site.
-export default function AdminHub() {
+// Point d'entrée unique pour toute l'administration éditoriale, protégé par
+// un code TOTP (voir components/AdminAuthGate.js). Les sous-pages ont leur
+// propre protection individuelle, l'accès ici ne les couvre pas.
+function AdminHubInner() {
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 800, margin: "0 auto" }}>
       <h1>Administration</h1>
       <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginBottom: "1.5rem" }}>
-        Toutes les rubriques éditoriales du site, réunies ici. Même jeton d&apos;administration
-        partout (disponible dans <code>.env</code>, ligne <code>INGEST_TOKEN</code>).
+        Toutes les rubriques éditoriales du site, réunies ici.
       </p>
-
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 12 }}>
         {SECTIONS.map((s) => (
           <Link
@@ -66,4 +65,8 @@ export default function AdminHub() {
       </div>
     </div>
   );
+}
+
+export default function AdminHub() {
+  return <AdminAuthGate>{() => <AdminHubInner />}</AdminAuthGate>;
 }
