@@ -5,6 +5,7 @@ import { useTheme } from "../lib/ThemeContext";
 import { useT } from "../lib/useT";
 import { IconLeaf, IconSun, IconMoon, IconScroll } from "./icons";
 import BackgroundScene from "./BackgroundScene";
+import ScrollTopButton from "./ScrollTopButton";
 
 const LANGUAGE_LABELS = { fr: "Français", en: "English" };
 
@@ -181,6 +182,8 @@ export default function Layout({ children }) {
         {!sobriety && <IconLeaf size={15} style={{ color: "var(--color-forest)" }} />}
         {t("common.footer_ecoconception")}
       </footer>
+
+      <ScrollTopButton />
     </div>
   );
 }
