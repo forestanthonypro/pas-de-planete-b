@@ -994,6 +994,47 @@ function isAllowedEmbedUrl(url) {
   }
 }
 
+// Réglages généraux du site (table clé/valeur), ex: activer/désactiver la
+// newsletter. La lecture d'un réglage précis est publique (le site doit
+// pouvoir savoir s'il faut afficher tel bloc), la modification est admin.
+app.get("/api/settings/newsletter-enabled", async (req, res) => {
+  try {
+    const result = await pool.query("SELECT value FROM site_settings WHERE key = 'newsletter_enabled'");
+    const enabled = result.rows[0]?.value === "true";
+    res.json({ enabled });
+  } catch (err) {
+    res.status(500).json({ error: "Erreur serveur", detail: err.message });
+  }
+});
+
+app.get("/api/admin/settings", requireAdminSession, async (req, res) => {
+  try {
+    const result = await pool.query("SELECT key, value FROM site_settings");
+    const settings = {};
+    for (const row of result.rows) settings[row.key] = row.value;
+    res.json(settings);
+  } catch (err) {
+    res.status(500).json({ error: "Erreur serveur", detail: err.message });
+  }
+});
+
+app.post("/api/admin/settings/newsletter-enabled", requireAdminSession, async (req, res) => {
+  const { enabled } = req.body || {};
+  if (typeof enabled !== "boolean") {
+    return res.status(400).json({ error: "enabled doit être un booléen" });
+  }
+  try {
+    await pool.query(
+      `INSERT INTO site_settings (key, value) VALUES ('newsletter_enabled', $1)
+       ON CONFLICT (key) DO UPDATE SET value = $1`,
+      [String(enabled)]
+    );
+    res.json({ enabled });
+  } catch (err) {
+    res.status(500).json({ error: "Erreur serveur", detail: err.message });
+  }
+});
+
 app.post("/api/newsletter/signup", publicWriteLimiter, async (req, res) => {
   const { email, areaType, housingType, hasChildren } = req.body || {};
   if (!email || typeof email !== "string" || !EMAIL_RE.test(email.trim())) {

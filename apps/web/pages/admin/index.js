@@ -38,6 +38,12 @@ const SECTIONS = [
     href: "/admin/idees-enfants",
     icon: "🌍",
   },
+  {
+    title: "Réglages du site",
+    description: "Interrupteurs généraux (ex: activer/désactiver la newsletter).",
+    href: "/admin/settings",
+    icon: "⚙️",
+  },
 ];
 
 // Point d'entrée unique pour toute l'administration éditoriale, protégé par

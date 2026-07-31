@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useT } from "../lib/useT";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
@@ -8,8 +8,14 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 // adapter les actions proposées par email — mais l'envoi réel des emails
 // nécessite un service tiers à configurer séparément ; ce composant ne
 // couvre que la collecte du formulaire.
+//
+// L'affichage entier du composant est conditionné à un réglage admin
+// (newsletter_enabled dans site_settings) — tant que l'envoi réel n'est
+// pas configuré, l'admin peut le masquer partout d'un coup plutôt que de
+// retirer le composant du code à chaque fois.
 export default function ActionCTA() {
   const { t } = useT();
+  const [enabled, setEnabled] = useState(null); // null = pas encore vérifié
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [areaType, setAreaType] = useState("");
@@ -18,6 +24,13 @@ export default function ActionCTA() {
   const [consent, setConsent] = useState(false);
   const [status, setStatus] = useState("idle"); // idle | sending | done | error
   const [errorMessage, setErrorMessage] = useState("");
+
+  useEffect(() => {
+    fetch(`${API_URL}/api/settings/newsletter-enabled`)
+      .then((res) => (res.ok ? res.json() : { enabled: false }))
+      .then((data) => setEnabled(Boolean(data.enabled)))
+      .catch(() => setEnabled(false));
+  }, []);
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -47,6 +60,10 @@ export default function ActionCTA() {
         setErrorMessage(err.message || t("newsletter.generic_error"));
       });
   }
+
+  // Rien tant qu'on n'a pas confirmé que c'est activé (évite un flash de
+  // contenu qui apparaît puis disparaît), et rien du tout si désactivé.
+  if (!enabled) return null;
 
   if (status === "done") {
     return (
