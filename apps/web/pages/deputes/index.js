@@ -4,6 +4,7 @@ import Link from "next/link";
 import ShareButtons from "../../components/ShareButtons";
 import PageHeader from "../../components/PageHeader";
 import Pagination from "../../components/Pagination";
+import SearchableSelect from "../../components/SearchableSelect";
 import { IconUsers } from "../../components/icons";
 import { useT } from "../../lib/useT";
 
@@ -60,6 +61,9 @@ export default function DeputesPage() {
     return [...set].sort((a, b) => a.localeCompare(b, "fr"));
   }, [deputies]);
 
+  const groupOptions = useMemo(() => groups.map((g) => ({ value: g, label: g })), [groups]);
+  const departmentOptions = useMemo(() => departments.map((d) => ({ value: d, label: d })), [departments]);
+
   const filtered = useMemo(() => {
     const q = normalize(query);
     return deputies.filter((d) => {
@@ -94,24 +98,24 @@ export default function DeputesPage() {
           placeholder={t("deputes.search_placeholder")}
           style={{ padding: "6px 10px", minWidth: 260 }}
         />
-        <label>
-          {t("deputes.group_label")}{" "}
-          <select value={groupFilter} onChange={(e) => setGroupFilter(e.target.value)}>
-            <option value="">{t("deputes.all")}</option>
-            {groups.map((g) => (
-              <option key={g} value={g}>{g}</option>
-            ))}
-          </select>
-        </label>
-        <label>
-          {t("deputes.department_label")}{" "}
-          <select value={departmentFilter} onChange={(e) => setDepartmentFilter(e.target.value)}>
-            <option value="">{t("deputes.all")}</option>
-            {departments.map((d) => (
-              <option key={d} value={d}>{d}</option>
-            ))}
-          </select>
-        </label>
+        <SearchableSelect
+          options={groupOptions}
+          value={groupFilter}
+          onChange={setGroupFilter}
+          label={t("deputes.group_label")}
+          placeholder={t("deputes.group_label")}
+          allLabel={t("deputes.all")}
+          noResultsLabel={t("common.no_results")}
+        />
+        <SearchableSelect
+          options={departmentOptions}
+          value={departmentFilter}
+          onChange={setDepartmentFilter}
+          label={t("deputes.department_label")}
+          placeholder={t("deputes.department_label")}
+          allLabel={t("deputes.all")}
+          noResultsLabel={t("common.no_results")}
+        />
       </div>
 
       {loading && <p>{t("common.loading")}</p>}
