@@ -207,3 +207,7 @@ export default function Co2Page() {
     </div>
   );
 }
+
+export async function getServerSideProps() {
+  return { props: {} };
+}

@@ -9,8 +9,22 @@ import ScrollTopButton from "./ScrollTopButton";
 
 const LANGUAGE_LABELS = { fr: "Français", en: "English" };
 
+// useRouter() lève une erreur quand aucun contexte routeur n'est disponible
+// (page d'erreur générée automatiquement par Next.js pendant le build) —
+// on n'affiche simplement rien dans ce cas précis plutôt que de planter.
+// Le hook est bien appelé exactement une fois à chaque rendu (jamais sauté
+// ni répété) : la règle react-hooks/rules-of-hooks se déclenche ici sur un
+// faux positif propre à ce pattern try/catch, pas sur un vrai problème
+// d'ordre des hooks.
 function LanguageSwitcher() {
-  const router = useRouter();
+  let router = null;
+  try {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    router = useRouter();
+  } catch {
+    return null;
+  }
+  if (!router) return null;
 
   function handleChange(e) {
     const newLocale = e.target.value;

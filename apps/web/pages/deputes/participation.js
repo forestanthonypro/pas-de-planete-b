@@ -106,3 +106,7 @@ export default function ParticipationPage() {
     </div>
   );
 }
+
+export async function getServerSideProps() {
+  return { props: {} };
+}

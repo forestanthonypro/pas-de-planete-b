@@ -181,3 +181,7 @@ export default function FutureIdeasPage() {
     </div>
   );
 }
+
+export async function getServerSideProps() {
+  return { props: {} };
+}

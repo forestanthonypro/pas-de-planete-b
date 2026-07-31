@@ -179,3 +179,7 @@ export default function IncendiesPage() {
     </div>
   );
 }
+
+export async function getServerSideProps() {
+  return { props: {} };
+}

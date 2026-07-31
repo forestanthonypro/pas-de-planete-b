@@ -189,3 +189,7 @@ export default function PollutionPage() {
     </div>
   );
 }
+
+export async function getServerSideProps() {
+  return { props: {} };
+}

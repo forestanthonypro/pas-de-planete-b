@@ -70,3 +70,7 @@ function AdminHubInner() {
 export default function AdminHub() {
   return <AdminAuthGate>{() => <AdminHubInner />}</AdminAuthGate>;
 }
+
+export async function getServerSideProps() {
+  return { props: {} };
+}

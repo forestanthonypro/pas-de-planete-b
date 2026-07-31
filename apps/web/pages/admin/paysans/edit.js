@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import AdminAuthGate from "../../components/AdminAuthGate";
+import AdminAuthGate from "../../../components/AdminAuthGate";
 import Link from "next/link";
 import { toYoutubeEmbedUrl, isYoutubeUrl } from "../../../lib/youtube";
 
@@ -246,4 +246,8 @@ function AdminPaysanEditInner({ session }) {
 
 export default function AdminPaysanEdit() {
   return <AdminAuthGate>{(session) => <AdminPaysanEditInner session={session} />}</AdminAuthGate>;
+}
+
+export async function getServerSideProps() {
+  return { props: {} };
 }

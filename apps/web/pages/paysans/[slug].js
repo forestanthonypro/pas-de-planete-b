@@ -94,3 +94,7 @@ export default function PaysanDetailPage() {
     </div>
   );
 }
+
+export async function getServerSideProps() {
+  return { props: {} };
+}

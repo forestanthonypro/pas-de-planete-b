@@ -288,3 +288,7 @@ export default function ScrutinPage() {
     </div>
   );
 }
+
+export async function getServerSideProps() {
+  return { props: {} };
+}

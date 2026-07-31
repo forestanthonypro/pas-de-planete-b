@@ -303,3 +303,7 @@ export default function EspecesPage() {
     </div>
   );
 }
+
+export async function getServerSideProps() {
+  return { props: {} };
+}

@@ -227,3 +227,7 @@ export default function RessourcesPage() {
     </div>
   );
 }
+
+export async function getServerSideProps() {
+  return { props: {} };
+}

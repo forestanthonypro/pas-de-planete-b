@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import AdminAuthGate from "../../components/AdminAuthGate";
+import AdminAuthGate from "../../../components/AdminAuthGate";
 import Link from "next/link";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
@@ -248,4 +248,8 @@ function AdminLocationEditInner({ session }) {
 
 export default function AdminLocationEdit() {
   return <AdminAuthGate>{(session) => <AdminLocationEditInner session={session} />}</AdminAuthGate>;
+}
+
+export async function getServerSideProps() {
+  return { props: {} };
 }

@@ -162,3 +162,7 @@ export default function DeputesPage() {
     </div>
   );
 }
+
+export async function getServerSideProps() {
+  return { props: {} };
+}

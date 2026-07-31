@@ -122,3 +122,7 @@ export default function GroupesPage() {
     </div>
   );
 }
+
+export async function getServerSideProps() {
+  return { props: {} };
+}

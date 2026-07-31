@@ -218,3 +218,7 @@ export default function DeputyPage() {
     </div>
   );
 }
+
+export async function getServerSideProps() {
+  return { props: {} };
+}

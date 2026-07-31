@@ -118,3 +118,7 @@ export default function DebunkPage() {
     </div>
   );
 }
+
+export async function getServerSideProps() {
+  return { props: {} };
+}

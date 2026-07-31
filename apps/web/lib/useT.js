@@ -20,9 +20,24 @@ function interpolate(str, params) {
 // n'existe pas dans la langue courante, on retombe sur le français plutôt
 // que d'afficher une clé brute ou du vide — une traduction manquante ne doit
 // jamais casser la lecture de la page.
+//
+// useRouter() lève une erreur ("NextRouter was not mounted") quand aucun
+// contexte routeur n'est disponible — c'est le cas pendant la génération de
+// pages spéciales comme la 404 automatique de Next.js. Le try/catch protège
+// contre ce cas précis ; le hook reste appelé exactement une fois à chaque
+// rendu (jamais sauté ni répété), donc l'avertissement react-hooks/
+// rules-of-hooks ici est un faux positif propre à ce pattern, pas un vrai
+// problème d'ordre des hooks.
 export function useT() {
-  const router = useRouter();
-  const locale = router.locale || "fr";
+  let locale = "fr";
+  try {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const router = useRouter();
+    locale = router?.locale || "fr";
+  } catch {
+    // Pas de routeur disponible (ex: page d'erreur générée automatiquement
+    // pendant le build) — on reste sur le français par défaut.
+  }
   const dict = DICTIONARIES[locale] || DICTIONARIES.fr;
 
   function t(key, params) {

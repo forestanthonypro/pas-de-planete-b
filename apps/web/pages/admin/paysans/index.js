@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import AdminAuthGate from "../../components/AdminAuthGate";
-import Pagination from "../../components/Pagination";
+import AdminAuthGate from "../../../components/AdminAuthGate";
+import Pagination from "../../../components/Pagination";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 const PAGE_SIZE = 20;
@@ -186,4 +186,8 @@ function AdminPaysansListInner({ session }) {
 
 export default function AdminPaysansList() {
   return <AdminAuthGate>{(session) => <AdminPaysansListInner session={session} />}</AdminAuthGate>;
+}
+
+export async function getServerSideProps() {
+  return { props: {} };
 }

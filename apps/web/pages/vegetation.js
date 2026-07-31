@@ -292,3 +292,7 @@ export default function VegetationPage() {
     </div>
   );
 }
+
+export async function getServerSideProps() {
+  return { props: {} };
+}

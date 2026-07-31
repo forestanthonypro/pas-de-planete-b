@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import AdminAuthGate from "../../components/AdminAuthGate";
+import AdminAuthGate from "../../../components/AdminAuthGate";
 import Link from "next/link";
 import { toYoutubeEmbedUrl, isYoutubeUrl } from "../../../lib/youtube";
 
@@ -312,4 +312,8 @@ function AdminInterviewEditInner({ session }) {
 
 export default function AdminInterviewEdit() {
   return <AdminAuthGate>{(session) => <AdminInterviewEditInner session={session} />}</AdminAuthGate>;
+}
+
+export async function getServerSideProps() {
+  return { props: {} };
 }

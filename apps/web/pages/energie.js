@@ -354,3 +354,7 @@ export default function EnergiePage() {
     </div>
   );
 }
+
+export async function getServerSideProps() {
+  return { props: {} };
+}

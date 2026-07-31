@@ -194,3 +194,7 @@ function AdminDebunkListInner({ session }) {
 export default function AdminDebunkList() {
   return <AdminAuthGate>{(session) => <AdminDebunkListInner session={session} />}</AdminAuthGate>;
 }
+
+export async function getServerSideProps() {
+  return { props: {} };
+}

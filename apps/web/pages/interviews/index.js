@@ -136,3 +136,7 @@ export default function InterviewsPage() {
     </div>
   );
 }
+
+export async function getServerSideProps() {
+  return { props: {} };
+}

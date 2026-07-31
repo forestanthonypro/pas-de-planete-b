@@ -132,3 +132,7 @@ export default function PaysansPage() {
     </div>
   );
 }
+
+export async function getServerSideProps() {
+  return { props: {} };
+}

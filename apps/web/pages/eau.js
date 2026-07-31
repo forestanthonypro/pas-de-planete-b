@@ -307,3 +307,7 @@ export default function EauPage() {
     </div>
   );
 }
+
+export async function getServerSideProps() {
+  return { props: {} };
+}
