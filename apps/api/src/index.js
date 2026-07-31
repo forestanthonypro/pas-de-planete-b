@@ -41,6 +41,31 @@ app.use(
 );
 app.use(express.json());
 
+// Limite générale sur toute l'API : protège contre le scraping massif ou les
+// scripts mal intentionnés, sans gêner un usage normal (une personne qui
+// consulte le site ne s'approche jamais de cette limite). Les routes
+// publiques d'écriture (newsletter, suggestions, votes) ont en plus leur
+// propre limite, plus stricte, définie séparément.
+const globalLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Trop de requêtes, réessaie dans une minute." },
+});
+app.use(globalLimiter);
+
+// Limite stricte pour les routes publiques qui écrivent des données sans
+// authentification (inscription newsletter, suggestions, votes citoyens) —
+// plus sujettes à l'abus/spam qu'une simple lecture.
+const publicWriteLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Trop de requêtes, réessaie dans quelques minutes." },
+});
+
 const pool = new pg.Pool({
   connectionString: process.env.DATABASE_URL,
 });
@@ -962,7 +987,7 @@ function isAllowedEmbedUrl(url) {
   }
 }
 
-app.post("/api/newsletter/signup", async (req, res) => {
+app.post("/api/newsletter/signup", publicWriteLimiter, async (req, res) => {
   const { email, areaType, housingType, hasChildren } = req.body || {};
   if (!email || typeof email !== "string" || !EMAIL_RE.test(email.trim())) {
     return res.status(400).json({ error: "Adresse email invalide" });
@@ -986,7 +1011,7 @@ app.post("/api/newsletter/signup", async (req, res) => {
   }
 });
 
-app.post("/api/newsletter/unsubscribe", async (req, res) => {
+app.post("/api/newsletter/unsubscribe", publicWriteLimiter, async (req, res) => {
   const { email } = req.body || {};
   if (!email || typeof email !== "string") {
     return res.status(400).json({ error: "Adresse email invalide" });
@@ -1196,7 +1221,7 @@ app.post("/api/admin/debunk", requireAdminSession, async (req, res) => {
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-app.post("/api/citizen-votes", async (req, res) => {
+app.post("/api/citizen-votes", publicWriteLimiter, async (req, res) => {
   const { anonymousId, legislature, numeroScrutin, position } = req.body || {};
   if (!anonymousId || !UUID_RE.test(anonymousId)) {
     return res.status(400).json({ error: "Identifiant anonyme invalide" });
@@ -1964,7 +1989,7 @@ app.get("/api/charter", async (_req, res) => {
   }
 });
 
-app.post("/api/charter-votes", async (req, res) => {
+app.post("/api/charter-votes", publicWriteLimiter, async (req, res) => {
   const { anonymousId, itemId, voteType } = req.body || {};
   if (!anonymousId || !UUID_RE.test(anonymousId)) {
     return res.status(400).json({ error: "Identifiant anonyme invalide" });
@@ -2005,7 +2030,7 @@ app.get("/api/charter-votes/:anonymousId", async (req, res) => {
   }
 });
 
-app.post("/api/charter-suggestions", async (req, res) => {
+app.post("/api/charter-suggestions", publicWriteLimiter, async (req, res) => {
   const { text } = req.body || {};
   if (!text || !text.trim()) {
     return res.status(400).json({ error: "text est requis" });
@@ -2247,7 +2272,7 @@ app.get("/api/future-ideas", async (_req, res) => {
   }
 });
 
-app.post("/api/future-idea-votes", async (req, res) => {
+app.post("/api/future-idea-votes", publicWriteLimiter, async (req, res) => {
   const { anonymousId, ideaSlug } = req.body || {};
   if (!anonymousId || !UUID_RE.test(anonymousId)) {
     return res.status(400).json({ error: "Identifiant anonyme invalide" });
@@ -2358,7 +2383,7 @@ app.post("/api/admin/future-ideas/:slug/publish", requireAdminSession, async (re
 // Boîte à idées pour "Les enfants d'aujourd'hui et de demain" — jamais
 // publié directement, toujours modéré manuellement (même principe que la
 // boîte à idées de la charte éthique).
-app.post("/api/future-idea-suggestions", async (req, res) => {
+app.post("/api/future-idea-suggestions", publicWriteLimiter, async (req, res) => {
   const { text } = req.body || {};
   if (!text || !text.trim()) {
     return res.status(400).json({ error: "text est requis" });
