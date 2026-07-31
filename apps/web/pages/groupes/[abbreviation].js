@@ -5,6 +5,7 @@ import ShareButtons from "../../components/ShareButtons";
 import PageHeader from "../../components/PageHeader";
 import { IconLandmark } from "../../components/icons";
 import { useT } from "../../lib/useT";
+import ScrollableTable from "../../components/ScrollableTable";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -116,7 +117,8 @@ export default function GroupDetailPage() {
           {recentScrutins.length === 0 ? (
             <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>{t("groupes.no_scrutins")}</p>
           ) : (
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <ScrollableTable>
+<table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
               <thead>
                 <tr>
                   <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("groupes.table_date")}</th>
@@ -144,6 +146,7 @@ export default function GroupDetailPage() {
                 ))}
               </tbody>
             </table>
+</ScrollableTable>
           )}
 
           <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginTop: "1rem" }}>

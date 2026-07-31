@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useT } from "../../lib/useT";
 import PageHeader from "../../components/PageHeader";
 import { IconUsers } from "../../components/icons";
+import ScrollableTable from "../../components/ScrollableTable";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -67,7 +68,7 @@ export default function ParticipationPage() {
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder={t("deputes.search_name_group")}
-        style={{ padding: "6px 10px", minWidth: 260, marginBottom: "1rem" }}
+        style={{ padding: "6px 10px", width: "100%", maxWidth: 320, marginBottom: "1rem" }}
       />
 
       {loading && <p>{t("common.loading")}</p>}
@@ -75,7 +76,8 @@ export default function ParticipationPage() {
       {!loading && !error && filtered.length === 0 && <p>{t("deputes.no_deputies")}</p>}
 
       {!loading && !error && filtered.length > 0 && (
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+        <ScrollableTable>
+<table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
           <thead>
             <tr>
               <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("deputes.table_deputy")}</th>
@@ -97,6 +99,7 @@ export default function ParticipationPage() {
             ))}
           </tbody>
         </table>
+</ScrollableTable>
       )}
 
       <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginTop: "1rem" }}>

@@ -15,6 +15,7 @@ import ShareButtons from "../../components/ShareButtons";
 import { useSobriety } from "../../lib/SobrietyContext";
 import { barEndLabelsPlugin } from "../../lib/barEndLabelsPlugin";
 import { useT } from "../../lib/useT";
+import ScrollableTable from "../../components/ScrollableTable";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -1127,7 +1128,8 @@ export default function PaysDashboard() {
                   <summary style={{ cursor: "pointer", fontSize: 13, color: "var(--color-texte-clair)" }}>
                     {t("pays.energie_table_summary")}
                   </summary>
-                  <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "0.5rem" }}>
+                  <ScrollableTable>
+<table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse", marginTop: "0.5rem" }}>
                     <thead>
                       <tr>
                         <th scope="col" style={{ textAlign: "left", padding: 6 }}>{t("pays.energie_table_type")}</th>
@@ -1147,6 +1149,7 @@ export default function PaysDashboard() {
                       ))}
                     </tbody>
                   </table>
+</ScrollableTable>
                 </details>
               </>
             ) : (
@@ -1196,7 +1199,8 @@ export default function PaysDashboard() {
                   return <p>{t("pays.biodiversity_no_sample")}</p>;
                 }
                 return (
-                  <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                  <ScrollableTable>
+<table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
                     <caption style={{ textAlign: "left", fontSize: 12, color: "var(--color-texte-clair)", marginBottom: 8 }}>
                       {t("pays.biodiversity_sample_caption", { count: list.length })}
                     </caption>
@@ -1231,6 +1235,7 @@ export default function PaysDashboard() {
                       })}
                     </tbody>
                   </table>
+</ScrollableTable>
                 );
               }
 

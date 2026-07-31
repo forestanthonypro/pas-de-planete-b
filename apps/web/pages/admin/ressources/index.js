@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import AdminAuthGate from "../../../components/AdminAuthGate";
 import Pagination from "../../../components/Pagination";
+import ScrollableTable from "../../../components/ScrollableTable";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 const PAGE_SIZE = 20;
@@ -164,7 +165,8 @@ function AdminRessourcesListInner({ session }) {
             {locations.length === 0 ? (
               <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>Aucun lieu pour l&apos;instant.</p>
             ) : (
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <ScrollableTable>
+<table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
                 <thead>
                   <tr>
                     <th scope="col" style={{ textAlign: "left", padding: 8 }}>Nom</th>
@@ -191,6 +193,7 @@ function AdminRessourcesListInner({ session }) {
                   ))}
                 </tbody>
               </table>
+</ScrollableTable>
             )}
             {locations.length > PAGE_SIZE && (
               <Pagination page={locationsPage} totalPages={Math.max(1, Math.ceil(locations.length / PAGE_SIZE))} onChange={setLocationsPage} />
@@ -205,7 +208,8 @@ function AdminRessourcesListInner({ session }) {
             {online.length === 0 ? (
               <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>Aucune ressource en ligne pour l&apos;instant.</p>
             ) : (
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <ScrollableTable>
+<table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
                 <thead>
                   <tr>
                     <th scope="col" style={{ textAlign: "left", padding: 8 }}>Titre</th>
@@ -230,6 +234,7 @@ function AdminRessourcesListInner({ session }) {
                   ))}
                 </tbody>
               </table>
+</ScrollableTable>
             )}
             {online.length > PAGE_SIZE && (
               <Pagination page={onlinePage} totalPages={Math.max(1, Math.ceil(online.length / PAGE_SIZE))} onChange={setOnlinePage} />

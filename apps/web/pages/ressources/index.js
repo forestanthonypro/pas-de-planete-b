@@ -4,6 +4,7 @@ import PageHeader from "../../components/PageHeader";
 import { IconLandmark } from "../../components/icons";
 import { useSobriety } from "../../lib/SobrietyContext";
 import { useT } from "../../lib/useT";
+import ScrollableTable from "../../components/ScrollableTable";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -163,7 +164,8 @@ export default function RessourcesPage() {
           filteredLocations.length === 0 ? (
             <p>{t("ressources.no_locations")}</p>
           ) : (
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <ScrollableTable>
+<table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
               <thead>
                 <tr>
                   <th scope="col" style={{ textAlign: "left", padding: 8 }}>Nom</th>
@@ -190,6 +192,7 @@ export default function RessourcesPage() {
                 ))}
               </tbody>
             </table>
+</ScrollableTable>
           )
         ) : (
           <>

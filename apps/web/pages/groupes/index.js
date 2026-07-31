@@ -4,6 +4,7 @@ import ShareButtons from "../../components/ShareButtons";
 import PageHeader from "../../components/PageHeader";
 import { IconLandmark } from "../../components/icons";
 import { useT } from "../../lib/useT";
+import ScrollableTable from "../../components/ScrollableTable";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -86,7 +87,8 @@ export default function GroupesPage() {
             <canvas ref={canvasRef} role="img" aria-label={t("groupes.chart_alt_participation")} />
           </div>
 
-          <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "1.5rem" }}>
+          <ScrollableTable>
+<table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse", marginTop: "1.5rem" }}>
             <thead>
               <tr>
                 <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("groupes.table_group")}</th>
@@ -112,6 +114,7 @@ export default function GroupesPage() {
                 ))}
             </tbody>
           </table>
+</ScrollableTable>
         </>
       )}
 

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import AdminAuthGate from "../../../components/AdminAuthGate";
 import Pagination from "../../../components/Pagination";
+import ScrollableTable from "../../../components/ScrollableTable";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 const PAGE_SIZE = 20;
@@ -144,7 +145,8 @@ function AdminInterviewsListInner({ session }) {
           {entries.length === 0 ? (
             <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>Aucune entrée pour l&apos;instant.</p>
           ) : (
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <ScrollableTable>
+<table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
               <thead>
                 <tr>
                   <th scope="col" style={{ textAlign: "left", padding: 8 }}>Titre</th>
@@ -173,6 +175,7 @@ function AdminInterviewsListInner({ session }) {
                 ))}
               </tbody>
             </table>
+</ScrollableTable>
           )}
           {entries.length > PAGE_SIZE && (
             <Pagination page={page} totalPages={Math.max(1, Math.ceil(entries.length / PAGE_SIZE))} onChange={setPage} />

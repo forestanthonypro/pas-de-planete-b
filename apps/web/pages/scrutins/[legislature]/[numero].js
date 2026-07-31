@@ -6,6 +6,7 @@ import PageHeader from "../../../components/PageHeader";
 import { IconScale } from "../../../components/icons";
 import CitizenVote from "../../../components/CitizenVote";
 import { useT } from "../../../lib/useT";
+import ScrollableTable from "../../../components/ScrollableTable";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -197,7 +198,8 @@ export default function ScrutinPage() {
               </div>
 
               <h2 style={{ fontSize: 16, marginTop: "1.5rem" }}>{t("scrutins.group_positions_title")}</h2>
-              <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "1rem" }}>
+              <ScrollableTable>
+<table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse", marginBottom: "1rem" }}>
                 <thead>
                   <tr>
                     <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("scrutins.table_group")}</th>
@@ -236,6 +238,7 @@ export default function ScrutinPage() {
                   })}
                 </tbody>
               </table>
+</ScrollableTable>
 
               <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", marginTop: "1rem", marginBottom: "0.5rem" }}>
                 <label>
@@ -255,7 +258,8 @@ export default function ScrutinPage() {
                   style={{ padding: "4px 8px" }}
                 />
               </div>
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <ScrollableTable>
+<table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
                 <thead>
                   <tr>
                     <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("scrutins.table_deputy")}</th>
@@ -277,6 +281,7 @@ export default function ScrutinPage() {
                   ))}
                 </tbody>
               </table>
+</ScrollableTable>
             </>
           ) : (
             <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>{t("scrutins.results_hidden_note")}</p>

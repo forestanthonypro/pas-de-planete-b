@@ -10,6 +10,7 @@ import CountrySelect from "../components/CountrySelect";
 import PageHeader from "../components/PageHeader";
 import { IconPaw } from "../components/icons";
 import ShareButtons from "../components/ShareButtons";
+import ScrollableTable from "../components/ScrollableTable";
 import { useT } from "../lib/useT";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
@@ -194,56 +195,58 @@ export default function EspecesPage() {
       {!loading && !error && filteredSpecies.length === 0 && <p>{t("especes.no_species")}</p>}
 
       {!loading && !error && filteredSpecies.length > 0 && (
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
-          <caption style={{ textAlign: "left", fontSize: 12, color: "var(--color-texte-clair)", marginBottom: 8 }}>
-            {t("especes.table_caption", {
-              country: selectedCountryName,
-              category: category ? ` (${CATEGORY_INFO[category]?.label || category})` : "",
-              group: group ? t("especes.table_group_suffix", { group }) : "",
-            })}
-          </caption>
-          <thead>
-            <tr>
-              <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("especes.table_scientific_name")}</th>
-              <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("especes.table_common_names")}</th>
-              <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("especes.table_group")}</th>
-              <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("especes.table_category")}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredSpecies.map((s) => {
-              const info = CATEGORY_INFO[s.category] || { label: s.category, color: "var(--color-texte-clair)" };
-              const names = formatCommonNames(s.common_names, preferredLang);
-              return (
-                <tr key={s.scientific_name}>
-                  <th scope="row" style={{ textAlign: "left", padding: 8, fontWeight: 400, fontStyle: "italic" }}>
-                    {s.scientific_name}
-                  </th>
-                  <td style={{ textAlign: "left", padding: 8, color: names ? "inherit" : "var(--color-texte-clair)", fontSize: 13 }}>
-                    {names || t("especes.name_unavailable")}
-                  </td>
-                  <td style={{ textAlign: "left", padding: 8 }}>
-                    {speciesGroupLabel(s.kingdom, s.class, s.taxon_order, locale)}
-                  </td>
-                  <td style={{ padding: 8 }}>
-                    <span
-                      style={{
-                        display: "inline-block",
-                        padding: "2px 8px",
-                        borderRadius: 4,
-                        fontSize: 12,
-                        color: "white",
-                        backgroundColor: info.color,
-                      }}
-                    >
-                      {info.label}
-                    </span>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+        <ScrollableTable>
+          <table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
+            <caption style={{ textAlign: "left", fontSize: 12, color: "var(--color-texte-clair)", marginBottom: 8 }}>
+              {t("especes.table_caption", {
+                country: selectedCountryName,
+                category: category ? ` (${CATEGORY_INFO[category]?.label || category})` : "",
+                group: group ? t("especes.table_group_suffix", { group }) : "",
+              })}
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("especes.table_scientific_name")}</th>
+                <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("especes.table_common_names")}</th>
+                <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("especes.table_group")}</th>
+                <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("especes.table_category")}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredSpecies.map((s) => {
+                const info = CATEGORY_INFO[s.category] || { label: s.category, color: "var(--color-texte-clair)" };
+                const names = formatCommonNames(s.common_names, preferredLang);
+                return (
+                  <tr key={s.scientific_name}>
+                    <th scope="row" style={{ textAlign: "left", padding: 8, fontWeight: 400, fontStyle: "italic" }}>
+                      {s.scientific_name}
+                    </th>
+                    <td style={{ textAlign: "left", padding: 8, color: names ? "inherit" : "var(--color-texte-clair)", fontSize: 13 }}>
+                      {names || t("especes.name_unavailable")}
+                    </td>
+                    <td style={{ textAlign: "left", padding: 8 }}>
+                      {speciesGroupLabel(s.kingdom, s.class, s.taxon_order, locale)}
+                    </td>
+                    <td style={{ padding: 8 }}>
+                      <span
+                        style={{
+                          display: "inline-block",
+                          padding: "2px 8px",
+                          borderRadius: 4,
+                          fontSize: 12,
+                          color: "white",
+                          backgroundColor: info.color,
+                        }}
+                      >
+                        {info.label}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </ScrollableTable>
       )}
 
       <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginTop: "1rem" }}>
@@ -271,24 +274,26 @@ export default function EspecesPage() {
             <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>
               {t("especes.world_reference_explain", { country: selectedCountryName })}
             </p>
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
-              <thead>
-                <tr>
-                  <th scope="col" style={{ textAlign: "left", padding: 6 }}>{t("especes.table_world_group")}</th>
-                  <th scope="col" style={{ textAlign: "right", padding: 6 }}>{t("especes.table_world_count")}</th>
-                  <th scope="col" style={{ textAlign: "right", padding: 6 }}>{t("especes.table_world_share")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {globalShare.map((g) => (
-                  <tr key={g.taxon_group}>
-                    <th scope="row" style={{ textAlign: "left", padding: 6, fontWeight: 400 }}>{translateTaxonGroup(g.taxon_group, locale)}</th>
-                    <td style={{ textAlign: "right", padding: 6 }}>{g.species_count != null ? g.species_count.toLocaleString("fr-FR") : "—"}</td>
-                    <td style={{ textAlign: "right", padding: 6 }}>{g.share_percent} %</td>
+            <ScrollableTable>
+              <table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
+                <thead>
+                  <tr>
+                    <th scope="col" style={{ textAlign: "left", padding: 6 }}>{t("especes.table_world_group")}</th>
+                    <th scope="col" style={{ textAlign: "right", padding: 6 }}>{t("especes.table_world_count")}</th>
+                    <th scope="col" style={{ textAlign: "right", padding: 6 }}>{t("especes.table_world_share")}</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {globalShare.map((g) => (
+                    <tr key={g.taxon_group}>
+                      <th scope="row" style={{ textAlign: "left", padding: 6, fontWeight: 400 }}>{translateTaxonGroup(g.taxon_group, locale)}</th>
+                      <td style={{ textAlign: "right", padding: 6 }}>{g.species_count != null ? g.species_count.toLocaleString("fr-FR") : "—"}</td>
+                      <td style={{ textAlign: "right", padding: 6 }}>{g.share_percent} %</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </ScrollableTable>
           </>
         )}
 

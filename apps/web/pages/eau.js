@@ -9,6 +9,7 @@ import { IconDroplet } from "../components/icons";
 import ShareButtons from "../components/ShareButtons";
 import { useWorldBenchmarks } from "../lib/useWorldBenchmarks";
 import { useT } from "../lib/useT";
+import ScrollableTable from "../components/ScrollableTable";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -252,7 +253,8 @@ export default function EauPage() {
       )}
 
       {!loading && !error && view === "table" && (
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+        <ScrollableTable>
+<table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
           <caption style={{ textAlign: "left", fontSize: 12, color: "var(--color-texte-clair)", marginBottom: 8 }}>
             {t("eau.table_caption", { country: selectedCountryName })}
           </caption>
@@ -285,6 +287,7 @@ export default function EauPage() {
             ))}
           </tbody>
         </table>
+</ScrollableTable>
       )}
 
       <details style={{ marginTop: "1rem", fontSize: 13, color: "var(--color-texte-clair)" }}>

@@ -7,6 +7,7 @@ import Pagination from "../../components/Pagination";
 import SearchableSelect from "../../components/SearchableSelect";
 import { IconUsers } from "../../components/icons";
 import { useT } from "../../lib/useT";
+import ScrollableTable from "../../components/ScrollableTable";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 const PAGE_SIZE = 30;
@@ -96,7 +97,7 @@ export default function DeputesPage() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={t("deputes.search_placeholder")}
-          style={{ padding: "6px 10px", minWidth: 260 }}
+          style={{ padding: "6px 10px", width: "100%", maxWidth: 260 }}
         />
         <SearchableSelect
           options={groupOptions}
@@ -123,7 +124,8 @@ export default function DeputesPage() {
       {!loading && !error && filtered.length === 0 && <p>{t("deputes.no_deputies")}</p>}
 
       {!loading && !error && filtered.length > 0 && (
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+        <ScrollableTable>
+<table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
           <thead>
             <tr>
               <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("deputes.table_name")}</th>
@@ -145,6 +147,7 @@ export default function DeputesPage() {
             ))}
           </tbody>
         </table>
+</ScrollableTable>
       )}
 
       {!loading && !error && filtered.length > PAGE_SIZE && (

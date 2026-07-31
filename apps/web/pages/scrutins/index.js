@@ -7,6 +7,7 @@ import { IconScale } from "../../components/icons";
 import { useT } from "../../lib/useT";
 import { getConsent, getAnonymousId } from "../../lib/anonymousId";
 import { fetchCitizenVotes } from "../../lib/citizenVotes";
+import ScrollableTable from "../../components/ScrollableTable";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 const PAGE_SIZE = 30;
@@ -129,14 +130,14 @@ export default function ScrutinsPage() {
         <label htmlFor="scrutin-search" style={{ display: "block", marginBottom: "0.25rem" }}>
           {t("scrutins.search_label")}
         </label>
-        <div style={{ display: "flex", gap: "0.5rem" }}>
+        <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
           <input
             id="scrutin-search"
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={t("scrutins.search_placeholder")}
-            style={{ padding: "6px 10px", minWidth: 320, flex: 1 }}
+            style={{ padding: "6px 10px", flex: "1 1 200px" }}
           />
           <button type="submit">{t("scrutins.search_button")}</button>
         </div>
@@ -158,7 +159,8 @@ export default function ScrutinsPage() {
             const searchPageItems = searchResults.slice((searchPage - 1) * PAGE_SIZE, searchPage * PAGE_SIZE);
             return (
             <>
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <ScrollableTable>
+<table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
               <thead>
                 <tr>
                   <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("scrutins.table_date")}</th>
@@ -182,6 +184,7 @@ export default function ScrutinsPage() {
                 ))}
               </tbody>
             </table>
+</ScrollableTable>
             <Pagination page={searchPage} totalPages={searchTotalPages} onChange={setSearchPage} />
             </>
             );
@@ -221,7 +224,8 @@ export default function ScrutinsPage() {
         const pageItems = filteredScrutins.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
         return (
           <>
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+        <ScrollableTable>
+<table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
           <thead>
             <tr>
               <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("scrutins.table_date")}</th>
@@ -253,6 +257,7 @@ export default function ScrutinsPage() {
               ))}
           </tbody>
         </table>
+</ScrollableTable>
         <Pagination page={page} totalPages={totalPages} onChange={setPage} />
           </>
         );

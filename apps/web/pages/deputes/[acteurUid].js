@@ -5,6 +5,7 @@ import ShareButtons from "../../components/ShareButtons";
 import PageHeader from "../../components/PageHeader";
 import { IconUsers } from "../../components/icons";
 import { useT } from "../../lib/useT";
+import ScrollableTable from "../../components/ScrollableTable";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -178,7 +179,8 @@ export default function DeputyPage() {
                   </select>
                 </label>
               </div>
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <ScrollableTable>
+<table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
                 <thead>
                   <tr>
                     <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("deputes.table_date")}</th>
@@ -206,6 +208,7 @@ export default function DeputyPage() {
                   ))}
                 </tbody>
               </table>
+</ScrollableTable>
               {filteredVotes.length === 0 && (
                 <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>{t("deputes.no_matching_votes")}</p>
               )}

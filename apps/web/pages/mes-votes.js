@@ -5,6 +5,7 @@ import { fetchCitizenVotes, fetchCitizenAlignment, deleteAllCitizenVotes } from 
 import { useT } from "../lib/useT";
 import PageHeader from "../components/PageHeader";
 import { IconCheck } from "../components/icons";
+import ScrollableTable from "../components/ScrollableTable";
 
 const POSITION_LABELS_KEYS = { pour: "scrutins.pos_pour", contre: "scrutins.pos_contre", abstention: "scrutins.pos_abstention" };
 
@@ -107,7 +108,8 @@ export default function MesVotesPage() {
         <>
           <section style={{ marginBottom: "2rem" }}>
             <h2 style={{ fontSize: 18 }}>{t("citizenVote.history_title")}</h2>
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <ScrollableTable>
+<table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
               <thead>
                 <tr>
                   <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("citizenVote.table_date")}</th>
@@ -133,6 +135,7 @@ export default function MesVotesPage() {
                 ))}
               </tbody>
             </table>
+</ScrollableTable>
           </section>
 
           {alignment && (
@@ -149,7 +152,8 @@ export default function MesVotesPage() {
                   {alignment.groups.length > 0 && (
                     <>
                       <h3 style={{ fontSize: 15 }}>{t("citizenVote.alignment_groups_title")}</h3>
-                      <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "1.5rem" }}>
+                      <ScrollableTable>
+<table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse", marginBottom: "1.5rem" }}>
                         <thead>
                           <tr>
                             <th scope="col" style={{ textAlign: "left", padding: 6 }}>{t("citizenVote.table_group")}</th>
@@ -171,13 +175,15 @@ export default function MesVotesPage() {
                           ))}
                         </tbody>
                       </table>
+</ScrollableTable>
                     </>
                   )}
 
                   {alignment.deputies.length > 0 && (
                     <>
                       <h3 style={{ fontSize: 15 }}>{t("citizenVote.alignment_deputies_title")}</h3>
-                      <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                      <ScrollableTable>
+<table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
                         <thead>
                           <tr>
                             <th scope="col" style={{ textAlign: "left", padding: 6 }}>{t("citizenVote.table_deputy")}</th>
@@ -201,6 +207,7 @@ export default function MesVotesPage() {
                           ))}
                         </tbody>
                       </table>
+</ScrollableTable>
                     </>
                   )}
                 </>

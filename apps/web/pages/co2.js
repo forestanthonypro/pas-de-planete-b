@@ -8,6 +8,7 @@ import CountrySelect from "../components/CountrySelect";
 import PageHeader from "../components/PageHeader";
 import { IconCloud } from "../components/icons";
 import ShareButtons from "../components/ShareButtons";
+import ScrollableTable from "../components/ScrollableTable";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -162,7 +163,8 @@ export default function Co2Page() {
       )}
 
       {!loading && !error && view === "table" && (
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+        <ScrollableTable>
+<table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
           <caption style={{ textAlign: "left", fontSize: 12, color: "var(--color-texte-clair)", marginBottom: 8 }}>
             {t("co2.table_caption", { country: selectedCountryName })}
           </caption>
@@ -185,6 +187,7 @@ export default function Co2Page() {
             ))}
           </tbody>
         </table>
+</ScrollableTable>
       )}
 
       <details style={{ marginBottom: "1rem", fontSize: 13, color: "var(--color-texte-clair)" }}>
