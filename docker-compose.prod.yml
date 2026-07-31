@@ -9,6 +9,11 @@ services:
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
+      # Redirige systématiquement tout trafic HTTP (port 80) vers HTTPS —
+      # sans ça, http://pasdeplaneteb.fr reste servi en clair au lieu de
+      # basculer automatiquement sur la version chiffrée.
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
       - "--certificatesresolvers.le.acme.httpchallenge=true"
       - "--certificatesresolvers.le.acme.httpchallenge.entrypoint=web"
       - "--certificatesresolvers.le.acme.email=admin@pasdeplaneteb.fr"
@@ -43,6 +48,14 @@ services:
       - "traefik.http.routers.api.rule=Host(`api.pasdeplaneteb.fr`)"
       - "traefik.http.routers.api.entrypoints=websecure"
       - "traefik.http.routers.api.tls.certresolver=le"
+      - "traefik.http.routers.api.middlewares=security-headers"
+      # HSTS : demande au navigateur de toujours utiliser HTTPS pour ce
+      # domaine pendant 6 mois (15552000s), y compris les sous-domaines —
+      # même durée que celle déjà envoyée par Helmet côté API elle-même.
+      - "traefik.http.middlewares.security-headers.headers.stsSeconds=15552000"
+      - "traefik.http.middlewares.security-headers.headers.stsIncludeSubdomains=true"
+      - "traefik.http.middlewares.security-headers.headers.stsPreload=true"
+      - "traefik.http.middlewares.security-headers.headers.forceSTSHeader=true"
 
   web:
     image: ${REGISTRY}/web:latest
@@ -55,6 +68,7 @@ services:
       - "traefik.http.routers.web.rule=Host(`pasdeplaneteb.fr`)"
       - "traefik.http.routers.web.entrypoints=websecure"
       - "traefik.http.routers.web.tls.certresolver=le"
+      - "traefik.http.routers.web.middlewares=security-headers"
 
 volumes:
   postgres-data:

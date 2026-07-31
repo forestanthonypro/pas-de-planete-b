@@ -1,6 +1,8 @@
 import express from "express";
 import cors from "cors";
 import pg from "pg";
+import rateLimit from "express-rate-limit";
+import helmet from "helmet";
 import { ingestCo2 } from "./ingest/co2.js";
 import { ingestPowerPlants } from "./ingest/power_plants.js";
 import { ingestSpecies } from "./ingest/species.js";
@@ -20,6 +22,17 @@ import crypto from "crypto";
 
 const app = express();
 const port = process.env.API_PORT || 4000;
+
+// En-têtes de sécurité HTTP standards (X-Content-Type-Options,
+// X-Frame-Options, Strict-Transport-Security, etc.). L'API et le site web
+// tournent sur des origines différentes (ports/domaines distincts) — sans
+// crossOriginResourcePolicy: "cross-origin", le navigateur bloquerait les
+// appels fetch() faits directement depuis le frontend vers cette API.
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  })
+);
 
 app.use(
   cors({
@@ -46,6 +59,19 @@ function requireIngestToken(req, res, next) {
 // INGEST_TOKEN puisqu'elles tournent sans intervention humaine).
 const SESSION_DURATION_MS = 12 * 60 * 60 * 1000; // 12h
 
+// Limite les tentatives de code TOTP : un code à 6 chiffres est cassable par
+// force brute sans cette protection (1 000 000 de combinaisons, plusieurs
+// codes valides simultanément à cause de la fenêtre de tolérance ±30s).
+// 5 tentatives par IP toutes les 15 minutes est large pour un usage humain
+// normal (on tape rarement 5 codes faux d'affilée) mais bloque un script.
+const otpLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Trop de tentatives. Réessaie dans quelques minutes." },
+});
+
 async function requireAdminSession(req, res, next) {
   const auth = req.header("authorization") || "";
   const token = auth.startsWith("Bearer ") ? auth.slice(7) : null;
@@ -66,7 +92,7 @@ async function requireAdminSession(req, res, next) {
   }
 }
 
-app.post("/api/admin/auth/verify-otp", async (req, res) => {
+app.post("/api/admin/auth/verify-otp", otpLimiter, async (req, res) => {
   const { code } = req.body || {};
   if (!process.env.ADMIN_TOTP_SECRET) {
     return res.status(500).json({ error: "ADMIN_TOTP_SECRET n'est pas configuré côté serveur" });
@@ -908,6 +934,34 @@ app.post("/api/admin/ingest/deputy-votes", requireIngestToken, async (_req, res)
 // séparément, une fois choisi.
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+// Liste blanche des plateformes autorisées pour embedUrl (interviews et
+// ressources "paysans"). embedUrl est injecté tel quel dans un <iframe src>
+// public côté frontend — sans cette validation, une session admin compromise
+// pourrait faire charger n'importe quel contenu arbitraire à tous les
+// visiteurs du site. La conversion automatique côté interface d'admin
+// (toYoutubeEmbedUrl) est un confort, pas une protection : elle n'empêche
+// pas un appel direct à l'API avec une autre valeur.
+const ALLOWED_EMBED_HOSTS = [
+  "www.youtube.com",
+  "youtube.com",
+  "youtube-nocookie.com",
+  "www.youtube-nocookie.com",
+  "open.spotify.com",
+  "embed.podcasts.apple.com",
+  "podcasts.apple.com",
+];
+
+function isAllowedEmbedUrl(url) {
+  if (!url) return true; // champ optionnel, absence acceptée
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol !== "https:") return false;
+    return ALLOWED_EMBED_HOSTS.includes(parsed.hostname);
+  } catch {
+    return false;
+  }
+}
+
 app.post("/api/newsletter/signup", async (req, res) => {
   const { email, areaType, housingType, hasChildren } = req.body || {};
   if (!email || typeof email !== "string" || !EMAIL_RE.test(email.trim())) {
@@ -1404,6 +1458,9 @@ app.post("/api/admin/science-relays", requireAdminSession, async (req, res) => {
   if (!["video", "article", "podcast"].includes(contentType)) {
     return res.status(400).json({ error: "contentType doit être 'video', 'article' ou 'podcast'" });
   }
+  if (embedUrl && !isAllowedEmbedUrl(embedUrl)) {
+    return res.status(400).json({ error: "embedUrl doit provenir de YouTube, Spotify ou Apple Podcasts" });
+  }
   try {
     await pool.query(
       `INSERT INTO science_relays
@@ -1565,6 +1622,9 @@ app.post("/api/admin/paysan-resources", requireAdminSession, async (req, res) =>
   }
   if (!["video", "article", "podcast", "document"].includes(contentType)) {
     return res.status(400).json({ error: "contentType invalide" });
+  }
+  if (embedUrl && !isAllowedEmbedUrl(embedUrl)) {
+    return res.status(400).json({ error: "embedUrl doit provenir de YouTube, Spotify ou Apple Podcasts" });
   }
   try {
     await pool.query(
