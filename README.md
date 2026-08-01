@@ -81,4 +81,6 @@ Après le premier déploiement, mettre à jour les secrets GitHub `INGEST_TOKEN`
 
 ## Licence
 
-À définir — une licence copyleft (AGPL-3.0) est cohérente avec l'esprit transparence/données ouvertes du projet, mais MIT reste une option plus permissive si vous voulez faciliter la réutilisation par d'autres associations. À trancher avant le premier commit public.
+Ce projet est distribué sous licence **GNU Affero General Public License v3.0 (AGPL-3.0)** — voir le fichier [`LICENSE`](./LICENSE) à la racine du dépôt pour le texte complet.
+
+Choix motivé par l'esprit transparence/données ouvertes du projet : contrairement à une licence permissive (MIT), l'AGPL garantit que toute personne qui modifie le code et le fait tourner sur un serveur public (site web, API) doit rendre ses propres modifications disponibles aux utilisateurs de ce service — pas seulement en cas de distribution d'un fichier. Ça empêche qu'une version dérivée fermée (associative ou commerciale) s'écarte du principe d'ouverture du projet d'origine.
