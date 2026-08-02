@@ -1301,6 +1301,67 @@ app.post("/api/admin/deputy-follows/send-digests", requireIngestToken, async (_r
 // d'ingestion. Seules les entrées "published = true" sont visibles
 // publiquement.
 
+// --- Traductions de contenu admin (générique, réutilisable) ---
+// Le français reste la donnée "source" dans les tables existantes ; cette
+// table ne stocke que les variantes dans les autres langues, en overlay.
+// Pour l'instant seul "debunk" l'utilise ; le même mécanisme sera repris
+// pour interviews, paysans, ressources, charte, idées enfants.
+const TRANSLATABLE_CONTENT_TYPES = ["debunk", "interview"];
+const TRANSLATABLE_FIELDS = {
+  debunk: ["myth", "reality", "claim_quote"],
+  interview: ["title", "description", "scientist_field"],
+};
+
+app.get("/api/admin/content-translations/:contentType/:contentId", requireAdminSession, async (req, res) => {
+  const { contentType, contentId } = req.params;
+  if (!TRANSLATABLE_CONTENT_TYPES.includes(contentType)) {
+    return res.status(400).json({ error: "Type de contenu invalide" });
+  }
+  try {
+    const result = await pool.query(
+      "SELECT field_name, locale, value FROM content_translations WHERE content_type = $1 AND content_id = $2",
+      [contentType, contentId]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: "Erreur serveur", detail: err.message });
+  }
+});
+
+app.post("/api/admin/content-translations", requireAdminSession, async (req, res) => {
+  const { contentType, contentId, fieldName, locale, value } = req.body || {};
+  if (!TRANSLATABLE_CONTENT_TYPES.includes(contentType)) {
+    return res.status(400).json({ error: "Type de contenu invalide" });
+  }
+  if (!TRANSLATABLE_FIELDS[contentType]?.includes(fieldName)) {
+    return res.status(400).json({ error: "Champ non traduisible pour ce type de contenu" });
+  }
+  if (!contentId || !locale || typeof value !== "string") {
+    return res.status(400).json({ error: "contentId, locale et value sont requis" });
+  }
+  try {
+    if (value.trim() === "") {
+      // Valeur vidée par l'admin : on supprime la traduction plutôt que de
+      // stocker une chaîne vide, pour que le repli sur le français s'applique.
+      await pool.query(
+        "DELETE FROM content_translations WHERE content_type = $1 AND content_id = $2 AND field_name = $3 AND locale = $4",
+        [contentType, contentId, fieldName, locale]
+      );
+    } else {
+      await pool.query(
+        `INSERT INTO content_translations (content_type, content_id, field_name, locale, value, updated_at)
+         VALUES ($1, $2, $3, $4, $5, now())
+         ON CONFLICT (content_type, content_id, field_name, locale)
+         DO UPDATE SET value = $5, updated_at = now()`,
+        [contentType, contentId, fieldName, locale, value]
+      );
+    }
+    res.json({ status: "ok" });
+  } catch (err) {
+    res.status(500).json({ error: "Erreur serveur", detail: err.message });
+  }
+});
+
 app.get("/api/debunk-categories", async (_req, res) => {
   try {
     const result = await pool.query("SELECT id, name, slug FROM debunk_categories ORDER BY name");
@@ -1311,7 +1372,7 @@ app.get("/api/debunk-categories", async (_req, res) => {
 });
 
 app.get("/api/debunk", async (req, res) => {
-  const { category } = req.query;
+  const { category, locale } = req.query;
   try {
     const params = [];
     let where = "WHERE d.published = true";
@@ -1328,13 +1389,27 @@ app.get("/api/debunk", async (req, res) => {
        ORDER BY d.updated_at DESC`,
       params
     );
-    res.json(result.rows);
+    let rows = result.rows;
+    if (locale && locale !== "fr") {
+      const trResult = await pool.query(
+        "SELECT content_id, field_name, value FROM content_translations WHERE content_type = 'debunk' AND locale = $1",
+        [locale]
+      );
+      const overrides = {};
+      for (const r of trResult.rows) {
+        overrides[r.content_id] = overrides[r.content_id] || {};
+        overrides[r.content_id][r.field_name] = r.value;
+      }
+      rows = rows.map((row) => ({ ...row, ...(overrides[row.slug] || {}) }));
+    }
+    res.json(rows);
   } catch (err) {
     res.status(503).json({ error: "Données non initialisées", detail: err.message });
   }
 });
 
 app.get("/api/debunk/:slug", async (req, res) => {
+  const { locale } = req.query;
   try {
     const entryResult = await pool.query(
       `SELECT d.*, c.name AS category_name, c.slug AS category_slug
@@ -1346,11 +1421,21 @@ app.get("/api/debunk/:slug", async (req, res) => {
     if (entryResult.rows.length === 0) {
       return res.status(404).json({ error: "Entrée non trouvée" });
     }
+    let entry = entryResult.rows[0];
+    if (locale && locale !== "fr") {
+      const trResult = await pool.query(
+        "SELECT field_name, value FROM content_translations WHERE content_type = 'debunk' AND content_id = $1 AND locale = $2",
+        [req.params.slug, locale]
+      );
+      for (const r of trResult.rows) {
+        entry[r.field_name] = r.value;
+      }
+    }
     const sourcesResult = await pool.query(
       "SELECT label, url FROM debunk_sources WHERE debunk_slug = $1 ORDER BY id",
       [req.params.slug]
     );
-    res.json({ entry: entryResult.rows[0], sources: sourcesResult.rows });
+    res.json({ entry, sources: sourcesResult.rows });
   } catch (err) {
     res.status(503).json({ error: "Données non initialisées", detail: err.message });
   }
@@ -1673,7 +1758,7 @@ app.delete("/api/admin/interview-categories/:id", requireAdminSession, async (re
 });
 
 app.get("/api/science-relays", async (req, res) => {
-  const { category } = req.query;
+  const { category, locale } = req.query;
   try {
     const params = [];
     let where = "WHERE r.published = true";
@@ -1690,13 +1775,27 @@ app.get("/api/science-relays", async (req, res) => {
        ORDER BY r.updated_at DESC`,
       params
     );
-    res.json(result.rows);
+    let rows = result.rows;
+    if (locale && locale !== "fr") {
+      const trResult = await pool.query(
+        "SELECT content_id, field_name, value FROM content_translations WHERE content_type = 'interview' AND locale = $1",
+        [locale]
+      );
+      const overrides = {};
+      for (const r of trResult.rows) {
+        overrides[r.content_id] = overrides[r.content_id] || {};
+        overrides[r.content_id][r.field_name] = r.value;
+      }
+      rows = rows.map((row) => ({ ...row, ...(overrides[row.slug] || {}) }));
+    }
+    res.json(rows);
   } catch (err) {
     res.status(503).json({ error: "Données non initialisées", detail: err.message });
   }
 });
 
 app.get("/api/science-relays/:slug", async (req, res) => {
+  const { locale } = req.query;
   try {
     const result = await pool.query(
       `SELECT r.*, c.name AS category_name, c.slug AS category_slug
@@ -1708,7 +1807,17 @@ app.get("/api/science-relays/:slug", async (req, res) => {
     if (result.rows.length === 0) {
       return res.status(404).json({ error: "Entrée non trouvée" });
     }
-    res.json(result.rows[0]);
+    const entry = result.rows[0];
+    if (locale && locale !== "fr") {
+      const trResult = await pool.query(
+        "SELECT field_name, value FROM content_translations WHERE content_type = 'interview' AND content_id = $1 AND locale = $2",
+        [req.params.slug, locale]
+      );
+      for (const r of trResult.rows) {
+        entry[r.field_name] = r.value;
+      }
+    }
+    res.json(entry);
   } catch (err) {
     res.status(503).json({ error: "Données non initialisées", detail: err.message });
   }

@@ -4,6 +4,7 @@ import ShareButtons from "../../components/ShareButtons";
 import PageHeader from "../../components/PageHeader";
 import { IconSearch } from "../../components/icons";
 import { useT } from "../../lib/useT";
+import { localeTag } from "../../lib/dateLocale";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -14,7 +15,7 @@ const VERDICT_COLORS = {
 };
 
 export default function DebunkPage() {
-  const { t } = useT();
+  const { t, locale } = useT();
   const [entries, setEntries] = useState([]);
   const [categories, setCategories] = useState([]);
   const [categoryFilter, setCategoryFilter] = useState("");
@@ -23,7 +24,7 @@ export default function DebunkPage() {
 
   useEffect(() => {
     Promise.all([
-      fetch(`${API_URL}/api/debunk`).then((res) => {
+      fetch(`${API_URL}/api/debunk?locale=${locale}`).then((res) => {
         if (!res.ok) throw new Error(t("debunk.error_no_data"));
         return res.json();
       }),
@@ -39,7 +40,7 @@ export default function DebunkPage() {
         setLoading(false);
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [locale]);
 
   const filtered = useMemo(() => {
     if (!categoryFilter) return entries;
@@ -104,7 +105,7 @@ export default function DebunkPage() {
                 <p style={{ fontSize: 15, fontWeight: 500, margin: "10px 0 6px", lineHeight: 1.4 }}>{e.myth}</p>
                 <p style={{ fontSize: 12, color: "var(--color-texte-clair)", margin: 0 }}>
                   {e.category_name ? `${e.category_name} · ` : ""}
-                  {new Date(e.updated_at).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}
+                  {new Date(e.updated_at).toLocaleDateString(localeTag(locale), { day: "numeric", month: "long", year: "numeric" })}
                 </p>
               </div>
             </Link>

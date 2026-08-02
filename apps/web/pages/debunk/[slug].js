@@ -14,7 +14,7 @@ const VERDICT_COLORS = {
 };
 
 export default function DebunkEntryPage() {
-  const { t } = useT();
+  const { t, locale } = useT();
   const router = useRouter();
   const { slug } = router.query;
   const [entry, setEntry] = useState(null);
@@ -26,7 +26,7 @@ export default function DebunkEntryPage() {
     if (!slug) return;
     setLoading(true);
     setError(null);
-    fetch(`${API_URL}/api/debunk/${slug}`)
+    fetch(`${API_URL}/api/debunk/${slug}?locale=${locale}`)
       .then((res) => {
         if (!res.ok) throw new Error(t("debunk.entry_not_found"));
         return res.json();
@@ -41,7 +41,7 @@ export default function DebunkEntryPage() {
         setLoading(false);
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [slug]);
+  }, [slug, locale]);
 
   function verdictLabel(verdict) {
     if (verdict === "trompeur") return t("debunk.verdict_trompeur");
@@ -66,9 +66,9 @@ export default function DebunkEntryPage() {
           <h1 style={{ margin: "12px 0 6px" }}>{entry.myth}</h1>
           <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginBottom: "1rem" }}>
             {entry.category_name && `${entry.category_name} · `}
-            {t("debunk.published_on", { date: formatDate(entry.created_at) })}
+            {t("debunk.published_on", { date: formatDate(entry.created_at, locale) })}
             {entry.updated_at && entry.updated_at !== entry.created_at && (
-              <>{t("debunk.updated_on", { date: formatDate(entry.updated_at) })}</>
+              <>{t("debunk.updated_on", { date: formatDate(entry.updated_at, locale) })}</>
             )}
           </p>
 

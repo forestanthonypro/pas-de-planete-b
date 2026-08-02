@@ -1,9 +1,16 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import AdminAuthGate from "../../../components/AdminAuthGate";
+import ContentTranslationsEditor from "../../../components/ContentTranslationsEditor";
 import Link from "next/link";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+
+const TRANSLATION_FIELDS = [
+  { name: "myth", label: "Titre / affirmation démontée", multiline: false },
+  { name: "claim_quote", label: "Citation exacte de l'affirmation", multiline: true },
+  { name: "reality", label: "Ce qu'il en est vraiment", multiline: true },
+];
 
 function slugify(text) {
   return text
@@ -33,7 +40,6 @@ function AdminDebunkEditInner({ session }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [status, setStatus] = useState("idle"); // idle | saving | done
-
 
   useEffect(() => {
     fetch(`${API_URL}/api/debunk-categories`)
@@ -138,7 +144,6 @@ function AdminDebunkEditInner({ session }) {
         <Link href="/admin/debunk">← Retour à la liste</Link>
       </p>
       <h1>{isEditing ? "Modifier l'entrée" : "Nouvelle entrée"}</h1>
-
 
       {loading && <p>Chargement...</p>}
       {error && <p role="alert" style={{ color: "#d63e2a" }}>{error}</p>}
@@ -284,6 +289,14 @@ function AdminDebunkEditInner({ session }) {
           </button>
         </div>
       </form>
+
+      <ContentTranslationsEditor
+        contentType="debunk"
+        contentId={isEditing ? slug : null}
+        fields={TRANSLATION_FIELDS}
+        baseValues={{ myth, claim_quote: claimQuote, reality }}
+        sessionToken={session.sessionToken}
+      />
     </div>
   );
 }

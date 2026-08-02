@@ -1,10 +1,17 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import AdminAuthGate from "../../../components/AdminAuthGate";
+import ContentTranslationsEditor from "../../../components/ContentTranslationsEditor";
 import Link from "next/link";
 import { toYoutubeEmbedUrl, isYoutubeUrl } from "../../../lib/youtube";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+
+const TRANSLATION_FIELDS = [
+  { name: "title", label: "Titre", multiline: false },
+  { name: "scientist_field", label: "Domaine", multiline: false },
+  { name: "description", label: "Résumé", multiline: true },
+];
 
 function slugify(text) {
   return text
@@ -38,7 +45,6 @@ function AdminInterviewEditInner({ session }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [status, setStatus] = useState("idle");
-
 
   useEffect(() => {
     fetch(`${API_URL}/api/interview-categories`)
@@ -85,8 +91,6 @@ function AdminInterviewEditInner({ session }) {
     if (!isEditing && !slugTouched) setSlug(slugify(value));
   }
 
-  // Convertit automatiquement une URL YouTube "normale" en URL
-  // d'intégration — pas besoin de connaître le format embed.
   function handleSourceUrlChange(value) {
     setSourceUrl(value);
     if (contentType === "video" && isYoutubeUrl(value)) {
@@ -149,7 +153,6 @@ function AdminInterviewEditInner({ session }) {
         <Link href="/admin/interviews">← Retour à la liste</Link>
       </p>
       <h1>{isEditing ? "Modifier l'entrée" : "Nouvelle entrée"}</h1>
-
 
       {loading && <p>Chargement...</p>}
       {error && <p role="alert" style={{ color: "#d63e2a" }}>{error}</p>}
@@ -306,6 +309,14 @@ function AdminInterviewEditInner({ session }) {
           {status === "saving" ? "Enregistrement..." : "Enregistrer"}
         </button>
       </form>
+
+      <ContentTranslationsEditor
+        contentType="interview"
+        contentId={isEditing ? slug : null}
+        fields={TRANSLATION_FIELDS}
+        baseValues={{ title, scientist_field: scientistField, description }}
+        sessionToken={session.sessionToken}
+      />
     </div>
   );
 }
