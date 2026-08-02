@@ -3,7 +3,6 @@ import { detectDefaultCountry } from "../lib/detectCountry";
 import { speciesGroupLabel } from "../lib/speciesGroups";
 import { translateTaxonGroup } from "../lib/taxonGroupNames";
 import { formatCommonNames } from "../lib/commonNames";
-import { detectPreferredLanguage } from "../lib/detectLanguage";
 import { useLastUpdated, formatDate } from "../lib/useLastUpdated";
 import { localizedCountryName } from "../lib/countryNames";
 import CountrySelect from "../components/CountrySelect";
@@ -32,7 +31,6 @@ export default function EspecesPage() {
   const { t, locale } = useT();
   const CATEGORY_INFO = useCategoryInfo(t);
   const lastUpdated = useLastUpdated();
-  const [preferredLang, setPreferredLang] = useState(null);
   const [countries, setCountries] = useState([]);
   const [country, setCountry] = useState("FRA");
   const [categories, setCategories] = useState([]);
@@ -48,7 +46,6 @@ export default function EspecesPage() {
 
   useEffect(() => {
     setCountry(detectDefaultCountry());
-    setPreferredLang(detectPreferredLanguage());
   }, []);
 
   useEffect(() => {
@@ -149,7 +146,7 @@ export default function EspecesPage() {
     if (group && !availableGroups.includes(group)) setGroup("");
   }, [availableGroups, group]);
 
-  const selectedCountryName = localizedCountryName(country, preferredLang);
+  const selectedCountryName = localizedCountryName(country, locale);
 
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
@@ -164,7 +161,7 @@ export default function EspecesPage() {
           countries={countries}
           value={country}
           onChange={setCountry}
-          preferredLang={preferredLang}
+          locale={locale}
         />
 
         <label>
@@ -215,7 +212,7 @@ export default function EspecesPage() {
             <tbody>
               {filteredSpecies.map((s) => {
                 const info = CATEGORY_INFO[s.category] || { label: s.category, color: "var(--color-texte-clair)" };
-                const names = formatCommonNames(s.common_names, preferredLang);
+                const names = formatCommonNames(s.common_names, locale);
                 return (
                   <tr key={s.scientific_name}>
                     <th scope="row" style={{ textAlign: "left", padding: 8, fontWeight: 400, fontStyle: "italic" }}>

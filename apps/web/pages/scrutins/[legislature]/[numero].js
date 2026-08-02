@@ -6,6 +6,7 @@ import PageHeader from "../../../components/PageHeader";
 import { IconScale } from "../../../components/icons";
 import CitizenVote from "../../../components/CitizenVote";
 import { useT } from "../../../lib/useT";
+import { localeTag } from "../../../lib/dateLocale";
 import ScrollableTable from "../../../components/ScrollableTable";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
@@ -30,7 +31,7 @@ function usePositionLabels(t) {
 }
 
 export default function ScrutinPage() {
-  const { t } = useT();
+  const { t, locale } = useT();
   const POSITION_LABELS = usePositionLabels(t);
   const router = useRouter();
   const { legislature, numero } = router.query;
@@ -169,7 +170,7 @@ export default function ScrutinPage() {
 
           <p style={{ color: "var(--color-texte-clair)" }}>
             {scrutin.scrutin_date && (
-              <>{t("scrutins.voted_on", { date: new Date(scrutin.scrutin_date).toLocaleDateString("fr-FR") })} </>
+              <>{t("scrutins.voted_on", { date: new Date(scrutin.scrutin_date).toLocaleDateString(localeTag(locale)) })} </>
             )}
             {scrutin.type_vote_label && <>{scrutin.type_vote_label}</>}
             {revealed && (
@@ -199,46 +200,46 @@ export default function ScrutinPage() {
 
               <h2 style={{ fontSize: 16, marginTop: "1.5rem" }}>{t("scrutins.group_positions_title")}</h2>
               <ScrollableTable>
-<table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse", marginBottom: "1rem" }}>
-                <thead>
-                  <tr>
-                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("scrutins.table_group")}</th>
-                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("scrutins.table_majority_position")}</th>
-                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("scrutins.table_detail")}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {groups.map((g) => {
-                    const groupVotes = votes.filter((v) => v.group_abbreviation === g);
-                    const groupTally = groupVotes.reduce((acc, v) => {
-                      const pos = POSITIONS.includes(v.position) ? v.position : "absent";
-                      acc[pos] = (acc[pos] || 0) + 1;
-                      return acc;
-                    }, {});
-                    const votingPositions = ["pour", "contre", "abstention"];
-                    const votingCounts = votingPositions.map((p) => groupTally[p] || 0);
-                    const maxCount = Math.max(...votingCounts);
-                    const winners = votingPositions.filter((p, i) => votingCounts[i] === maxCount && maxCount > 0);
-                    const majority = winners.length === 1 ? winners[0] : null;
-                    return (
-                      <tr key={g}>
-                        <th scope="row" style={{ textAlign: "left", padding: 8, fontWeight: 400 }}>
-                          <Link href={`/deputes?groupe=${g}`}>{g}</Link>
-                        </th>
-                        <td style={{ padding: 8, color: majority ? POSITION_LABELS[majority].color : "var(--color-texte-clair)", fontWeight: 600 }}>
-                          {majority ? POSITION_LABELS[majority].label : t("scrutins.shared_no_majority")}
-                        </td>
-                        <td style={{ padding: 8, fontSize: 13, color: "var(--color-texte-clair)" }}>
-                          {Object.entries(groupTally)
-                            .map(([pos, count]) => `${POSITION_LABELS[pos]?.label || pos} : ${count}`)
-                            .join(" · ")}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-</ScrollableTable>
+                <table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse", marginBottom: "1rem" }}>
+                  <thead>
+                    <tr>
+                      <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("scrutins.table_group")}</th>
+                      <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("scrutins.table_majority_position")}</th>
+                      <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("scrutins.table_detail")}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {groups.map((g) => {
+                      const groupVotes = votes.filter((v) => v.group_abbreviation === g);
+                      const groupTally = groupVotes.reduce((acc, v) => {
+                        const pos = POSITIONS.includes(v.position) ? v.position : "absent";
+                        acc[pos] = (acc[pos] || 0) + 1;
+                        return acc;
+                      }, {});
+                      const votingPositions = ["pour", "contre", "abstention"];
+                      const votingCounts = votingPositions.map((p) => groupTally[p] || 0);
+                      const maxCount = Math.max(...votingCounts);
+                      const winners = votingPositions.filter((p, i) => votingCounts[i] === maxCount && maxCount > 0);
+                      const majority = winners.length === 1 ? winners[0] : null;
+                      return (
+                        <tr key={g}>
+                          <th scope="row" style={{ textAlign: "left", padding: 8, fontWeight: 400 }}>
+                            <Link href={`/deputes?groupe=${g}`}>{g}</Link>
+                          </th>
+                          <td style={{ padding: 8, color: majority ? POSITION_LABELS[majority].color : "var(--color-texte-clair)", fontWeight: 600 }}>
+                            {majority ? POSITION_LABELS[majority].label : t("scrutins.shared_no_majority")}
+                          </td>
+                          <td style={{ padding: 8, fontSize: 13, color: "var(--color-texte-clair)" }}>
+                            {Object.entries(groupTally)
+                              .map(([pos, count]) => `${POSITION_LABELS[pos]?.label || pos} : ${count}`)
+                              .join(" · ")}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </ScrollableTable>
 
               <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", marginTop: "1rem", marginBottom: "0.5rem" }}>
                 <label>
@@ -259,29 +260,29 @@ export default function ScrutinPage() {
                 />
               </div>
               <ScrollableTable>
-<table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
-                <thead>
-                  <tr>
-                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("scrutins.table_deputy")}</th>
-                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("scrutins.table_group")}</th>
-                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("scrutins.table_position")}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredVotes.map((v) => (
-                    <tr key={v.acteur_uid}>
-                      <th scope="row" style={{ textAlign: "left", padding: 8, fontWeight: 400 }}>
-                        <Link href={`/deputes/${v.acteur_uid}`}>{v.full_name}</Link>
-                      </th>
-                      <td style={{ padding: 8 }}>{v.group_abbreviation || "—"}</td>
-                      <td style={{ padding: 8, color: POSITION_LABELS[v.position]?.color || "var(--color-texte)", fontWeight: 600 }}>
-                        {POSITION_LABELS[v.position]?.label || v.position}
-                      </td>
+                <table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
+                  <thead>
+                    <tr>
+                      <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("scrutins.table_deputy")}</th>
+                      <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("scrutins.table_group")}</th>
+                      <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("scrutins.table_position")}</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-</ScrollableTable>
+                  </thead>
+                  <tbody>
+                    {filteredVotes.map((v) => (
+                      <tr key={v.acteur_uid}>
+                        <th scope="row" style={{ textAlign: "left", padding: 8, fontWeight: 400 }}>
+                          <Link href={`/deputes/${v.acteur_uid}`}>{v.full_name}</Link>
+                        </th>
+                        <td style={{ padding: 8 }}>{v.group_abbreviation || "—"}</td>
+                        <td style={{ padding: 8, color: POSITION_LABELS[v.position]?.color || "var(--color-texte)", fontWeight: 600 }}>
+                          {POSITION_LABELS[v.position]?.label || v.position}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </ScrollableTable>
             </>
           ) : (
             <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>{t("scrutins.results_hidden_note")}</p>

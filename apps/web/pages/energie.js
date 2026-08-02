@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { detectDefaultCountry } from "../lib/detectCountry";
-import { detectPreferredLanguage } from "../lib/detectLanguage";
 import { FUEL_COLORS, DEFAULT_FUEL_COLOR, translateFuel } from "../lib/fuelTypes";
 import { useLastUpdated, formatDate } from "../lib/useLastUpdated";
 import { localizedCountryName } from "../lib/countryNames";
@@ -18,7 +17,6 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 export default function EnergiePage() {
   const { t, locale } = useT();
   const lastUpdated = useLastUpdated();
-  const [preferredLang, setPreferredLang] = useState(null);
   const [countries, setCountries] = useState([]);
   const [fuelTypes, setFuelTypes] = useState([]);
   const [country, setCountry] = useState("FRA");
@@ -55,7 +53,6 @@ export default function EnergiePage() {
 
   useEffect(() => {
     setCountry(detectDefaultCountry());
-    setPreferredLang(detectPreferredLanguage());
   }, []);
 
   useEffect(() => {
@@ -257,7 +254,7 @@ export default function EnergiePage() {
           countries={countries}
           value={country}
           onChange={setCountry}
-          preferredLang={preferredLang}
+          locale={locale}
         />
 
         <label>
@@ -292,7 +289,7 @@ export default function EnergiePage() {
         <ScrollableTable>
 <table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
           <caption style={{ textAlign: "left", fontSize: 12, color: "var(--color-texte-clair)", marginBottom: 8 }}>
-            {t("energie.table_caption", { country: localizedCountryName(country, preferredLang), fuelType: fuelType ? `(${fuelType})` : "" })}
+            {t("energie.table_caption", { country: localizedCountryName(country, locale), fuelType: fuelType ? `(${fuelType})` : "" })}
           </caption>
           <thead>
             <tr>

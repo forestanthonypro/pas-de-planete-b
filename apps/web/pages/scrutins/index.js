@@ -5,6 +5,7 @@ import PageHeader from "../../components/PageHeader";
 import Pagination from "../../components/Pagination";
 import { IconScale } from "../../components/icons";
 import { useT } from "../../lib/useT";
+import { localeTag } from "../../lib/dateLocale";
 import { getConsent, getAnonymousId } from "../../lib/anonymousId";
 import { fetchCitizenVotes } from "../../lib/citizenVotes";
 import ScrollableTable from "../../components/ScrollableTable";
@@ -13,7 +14,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 const PAGE_SIZE = 30;
 
 export default function ScrutinsPage() {
-  const { t } = useT();
+  const { t, locale } = useT();
   const [scrutins, setScrutins] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -172,7 +173,7 @@ export default function ScrutinsPage() {
                 {searchPageItems.map((s) => (
                   <tr key={s.numero}>
                     <td style={{ padding: 8, whiteSpace: "nowrap" }}>
-                      {s.scrutin_date ? new Date(s.scrutin_date).toLocaleDateString("fr-FR") : "—"}
+                      {s.scrutin_date ? new Date(s.scrutin_date).toLocaleDateString(localeTag(locale)) : "—"}
                     </td>
                     <td style={{ padding: 8 }}>
                       <Link href={`/scrutins/${s.legislature}/${s.numero}`}>
@@ -195,7 +196,7 @@ export default function ScrutinsPage() {
       {stats && (
         <>
           <p style={{ fontSize: 14 }}>
-            {t("scrutins.stats_intro", { total: stats.total.toLocaleString("fr-FR") })}
+            {t("scrutins.stats_intro", { total: stats.total.toLocaleString(localeTag(locale)) })}
           </p>
           <div style={{ position: "relative", height: 200, maxWidth: 400 }}>
             <canvas ref={canvasRef} role="img" aria-label={t("scrutins.chart_alt_stats")} />
@@ -239,7 +240,7 @@ export default function ScrutinsPage() {
               .map((s) => (
                 <tr key={s.numero}>
                   <td style={{ padding: 8, whiteSpace: "nowrap" }}>
-                    {s.scrutin_date ? new Date(s.scrutin_date).toLocaleDateString("fr-FR") : "—"}
+                    {s.scrutin_date ? new Date(s.scrutin_date).toLocaleDateString(localeTag(locale)) : "—"}
                   </td>
                   <td style={{ padding: 8 }}>
                     <Link href={`/scrutins/${s.legislature}/${s.numero}`}>

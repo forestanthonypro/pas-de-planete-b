@@ -2,7 +2,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { detectDefaultCountry } from "../../lib/detectCountry";
-import { detectPreferredLanguage } from "../../lib/detectLanguage";
 import { FUEL_COLORS, DEFAULT_FUEL_COLOR, translateFuel } from "../../lib/fuelTypes";
 import { speciesGroupLabel } from "../../lib/speciesGroups";
 import { formatCommonNames } from "../../lib/commonNames";
@@ -45,7 +44,6 @@ export default function PaysDashboard() {
   const [summary, setSummary] = useState(null);
   const [speciesList, setSpeciesList] = useState([]);
   const [fires, setFires] = useState([]);
-  const [preferredLang, setPreferredLang] = useState(null);
   const [compareCode, setCompareCode] = useState("");
   const [compareSummary, setCompareSummary] = useState(null);
 
@@ -115,7 +113,6 @@ export default function PaysDashboard() {
   const stressCompareChartRef = useRef(null);
 
   useEffect(() => {
-    setPreferredLang(detectPreferredLanguage());
   }, []);
 
   useEffect(() => {
@@ -552,7 +549,7 @@ export default function PaysDashboard() {
 
       const datasets = [
         {
-          label: localizedCountryName(code, preferredLang),
+          label: localizedCountryName(code, locale),
           data: mainRows.map((r) => Math.round(r.value * 100) / 100),
           backgroundColor: "#6c3483",
           barPercentage: 0.9,
@@ -561,7 +558,7 @@ export default function PaysDashboard() {
       ];
       if (compareCode && compareSummary) {
         datasets.push({
-          label: localizedCountryName(compareCode, preferredLang),
+          label: localizedCountryName(compareCode, locale),
           data: labels.map((l) => (compareByLabel[l] !== undefined ? Math.round(compareByLabel[l] * 100) / 100 : null)),
           backgroundColor: "#c6a2d6",
           barPercentage: 0.9,
@@ -604,7 +601,7 @@ export default function PaysDashboard() {
     return () => {
       cancelled = true;
     };
-  }, [summary, worldBenchmarks, code, preferredLang, compareCode, compareSummary, t]);
+  }, [summary, worldBenchmarks, code, locale, compareCode, compareSummary, t]);
 
   function buildVegetationChart(canvasEl, chartRefObj, vegetationData, worldBenchmarksData, barColor, cumulativeColor) {
     function fillNearestForestArea(rows) {
@@ -957,7 +954,7 @@ export default function PaysDashboard() {
     };
   }, [compareCode, compareSummary, compareFires, sobriety]);
 
-  const countryName = localizedCountryName(code, preferredLang);
+  const countryName = localizedCountryName(code, locale);
   const latestCo2 = summary?.co2?.[summary.co2.length - 1];
   const totalCapacity = summary?.energyMix?.reduce(
     (sum, r) => sum + Number(r.total_capacity_mw || 0),
@@ -980,7 +977,7 @@ export default function PaysDashboard() {
           countries={countries}
           value={code || ""}
           onChange={(newCode) => router.push(`/pays/${newCode}`)}
-          preferredLang={preferredLang}
+          locale={locale}
           label={t("pays.change_country")}
         />
       </div>
@@ -1001,7 +998,7 @@ export default function PaysDashboard() {
               countries={countries.filter((c) => c.country_code !== code)}
               value={compareCode}
               onChange={setCompareCode}
-              preferredLang={preferredLang}
+              locale={locale}
               label={t("pays.compare_with")}
             />
             {compareCode && (
@@ -1046,9 +1043,9 @@ export default function PaysDashboard() {
             return (
               <>
                 {speciesLine(summary, countryName)}
-                {compareCode && compareSummary && speciesLine(compareSummary, localizedCountryName(compareCode, preferredLang))}
+                {compareCode && compareSummary && speciesLine(compareSummary, localizedCountryName(compareCode, locale))}
                 {pollutionLine(summary, countryName)}
-                {compareCode && compareSummary && pollutionLine(compareSummary, localizedCountryName(compareCode, preferredLang))}
+                {compareCode && compareSummary && pollutionLine(compareSummary, localizedCountryName(compareCode, locale))}
               </>
             );
           })()}
@@ -1082,9 +1079,9 @@ export default function PaysDashboard() {
                 </div>
                 {compareCode && compareSummary && (
                   <div>
-                    <p style={{ fontSize: 12, color: "var(--color-texte-clair)", fontWeight: 600, marginBottom: 4 }}>{localizedCountryName(compareCode, preferredLang)}</p>
+                    <p style={{ fontSize: 12, color: "var(--color-texte-clair)", fontWeight: 600, marginBottom: 4 }}>{localizedCountryName(compareCode, locale)}</p>
                     <div style={{ position: "relative", height: 220 }}>
-                      <canvas ref={co2CompareCanvasRef} role="img" aria-label={`${t("co2.title")} — ${localizedCountryName(compareCode, preferredLang)}`} />
+                      <canvas ref={co2CompareCanvasRef} role="img" aria-label={`${t("co2.title")} — ${localizedCountryName(compareCode, locale)}`} />
                     </div>
                   </div>
                 )}
@@ -1117,7 +1114,7 @@ export default function PaysDashboard() {
                   </div>
                   {compareCode && compareSummary?.energyMix?.length > 0 && (
                     <div>
-                      <p style={{ fontSize: 12, color: "var(--color-texte-clair)", fontWeight: 600, marginBottom: 4 }}>{localizedCountryName(compareCode, preferredLang)}</p>
+                      <p style={{ fontSize: 12, color: "var(--color-texte-clair)", fontWeight: 600, marginBottom: 4 }}>{localizedCountryName(compareCode, locale)}</p>
                       <div style={{ position: "relative", height: Math.max(200, compareSummary.energyMix.length * 34) }}>
                         <canvas ref={energyCompareCanvasRef} role="img" aria-label={t("energie.mix_title")} />
                       </div>
@@ -1174,7 +1171,7 @@ export default function PaysDashboard() {
                   </div>
                   {compareCode && compareSummary && (
                     <div>
-                      <p style={{ fontSize: 12, color: "var(--color-texte-clair)", fontWeight: 600, marginBottom: 4 }}>{localizedCountryName(compareCode, preferredLang)}</p>
+                      <p style={{ fontSize: 12, color: "var(--color-texte-clair)", fontWeight: 600, marginBottom: 4 }}>{localizedCountryName(compareCode, locale)}</p>
                       <div style={{ position: "relative", height: 260 }}>
                         <canvas ref={generationCompareCanvasRef} role="img" aria-label={t("energie.generation_title")} />
                       </div>
@@ -1215,7 +1212,7 @@ export default function PaysDashboard() {
                     <tbody>
                       {list.map((s) => {
                         const info = CATEGORY_INFO[s.category] || { label: s.category, color: "var(--color-texte-clair)" };
-                        const names = formatCommonNames(s.common_names, preferredLang);
+                        const names = formatCommonNames(s.common_names, locale);
                         return (
                           <tr key={s.scientific_name}>
                             <th scope="row" style={{ textAlign: "left", padding: 6, fontWeight: 400, fontStyle: "italic" }}>
@@ -1247,7 +1244,7 @@ export default function PaysDashboard() {
                   </div>
                   {compareCode && compareSummary && (
                     <div>
-                      <p style={{ fontSize: 12, color: "var(--color-texte-clair)", fontWeight: 600, marginBottom: 4 }}>{localizedCountryName(compareCode, preferredLang)}</p>
+                      <p style={{ fontSize: 12, color: "var(--color-texte-clair)", fontWeight: 600, marginBottom: 4 }}>{localizedCountryName(compareCode, locale)}</p>
                       {renderSpeciesTable(compareSpeciesList)}
                     </div>
                   )}
@@ -1273,7 +1270,7 @@ export default function PaysDashboard() {
             {compareCode && compareSummary && (
               <div style={{ background: "var(--color-carte)", borderRadius: 8, padding: "0.75rem 1rem", marginTop: "0.75rem" }}>
                 <p style={{ fontSize: 12, color: "var(--color-texte-clair)", fontWeight: 600, marginBottom: 4 }}>
-                  {localizedCountryName(compareCode, preferredLang)}
+                  {localizedCountryName(compareCode, locale)}
                 </p>
                 <p style={{ fontSize: 12, color: "var(--color-texte-clair)", margin: 0 }}>
                   {t("pays.biodiversity_compare_sample", { count: compareSpeciesList.length })}
@@ -1325,7 +1322,7 @@ export default function PaysDashboard() {
           {compareCode && compareSummary && (
             <div>
               <p style={{ fontSize: 12, color: "var(--color-texte-clair)", fontWeight: 600, marginBottom: 4 }}>
-                {localizedCountryName(compareCode, preferredLang)} —{" "}
+                {localizedCountryName(compareCode, locale)} —{" "}
                 {compareFires.length} {t("pays.fires_detections_count", { s: compareFires.length !== 1 ? "s" : "" })}
               </p>
               {sobriety ? (
@@ -1367,9 +1364,9 @@ export default function PaysDashboard() {
               </div>
               {compareCode && compareSummary && (
                 <div>
-                  <p style={{ fontSize: 12, color: "var(--color-texte-clair)", fontWeight: 600, marginBottom: 4 }}>{localizedCountryName(compareCode, preferredLang)}</p>
+                  <p style={{ fontSize: 12, color: "var(--color-texte-clair)", fontWeight: 600, marginBottom: 4 }}>{localizedCountryName(compareCode, locale)}</p>
                   <div style={{ position: "relative", height: 220 }}>
-                    <canvas ref={vegetationCompareCanvasRef} role="img" aria-label={`${t("vegetation.title")} — ${localizedCountryName(compareCode, preferredLang)}`} />
+                    <canvas ref={vegetationCompareCanvasRef} role="img" aria-label={`${t("vegetation.title")} — ${localizedCountryName(compareCode, locale)}`} />
                   </div>
                 </div>
               )}
@@ -1430,9 +1427,9 @@ export default function PaysDashboard() {
             </div>
             {compareCode && compareSummary && (
               <div>
-                <p style={{ fontSize: 12, color: "var(--color-texte-clair)", fontWeight: 600, marginBottom: 4 }}>{localizedCountryName(compareCode, preferredLang)}</p>
+                <p style={{ fontSize: 12, color: "var(--color-texte-clair)", fontWeight: 600, marginBottom: 4 }}>{localizedCountryName(compareCode, locale)}</p>
                 <div style={{ position: "relative", height: 260 }}>
-                  <canvas ref={waterCompareCanvasRef} role="img" aria-label={`${t("eau.title")} — ${localizedCountryName(compareCode, preferredLang)}`} />
+                  <canvas ref={waterCompareCanvasRef} role="img" aria-label={`${t("eau.title")} — ${localizedCountryName(compareCode, locale)}`} />
                 </div>
               </div>
             )}
@@ -1453,7 +1450,7 @@ export default function PaysDashboard() {
               </div>
               {compareCode && compareSummary && (
                 <div>
-                  <p style={{ fontSize: 12, color: "var(--color-texte-clair)", fontWeight: 600, marginBottom: 4 }}>{localizedCountryName(compareCode, preferredLang)}</p>
+                  <p style={{ fontSize: 12, color: "var(--color-texte-clair)", fontWeight: 600, marginBottom: 4 }}>{localizedCountryName(compareCode, locale)}</p>
                   <div style={{ position: "relative", height: 220 }}>
                     <canvas ref={stressCompareCanvasRef} role="img" aria-label={t("eau.chart_stress")} />
                   </div>

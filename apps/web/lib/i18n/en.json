@@ -25,7 +25,10 @@
     "country_label": "Country",
     "country_search_placeholder": "Search a country...",
     "country_search_aria": "{label} — search",
-    "no_results": "No results"
+    "no_results": "No results",
+    "footer_data_status": "Data status",
+    "footer_legal": "Legal notice",
+    "footer_privacy": "Privacy"
   },
   "home": {
     "intro": "Understanding climate change, country by country, with open and sourced data.",
@@ -558,7 +561,8 @@
     "consent_status_unset": "You haven't decided yet — vote on a bill to see the question.",
     "delete_button": "Permanently delete my history",
     "delete_confirm": "Sure? This action is permanent and can't be undone.",
-    "delete_done": "History deleted."
+    "delete_done": "History deleted.",
+    "reset_consent_button": "Reset my choice"
   },
   "interviews": {
     "title": "Science relay",
@@ -654,5 +658,31 @@
     "propose_error": "Failed to send, try again later.",
     "back_to_home": "Back to home →",
     "error_no_data": "Data unavailable"
+  },
+  "dataStatus": {
+    "title": "Data status",
+    "intro": "All data sources used on this site, with their last update date — so you know exactly where the figures come from and how recent they are.",
+    "th_data": "Data",
+    "th_source": "Source",
+    "th_last_update": "Last updated",
+    "not_available": "Not available",
+    "data_year": " (data from {year})",
+    "legend_fresh": "Less than 14 days",
+    "legend_medium": "Less than 60 days",
+    "legend_stale": "More than 60 days",
+    "footer_note": "Updates are automated (no manual intervention on the raw figures). The source code of the ingestion scripts is public — see the project repository.",
+    "source_co2": "CO2 emissions by country",
+    "source_powerPlants": "Global power plants",
+    "source_electricity": "Electricity mix by country",
+    "source_species": "Species status (IUCN)",
+    "source_speciesThreatened": "Threatened species count",
+    "source_vegetation": "Tree cover loss",
+    "source_fires": "Active fires detected",
+    "source_water": "Water stress by country",
+    "source_pollution": "Air quality by country",
+    "source_worldBenchmarks": "World benchmarks (biodiversity, etc.)",
+    "source_deputies": "Deputies (17th legislature)",
+    "source_anGroups": "Political groups",
+    "source_scrutins": "Votes and roll-call ballots"
   }
 }

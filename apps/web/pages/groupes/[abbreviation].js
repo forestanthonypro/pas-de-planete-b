@@ -5,12 +5,13 @@ import ShareButtons from "../../components/ShareButtons";
 import PageHeader from "../../components/PageHeader";
 import { IconLandmark } from "../../components/icons";
 import { useT } from "../../lib/useT";
+import { localeTag } from "../../lib/dateLocale";
 import ScrollableTable from "../../components/ScrollableTable";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 export default function GroupDetailPage() {
-  const { t } = useT();
+  const { t, locale } = useT();
   const router = useRouter();
   const { abbreviation } = router.query;
   const [group, setGroup] = useState(null);
@@ -118,35 +119,35 @@ export default function GroupDetailPage() {
             <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>{t("groupes.no_scrutins")}</p>
           ) : (
             <ScrollableTable>
-<table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
-              <thead>
-                <tr>
-                  <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("groupes.table_date")}</th>
-                  <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("groupes.table_object")}</th>
-                  <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("groupes.table_group_vote")}</th>
-                  <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("groupes.table_result")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {recentScrutins.map((s) => (
-                  <tr key={s.numero}>
-                    <td style={{ padding: 8, whiteSpace: "nowrap" }}>
-                      {s.scrutin_date ? new Date(s.scrutin_date).toLocaleDateString("fr-FR") : "—"}
-                    </td>
-                    <td style={{ padding: 8 }}>
-                      <Link href={`/scrutins/${s.legislature}/${s.numero}`}>
-                        {s.title || s.objet || `Scrutin n°${s.numero}`}
-                      </Link>
-                    </td>
-                    <td style={{ padding: 8, fontSize: 13, color: "var(--color-texte-clair)" }}>
-                      {t("groupes.vote_breakdown", { pour: s.pour, contre: s.contre, abstention: s.abstention })}
-                    </td>
-                    <td style={{ padding: 8 }}>{s.result_label || s.result_code || "—"}</td>
+              <table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
+                <thead>
+                  <tr>
+                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("groupes.table_date")}</th>
+                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("groupes.table_object")}</th>
+                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("groupes.table_group_vote")}</th>
+                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("groupes.table_result")}</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-</ScrollableTable>
+                </thead>
+                <tbody>
+                  {recentScrutins.map((s) => (
+                    <tr key={s.numero}>
+                      <td style={{ padding: 8, whiteSpace: "nowrap" }}>
+                        {s.scrutin_date ? new Date(s.scrutin_date).toLocaleDateString(localeTag(locale)) : "—"}
+                      </td>
+                      <td style={{ padding: 8 }}>
+                        <Link href={`/scrutins/${s.legislature}/${s.numero}`}>
+                          {s.title || s.objet || `Scrutin n°${s.numero}`}
+                        </Link>
+                      </td>
+                      <td style={{ padding: 8, fontSize: 13, color: "var(--color-texte-clair)" }}>
+                        {t("groupes.vote_breakdown", { pour: s.pour, contre: s.contre, abstention: s.abstention })}
+                      </td>
+                      <td style={{ padding: 8 }}>{s.result_label || s.result_code || "—"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </ScrollableTable>
           )}
 
           <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginTop: "1rem" }}>

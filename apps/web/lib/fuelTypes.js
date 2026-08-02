@@ -36,6 +36,125 @@ export const FUEL_LABELS_EN = {
   Other: "Other",
 };
 
+export const FUEL_LABELS_ES = {
+  Nuclear: "Nuclear",
+  Hydro: "Hidráulica",
+  Wind: "Eólica",
+  Gas: "Gas",
+  Solar: "Solar",
+  Oil: "Petróleo",
+  Coal: "Carbón",
+  Biomass: "Biomasa",
+  "Wave and Tidal": "Mareomotriz y undimotriz",
+  Geothermal: "Geotérmica",
+  Storage: "Almacenamiento",
+  Waste: "Residuos",
+  Petcoke: "Coque de petróleo",
+  Cogeneration: "Cogeneración",
+  Other: "Otro",
+};
+
+export const FUEL_LABELS_IT = {
+  Nuclear: "Nucleare",
+  Hydro: "Idroelettrica",
+  Wind: "Eolica",
+  Gas: "Gas",
+  Solar: "Solare",
+  Oil: "Petrolio",
+  Coal: "Carbone",
+  Biomass: "Biomassa",
+  "Wave and Tidal": "Maremotrice e ondosa",
+  Geothermal: "Geotermica",
+  Storage: "Accumulo",
+  Waste: "Rifiuti",
+  Petcoke: "Coke di petrolio",
+  Cogeneration: "Cogenerazione",
+  Other: "Altro",
+};
+
+export const FUEL_LABELS_RU = {
+  Nuclear: "Атомная",
+  Hydro: "Гидроэнергетика",
+  Wind: "Ветровая",
+  Gas: "Газ",
+  Solar: "Солнечная",
+  Oil: "Нефть",
+  Coal: "Уголь",
+  Biomass: "Биомасса",
+  "Wave and Tidal": "Волновая и приливная",
+  Geothermal: "Геотермальная",
+  Storage: "Накопители",
+  Waste: "Отходы",
+  Petcoke: "Нефтяной кокс",
+  Cogeneration: "Когенерация",
+  Other: "Прочее",
+};
+
+export const FUEL_LABELS_JA = {
+  Nuclear: "原子力",
+  Hydro: "水力",
+  Wind: "風力",
+  Gas: "ガス",
+  Solar: "太陽光",
+  Oil: "石油",
+  Coal: "石炭",
+  Biomass: "バイオマス",
+  "Wave and Tidal": "波力・潮力",
+  Geothermal: "地熱",
+  Storage: "蓄電",
+  Waste: "廃棄物",
+  Petcoke: "石油コークス",
+  Cogeneration: "コージェネレーション",
+  Other: "その他",
+};
+
+export const FUEL_LABELS_ZH = {
+  Nuclear: "核能",
+  Hydro: "水力",
+  Wind: "风能",
+  Gas: "天然气",
+  Solar: "太阳能",
+  Oil: "石油",
+  Coal: "煤炭",
+  Biomass: "生物质能",
+  "Wave and Tidal": "波浪能与潮汐能",
+  Geothermal: "地热能",
+  Storage: "储能",
+  Waste: "废弃物",
+  Petcoke: "石油焦",
+  Cogeneration: "热电联产",
+  Other: "其他",
+};
+
+export const FUEL_LABELS_HI = {
+  Nuclear: "परमाणु",
+  Hydro: "जलविद्युत",
+  Wind: "पवन",
+  Gas: "गैस",
+  Solar: "सौर",
+  Oil: "तेल",
+  Coal: "कोयला",
+  Biomass: "जैव द्रव्यमान",
+  "Wave and Tidal": "तरंग और ज्वारीय",
+  Geothermal: "भूतापीय",
+  Storage: "भंडारण",
+  Waste: "अपशिष्ट",
+  Petcoke: "पेट्रोलियम कोक",
+  Cogeneration: "सह-उत्पादन",
+  Other: "अन्य",
+};
+
+const FUEL_LABEL_TABLES = {
+  fr: FUEL_LABELS_FR,
+  en: FUEL_LABELS_EN,
+  es: FUEL_LABELS_ES,
+  it: FUEL_LABELS_IT,
+  ru: FUEL_LABELS_RU,
+  ja: FUEL_LABELS_JA,
+  zh: FUEL_LABELS_ZH,
+  hi: FUEL_LABELS_HI,
+};
+
 export const FUEL_COLORS = {
   Nuclear: "#8e44ad",
   Hydro: "#1baf7a",
@@ -56,6 +175,6 @@ export const DEFAULT_FUEL_COLOR = "#3388ff";
 // navigateur legacy (detectPreferredLanguage), qui est un système séparé et
 // ne change pas quand la personne bascule la langue via le sélecteur.
 export function translateFuel(type, locale = "fr") {
-  const table = locale === "en" ? FUEL_LABELS_EN : FUEL_LABELS_FR;
+  const table = FUEL_LABEL_TABLES[locale] || FUEL_LABELS_FR;
   return table[type] || type;
 }

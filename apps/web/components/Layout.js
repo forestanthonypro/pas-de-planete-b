@@ -7,15 +7,20 @@ import { IconLeaf, IconSun, IconMoon, IconScroll } from "./icons";
 import BackgroundScene from "./BackgroundScene";
 import ScrollTopButton from "./ScrollTopButton";
 
-const LANGUAGE_LABELS = { fr: "Français", en: "English" };
+const LANGUAGE_LABELS = {
+  fr: "Français",
+  en: "English",
+  es: "Español",
+  it: "Italiano",
+  ru: "Русский",
+  ja: "日本語",
+  zh: "中文",
+  hi: "हिन्दी",
+};
 
 // useRouter() lève une erreur quand aucun contexte routeur n'est disponible
 // (page d'erreur générée automatiquement par Next.js pendant le build) —
 // on n'affiche simplement rien dans ce cas précis plutôt que de planter.
-// Le hook est bien appelé exactement une fois à chaque rendu (jamais sauté
-// ni répété) : la règle react-hooks/rules-of-hooks se déclenche ici sur un
-// faux positif propre à ce pattern try/catch, pas sur un vrai problème
-// d'ordre des hooks.
 function LanguageSwitcher() {
   let router = null;
   try {
@@ -195,6 +200,12 @@ export default function Layout({ children }) {
       >
         {!sobriety && <IconLeaf size={15} style={{ color: "var(--color-forest)" }} />}
         {t("common.footer_ecoconception")}
+        <span aria-hidden="true">·</span>
+        <Link href="/etat-des-donnees" style={{ color: "inherit" }}>{t("common.footer_data_status")}</Link>
+        <span aria-hidden="true">·</span>
+        <Link href="/mentions-legales" style={{ color: "inherit" }}>{t("common.footer_legal")}</Link>
+        <span aria-hidden="true">·</span>
+        <Link href="/confidentialite" style={{ color: "inherit" }}>{t("common.footer_privacy")}</Link>
       </footer>
 
       <ScrollTopButton />

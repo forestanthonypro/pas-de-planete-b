@@ -1,0 +1,19 @@
+name: Envoi des digests de suivi des députés
+
+on:
+  schedule:
+    # Une fois par jour à 7h UTC — les données des scrutins sont
+    # rafraîchies par ailleurs (refresh-data.yml), ce digest se contente de
+    # vérifier ce qui est nouveau depuis le dernier envoi par abonnement.
+    - cron: "0 7 * * *"
+  workflow_dispatch: {}
+
+jobs:
+  send-digests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Déclencher l'envoi des digests
+        run: |
+          curl --fail --silent --show-error \
+            -X POST "${{ secrets.API_URL }}/api/admin/deputy-follows/send-digests" \
+            -H "x-ingest-token: ${{ secrets.INGEST_TOKEN }}"

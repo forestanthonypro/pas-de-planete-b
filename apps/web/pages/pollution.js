@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { detectDefaultCountry } from "../lib/detectCountry";
-import { detectPreferredLanguage } from "../lib/detectLanguage";
 import { localizedCountryName } from "../lib/countryNames";
 import { useLastUpdated, formatDate } from "../lib/useLastUpdated";
 import { useWorldBenchmarks } from "../lib/useWorldBenchmarks";
@@ -14,10 +13,9 @@ import ScrollableTable from "../components/ScrollableTable";
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 export default function PollutionPage() {
-  const { t } = useT();
+  const { t, locale } = useT();
   const lastUpdated = useLastUpdated();
   const benchmarks = useWorldBenchmarks();
-  const [preferredLang, setPreferredLang] = useState(null);
   const [countries, setCountries] = useState([]);
   const [countryCode, setCountryCode] = useState("FRA");
   const [data, setData] = useState([]);
@@ -30,7 +28,6 @@ export default function PollutionPage() {
 
   useEffect(() => {
     setCountryCode(detectDefaultCountry());
-    setPreferredLang(detectPreferredLanguage());
   }, []);
 
   useEffect(() => {
@@ -119,7 +116,7 @@ export default function PollutionPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, view, loading, error, benchmarks]);
 
-  const selectedCountryName = localizedCountryName(countryCode, preferredLang);
+  const selectedCountryName = localizedCountryName(countryCode, locale);
 
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 800, margin: "0 auto" }}>
@@ -131,7 +128,7 @@ export default function PollutionPage() {
           countries={countries}
           value={countryCode}
           onChange={setCountryCode}
-          preferredLang={preferredLang}
+          locale={locale}
         />
         <button onClick={() => setView(view === "chart" ? "table" : "chart")}>
           {view === "chart" ? t("common.view_as_table") : t("common.view_as_chart")}

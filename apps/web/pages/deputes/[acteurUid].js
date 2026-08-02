@@ -3,8 +3,10 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import ShareButtons from "../../components/ShareButtons";
 import PageHeader from "../../components/PageHeader";
+import FollowDeputyForm from "../../components/FollowDeputyForm";
 import { IconUsers } from "../../components/icons";
 import { useT } from "../../lib/useT";
+import { localeTag } from "../../lib/dateLocale";
 import ScrollableTable from "../../components/ScrollableTable";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
@@ -20,7 +22,7 @@ function usePositionLabels(t) {
 }
 
 export default function DeputyPage() {
-  const { t } = useT();
+  const { t, locale } = useT();
   const POSITION_LABELS = usePositionLabels(t);
   const router = useRouter();
   const { acteurUid } = router.query;
@@ -115,6 +117,8 @@ export default function DeputyPage() {
           <PageHeader Icon={IconUsers} tint="blue" title={deputy.full_name} />
           <ShareButtons title={`${deputy.full_name}`} />
 
+          <FollowDeputyForm acteurUid={acteurUid} deputyName={deputy.full_name} />
+
           <p style={{ color: "var(--color-texte-clair)" }}>
             {deputy.group_abbreviation && <>{t("deputes.group_label")} : <strong>{deputy.group_abbreviation}</strong> ({deputy.group_name}) — </>}
             {deputy.department && <>{deputy.department}{deputy.circo_number ? t("deputes.circo_suffix_full", { n: deputy.circo_number }) : ""}</>}
@@ -180,35 +184,35 @@ export default function DeputyPage() {
                 </label>
               </div>
               <ScrollableTable>
-<table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
-                <thead>
-                  <tr>
-                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("deputes.table_date")}</th>
-                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("deputes.table_scrutin")}</th>
-                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("deputes.table_position")}</th>
-                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("deputes.table_result")}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredVotes.map((v) => (
-                    <tr key={v.numero_scrutin}>
-                      <td style={{ padding: 8, whiteSpace: "nowrap" }}>
-                        {v.scrutin_date ? new Date(v.scrutin_date).toLocaleDateString("fr-FR") : "—"}
-                      </td>
-                      <td style={{ padding: 8 }}>
-                        <Link href={`/scrutins/17/${v.numero_scrutin}`}>
-                          {v.title || v.objet || `Scrutin n°${v.numero_scrutin}`}
-                        </Link>
-                      </td>
-                      <td style={{ padding: 8, color: POSITION_LABELS[v.position]?.color || "var(--color-texte)", fontWeight: 600 }}>
-                        {POSITION_LABELS[v.position]?.label || v.position}
-                      </td>
-                      <td style={{ padding: 8 }}>{v.result_label || v.result_code || "—"}</td>
+                <table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
+                  <thead>
+                    <tr>
+                      <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("deputes.table_date")}</th>
+                      <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("deputes.table_scrutin")}</th>
+                      <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("deputes.table_position")}</th>
+                      <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("deputes.table_result")}</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-</ScrollableTable>
+                  </thead>
+                  <tbody>
+                    {filteredVotes.map((v) => (
+                      <tr key={v.numero_scrutin}>
+                        <td style={{ padding: 8, whiteSpace: "nowrap" }}>
+                          {v.scrutin_date ? new Date(v.scrutin_date).toLocaleDateString(localeTag(locale)) : "—"}
+                        </td>
+                        <td style={{ padding: 8 }}>
+                          <Link href={`/scrutins/17/${v.numero_scrutin}`}>
+                            {v.title || v.objet || `Scrutin n°${v.numero_scrutin}`}
+                          </Link>
+                        </td>
+                        <td style={{ padding: 8, color: POSITION_LABELS[v.position]?.color || "var(--color-texte)", fontWeight: 600 }}>
+                          {POSITION_LABELS[v.position]?.label || v.position}
+                        </td>
+                        <td style={{ padding: 8 }}>{v.result_label || v.result_code || "—"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </ScrollableTable>
               {filteredVotes.length === 0 && (
                 <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>{t("deputes.no_matching_votes")}</p>
               )}

@@ -25,7 +25,10 @@
     "country_label": "Pays",
     "country_search_placeholder": "Rechercher un pays...",
     "country_search_aria": "{label} — rechercher",
-    "no_results": "Aucun résultat"
+    "no_results": "Aucun résultat",
+    "footer_data_status": "État des données",
+    "footer_legal": "Mentions légales",
+    "footer_privacy": "Confidentialité"
   },
   "home": {
     "intro": "Comprendre le changement climatique, pays par pays, avec des données ouvertes et sourcées.",
@@ -558,7 +561,8 @@
     "consent_status_unset": "Tu n'as encore rien décidé — vote sur un scrutin pour voir la question.",
     "delete_button": "Supprimer définitivement mon historique",
     "delete_confirm": "Sûr ? Cette action est définitive et ne peut pas être annulée.",
-    "delete_done": "Historique supprimé."
+    "delete_done": "Historique supprimé.",
+    "reset_consent_button": "Réinitialiser mon choix"
   },
   "interviews": {
     "title": "Relais scientifique",
@@ -654,5 +658,31 @@
     "propose_error": "Échec de l'envoi, réessaie plus tard.",
     "back_to_home": "Retour à l'accueil →",
     "error_no_data": "Données indisponibles"
+  },
+  "dataStatus": {
+    "title": "État des données",
+    "intro": "Toutes les sources de données utilisées sur ce site, avec la date de leur dernière mise à jour — pour que tu saches exactement d'où viennent les chiffres et à quel point ils sont récents.",
+    "th_data": "Donnée",
+    "th_source": "Source",
+    "th_last_update": "Dernière mise à jour",
+    "not_available": "Non disponible",
+    "data_year": " (données {year})",
+    "legend_fresh": "Moins de 14 jours",
+    "legend_medium": "Moins de 60 jours",
+    "legend_stale": "Plus de 60 jours",
+    "footer_note": "Les mises à jour sont automatisées (aucune intervention manuelle sur les chiffres bruts). Le code source des scripts d'ingestion est public — voir le dépôt du projet.",
+    "source_co2": "Émissions de CO2 par pays",
+    "source_powerPlants": "Centrales électriques mondiales",
+    "source_electricity": "Mix électrique par pays",
+    "source_species": "Statut des espèces (UICN)",
+    "source_speciesThreatened": "Décompte espèces menacées",
+    "source_vegetation": "Perte de couverture arborée",
+    "source_fires": "Feux actifs détectés",
+    "source_water": "Stress hydrique par pays",
+    "source_pollution": "Qualité de l'air par pays",
+    "source_worldBenchmarks": "Comparatifs mondiaux (biodiversité, etc.)",
+    "source_deputies": "Députés (17e législature)",
+    "source_anGroups": "Groupes politiques",
+    "source_scrutins": "Scrutins et votes nominatifs"
   }
 }

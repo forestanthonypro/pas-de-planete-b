@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { detectDefaultCountry } from "../lib/detectCountry";
-import { detectPreferredLanguage } from "../lib/detectLanguage";
 import { useLastUpdated, formatDate } from "../lib/useLastUpdated";
 import { localizedCountryName } from "../lib/countryNames";
 import CountrySelect from "../components/CountrySelect";
@@ -14,10 +13,9 @@ import ScrollableTable from "../components/ScrollableTable";
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 export default function IncendiesPage() {
-  const { t } = useT();
+  const { t, locale } = useT();
   const { sobriety } = useSobriety();
   const lastUpdated = useLastUpdated();
-  const [preferredLang, setPreferredLang] = useState(null);
   const [countries, setCountries] = useState([]);
   const [country, setCountry] = useState("FRA");
   const [fires, setFires] = useState([]);
@@ -35,7 +33,6 @@ export default function IncendiesPage() {
 
   useEffect(() => {
     setCountry(detectDefaultCountry());
-    setPreferredLang(detectPreferredLanguage());
   }, []);
 
   useEffect(() => {
@@ -106,7 +103,7 @@ export default function IncendiesPage() {
     };
   }, [view, sobriety, fires]);
 
-  const selectedCountryName = localizedCountryName(country, preferredLang);
+  const selectedCountryName = localizedCountryName(country, locale);
 
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
@@ -126,7 +123,7 @@ export default function IncendiesPage() {
           countries={countries}
           value={country}
           onChange={setCountry}
-          preferredLang={preferredLang}
+          locale={locale}
         />
         <button onClick={() => setView(view === "map" ? "table" : "map")} disabled={sobriety}>
           {view === "map" ? t("common.view_as_table") : t("common.view_as_chart")}

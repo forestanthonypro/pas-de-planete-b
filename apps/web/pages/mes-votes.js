@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getAnonymousId, getConsent, resetConsentChoice, forgetLocalIdentity } from "../lib/anonymousId";
 import { fetchCitizenVotes, fetchCitizenAlignment, deleteAllCitizenVotes } from "../lib/citizenVotes";
 import { useT } from "../lib/useT";
+import { localeTag } from "../lib/dateLocale";
 import PageHeader from "../components/PageHeader";
 import { IconCheck } from "../components/icons";
 import ScrollableTable from "../components/ScrollableTable";
@@ -10,7 +11,7 @@ import ScrollableTable from "../components/ScrollableTable";
 const POSITION_LABELS_KEYS = { pour: "scrutins.pos_pour", contre: "scrutins.pos_contre", abstention: "scrutins.pos_abstention" };
 
 export default function MesVotesPage() {
-  const { t } = useT();
+  const { t, locale } = useT();
   const [votes, setVotes] = useState([]);
   const [alignment, setAlignment] = useState(null);
   const [consent, setConsentState] = useState(null);
@@ -78,7 +79,7 @@ export default function MesVotesPage() {
         <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
           {consent !== null && (
             <button type="button" onClick={handleResetConsent} style={{ fontSize: 13 }}>
-              Réinitialiser mon choix
+              {t("citizenVote.reset_consent_button")}
             </button>
           )}
           {consent === "yes" && (
@@ -109,33 +110,33 @@ export default function MesVotesPage() {
           <section style={{ marginBottom: "2rem" }}>
             <h2 style={{ fontSize: 18 }}>{t("citizenVote.history_title")}</h2>
             <ScrollableTable>
-<table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
-              <thead>
-                <tr>
-                  <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("citizenVote.table_date")}</th>
-                  <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("citizenVote.table_scrutin")}</th>
-                  <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("citizenVote.table_your_vote")}</th>
-                  <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("citizenVote.table_result")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {votes.map((v) => (
-                  <tr key={`${v.legislature}-${v.numero_scrutin}`}>
-                    <td style={{ padding: 8, whiteSpace: "nowrap" }}>
-                      {v.scrutin_date ? new Date(v.scrutin_date).toLocaleDateString("fr-FR") : "—"}
-                    </td>
-                    <td style={{ padding: 8 }}>
-                      <Link href={`/scrutins/${v.legislature}/${v.numero_scrutin}`}>
-                        {v.title || v.objet || `Scrutin n°${v.numero_scrutin}`}
-                      </Link>
-                    </td>
-                    <td style={{ padding: 8 }}>{t(POSITION_LABELS_KEYS[v.position] || v.position)}</td>
-                    <td style={{ padding: 8 }}>{v.result_label || v.result_code || "—"}</td>
+              <table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
+                <thead>
+                  <tr>
+                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("citizenVote.table_date")}</th>
+                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("citizenVote.table_scrutin")}</th>
+                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("citizenVote.table_your_vote")}</th>
+                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("citizenVote.table_result")}</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-</ScrollableTable>
+                </thead>
+                <tbody>
+                  {votes.map((v) => (
+                    <tr key={`${v.legislature}-${v.numero_scrutin}`}>
+                      <td style={{ padding: 8, whiteSpace: "nowrap" }}>
+                        {v.scrutin_date ? new Date(v.scrutin_date).toLocaleDateString(localeTag(locale)) : "—"}
+                      </td>
+                      <td style={{ padding: 8 }}>
+                        <Link href={`/scrutins/${v.legislature}/${v.numero_scrutin}`}>
+                          {v.title || v.objet || `Scrutin n°${v.numero_scrutin}`}
+                        </Link>
+                      </td>
+                      <td style={{ padding: 8 }}>{t(POSITION_LABELS_KEYS[v.position] || v.position)}</td>
+                      <td style={{ padding: 8 }}>{v.result_label || v.result_code || "—"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </ScrollableTable>
           </section>
 
           {alignment && (
@@ -153,29 +154,29 @@ export default function MesVotesPage() {
                     <>
                       <h3 style={{ fontSize: 15 }}>{t("citizenVote.alignment_groups_title")}</h3>
                       <ScrollableTable>
-<table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse", marginBottom: "1.5rem" }}>
-                        <thead>
-                          <tr>
-                            <th scope="col" style={{ textAlign: "left", padding: 6 }}>{t("citizenVote.table_group")}</th>
-                            <th scope="col" style={{ textAlign: "right", padding: 6 }}>{t("citizenVote.table_agreement")}</th>
-                            <th scope="col" style={{ textAlign: "right", padding: 6 }}>{t("citizenVote.table_common_votes")}</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {alignment.groups.map((g) => (
-                            <tr key={g.group_abbreviation}>
-                              <th scope="row" style={{ textAlign: "left", padding: 6, fontWeight: 400 }}>
-                                <Link href={`/groupes/${g.group_abbreviation}`}>{g.group_abbreviation}</Link>
-                              </th>
-                              <td style={{ textAlign: "right", padding: 6, fontWeight: 600 }}>
-                                {Math.round((g.matches / g.total) * 1000) / 10} %
-                              </td>
-                              <td style={{ textAlign: "right", padding: 6 }}>{g.total}</td>
+                        <table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse", marginBottom: "1.5rem" }}>
+                          <thead>
+                            <tr>
+                              <th scope="col" style={{ textAlign: "left", padding: 6 }}>{t("citizenVote.table_group")}</th>
+                              <th scope="col" style={{ textAlign: "right", padding: 6 }}>{t("citizenVote.table_agreement")}</th>
+                              <th scope="col" style={{ textAlign: "right", padding: 6 }}>{t("citizenVote.table_common_votes")}</th>
                             </tr>
-                          ))}
-                        </tbody>
-                      </table>
-</ScrollableTable>
+                          </thead>
+                          <tbody>
+                            {alignment.groups.map((g) => (
+                              <tr key={g.group_abbreviation}>
+                                <th scope="row" style={{ textAlign: "left", padding: 6, fontWeight: 400 }}>
+                                  <Link href={`/groupes/${g.group_abbreviation}`}>{g.group_abbreviation}</Link>
+                                </th>
+                                <td style={{ textAlign: "right", padding: 6, fontWeight: 600 }}>
+                                  {Math.round((g.matches / g.total) * 1000) / 10} %
+                                </td>
+                                <td style={{ textAlign: "right", padding: 6 }}>{g.total}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </ScrollableTable>
                     </>
                   )}
 
@@ -183,31 +184,31 @@ export default function MesVotesPage() {
                     <>
                       <h3 style={{ fontSize: 15 }}>{t("citizenVote.alignment_deputies_title")}</h3>
                       <ScrollableTable>
-<table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
-                        <thead>
-                          <tr>
-                            <th scope="col" style={{ textAlign: "left", padding: 6 }}>{t("citizenVote.table_deputy")}</th>
-                            <th scope="col" style={{ textAlign: "left", padding: 6 }}>{t("citizenVote.table_group")}</th>
-                            <th scope="col" style={{ textAlign: "right", padding: 6 }}>{t("citizenVote.table_agreement")}</th>
-                            <th scope="col" style={{ textAlign: "right", padding: 6 }}>{t("citizenVote.table_common_votes")}</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {alignment.deputies.map((d) => (
-                            <tr key={d.acteur_uid}>
-                              <th scope="row" style={{ textAlign: "left", padding: 6, fontWeight: 400 }}>
-                                <Link href={`/deputes/${d.acteur_uid}`}>{d.full_name}</Link>
-                              </th>
-                              <td style={{ padding: 6 }}>{d.group_abbreviation || "—"}</td>
-                              <td style={{ textAlign: "right", padding: 6, fontWeight: 600 }}>
-                                {Math.round((d.matches / d.total) * 1000) / 10} %
-                              </td>
-                              <td style={{ textAlign: "right", padding: 6 }}>{d.total}</td>
+                        <table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
+                          <thead>
+                            <tr>
+                              <th scope="col" style={{ textAlign: "left", padding: 6 }}>{t("citizenVote.table_deputy")}</th>
+                              <th scope="col" style={{ textAlign: "left", padding: 6 }}>{t("citizenVote.table_group")}</th>
+                              <th scope="col" style={{ textAlign: "right", padding: 6 }}>{t("citizenVote.table_agreement")}</th>
+                              <th scope="col" style={{ textAlign: "right", padding: 6 }}>{t("citizenVote.table_common_votes")}</th>
                             </tr>
-                          ))}
-                        </tbody>
-                      </table>
-</ScrollableTable>
+                          </thead>
+                          <tbody>
+                            {alignment.deputies.map((d) => (
+                              <tr key={d.acteur_uid}>
+                                <th scope="row" style={{ textAlign: "left", padding: 6, fontWeight: 400 }}>
+                                  <Link href={`/deputes/${d.acteur_uid}`}>{d.full_name}</Link>
+                                </th>
+                                <td style={{ padding: 6 }}>{d.group_abbreviation || "—"}</td>
+                                <td style={{ textAlign: "right", padding: 6, fontWeight: 600 }}>
+                                  {Math.round((d.matches / d.total) * 1000) / 10} %
+                                </td>
+                                <td style={{ textAlign: "right", padding: 6 }}>{d.total}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </ScrollableTable>
                     </>
                   )}
                 </>
