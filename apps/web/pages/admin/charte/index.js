@@ -2,10 +2,13 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import AdminAuthGate from "../../../components/AdminAuthGate";
 import ScrollableTable from "../../../components/ScrollableTable";
+import ContentTranslationsEditor from "../../../components/ContentTranslationsEditor";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 const STATUS_LABELS = { pending: "En attente", published: "Publiée", draft: "Brouillon", rejected: "Rejetée" };
+
+const SECTION_TRANSLATION_FIELDS = [{ name: "name", label: "Nom de la section", multiline: false }];
 
 function AdminCharterPageInner({ session }) {
   const [sections, setSections] = useState([]);
@@ -15,12 +18,12 @@ function AdminCharterPageInner({ session }) {
   const [loaded, setLoaded] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [expandedSectionId, setExpandedSectionId] = useState(null);
 
   useEffect(() => {
     loadAll(session.sessionToken);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
 
   function loadAll(currentToken) {
     setLoading(true);
@@ -44,8 +47,6 @@ function AdminCharterPageInner({ session }) {
         setLoading(false);
       });
   }
-
-
 
   function addSection(e) {
     e.preventDefault();
@@ -162,7 +163,6 @@ function AdminCharterPageInner({ session }) {
       <h1>Administration — Charte éthique</h1>
       <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>Même jeton que pour les autres rubriques éditoriales.</p>
 
-
       {loading && <p>Chargement...</p>}
       {error && <p role="alert" style={{ color: "#d63e2a" }}>{error}</p>}
 
@@ -174,12 +174,30 @@ function AdminCharterPageInner({ session }) {
               <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>Aucune section pour l&apos;instant.</p>
             ) : (
               sections.map((s, i) => (
-                <div key={s.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 0", borderBottom: "1px solid var(--color-bordure)" }}>
-                  <button type="button" onClick={() => moveSection(s.id, "up")} disabled={i === 0} style={{ fontSize: 12 }}>↑</button>
-                  <button type="button" onClick={() => moveSection(s.id, "down")} disabled={i === sections.length - 1} style={{ fontSize: 12 }}>↓</button>
-                  <span style={{ flex: 1, fontWeight: 600 }}>{s.name}</span>
-                  <Link href={`/admin/charte/item-edit?sectionId=${s.id}`} style={{ fontSize: 13 }}>+ Élément</Link>
-                  <button type="button" onClick={() => removeSection(s.id)} style={{ fontSize: 12, color: "#d63e2a" }}>Supprimer</button>
+                <div key={s.id}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 0", borderBottom: "1px solid var(--color-bordure)" }}>
+                    <button type="button" onClick={() => moveSection(s.id, "up")} disabled={i === 0} style={{ fontSize: 12 }}>↑</button>
+                    <button type="button" onClick={() => moveSection(s.id, "down")} disabled={i === sections.length - 1} style={{ fontSize: 12 }}>↓</button>
+                    <span style={{ flex: 1, fontWeight: 600 }}>{s.name}</span>
+                    <button
+                      type="button"
+                      onClick={() => setExpandedSectionId(expandedSectionId === s.id ? null : s.id)}
+                      style={{ fontSize: 12 }}
+                    >
+                      {expandedSectionId === s.id ? "Masquer traductions" : "Traductions"}
+                    </button>
+                    <Link href={`/admin/charte/item-edit?sectionId=${s.id}`} style={{ fontSize: 13 }}>+ Élément</Link>
+                    <button type="button" onClick={() => removeSection(s.id)} style={{ fontSize: 12, color: "#d63e2a" }}>Supprimer</button>
+                  </div>
+                  {expandedSectionId === s.id && (
+                    <ContentTranslationsEditor
+                      contentType="charter_section"
+                      contentId={String(s.id)}
+                      fields={SECTION_TRANSLATION_FIELDS}
+                      baseValues={{ name: s.name }}
+                      sessionToken={session.sessionToken}
+                    />
+                  )}
                 </div>
               ))
             )}
@@ -230,36 +248,36 @@ function AdminCharterPageInner({ session }) {
               <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>Aucune suggestion pour l&apos;instant.</p>
             ) : (
               <ScrollableTable>
-<table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
-                <thead>
-                  <tr>
-                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>Texte</th>
-                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>Statut</th>
-                    <th scope="col" style={{ textAlign: "left", padding: 8 }}></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {suggestions.map((s) => (
-                    <tr key={s.id}>
-                      <td style={{ padding: 8, fontSize: 13 }}>{s.text}</td>
-                      <td style={{ padding: 8, fontSize: 13 }}>{STATUS_LABELS[s.status] || s.status}</td>
-                      <td style={{ padding: 8, whiteSpace: "nowrap" }}>
-                        <select
-                          value={s.status}
-                          onChange={(e) => updateSuggestionStatus(s.id, e.target.value)}
-                          style={{ fontSize: 12, padding: "4px 6px" }}
-                        >
-                          <option value="pending">En attente</option>
-                          <option value="published">Publiée</option>
-                          <option value="draft">Brouillon</option>
-                          <option value="rejected">Rejetée</option>
-                        </select>
-                      </td>
+                <table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
+                  <thead>
+                    <tr>
+                      <th scope="col" style={{ textAlign: "left", padding: 8 }}>Texte</th>
+                      <th scope="col" style={{ textAlign: "left", padding: 8 }}>Statut</th>
+                      <th scope="col" style={{ textAlign: "left", padding: 8 }}></th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-</ScrollableTable>
+                  </thead>
+                  <tbody>
+                    {suggestions.map((s) => (
+                      <tr key={s.id}>
+                        <td style={{ padding: 8, fontSize: 13 }}>{s.text}</td>
+                        <td style={{ padding: 8, fontSize: 13 }}>{STATUS_LABELS[s.status] || s.status}</td>
+                        <td style={{ padding: 8, whiteSpace: "nowrap" }}>
+                          <select
+                            value={s.status}
+                            onChange={(e) => updateSuggestionStatus(s.id, e.target.value)}
+                            style={{ fontSize: 12, padding: "4px 6px" }}
+                          >
+                            <option value="pending">En attente</option>
+                            <option value="published">Publiée</option>
+                            <option value="draft">Brouillon</option>
+                            <option value="rejected">Rejetée</option>
+                          </select>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </ScrollableTable>
             )}
           </section>
         </>

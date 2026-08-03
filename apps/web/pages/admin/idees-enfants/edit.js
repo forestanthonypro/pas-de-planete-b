@@ -1,9 +1,15 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import AdminAuthGate from "../../../components/AdminAuthGate";
+import ContentTranslationsEditor from "../../../components/ContentTranslationsEditor";
 import Link from "next/link";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+
+const TRANSLATION_FIELDS = [
+  { name: "title", label: "Titre de l'idée", multiline: false },
+  { name: "description", label: "Description", multiline: true },
+];
 
 function slugify(text) {
   return text
@@ -27,7 +33,6 @@ function AdminFutureIdeaEditInner({ session }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [status, setStatus] = useState("idle");
-
 
   useEffect(() => {
     if (!editSlug) return;
@@ -97,7 +102,6 @@ function AdminFutureIdeaEditInner({ session }) {
       </p>
       <h1>{isEditing ? "Modifier l'idée" : "Nouvelle idée"}</h1>
 
-
       {loading && <p>Chargement...</p>}
       {error && <p role="alert" style={{ color: "#d63e2a" }}>{error}</p>}
 
@@ -138,6 +142,14 @@ function AdminFutureIdeaEditInner({ session }) {
           {status === "saving" ? "Enregistrement..." : "Enregistrer"}
         </button>
       </form>
+
+      <ContentTranslationsEditor
+        contentType="future_idea"
+        contentId={isEditing ? slug : null}
+        fields={TRANSLATION_FIELDS}
+        baseValues={{ title, description }}
+        sessionToken={session.sessionToken}
+      />
     </div>
   );
 }

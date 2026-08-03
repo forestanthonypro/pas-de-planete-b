@@ -1,9 +1,15 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import AdminAuthGate from "../../../components/AdminAuthGate";
+import ContentTranslationsEditor from "../../../components/ContentTranslationsEditor";
 import Link from "next/link";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+
+const TRANSLATION_FIELDS = [
+  { name: "title", label: "Titre", multiline: false },
+  { name: "description", label: "Description", multiline: true },
+];
 
 function AdminCharterItemEditInner({ session }) {
   const router = useRouter();
@@ -18,7 +24,6 @@ function AdminCharterItemEditInner({ session }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [status, setStatus] = useState("idle");
-
 
   useEffect(() => {
     fetch(`${API_URL}/api/admin/charter-sections`, { headers: { ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) } })
@@ -99,7 +104,6 @@ function AdminCharterItemEditInner({ session }) {
       </p>
       <h1>{isEditing ? "Modifier l'élément" : "Nouvel élément"}</h1>
 
-
       {loading && <p>Chargement...</p>}
       {error && <p role="alert" style={{ color: "#d63e2a" }}>{error}</p>}
 
@@ -133,6 +137,14 @@ function AdminCharterItemEditInner({ session }) {
           {status === "saving" ? "Enregistrement..." : "Enregistrer"}
         </button>
       </form>
+
+      <ContentTranslationsEditor
+        contentType="charter_item"
+        contentId={isEditing ? String(editId) : null}
+        fields={TRANSLATION_FIELDS}
+        baseValues={{ title, description }}
+        sessionToken={session.sessionToken}
+      />
     </div>
   );
 }

@@ -1306,13 +1306,16 @@ app.post("/api/admin/deputy-follows/send-digests", requireIngestToken, async (_r
 // table ne stocke que les variantes dans les autres langues, en overlay.
 // Pour l'instant seul "debunk" l'utilise ; le même mécanisme sera repris
 // pour interviews, paysans, ressources, charte, idées enfants.
-const TRANSLATABLE_CONTENT_TYPES = ["debunk", "interview", "paysan", "resource_location", "resource_online"];
+const TRANSLATABLE_CONTENT_TYPES = ["debunk", "interview", "paysan", "resource_location", "resource_online", "charter_section", "charter_item", "future_idea"];
 const TRANSLATABLE_FIELDS = {
   debunk: ["myth", "reality", "claim_quote"],
   interview: ["title", "description", "scientist_field"],
   paysan: ["title", "description"],
   resource_location: ["name", "description"],
   resource_online: ["title", "description"],
+  charter_section: ["name"],
+  charter_item: ["title", "description"],
+  future_idea: ["title", "description"],
 };
 
 app.get("/api/admin/content-translations/:contentType/:contentId", requireAdminSession, async (req, res) => {
@@ -2381,7 +2384,8 @@ app.post("/api/admin/resource-online/:slug/publish", requireAdminSession, async 
 // anonyme (adhère / à nuancer, jamais de rejet brutal), boîte à idées
 // modérée avant toute publication.
 
-app.get("/api/charter", async (_req, res) => {
+app.get("/api/charter", async (req, res) => {
+  const { locale } = req.query;
   try {
     const sections = await pool.query(
       "SELECT id, name, display_order FROM charter_sections ORDER BY display_order"
@@ -2396,13 +2400,35 @@ app.get("/api/charter", async (_req, res) => {
        GROUP BY i.id
        ORDER BY i.display_order`
     );
+
+    let sectionNameOverrides = {};
+    let itemOverrides = {};
+    if (locale && locale !== "fr") {
+      const [sectionTr, itemTr] = await Promise.all([
+        pool.query(
+          "SELECT content_id, value FROM content_translations WHERE content_type = 'charter_section' AND field_name = 'name' AND locale = $1",
+          [locale]
+        ),
+        pool.query(
+          "SELECT content_id, field_name, value FROM content_translations WHERE content_type = 'charter_item' AND locale = $1",
+          [locale]
+        ),
+      ]);
+      for (const r of sectionTr.rows) sectionNameOverrides[r.content_id] = r.value;
+      for (const r of itemTr.rows) {
+        itemOverrides[r.content_id] = itemOverrides[r.content_id] || {};
+        itemOverrides[r.content_id][r.field_name] = r.value;
+      }
+    }
+
     const itemsBySection = {};
     for (const item of items.rows) {
       if (!itemsBySection[item.section_id]) itemsBySection[item.section_id] = [];
+      const override = itemOverrides[String(item.id)] || {};
       itemsBySection[item.section_id].push({
         id: item.id,
-        title: item.title,
-        description: item.description,
+        title: override.title || item.title,
+        description: override.description !== undefined ? override.description : item.description,
         adhereCount: parseInt(item.adhere_count, 10),
         nuanceCount: parseInt(item.nuance_count, 10),
       });
@@ -2411,7 +2437,11 @@ app.get("/api/charter", async (_req, res) => {
       "SELECT id, text FROM charter_suggestions WHERE status = 'published' ORDER BY submitted_at DESC"
     );
     res.json({
-      sections: sections.rows.map((s) => ({ id: s.id, name: s.name, items: itemsBySection[s.id] || [] })),
+      sections: sections.rows.map((s) => ({
+        id: s.id,
+        name: sectionNameOverrides[String(s.id)] || s.name,
+        items: itemsBySection[s.id] || [],
+      })),
       publishedSuggestions: suggestions.rows,
     });
   } catch (err) {
@@ -2685,7 +2715,8 @@ app.post("/api/admin/charter-suggestions/:id/status", requireAdminSession, async
 // Espace d'idées à soutenir par le vote — indépendant de la charte éthique.
 // Classement par popularité (nombre de soutiens), pas d'ordre géré à la main.
 
-app.get("/api/future-ideas", async (_req, res) => {
+app.get("/api/future-ideas", async (req, res) => {
+  const { locale } = req.query;
   try {
     const result = await pool.query(
       `SELECT i.slug, i.title, i.description, i.updated_at,
@@ -2696,7 +2727,20 @@ app.get("/api/future-ideas", async (_req, res) => {
        GROUP BY i.slug
        ORDER BY support_count DESC, i.updated_at DESC`
     );
-    res.json(result.rows.map((r) => ({ ...r, support_count: parseInt(r.support_count, 10) })));
+    let rows = result.rows.map((r) => ({ ...r, support_count: parseInt(r.support_count, 10) }));
+    if (locale && locale !== "fr") {
+      const trResult = await pool.query(
+        "SELECT content_id, field_name, value FROM content_translations WHERE content_type = 'future_idea' AND locale = $1",
+        [locale]
+      );
+      const overrides = {};
+      for (const r of trResult.rows) {
+        overrides[r.content_id] = overrides[r.content_id] || {};
+        overrides[r.content_id][r.field_name] = r.value;
+      }
+      rows = rows.map((row) => ({ ...row, ...(overrides[row.slug] || {}) }));
+    }
+    res.json(rows);
   } catch (err) {
     res.status(503).json({ error: "Données non initialisées", detail: err.message });
   }

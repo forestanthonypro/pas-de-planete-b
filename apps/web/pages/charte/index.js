@@ -10,7 +10,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 const MIN_ALTERNATIVE_LENGTH = 30;
 
 export default function CharterPage() {
-  const { t } = useT();
+  const { t, locale } = useT();
   const [data, setData] = useState(null);
   const [myVotes, setMyVotes] = useState({});
   const [loading, setLoading] = useState(true);
@@ -25,7 +25,7 @@ export default function CharterPage() {
   useEffect(() => {
     const anonymousId = getAnonymousId();
     Promise.all([
-      fetch(`${API_URL}/api/charter`).then((res) => {
+      fetch(`${API_URL}/api/charter?locale=${locale}`).then((res) => {
         if (!res.ok) throw new Error(t("charter.error_no_data"));
         return res.json();
       }),
@@ -43,7 +43,7 @@ export default function CharterPage() {
         setLoading(false);
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [locale]);
 
   function vote(itemId, voteType) {
     const anonymousId = getAnonymousId();

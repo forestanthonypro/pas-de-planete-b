@@ -9,7 +9,7 @@ import { getAnonymousId } from "../../lib/anonymousId";
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 export default function FutureIdeasPage() {
-  const { t } = useT();
+  const { t, locale } = useT();
   const [ideas, setIdeas] = useState([]);
   const [mySupports, setMySupports] = useState(new Set());
   const [loading, setLoading] = useState(true);
@@ -21,7 +21,7 @@ export default function FutureIdeasPage() {
   useEffect(() => {
     const anonymousId = getAnonymousId();
     Promise.all([
-      fetch(`${API_URL}/api/future-ideas`).then((res) => {
+      fetch(`${API_URL}/api/future-ideas?locale=${locale}`).then((res) => {
         if (!res.ok) throw new Error(t("futureIdeas.error_no_data"));
         return res.json();
       }),
@@ -39,7 +39,7 @@ export default function FutureIdeasPage() {
         setLoading(false);
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [locale]);
 
   function toggleSupport(slug) {
     const anonymousId = getAnonymousId();
