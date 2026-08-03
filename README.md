@@ -75,9 +75,9 @@ Changer d'hébergeur = changer l'IP cible du déploiement SSH en CI, rien d'autr
 
 Après le premier déploiement, mettre à jour les secrets GitHub `INGEST_TOKEN` et `API_URL` (Settings > Secrets and variables > Actions) avec les vraies valeurs de production, sans quoi les workflows d'ingestion automatisée (`refresh-data.yml`, `refresh-fires.yml`) échoueront.
 
-## Problème de build connu
+## Historique de build résolu
 
-`next build` échoue actuellement sur les pages `/404` et `/500` avec l'erreur `<Html> should not be imported outside of pages/_document`, reproduit de façon identique sur Next.js 14/15/16, Turbopack/Webpack, avec ou sans cache — probable bug de plateforme plutôt qu'un problème de code applicatif. Détails et pistes dans `KNOWN_ISSUES_build.md`. `npm run dev` fonctionne normalement, seul le build de production est affecté à ce stade.
+`next build` échouait auparavant sur les pages `/404` et `/500` lors des tentatives de mise à jour vers Next.js 15/16 (`<Html> should not be imported outside of pages/_document`). Cause identifiée : l'image Docker `node:20-alpine` (musl libc) était incompatible avec le compilateur natif de Next.js 15+ — pas un problème de code applicatif. Résolu en passant à `node:20-slim` (Debian, glibc) sur `apps/web/Dockerfile` et `docker-compose.yml`. Détails complets dans `KNOWN_ISSUES_build.md`. Le projet tourne maintenant sur Next.js 15.x.
 
 ## Licence
 
