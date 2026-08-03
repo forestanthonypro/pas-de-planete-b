@@ -25,7 +25,7 @@
     "ingest:an-groups": "node src/ingest/an_groups.js"
   },
   "dependencies": {
-    "express": "^4.19.2",
+    "express": "^5.2.1",
     "express-rate-limit": "^7.4.0",
     "helmet": "^7.1.0",
     "pg": "^8.12.0",
