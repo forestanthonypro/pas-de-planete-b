@@ -612,7 +612,11 @@
     "links_title": "リンク",
     "back_to_home": "ホームに戻る →",
     "visit_link": "訪問する →",
-    "error_no_data": "データは利用できません"
+    "error_no_data": "データは利用できません",
+    "table_name": "名称",
+    "table_category": "カテゴリー",
+    "table_address": "住所",
+    "table_links": "リンク"
   },
   "charter": {
     "title": "倫理憲章",

@@ -612,7 +612,11 @@
     "links_title": "Enlaces",
     "back_to_home": "Volver al inicio →",
     "visit_link": "Visitar →",
-    "error_no_data": "Datos no disponibles"
+    "error_no_data": "Datos no disponibles",
+    "table_name": "Nombre",
+    "table_category": "Categoría",
+    "table_address": "Dirección",
+    "table_links": "Enlaces"
   },
   "charter": {
     "title": "Carta ética",

@@ -612,7 +612,11 @@
     "links_title": "Liens",
     "back_to_home": "Retour à l'accueil →",
     "visit_link": "Visiter →",
-    "error_no_data": "Données indisponibles"
+    "error_no_data": "Données indisponibles",
+    "table_name": "Nom",
+    "table_category": "Catégorie",
+    "table_address": "Adresse",
+    "table_links": "Liens"
   },
   "charter": {
     "title": "Charte éthique",

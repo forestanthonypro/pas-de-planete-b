@@ -612,7 +612,11 @@
     "links_title": "Ссылки",
     "back_to_home": "Вернуться на главную →",
     "visit_link": "Посетить →",
-    "error_no_data": "Данные недоступны"
+    "error_no_data": "Данные недоступны",
+    "table_name": "Название",
+    "table_category": "Категория",
+    "table_address": "Адрес",
+    "table_links": "Ссылки"
   },
   "charter": {
     "title": "Этическая хартия",

@@ -612,7 +612,11 @@
     "links_title": "Links",
     "back_to_home": "Back to home →",
     "visit_link": "Visit →",
-    "error_no_data": "Data unavailable"
+    "error_no_data": "Data unavailable",
+    "table_name": "Name",
+    "table_category": "Category",
+    "table_address": "Address",
+    "table_links": "Links"
   },
   "charter": {
     "title": "Ethical charter",

@@ -612,7 +612,11 @@
     "links_title": "链接",
     "back_to_home": "返回首页 →",
     "visit_link": "访问 →",
-    "error_no_data": "数据不可用"
+    "error_no_data": "数据不可用",
+    "table_name": "名称",
+    "table_category": "类别",
+    "table_address": "地址",
+    "table_links": "链接"
   },
   "charter": {
     "title": "道德宪章",

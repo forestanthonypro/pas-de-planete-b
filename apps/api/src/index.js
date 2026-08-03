@@ -1306,11 +1306,13 @@ app.post("/api/admin/deputy-follows/send-digests", requireIngestToken, async (_r
 // table ne stocke que les variantes dans les autres langues, en overlay.
 // Pour l'instant seul "debunk" l'utilise ; le même mécanisme sera repris
 // pour interviews, paysans, ressources, charte, idées enfants.
-const TRANSLATABLE_CONTENT_TYPES = ["debunk", "interview", "paysan"];
+const TRANSLATABLE_CONTENT_TYPES = ["debunk", "interview", "paysan", "resource_location", "resource_online"];
 const TRANSLATABLE_FIELDS = {
   debunk: ["myth", "reality", "claim_quote"],
   interview: ["title", "description", "scientist_field"],
   paysan: ["title", "description"],
+  resource_location: ["name", "description"],
+  resource_online: ["title", "description"],
 };
 
 app.get("/api/admin/content-translations/:contentType/:contentId", requireAdminSession, async (req, res) => {
@@ -2134,7 +2136,7 @@ app.delete("/api/admin/resource-categories/:id", requireAdminSession, async (req
 // Lieux physiques — toujours renvoyés avec leurs liens joints, pour éviter
 // un aller-retour supplémentaire (une carte affiche tout d'un coup).
 app.get("/api/resource-locations", async (req, res) => {
-  const { category } = req.query;
+  const { category, locale } = req.query;
   try {
     const params = [];
     let where = "WHERE l.published = true";
@@ -2161,7 +2163,20 @@ app.get("/api/resource-locations", async (req, res) => {
       if (!linksBySlug[l.location_slug]) linksBySlug[l.location_slug] = [];
       linksBySlug[l.location_slug].push({ label: l.label, url: l.url });
     }
-    res.json(locations.rows.map((l) => ({ ...l, links: linksBySlug[l.slug] || [] })));
+    let rows = locations.rows.map((l) => ({ ...l, links: linksBySlug[l.slug] || [] }));
+    if (locale && locale !== "fr") {
+      const trResult = await pool.query(
+        "SELECT content_id, field_name, value FROM content_translations WHERE content_type = 'resource_location' AND locale = $1",
+        [locale]
+      );
+      const overrides = {};
+      for (const r of trResult.rows) {
+        overrides[r.content_id] = overrides[r.content_id] || {};
+        overrides[r.content_id][r.field_name] = r.value;
+      }
+      rows = rows.map((row) => ({ ...row, ...(overrides[row.slug] || {}) }));
+    }
+    res.json(rows);
   } catch (err) {
     res.status(503).json({ error: "Données non initialisées", detail: err.message });
   }
@@ -2261,7 +2276,7 @@ app.post("/api/admin/resource-locations/:slug/publish", requireAdminSession, asy
 
 // Ressources non physiques (trocs, plateformes d'échange...).
 app.get("/api/resource-online", async (req, res) => {
-  const { category } = req.query;
+  const { category, locale } = req.query;
   try {
     const params = [];
     let where = "WHERE o.published = true";
@@ -2277,7 +2292,20 @@ app.get("/api/resource-online", async (req, res) => {
        ORDER BY o.title`,
       params
     );
-    res.json(result.rows);
+    let rows = result.rows;
+    if (locale && locale !== "fr") {
+      const trResult = await pool.query(
+        "SELECT content_id, field_name, value FROM content_translations WHERE content_type = 'resource_online' AND locale = $1",
+        [locale]
+      );
+      const overrides = {};
+      for (const r of trResult.rows) {
+        overrides[r.content_id] = overrides[r.content_id] || {};
+        overrides[r.content_id][r.field_name] = r.value;
+      }
+      rows = rows.map((row) => ({ ...row, ...(overrides[row.slug] || {}) }));
+    }
+    res.json(rows);
   } catch (err) {
     res.status(503).json({ error: "Données non initialisées", detail: err.message });
   }

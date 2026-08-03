@@ -9,7 +9,7 @@ import ScrollableTable from "../../components/ScrollableTable";
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 export default function RessourcesPage() {
-  const { t } = useT();
+  const { t, locale } = useT();
   const { sobriety } = useSobriety();
   const [tab, setTab] = useState("map");
   const [locations, setLocations] = useState([]);
@@ -25,8 +25,8 @@ export default function RessourcesPage() {
 
   useEffect(() => {
     Promise.all([
-      fetch(`${API_URL}/api/resource-locations`).then((res) => (res.ok ? res.json() : [])),
-      fetch(`${API_URL}/api/resource-online`).then((res) => (res.ok ? res.json() : [])),
+      fetch(`${API_URL}/api/resource-locations?locale=${locale}`).then((res) => (res.ok ? res.json() : [])),
+      fetch(`${API_URL}/api/resource-online?locale=${locale}`).then((res) => (res.ok ? res.json() : [])),
       fetch(`${API_URL}/api/resource-categories`).then((res) => (res.ok ? res.json() : [])),
     ])
       .then(([locationRows, onlineRows, categoryRows]) => {
@@ -39,7 +39,7 @@ export default function RessourcesPage() {
         setError(err.message);
         setLoading(false);
       });
-  }, []);
+  }, [locale]);
 
   const filteredLocations = useMemo(() => {
     if (!categoryFilter) return locations;
@@ -89,10 +89,6 @@ export default function RessourcesPage() {
         mapRef.current.fitBounds(bounds, { padding: [30, 30], maxZoom: 12 });
       }
 
-      // Le conteneur peut avoir été masqué (display: none) le temps d'un
-      // passage sur l'onglet "En ligne" — Leaflet garde alors une taille
-      // interne obsolète. On la recalcule après un court délai (le temps que
-      // le CSS s'applique) pour éviter une carte mal dimensionnée au retour.
       setTimeout(() => {
         if (!cancelled && mapRef.current) mapRef.current.invalidateSize();
       }, 50);
@@ -165,41 +161,38 @@ export default function RessourcesPage() {
             <p>{t("ressources.no_locations")}</p>
           ) : (
             <ScrollableTable>
-<table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
-              <thead>
-                <tr>
-                  <th scope="col" style={{ textAlign: "left", padding: 8 }}>Nom</th>
-                  <th scope="col" style={{ textAlign: "left", padding: 8 }}>Catégorie</th>
-                  <th scope="col" style={{ textAlign: "left", padding: 8 }}>Adresse</th>
-                  <th scope="col" style={{ textAlign: "left", padding: 8 }}>Liens</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredLocations.map((loc) => (
-                  <tr key={loc.slug}>
-                    <th scope="row" style={{ textAlign: "left", padding: 8, fontWeight: 600 }}>{loc.name}</th>
-                    <td style={{ padding: 8 }}>{loc.category_name || "—"}</td>
-                    <td style={{ padding: 8, fontSize: 13 }}>{loc.address || "—"}</td>
-                    <td style={{ padding: 8, fontSize: 13 }}>
-                      {(loc.links || []).map((link, i) => (
-                        <span key={link.url}>
-                          {i > 0 && " · "}
-                          <a href={link.url} target="_blank" rel="noopener noreferrer">{link.label}</a>
-                        </span>
-                      ))}
-                    </td>
+              <table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
+                <thead>
+                  <tr>
+                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("ressources.table_name")}</th>
+                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("ressources.table_category")}</th>
+                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("ressources.table_address")}</th>
+                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("ressources.table_links")}</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-</ScrollableTable>
+                </thead>
+                <tbody>
+                  {filteredLocations.map((loc) => (
+                    <tr key={loc.slug}>
+                      <th scope="row" style={{ textAlign: "left", padding: 8, fontWeight: 600 }}>{loc.name}</th>
+                      <td style={{ padding: 8 }}>{loc.category_name || "—"}</td>
+                      <td style={{ padding: 8, fontSize: 13 }}>{loc.address || "—"}</td>
+                      <td style={{ padding: 8, fontSize: 13 }}>
+                        {(loc.links || []).map((link, i) => (
+                          <span key={link.url}>
+                            {i > 0 && " · "}
+                            <a href={link.url} target="_blank" rel="noopener noreferrer">{link.label}</a>
+                          </span>
+                        ))}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </ScrollableTable>
           )
         ) : (
           <>
             {filteredLocations.length === 0 && <p>{t("ressources.no_locations")}</p>}
-            {/* Le conteneur reste toujours monté dans le DOM (jamais retiré en
-                changeant d'onglet) — sinon Leaflet perd la référence à son
-                élément et la carte ne réapparaît plus au retour sur cet onglet. */}
             <div ref={mapContainerRef} style={{ height: 480, borderRadius: 8 }} />
           </>
         )}

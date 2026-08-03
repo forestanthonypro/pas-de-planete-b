@@ -612,7 +612,11 @@
     "links_title": "लिंक",
     "back_to_home": "होम पर वापस जाएं →",
     "visit_link": "देखें →",
-    "error_no_data": "डेटा उपलब्ध नहीं है"
+    "error_no_data": "डेटा उपलब्ध नहीं है",
+    "table_name": "नाम",
+    "table_category": "श्रेणी",
+    "table_address": "पता",
+    "table_links": "लिंक"
   },
   "charter": {
     "title": "नैतिक चार्टर",
