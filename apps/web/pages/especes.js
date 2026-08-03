@@ -135,12 +135,12 @@ export default function EspecesPage() {
   const availableGroups = useMemo(() => {
     const set = new Set(species.map((s) => speciesGroupLabel(s.kingdom, s.class, s.taxon_order, locale)));
     return Array.from(set).sort();
-  }, [species]);
+  }, [species, locale]);
 
   const filteredSpecies = useMemo(() => {
     if (!group) return species;
     return species.filter((s) => speciesGroupLabel(s.kingdom, s.class, s.taxon_order, locale) === group);
-  }, [species, group]);
+  }, [species, group, locale]);
 
   useEffect(() => {
     if (group && !availableGroups.includes(group)) setGroup("");
