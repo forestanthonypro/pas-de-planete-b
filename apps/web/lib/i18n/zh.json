@@ -28,7 +28,8 @@
     "no_results": "无结果",
     "footer_data_status": "数据状态",
     "footer_legal": "法律声明",
-    "footer_privacy": "隐私政策"
+    "footer_privacy": "隐私政策",
+    "footer_impact": "环境影响"
   },
   "home": {
     "intro": "通过开放且经过核实的数据，逐国了解气候变化。",
@@ -688,5 +689,30 @@
     "source_deputies": "议员（第17届）",
     "source_anGroups": "政治党团",
     "source_scrutins": "投票与记名表决"
+  },
+  "environmentalImpact": {
+    "title": "环境影响",
+    "intro": "本网站践行生态设计理念：以下是每次生产环境部署时自动更新的真实测量数据——没有任何人工输入的数字。",
+    "card_ecoindex": "EcoIndex",
+    "card_load_time": "加载时间",
+    "card_page_weight": "页面大小",
+    "card_dom_elements": "DOM元素数",
+    "card_requests": "请求数",
+    "card_hosting": "托管",
+    "card_hosting_value": "100%可再生能源",
+    "card_emissions": "排放量",
+    "card_water": "用水量",
+    "card_lighthouse": "Lighthouse评分",
+    "lh_performance": "性能",
+    "lh_accessibility": "无障碍性",
+    "lh_seo": "SEO",
+    "lh_best_practices": "最佳实践",
+    "improvement_since_first": "自首次测量（{date}）以来：EcoIndex {sign}{diff}分",
+    "chart_title": "EcoIndex评分变化趋势",
+    "chart_axis": "EcoIndex评分（/100）",
+    "no_data": "目前尚无可用的测量数据——首次测量将在下次生产环境部署时进行。",
+    "methodology_title": "方法论",
+    "methodology_text": "每次生产环境部署时自动测量，使用EcoIndex（页面大小、DOM元素数、请求数、估算的CO2排放量和用水量——GreenIT方法论）和Google Lighthouse（性能、无障碍性、SEO、最佳实践）。这些数字没有任何人工干预。",
+    "last_measured": "最后测量时间：{date}"
   }
 }

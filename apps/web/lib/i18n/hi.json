@@ -28,7 +28,8 @@
     "no_results": "कोई परिणाम नहीं",
     "footer_data_status": "डेटा की स्थिति",
     "footer_legal": "कानूनी सूचना",
-    "footer_privacy": "गोपनीयता"
+    "footer_privacy": "गोपनीयता",
+    "footer_impact": "पर्यावरणीय प्रभाव"
   },
   "home": {
     "intro": "खुले और सत्यापित डेटा के साथ, देश दर देश जलवायु परिवर्तन को समझना।",
@@ -688,5 +689,30 @@
     "source_deputies": "सांसद (17वीं विधानसभा)",
     "source_anGroups": "राजनीतिक समूह",
     "source_scrutins": "मतदान और नामांकित वोट"
+  },
+  "environmentalImpact": {
+    "title": "पर्यावरणीय प्रभाव",
+    "intro": "यह साइट इको-डिज़ाइन का अभ्यास करती है: यहां वास्तविक माप हैं, जो हर प्रोडक्शन डिप्लॉयमेंट पर स्वचालित रूप से अपडेट होते हैं — कोई भी आंकड़ा हाथ से दर्ज नहीं किया गया।",
+    "card_ecoindex": "EcoIndex",
+    "card_load_time": "लोड समय",
+    "card_page_weight": "पेज का वज़न",
+    "card_dom_elements": "DOM तत्व",
+    "card_requests": "अनुरोध",
+    "card_hosting": "होस्टिंग",
+    "card_hosting_value": "100% नवीकरणीय ऊर्जा",
+    "card_emissions": "उत्सर्जन",
+    "card_water": "पानी",
+    "card_lighthouse": "Lighthouse स्कोर",
+    "lh_performance": "प्रदर्शन",
+    "lh_accessibility": "सुगम्यता",
+    "lh_seo": "SEO",
+    "lh_best_practices": "सर्वोत्तम प्रथाएं",
+    "improvement_since_first": "पहले माप ({date}) से: EcoIndex {sign}{diff} अंक",
+    "chart_title": "EcoIndex स्कोर का विकास",
+    "chart_axis": "EcoIndex स्कोर (/100)",
+    "no_data": "फिलहाल कोई माप उपलब्ध नहीं है — पहला माप अगले प्रोडक्शन डिप्लॉयमेंट पर होगा।",
+    "methodology_title": "कार्यप्रणाली",
+    "methodology_text": "हर प्रोडक्शन डिप्लॉयमेंट पर स्वचालित माप, EcoIndex (पेज का वज़न, DOM तत्व, अनुरोध, अनुमानित CO2 उत्सर्जन और पानी — GreenIT कार्यप्रणाली) और Google Lighthouse (प्रदर्शन, सुगम्यता, SEO, सर्वोत्तम प्रथाएं) के माध्यम से। इन आंकड़ों में कोई मैन्युअल हस्तक्षेप नहीं।",
+    "last_measured": "अंतिम माप: {date}"
   }
 }

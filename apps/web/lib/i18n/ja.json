@@ -28,7 +28,8 @@
     "no_results": "結果がありません",
     "footer_data_status": "データの状態",
     "footer_legal": "法的表示",
-    "footer_privacy": "プライバシー"
+    "footer_privacy": "プライバシー",
+    "footer_impact": "環境への影響"
   },
   "home": {
     "intro": "オープンで検証済みのデータをもとに、国ごとに気候変動を理解する。",
@@ -688,5 +689,30 @@
     "source_deputies": "議員（第17期）",
     "source_anGroups": "政治会派",
     "source_scrutins": "採決と記名投票"
+  },
+  "environmentalImpact": {
+    "title": "環境への影響",
+    "intro": "このサイトはエコデザインを実践しています。以下は本番環境へのデプロイのたびに自動的に更新される実際の測定値です——手入力の数字は一切ありません。",
+    "card_ecoindex": "EcoIndex",
+    "card_load_time": "読み込み時間",
+    "card_page_weight": "ページ重量",
+    "card_dom_elements": "DOM要素数",
+    "card_requests": "リクエスト数",
+    "card_hosting": "ホスティング",
+    "card_hosting_value": "100%再生可能エネルギー",
+    "card_emissions": "排出量",
+    "card_water": "水使用量",
+    "card_lighthouse": "Lighthouseスコア",
+    "lh_performance": "パフォーマンス",
+    "lh_accessibility": "アクセシビリティ",
+    "lh_seo": "SEO",
+    "lh_best_practices": "ベストプラクティス",
+    "improvement_since_first": "最初の測定（{date}）から：EcoIndex {sign}{diff}ポイント",
+    "chart_title": "EcoIndexスコアの推移",
+    "chart_axis": "EcoIndexスコア（/100）",
+    "no_data": "現時点で利用可能な測定はありません——次回の本番デプロイ時に初回測定が行われます。",
+    "methodology_title": "方法論",
+    "methodology_text": "本番デプロイのたびに、EcoIndex（ページ重量、DOM要素数、リクエスト数、推定CO2排出量と水使用量——GreenIT手法）とGoogle Lighthouse（パフォーマンス、アクセシビリティ、SEO、ベストプラクティス）による自動測定を実施。これらの数字への手動介入は一切ありません。",
+    "last_measured": "最終測定：{date}"
   }
 }

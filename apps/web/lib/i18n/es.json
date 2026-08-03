@@ -28,7 +28,8 @@
     "no_results": "Sin resultados",
     "footer_data_status": "Estado de los datos",
     "footer_legal": "Aviso legal",
-    "footer_privacy": "Privacidad"
+    "footer_privacy": "Privacidad",
+    "footer_impact": "Impacto ambiental"
   },
   "home": {
     "intro": "Comprender el cambio climático, país por país, con datos abiertos y verificados.",
@@ -688,5 +689,30 @@
     "source_deputies": "Diputados (17ª legislatura)",
     "source_anGroups": "Grupos políticos",
     "source_scrutins": "Votaciones y votos nominales"
+  },
+  "environmentalImpact": {
+    "title": "Impacto ambiental",
+    "intro": "Este sitio practica el ecodiseño: estas son las mediciones reales, actualizadas automáticamente en cada despliegue en producción — ninguna cifra introducida manualmente.",
+    "card_ecoindex": "EcoIndex",
+    "card_load_time": "Tiempo de carga",
+    "card_page_weight": "Peso de página",
+    "card_dom_elements": "Elementos DOM",
+    "card_requests": "Peticiones",
+    "card_hosting": "Alojamiento",
+    "card_hosting_value": "100 % energía renovable",
+    "card_emissions": "Emisiones",
+    "card_water": "Agua",
+    "card_lighthouse": "Puntuaciones Lighthouse",
+    "lh_performance": "Rendimiento",
+    "lh_accessibility": "Accesibilidad",
+    "lh_seo": "SEO",
+    "lh_best_practices": "Buenas prácticas",
+    "improvement_since_first": "Desde la primera medición ({date}): {sign}{diff} puntos EcoIndex",
+    "chart_title": "Evolución de la puntuación EcoIndex",
+    "chart_axis": "Puntuación EcoIndex (/100)",
+    "no_data": "Aún no hay ninguna medición disponible — la primera tendrá lugar en el próximo despliegue en producción.",
+    "methodology_title": "Metodología",
+    "methodology_text": "Mediciones automáticas en cada despliegue en producción, mediante EcoIndex (peso de página, elementos DOM, peticiones, emisiones de CO2 y agua estimadas — metodología GreenIT) y Google Lighthouse (rendimiento, accesibilidad, SEO, buenas prácticas). Ninguna intervención manual en estas cifras.",
+    "last_measured": "Última medición: {date}"
   }
 }

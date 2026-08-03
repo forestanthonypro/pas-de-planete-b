@@ -66,3 +66,73 @@ jobs:
     steps:
       - name: Déployer en production
         run: 'echo "TODO: ssh vers le serveur de production, docker compose pull && up -d"'
+
+  environmental-audit:
+    needs: deploy-production
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Installer ecoindex-scraper et Chromium
+        run: |
+          pip install ecoindex-scraper --break-system-packages
+          playwright install --with-deps chromium
+
+      - name: Mesurer l'EcoIndex du site
+        run: |
+          python3 - << 'PYEOF' > ecoindex-result.json
+          import asyncio, json
+          from ecoindex.scraper import EcoindexScraper
+
+          result = asyncio.run(EcoindexScraper(url="${{ vars.PRODUCTION_URL || 'https://pasdeplaneteb.fr' }}").get_page_analysis())
+          print(json.dumps({
+              "grade": result.grade,
+              "score": float(result.score),
+              "size": float(result.size),
+              "nodes": result.nodes,
+              "requests": result.requests,
+              "ges": float(result.ges),
+              "water": float(result.water),
+          }))
+          PYEOF
+          cat ecoindex-result.json
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Mesurer les scores Lighthouse
+        run: |
+          npm install -g @lhci/cli@0.15.x
+          lhci collect --url="${{ vars.PRODUCTION_URL || 'https://pasdeplaneteb.fr' }}" --numberOfRuns=1
+
+      - name: Envoyer les résultats à l'API
+        run: |
+          LH_REPORT=$(ls .lighthouseci/lhr-*.json | head -1)
+          PERF=$(jq '(.categories.performance.score * 100) | round' "$LH_REPORT")
+          A11Y=$(jq '(.categories.accessibility.score * 100) | round' "$LH_REPORT")
+          SEO=$(jq '(.categories.seo.score * 100) | round' "$LH_REPORT")
+          BP=$(jq '(.categories["best-practices"].score * 100) | round' "$LH_REPORT")
+          LOAD_TIME=$(jq '.audits["speed-index"].numericValue | round' "$LH_REPORT")
+          ECOINDEX=$(cat ecoindex-result.json)
+
+          PAYLOAD=$(jq -n \
+            --argjson eco "$ECOINDEX" \
+            --argjson perf "$PERF" --argjson a11y "$A11Y" --argjson seo "$SEO" --argjson bp "$BP" --argjson loadtime "$LOAD_TIME" \
+            --arg url "${{ vars.PRODUCTION_URL || 'https://pasdeplaneteb.fr' }}" \
+            '{
+              url: $url,
+              ecoindexGrade: $eco.grade, ecoindexScore: $eco.score, pageWeightKb: $eco.size,
+              domElements: $eco.nodes, requestsCount: $eco.requests, ghgCo2G: $eco.ges, waterCl: $eco.water,
+              lighthousePerformance: $perf, lighthouseAccessibility: $a11y, lighthouseSeo: $seo, lighthouseBestPractices: $bp,
+              loadTimeMs: $loadtime
+            }')
+
+          curl --fail --silent --show-error -X POST "${{ secrets.API_URL }}/api/admin/environmental-metrics" \
+            -H "Content-Type: application/json" \
+            -H "x-ingest-token: ${{ secrets.INGEST_TOKEN }}" \
+            -d "$PAYLOAD"

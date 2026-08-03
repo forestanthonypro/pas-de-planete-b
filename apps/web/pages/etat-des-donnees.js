@@ -1,3 +1,4 @@
+import Link from "next/link";
 import PageHeader from "../components/PageHeader";
 import ScrollableTable from "../components/ScrollableTable";
 import { IconLeaf } from "../components/icons";
@@ -105,6 +106,9 @@ export default function EtatDesDonnees() {
       </p>
 
       <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginTop: "1rem" }}>{t("dataStatus.footer_note")}</p>
+      <p style={{ fontSize: 12, marginTop: "0.5rem" }}>
+        <Link href="/impact">{t("common.footer_impact")} →</Link>
+      </p>
     </div>
   );
 }

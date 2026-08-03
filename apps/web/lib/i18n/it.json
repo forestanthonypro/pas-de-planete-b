@@ -28,7 +28,8 @@
     "no_results": "Nessun risultato",
     "footer_data_status": "Stato dei dati",
     "footer_legal": "Note legali",
-    "footer_privacy": "Privacy"
+    "footer_privacy": "Privacy",
+    "footer_impact": "Impatto ambientale"
   },
   "home": {
     "intro": "Comprendere il cambiamento climatico, paese per paese, con dati aperti e verificati.",
@@ -688,5 +689,30 @@
     "source_deputies": "Deputati (17ª legislatura)",
     "source_anGroups": "Gruppi politici",
     "source_scrutins": "Votazioni e voti nominali"
+  },
+  "environmentalImpact": {
+    "title": "Impatto ambientale",
+    "intro": "Questo sito pratica l'eco-design: ecco le misurazioni reali, aggiornate automaticamente a ogni distribuzione in produzione — nessuna cifra inserita manualmente.",
+    "card_ecoindex": "EcoIndex",
+    "card_load_time": "Tempo di caricamento",
+    "card_page_weight": "Peso della pagina",
+    "card_dom_elements": "Elementi DOM",
+    "card_requests": "Richieste",
+    "card_hosting": "Hosting",
+    "card_hosting_value": "100% energia rinnovabile",
+    "card_emissions": "Emissioni",
+    "card_water": "Acqua",
+    "card_lighthouse": "Punteggi Lighthouse",
+    "lh_performance": "Prestazioni",
+    "lh_accessibility": "Accessibilità",
+    "lh_seo": "SEO",
+    "lh_best_practices": "Best practice",
+    "improvement_since_first": "Dalla prima misurazione ({date}): {sign}{diff} punti EcoIndex",
+    "chart_title": "Evoluzione del punteggio EcoIndex",
+    "chart_axis": "Punteggio EcoIndex (/100)",
+    "no_data": "Nessuna misurazione disponibile per ora — la prima avverrà al prossimo deployment in produzione.",
+    "methodology_title": "Metodologia",
+    "methodology_text": "Misurazioni automatiche a ogni deployment in produzione, tramite EcoIndex (peso pagina, elementi DOM, richieste, emissioni di CO2 e acqua stimate — metodologia GreenIT) e Google Lighthouse (prestazioni, accessibilità, SEO, best practice). Nessun intervento manuale su queste cifre.",
+    "last_measured": "Ultima misurazione: {date}"
   }
 }

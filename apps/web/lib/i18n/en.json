@@ -28,7 +28,8 @@
     "no_results": "No results",
     "footer_data_status": "Data status",
     "footer_legal": "Legal notice",
-    "footer_privacy": "Privacy"
+    "footer_privacy": "Privacy",
+    "footer_impact": "Environmental impact"
   },
   "home": {
     "intro": "Understanding climate change, country by country, with open and sourced data.",
@@ -688,5 +689,30 @@
     "source_deputies": "Deputies (17th legislature)",
     "source_anGroups": "Political groups",
     "source_scrutins": "Votes and roll-call ballots"
+  },
+  "environmentalImpact": {
+    "title": "Environmental impact",
+    "intro": "This site practices eco-design: here are the real measurements, automatically updated on every production deployment — no figure entered by hand.",
+    "card_ecoindex": "EcoIndex",
+    "card_load_time": "Load time",
+    "card_page_weight": "Page weight",
+    "card_dom_elements": "DOM elements",
+    "card_requests": "Requests",
+    "card_hosting": "Hosting",
+    "card_hosting_value": "100% renewable energy",
+    "card_emissions": "Emissions",
+    "card_water": "Water",
+    "card_lighthouse": "Lighthouse scores",
+    "lh_performance": "Performance",
+    "lh_accessibility": "Accessibility",
+    "lh_seo": "SEO",
+    "lh_best_practices": "Best practices",
+    "improvement_since_first": "Since the first measurement ({date}): {sign}{diff} EcoIndex points",
+    "chart_title": "EcoIndex score over time",
+    "chart_axis": "EcoIndex score (/100)",
+    "no_data": "No measurement available yet — the first one will happen at the next production deployment.",
+    "methodology_title": "Methodology",
+    "methodology_text": "Automatic measurements on every production deployment, via EcoIndex (page weight, DOM elements, requests, estimated CO2 emissions and water use — GreenIT methodology) and Google Lighthouse (performance, accessibility, SEO, best practices). No manual intervention on these figures.",
+    "last_measured": "Last measured: {date}"
   }
 }

@@ -201,6 +201,8 @@ export default function Layout({ children }) {
         {!sobriety && <IconLeaf size={15} style={{ color: "var(--color-forest)" }} />}
         {t("common.footer_ecoconception")}
         <span aria-hidden="true">·</span>
+        <Link href="/impact" style={{ color: "inherit" }}>{t("common.footer_impact")}</Link>
+        <span aria-hidden="true">·</span>
         <Link href="/etat-des-donnees" style={{ color: "inherit" }}>{t("common.footer_data_status")}</Link>
         <span aria-hidden="true">·</span>
         <Link href="/mentions-legales" style={{ color: "inherit" }}>{t("common.footer_legal")}</Link>

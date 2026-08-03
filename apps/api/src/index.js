@@ -478,6 +478,54 @@ app.get("/api/meta/last-updated", async (_req, res) => {
   }
 });
 
+// --- Impact environnemental du site (EcoIndex, Lighthouse) ---
+// Alimenté automatiquement par le workflow CI à chaque déploiement en
+// production (voir .github/workflows/ci.yml, job "environmental-audit")
+// — jamais saisi à la main.
+
+app.get("/api/environmental-metrics", async (_req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT id, measured_at, url, ecoindex_grade, ecoindex_score, page_weight_kb,
+              dom_elements, requests_count, ghg_co2_g, water_cl,
+              lighthouse_performance, lighthouse_accessibility, lighthouse_seo,
+              lighthouse_best_practices, load_time_ms
+       FROM environmental_metrics
+       ORDER BY measured_at ASC`
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+  }
+});
+
+app.post("/api/admin/environmental-metrics", requireIngestToken, async (req, res) => {
+  const {
+    url, ecoindexGrade, ecoindexScore, pageWeightKb, domElements, requestsCount,
+    ghgCo2G, waterCl, lighthousePerformance, lighthouseAccessibility,
+    lighthouseSeo, lighthouseBestPractices, loadTimeMs,
+  } = req.body || {};
+  if (!url || !ecoindexGrade || ecoindexScore == null || pageWeightKb == null) {
+    return res.status(400).json({ error: "Champs requis manquants (url, ecoindexGrade, ecoindexScore, pageWeightKb)" });
+  }
+  try {
+    await pool.query(
+      `INSERT INTO environmental_metrics
+         (url, ecoindex_grade, ecoindex_score, page_weight_kb, dom_elements, requests_count,
+          ghg_co2_g, water_cl, lighthouse_performance, lighthouse_accessibility,
+          lighthouse_seo, lighthouse_best_practices, load_time_ms)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`,
+      [
+        url, ecoindexGrade, ecoindexScore, pageWeightKb, domElements || null, requestsCount || null,
+        ghgCo2G || null, waterCl || null, lighthousePerformance || null, lighthouseAccessibility || null,
+        lighthouseSeo || null, lighthouseBestPractices || null, loadTimeMs || null,
+      ]
+    );
+    res.json({ status: "ok" });
+  } catch (err) {
+    res.status(500).json({ error: "Erreur serveur", detail: err.message });
+  }
+});
 
 // --- Végétation / perte de couverture arborée ---
 
