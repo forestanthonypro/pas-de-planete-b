@@ -599,7 +599,8 @@
     "entry_not_found": "記事が見つかりません",
     "source_label": "出典：",
     "watch_source": "元の出典を見る →",
-    "error_no_data": "データは利用できません"
+    "error_no_data": "データは利用できません",
+    "propose_link": "リソースを提案する →"
   },
   "ressources": {
     "title": "リソース",
@@ -617,7 +618,8 @@
     "table_name": "名称",
     "table_category": "カテゴリー",
     "table_address": "住所",
-    "table_links": "リンク"
+    "table_links": "リンク",
+    "propose_link": "リソースを提案する →"
   },
   "charter": {
     "title": "倫理憲章",

@@ -16,6 +16,27 @@ function slugify(text) {
     .replace(/(^-|-$)/g, "");
 }
 
+function PublicSubmissionBadge() {
+  return (
+    <span
+      style={{
+        display: "inline-block",
+        fontSize: 11,
+        fontWeight: 600,
+        color: "#a86b0a",
+        background: "#fdf1d6",
+        borderRadius: 10,
+        padding: "2px 8px",
+        marginLeft: 6,
+        whiteSpace: "nowrap",
+      }}
+      title="Proposé via le formulaire public, en attente de relecture"
+    >
+      Proposé par le public
+    </span>
+  );
+}
+
 function AdminRessourcesListInner({ session }) {
   const [locations, setLocations] = useState([]);
   const [online, setOnline] = useState([]);
@@ -31,7 +52,6 @@ function AdminRessourcesListInner({ session }) {
     loadAll(session.sessionToken);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
 
   function loadAll(currentToken) {
     setLoading(true);
@@ -55,8 +75,6 @@ function AdminRessourcesListInner({ session }) {
         setLoading(false);
       });
   }
-
-
 
   function toggleLocationPublished(entry) {
     fetch(`${API_URL}/api/admin/resource-locations/${entry.slug}/publish`, {
@@ -126,7 +144,6 @@ function AdminRessourcesListInner({ session }) {
       <h1>Administration — Ressources</h1>
       <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>Même jeton que pour les autres rubriques éditoriales.</p>
 
-
       {loading && <p>Chargement...</p>}
       {error && <p role="alert" style={{ color: "#d63e2a" }}>{error}</p>}
 
@@ -166,34 +183,37 @@ function AdminRessourcesListInner({ session }) {
               <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>Aucun lieu pour l&apos;instant.</p>
             ) : (
               <ScrollableTable>
-<table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
-                <thead>
-                  <tr>
-                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>Nom</th>
-                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>Catégorie</th>
-                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>Statut</th>
-                    <th scope="col" style={{ textAlign: "left", padding: 8 }}></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {locations.slice((locationsPage - 1) * PAGE_SIZE, locationsPage * PAGE_SIZE).map((l) => (
-                    <tr key={l.slug}>
-                      <td style={{ padding: 8 }}>{l.name}</td>
-                      <td style={{ padding: 8 }}>{l.category_name || "—"}</td>
-                      <td style={{ padding: 8, fontSize: 13, color: l.published ? "#1baf7a" : "var(--color-texte-clair)" }}>
-                        {l.published ? "Publié" : "Brouillon"}
-                      </td>
-                      <td style={{ padding: 8 }}>
-                        <button type="button" onClick={() => toggleLocationPublished(l)} style={{ fontSize: 12, marginRight: 8 }}>
-                          {l.published ? "Dépublier" : "Publier"}
-                        </button>
-                        <Link href={`/admin/ressources/location-edit?slug=${l.slug}`}>Modifier</Link>
-                      </td>
+                <table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
+                  <thead>
+                    <tr>
+                      <th scope="col" style={{ textAlign: "left", padding: 8 }}>Nom</th>
+                      <th scope="col" style={{ textAlign: "left", padding: 8 }}>Catégorie</th>
+                      <th scope="col" style={{ textAlign: "left", padding: 8 }}>Statut</th>
+                      <th scope="col" style={{ textAlign: "left", padding: 8 }}></th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-</ScrollableTable>
+                  </thead>
+                  <tbody>
+                    {locations.slice((locationsPage - 1) * PAGE_SIZE, locationsPage * PAGE_SIZE).map((l) => (
+                      <tr key={l.slug}>
+                        <td style={{ padding: 8 }}>
+                          {l.name}
+                          {l.submitted_publicly && <PublicSubmissionBadge />}
+                        </td>
+                        <td style={{ padding: 8 }}>{l.category_name || "—"}</td>
+                        <td style={{ padding: 8, fontSize: 13, color: l.published ? "#1baf7a" : "var(--color-texte-clair)" }}>
+                          {l.published ? "Publié" : "Brouillon"}
+                        </td>
+                        <td style={{ padding: 8 }}>
+                          <button type="button" onClick={() => toggleLocationPublished(l)} style={{ fontSize: 12, marginRight: 8 }}>
+                            {l.published ? "Dépublier" : "Publier"}
+                          </button>
+                          <Link href={`/admin/ressources/location-edit?slug=${l.slug}`}>Modifier</Link>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </ScrollableTable>
             )}
             {locations.length > PAGE_SIZE && (
               <Pagination page={locationsPage} totalPages={Math.max(1, Math.ceil(locations.length / PAGE_SIZE))} onChange={setLocationsPage} />
@@ -209,32 +229,35 @@ function AdminRessourcesListInner({ session }) {
               <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>Aucune ressource en ligne pour l&apos;instant.</p>
             ) : (
               <ScrollableTable>
-<table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
-                <thead>
-                  <tr>
-                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>Titre</th>
-                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>Statut</th>
-                    <th scope="col" style={{ textAlign: "left", padding: 8 }}></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {online.slice((onlinePage - 1) * PAGE_SIZE, onlinePage * PAGE_SIZE).map((o) => (
-                    <tr key={o.slug}>
-                      <td style={{ padding: 8 }}>{o.title}</td>
-                      <td style={{ padding: 8, fontSize: 13, color: o.published ? "#1baf7a" : "var(--color-texte-clair)" }}>
-                        {o.published ? "Publié" : "Brouillon"}
-                      </td>
-                      <td style={{ padding: 8 }}>
-                        <button type="button" onClick={() => toggleOnlinePublished(o)} style={{ fontSize: 12, marginRight: 8 }}>
-                          {o.published ? "Dépublier" : "Publier"}
-                        </button>
-                        <Link href={`/admin/ressources/online-edit?slug=${o.slug}`}>Modifier</Link>
-                      </td>
+                <table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
+                  <thead>
+                    <tr>
+                      <th scope="col" style={{ textAlign: "left", padding: 8 }}>Titre</th>
+                      <th scope="col" style={{ textAlign: "left", padding: 8 }}>Statut</th>
+                      <th scope="col" style={{ textAlign: "left", padding: 8 }}></th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-</ScrollableTable>
+                  </thead>
+                  <tbody>
+                    {online.slice((onlinePage - 1) * PAGE_SIZE, onlinePage * PAGE_SIZE).map((o) => (
+                      <tr key={o.slug}>
+                        <td style={{ padding: 8 }}>
+                          {o.title}
+                          {o.submitted_publicly && <PublicSubmissionBadge />}
+                        </td>
+                        <td style={{ padding: 8, fontSize: 13, color: o.published ? "#1baf7a" : "var(--color-texte-clair)" }}>
+                          {o.published ? "Publié" : "Brouillon"}
+                        </td>
+                        <td style={{ padding: 8 }}>
+                          <button type="button" onClick={() => toggleOnlinePublished(o)} style={{ fontSize: 12, marginRight: 8 }}>
+                            {o.published ? "Dépublier" : "Publier"}
+                          </button>
+                          <Link href={`/admin/ressources/online-edit?slug=${o.slug}`}>Modifier</Link>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </ScrollableTable>
             )}
             {online.length > PAGE_SIZE && (
               <Pagination page={onlinePage} totalPages={Math.max(1, Math.ceil(online.length / PAGE_SIZE))} onChange={setOnlinePage} />

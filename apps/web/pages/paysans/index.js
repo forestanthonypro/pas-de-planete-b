@@ -127,6 +127,10 @@ export default function PaysansPage() {
       )}
 
       <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginTop: "1.5rem" }}>
+        <Link href="/paysans/proposer">{t("paysans.propose_link")}</Link>
+      </p>
+
+      <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginTop: "0.5rem" }}>
         <Link href="/">{t("paysans.back_to_home")}</Link>
       </p>
     </div>

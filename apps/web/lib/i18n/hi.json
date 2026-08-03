@@ -599,7 +599,8 @@
     "entry_not_found": "प्रविष्टि नहीं मिली",
     "source_label": "स्रोत:",
     "watch_source": "मूल स्रोत देखें →",
-    "error_no_data": "डेटा उपलब्ध नहीं है"
+    "error_no_data": "डेटा उपलब्ध नहीं है",
+    "propose_link": "संसाधन सुझाएं →"
   },
   "ressources": {
     "title": "संसाधन",
@@ -617,7 +618,8 @@
     "table_name": "नाम",
     "table_category": "श्रेणी",
     "table_address": "पता",
-    "table_links": "लिंक"
+    "table_links": "लिंक",
+    "propose_link": "संसाधन सुझाएं →"
   },
   "charter": {
     "title": "नैतिक चार्टर",

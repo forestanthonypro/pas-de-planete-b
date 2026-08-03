@@ -599,7 +599,8 @@
     "entry_not_found": "Запись не найдена",
     "source_label": "Источник:",
     "watch_source": "Посмотреть первоисточник →",
-    "error_no_data": "Данные недоступны"
+    "error_no_data": "Данные недоступны",
+    "propose_link": "Предложить ресурс →"
   },
   "ressources": {
     "title": "Ресурсы",
@@ -617,7 +618,8 @@
     "table_name": "Название",
     "table_category": "Категория",
     "table_address": "Адрес",
-    "table_links": "Ссылки"
+    "table_links": "Ссылки",
+    "propose_link": "Предложить ресурс →"
   },
   "charter": {
     "title": "Этическая хартия",

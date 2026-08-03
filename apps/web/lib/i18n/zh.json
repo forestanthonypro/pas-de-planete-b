@@ -599,7 +599,8 @@
     "entry_not_found": "未找到该内容",
     "source_label": "来源：",
     "watch_source": "查看原始来源 →",
-    "error_no_data": "数据不可用"
+    "error_no_data": "数据不可用",
+    "propose_link": "推荐资源 →"
   },
   "ressources": {
     "title": "资源",
@@ -617,7 +618,8 @@
     "table_name": "名称",
     "table_category": "类别",
     "table_address": "地址",
-    "table_links": "链接"
+    "table_links": "链接",
+    "propose_link": "推荐资源 →"
   },
   "charter": {
     "title": "道德宪章",

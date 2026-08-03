@@ -1030,6 +1030,35 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 // visiteurs du site. La conversion automatique côté interface d'admin
 // (toYoutubeEmbedUrl) est un confort, pas une protection : elle n'empêche
 // pas un appel direct à l'API avec une autre valeur.
+// Génère un slug à partir d'un texte libre (titre saisi par le public,
+// par exemple), et garantit son unicité dans la table donnée en ajoutant
+// un suffixe numérique si besoin. "tableName" est toujours une valeur
+// fixe passée par notre propre code, jamais une entrée utilisateur — pas
+// de risque d'injection SQL malgré l'interpolation directe.
+function slugifyServer(text) {
+  return (text || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
+
+async function generateUniqueSlug(baseText, tableName) {
+  const base = slugifyServer(baseText) || "entree";
+  let slug = base;
+  let suffix = 2;
+  for (let attempts = 0; attempts < 50; attempts++) {
+    const result = await pool.query(`SELECT 1 FROM ${tableName} WHERE slug = $1`, [slug]);
+    if (result.rows.length === 0) return slug;
+    slug = `${base}-${suffix}`;
+    suffix += 1;
+  }
+  // Filet de sécurité improbable : après 50 tentatives, on rend le slug
+  // unique de force plutôt que de boucler indéfiniment.
+  return `${base}-${Date.now()}`;
+}
+
 const ALLOWED_EMBED_HOSTS = [
   "www.youtube.com",
   "youtube.com",
@@ -2069,7 +2098,7 @@ app.get("/api/paysan-resources/:slug", async (req, res) => {
 app.get("/api/admin/paysan-resources", requireAdminSession, async (_req, res) => {
   try {
     const result = await pool.query(
-      `SELECT r.slug, r.title, r.content_type, r.published, r.updated_at, c.name AS category_name
+      `SELECT r.slug, r.title, r.content_type, r.published, r.submitted_publicly, r.updated_at, c.name AS category_name
        FROM paysan_resources r
        LEFT JOIN paysan_categories c ON c.id = r.category_id
        ORDER BY r.updated_at DESC`
@@ -2236,7 +2265,7 @@ app.get("/api/resource-locations", async (req, res) => {
 app.get("/api/admin/resource-locations", requireAdminSession, async (_req, res) => {
   try {
     const result = await pool.query(
-      `SELECT l.slug, l.name, l.published, l.updated_at, c.name AS category_name
+      `SELECT l.slug, l.name, l.published, l.submitted_publicly, l.updated_at, c.name AS category_name
        FROM resource_locations l
        LEFT JOIN resource_categories c ON c.id = l.category_id
        ORDER BY l.updated_at DESC`
@@ -2365,7 +2394,7 @@ app.get("/api/resource-online", async (req, res) => {
 app.get("/api/admin/resource-online", requireAdminSession, async (_req, res) => {
   try {
     const result = await pool.query(
-      `SELECT o.slug, o.title, o.published, o.updated_at, c.name AS category_name
+      `SELECT o.slug, o.title, o.published, o.submitted_publicly, o.updated_at, c.name AS category_name
        FROM resource_online o
        LEFT JOIN resource_categories c ON c.id = o.category_id
        ORDER BY o.updated_at DESC`
@@ -2424,6 +2453,107 @@ app.post("/api/admin/resource-online/:slug/publish", requireAdminSession, async 
     res.json({ status: "ok" });
   } catch (err) {
     res.status(500).json({ error: "Échec de la mise à jour", detail: err.message });
+  }
+});
+
+// --- Soumission publique de ressources (modérées avant publication) ---
+// Même principe que la charte éthique / idées enfants : published = false
+// par défaut, visible uniquement après validation admin. Protection
+// anti-bot par piège à bots (champ caché "website" que seul un robot
+// remplit) plutôt qu'un service de CAPTCHA tiers — cohérent avec le choix
+// du site d'éviter les dépendances externes quand une solution maison
+// suffit. Le slug est généré automatiquement, jamais demandé au public.
+
+app.post("/api/paysan-resources/submit", publicWriteLimiter, async (req, res) => {
+  const { title, description, contentType, sourceUrl, sourceName, embedUrl, imageUrl, categoryId, website } = req.body || {};
+  if (website) {
+    // Piège à bots rempli : on répond succès sans rien enregistrer, pour
+    // ne pas révéler à un robot que sa soumission a été repérée.
+    return res.json({ status: "pending" });
+  }
+  if (!title || !description || !sourceUrl) {
+    return res.status(400).json({ error: "title, description et sourceUrl sont requis" });
+  }
+  if (!["video", "article", "podcast", "document"].includes(contentType)) {
+    return res.status(400).json({ error: "contentType invalide" });
+  }
+  if (embedUrl && !isAllowedEmbedUrl(embedUrl)) {
+    return res.status(400).json({ error: "embedUrl doit provenir de YouTube, Spotify ou Apple Podcasts" });
+  }
+  try {
+    const slug = await generateUniqueSlug(title, "paysan_resources");
+    await pool.query(
+      `INSERT INTO paysan_resources
+         (slug, title, description, content_type, source_url, source_name, embed_url, image_url, category_id, published, submitted_publicly, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, false, true, now())`,
+      [slug, title, description, contentType, sourceUrl, sourceName || null, embedUrl || null, imageUrl || null, categoryId || null]
+    );
+    res.json({ status: "pending" });
+  } catch (err) {
+    res.status(500).json({ error: "Erreur serveur", detail: err.message });
+  }
+});
+
+app.post("/api/resource-locations/submit", publicWriteLimiter, async (req, res) => {
+  const { name, description, address, latitude, longitude, categoryId, links, website } = req.body || {};
+  if (website) {
+    return res.json({ status: "pending" });
+  }
+  if (!name || !description || latitude === undefined || longitude === undefined) {
+    return res.status(400).json({ error: "name, description, latitude et longitude sont requis" });
+  }
+  const lat = parseFloat(latitude);
+  const lng = parseFloat(longitude);
+  if (Number.isNaN(lat) || Number.isNaN(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+    return res.status(400).json({ error: "Coordonnées invalides" });
+  }
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    const slug = await generateUniqueSlug(name, "resource_locations");
+    await client.query(
+      `INSERT INTO resource_locations (slug, name, description, address, latitude, longitude, category_id, published, submitted_publicly, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, false, true, now())`,
+      [slug, name, description, address || null, lat, lng, categoryId || null]
+    );
+    if (Array.isArray(links)) {
+      for (const l of links) {
+        if (l?.label && l?.url) {
+          await client.query(
+            "INSERT INTO resource_location_links (location_slug, label, url) VALUES ($1, $2, $3)",
+            [slug, l.label, l.url]
+          );
+        }
+      }
+    }
+    await client.query("COMMIT");
+    res.json({ status: "pending" });
+  } catch (err) {
+    await client.query("ROLLBACK");
+    res.status(500).json({ error: "Erreur serveur", detail: err.message });
+  } finally {
+    client.release();
+  }
+});
+
+app.post("/api/resource-online/submit", publicWriteLimiter, async (req, res) => {
+  const { title, description, url, categoryId, website } = req.body || {};
+  if (website) {
+    return res.json({ status: "pending" });
+  }
+  if (!title || !description || !url) {
+    return res.status(400).json({ error: "title, description et url sont requis" });
+  }
+  try {
+    const slug = await generateUniqueSlug(title, "resource_online");
+    await pool.query(
+      `INSERT INTO resource_online (slug, title, description, url, category_id, published, submitted_publicly, updated_at)
+       VALUES ($1, $2, $3, $4, $5, false, true, now())`,
+      [slug, title, description, url, categoryId || null]
+    );
+    res.json({ status: "pending" });
+  } catch (err) {
+    res.status(500).json({ error: "Erreur serveur", detail: err.message });
   }
 });
 

@@ -17,6 +17,29 @@ function slugify(text) {
     .replace(/(^-|-$)/g, "");
 }
 
+// Petit badge pour distinguer les entrées proposées via le formulaire
+// public (en attente de relecture) de celles créées directement en admin.
+function PublicSubmissionBadge() {
+  return (
+    <span
+      style={{
+        display: "inline-block",
+        fontSize: 11,
+        fontWeight: 600,
+        color: "#a86b0a",
+        background: "#fdf1d6",
+        borderRadius: 10,
+        padding: "2px 8px",
+        marginLeft: 6,
+        whiteSpace: "nowrap",
+      }}
+      title="Proposé via le formulaire public, en attente de relecture"
+    >
+      Proposé par le public
+    </span>
+  );
+}
+
 function AdminPaysansListInner({ session }) {
   const [entries, setEntries] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -30,7 +53,6 @@ function AdminPaysansListInner({ session }) {
     loadAll(session.sessionToken);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
 
   function loadAll(currentToken) {
     setLoading(true);
@@ -52,8 +74,6 @@ function AdminPaysansListInner({ session }) {
         setLoading(false);
       });
   }
-
-
 
   function togglePublished(entry) {
     fetch(`${API_URL}/api/admin/paysan-resources/${entry.slug}/publish`, {
@@ -109,7 +129,6 @@ function AdminPaysansListInner({ session }) {
       <h1>Administration — On devient tous paysans</h1>
       <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>Même jeton que pour Débunk et le relais scientifique.</p>
 
-
       {loading && <p>Chargement...</p>}
       {error && <p role="alert" style={{ color: "#d63e2a" }}>{error}</p>}
 
@@ -147,36 +166,39 @@ function AdminPaysansListInner({ session }) {
             <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>Aucune ressource pour l&apos;instant.</p>
           ) : (
             <ScrollableTable>
-<table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
-              <thead>
-                <tr>
-                  <th scope="col" style={{ textAlign: "left", padding: 8 }}>Titre</th>
-                  <th scope="col" style={{ textAlign: "left", padding: 8 }}>Type</th>
-                  <th scope="col" style={{ textAlign: "left", padding: 8 }}>Catégorie</th>
-                  <th scope="col" style={{ textAlign: "left", padding: 8 }}>Statut</th>
-                  <th scope="col" style={{ textAlign: "left", padding: 8 }}></th>
-                </tr>
-              </thead>
-              <tbody>
-                {entries.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE).map((e) => (
-                  <tr key={e.slug}>
-                    <td style={{ padding: 8 }}>{e.title}</td>
-                    <td style={{ padding: 8 }}>{TYPE_LABELS[e.content_type] || e.content_type}</td>
-                    <td style={{ padding: 8 }}>{e.category_name || "—"}</td>
-                    <td style={{ padding: 8, fontSize: 13, color: e.published ? "#1baf7a" : "var(--color-texte-clair)" }}>
-                      {e.published ? "Publié" : "Brouillon"}
-                    </td>
-                    <td style={{ padding: 8 }}>
-                      <button type="button" onClick={() => togglePublished(e)} style={{ fontSize: 12, marginRight: 8 }}>
-                        {e.published ? "Dépublier" : "Publier"}
-                      </button>
-                      <Link href={`/admin/paysans/edit?slug=${e.slug}`}>Modifier</Link>
-                    </td>
+              <table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
+                <thead>
+                  <tr>
+                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>Titre</th>
+                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>Type</th>
+                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>Catégorie</th>
+                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>Statut</th>
+                    <th scope="col" style={{ textAlign: "left", padding: 8 }}></th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-</ScrollableTable>
+                </thead>
+                <tbody>
+                  {entries.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE).map((e) => (
+                    <tr key={e.slug}>
+                      <td style={{ padding: 8 }}>
+                        {e.title}
+                        {e.submitted_publicly && <PublicSubmissionBadge />}
+                      </td>
+                      <td style={{ padding: 8 }}>{TYPE_LABELS[e.content_type] || e.content_type}</td>
+                      <td style={{ padding: 8 }}>{e.category_name || "—"}</td>
+                      <td style={{ padding: 8, fontSize: 13, color: e.published ? "#1baf7a" : "var(--color-texte-clair)" }}>
+                        {e.published ? "Publié" : "Brouillon"}
+                      </td>
+                      <td style={{ padding: 8 }}>
+                        <button type="button" onClick={() => togglePublished(e)} style={{ fontSize: 12, marginRight: 8 }}>
+                          {e.published ? "Dépublier" : "Publier"}
+                        </button>
+                        <Link href={`/admin/paysans/edit?slug=${e.slug}`}>Modifier</Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </ScrollableTable>
           )}
           {entries.length > PAGE_SIZE && (
             <Pagination page={page} totalPages={Math.max(1, Math.ceil(entries.length / PAGE_SIZE))} onChange={setPage} />

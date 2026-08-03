@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import ShareButtons from "../../components/ShareButtons";
 import PageHeader from "../../components/PageHeader";
 import { IconLandmark } from "../../components/icons";
@@ -151,6 +152,10 @@ export default function RessourcesPage() {
           </select>
         )}
       </div>
+
+      <p style={{ fontSize: 12, marginBottom: "1rem" }}>
+        <Link href="/ressources/proposer">{t("ressources.propose_link")}</Link>
+      </p>
 
       {loading && <p>{t("common.loading")}</p>}
       {error && <p role="alert">{t("common.error_prefix")} {error}</p>}

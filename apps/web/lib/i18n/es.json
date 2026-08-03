@@ -599,7 +599,8 @@
     "entry_not_found": "Entrada no encontrada",
     "source_label": "Fuente:",
     "watch_source": "Ver la fuente original →",
-    "error_no_data": "Datos no disponibles"
+    "error_no_data": "Datos no disponibles",
+    "propose_link": "Proponer un recurso →"
   },
   "ressources": {
     "title": "Recursos",
@@ -617,7 +618,8 @@
     "table_name": "Nombre",
     "table_category": "Categoría",
     "table_address": "Dirección",
-    "table_links": "Enlaces"
+    "table_links": "Enlaces",
+    "propose_link": "Proponer un recurso →"
   },
   "charter": {
     "title": "Carta ética",
