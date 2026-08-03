@@ -1306,10 +1306,11 @@ app.post("/api/admin/deputy-follows/send-digests", requireIngestToken, async (_r
 // table ne stocke que les variantes dans les autres langues, en overlay.
 // Pour l'instant seul "debunk" l'utilise ; le même mécanisme sera repris
 // pour interviews, paysans, ressources, charte, idées enfants.
-const TRANSLATABLE_CONTENT_TYPES = ["debunk", "interview"];
+const TRANSLATABLE_CONTENT_TYPES = ["debunk", "interview", "paysan"];
 const TRANSLATABLE_FIELDS = {
   debunk: ["myth", "reality", "claim_quote"],
   interview: ["title", "description", "scientist_field"],
+  paysan: ["title", "description"],
 };
 
 app.get("/api/admin/content-translations/:contentType/:contentId", requireAdminSession, async (req, res) => {
@@ -1947,7 +1948,7 @@ app.delete("/api/admin/paysan-categories/:id", requireAdminSession, async (req, 
 });
 
 app.get("/api/paysan-resources", async (req, res) => {
-  const { category } = req.query;
+  const { category, locale } = req.query;
   try {
     const params = [];
     let where = "WHERE r.published = true";
@@ -1964,13 +1965,27 @@ app.get("/api/paysan-resources", async (req, res) => {
        ORDER BY r.updated_at DESC`,
       params
     );
-    res.json(result.rows);
+    let rows = result.rows;
+    if (locale && locale !== "fr") {
+      const trResult = await pool.query(
+        "SELECT content_id, field_name, value FROM content_translations WHERE content_type = 'paysan' AND locale = $1",
+        [locale]
+      );
+      const overrides = {};
+      for (const r of trResult.rows) {
+        overrides[r.content_id] = overrides[r.content_id] || {};
+        overrides[r.content_id][r.field_name] = r.value;
+      }
+      rows = rows.map((row) => ({ ...row, ...(overrides[row.slug] || {}) }));
+    }
+    res.json(rows);
   } catch (err) {
     res.status(503).json({ error: "Données non initialisées", detail: err.message });
   }
 });
 
 app.get("/api/paysan-resources/:slug", async (req, res) => {
+  const { locale } = req.query;
   try {
     const result = await pool.query(
       `SELECT r.*, c.name AS category_name, c.slug AS category_slug
@@ -1982,7 +1997,17 @@ app.get("/api/paysan-resources/:slug", async (req, res) => {
     if (result.rows.length === 0) {
       return res.status(404).json({ error: "Entrée non trouvée" });
     }
-    res.json(result.rows[0]);
+    const entry = result.rows[0];
+    if (locale && locale !== "fr") {
+      const trResult = await pool.query(
+        "SELECT field_name, value FROM content_translations WHERE content_type = 'paysan' AND content_id = $1 AND locale = $2",
+        [req.params.slug, locale]
+      );
+      for (const r of trResult.rows) {
+        entry[r.field_name] = r.value;
+      }
+    }
+    res.json(entry);
   } catch (err) {
     res.status(503).json({ error: "Données non initialisées", detail: err.message });
   }

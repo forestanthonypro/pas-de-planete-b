@@ -10,7 +10,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 const TYPE_ICONS = { video: "▶", article: "📄", podcast: "🎙", document: "📎" };
 
 export default function PaysansPage() {
-  const { t } = useT();
+  const { t, locale } = useT();
   const [entries, setEntries] = useState([]);
   const [categories, setCategories] = useState([]);
   const [categoryFilter, setCategoryFilter] = useState("");
@@ -20,7 +20,7 @@ export default function PaysansPage() {
 
   useEffect(() => {
     Promise.all([
-      fetch(`${API_URL}/api/paysan-resources`).then((res) => {
+      fetch(`${API_URL}/api/paysan-resources?locale=${locale}`).then((res) => {
         if (!res.ok) throw new Error(t("paysans.error_no_data"));
         return res.json();
       }),
@@ -36,7 +36,7 @@ export default function PaysansPage() {
         setLoading(false);
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [locale]);
 
   const filtered = useMemo(() => {
     return entries.filter((e) => {

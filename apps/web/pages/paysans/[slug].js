@@ -7,7 +7,7 @@ import { useT } from "../../lib/useT";
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 export default function PaysanDetailPage() {
-  const { t } = useT();
+  const { t, locale } = useT();
   const router = useRouter();
   const { slug } = router.query;
   const [entry, setEntry] = useState(null);
@@ -18,7 +18,7 @@ export default function PaysanDetailPage() {
     if (!slug) return;
     setLoading(true);
     setError(null);
-    fetch(`${API_URL}/api/paysan-resources/${slug}`)
+    fetch(`${API_URL}/api/paysan-resources/${slug}?locale=${locale}`)
       .then((res) => {
         if (!res.ok) throw new Error(t("paysans.entry_not_found"));
         return res.json();
@@ -32,7 +32,7 @@ export default function PaysanDetailPage() {
         setLoading(false);
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [slug]);
+  }, [slug, locale]);
 
   function typeLabel(type) {
     if (type === "video") return t("paysans.type_video");
