@@ -102,8 +102,8 @@
   "newsletter": {
     "consent_required": "Please confirm that you agree to receive these emails.",
     "generic_error": "Something went wrong, please try again later.",
-    "done_title": "Signed up!",
-    "done_body": "You'll receive concrete actions tailored to your situation once the newsletter is active.",
+    "done_title": "Check your inbox!",
+    "done_body": "A confirmation email has just been sent to you — click the link inside to activate your subscription.",
     "cta_title": "It's time to act!",
     "cta_subtitle": "Get concrete actions tailored to your situation.",
     "cta_button": "Sign me up",

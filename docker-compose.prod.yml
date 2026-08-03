@@ -41,6 +41,10 @@ services:
     env_file: .env
     environment:
       DATABASE_URL: ${DATABASE_URL}
+      # Sans ça, les réponses d'erreur de l'API exposent le détail technique
+      # (message d'exception, parfois un fragment de requête SQL) à
+      # n'importe quel visiteur — voir errorDetail() dans index.js.
+      NODE_ENV: production
     depends_on:
       - postgres
     labels:
@@ -61,6 +65,8 @@ services:
     image: ${REGISTRY}/web:latest
     restart: unless-stopped
     env_file: .env
+    environment:
+      NODE_ENV: production
     depends_on:
       - api
     labels:

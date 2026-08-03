@@ -102,8 +102,8 @@
   "newsletter": {
     "consent_required": "Merci de confirmer que tu acceptes de recevoir ces emails.",
     "generic_error": "Une erreur est survenue, réessaie plus tard.",
-    "done_title": "Inscription enregistrée !",
-    "done_body": "Tu recevras des actions concrètes adaptées à ta situation dès que la newsletter sera activée.",
+    "done_title": "Vérifie ta boîte mail !",
+    "done_body": "Un email de confirmation vient de t'être envoyé — clique sur le lien qu'il contient pour activer ton inscription.",
     "cta_title": "Il est temps d'agir !",
     "cta_subtitle": "Reçois des actions concrètes adaptées à ta situation.",
     "cta_button": "Je m'inscris",

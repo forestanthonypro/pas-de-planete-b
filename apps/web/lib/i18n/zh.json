@@ -102,8 +102,8 @@
   "newsletter": {
     "consent_required": "请确认您同意接收这些邮件。",
     "generic_error": "发生错误，请稍后重试。",
-    "done_title": "订阅已登记！",
-    "done_body": "一旦通讯功能启用，您将收到适合您情况的具体行动建议。",
+    "done_title": "请查收邮件！",
+    "done_body": "我们刚刚向您发送了一封确认邮件——请点击邮件中的链接以激活订阅。",
     "cta_title": "行动的时刻到了！",
     "cta_subtitle": "接收适合您情况的具体行动建议。",
     "cta_button": "我要订阅",

@@ -182,6 +182,9 @@ function LegalContentEditor({ baseKey, label, href, sessionToken }) {
 
 function AdminSettingsInner({ session }) {
   const [newsletterEnabled, setNewsletterEnabled] = useState(null);
+  const [revoking, setRevoking] = useState(false);
+  const [revokeConfirming, setRevokeConfirming] = useState(false);
+  const [revokeStatus, setRevokeStatus] = useState("idle"); // idle | done
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
@@ -203,6 +206,34 @@ function AdminSettingsInner({ session }) {
         setLoading(false);
       });
   }, [session.sessionToken]);
+
+  function handleRevokeAll() {
+    if (!revokeConfirming) {
+      setRevokeConfirming(true);
+      return;
+    }
+    setRevoking(true);
+    fetch(`${API_URL}/api/admin/auth/revoke-all`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${session.sessionToken}` },
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Échec de la révocation");
+        return res.json();
+      })
+      .then(() => {
+        setRevokeStatus("done");
+        setRevoking(false);
+        // La session courante vient elle aussi d'être invalidée côté
+        // serveur — on recharge pour redéclencher l'écran de connexion TOTP.
+        setTimeout(() => window.location.reload(), 1500);
+      })
+      .catch((err) => {
+        setError(err.message);
+        setRevoking(false);
+        setRevokeConfirming(false);
+      });
+  }
 
   function toggleNewsletter() {
     const next = !newsletterEnabled;
@@ -264,6 +295,32 @@ function AdminSettingsInner({ session }) {
           </label>
         </section>
       )}
+
+      <section
+        style={{
+          background: "var(--color-carte)",
+          border: "1px solid var(--color-bordure)",
+          borderRadius: 12,
+          padding: "1.25rem",
+          marginTop: "1rem",
+        }}
+      >
+        <p style={{ fontSize: 15, fontWeight: 600, margin: "0 0 4px" }}>Sécurité</p>
+        <p style={{ fontSize: 13, color: "var(--color-texte-clair)", margin: "0 0 10px", maxWidth: 520 }}>
+          En cas de doute sur la sécurité d&apos;un appareil (poste partagé, ordinateur perdu ou volé...),
+          déconnecte immédiatement toutes les sessions admin actives — y compris la tienne, qui te sera
+          redemandée juste après.
+        </p>
+        <button
+          type="button"
+          onClick={handleRevokeAll}
+          disabled={revoking}
+          style={{ fontSize: 13, fontWeight: 600, color: revokeConfirming ? "white" : "#d63e2a", background: revokeConfirming ? "#d63e2a" : "var(--color-fond)", borderColor: "#d63e2a" }}
+        >
+          {revoking ? "Révocation..." : revokeConfirming ? "Confirmer : déconnecter tout le monde" : "Révoquer toutes les sessions"}
+        </button>
+        {revokeStatus === "done" && <p style={{ fontSize: 12, color: "#1baf7a", marginTop: 8 }}>Sessions révoquées — reconnexion nécessaire.</p>}
+      </section>
 
       <h2 style={{ fontSize: 17, marginTop: "2rem" }}>Pages légales</h2>
       {LEGAL_PAGES.map((p) => (

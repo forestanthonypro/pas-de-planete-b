@@ -47,7 +47,11 @@ app.use(
     origin: allowedOrigins,
   })
 );
-app.use(express.json());
+// Limite explicite (au lieu de la valeur par défaut d'Express) : évite
+// qu'une requête avec un corps JSON énorme ne consomme mémoire/CPU
+// inutilement — 1 Mo est largement suffisant pour tous les formulaires
+// du site (le plus gros contenu, les pages légales en HTML, reste petit).
+app.use(express.json({ limit: "1mb" }));
 
 // Limite générale sur toute l'API : protège contre le scraping massif ou les
 // scripts mal intentionnés, sans gêner un usage normal (une personne qui
@@ -78,9 +82,30 @@ const pool = new pg.Pool({
   connectionString: process.env.DATABASE_URL,
 });
 
+// Comparaison résistante aux attaques temporelles : une comparaison "!=="
+// classique s'arrête au premier caractère différent, ce qui permet en
+// théorie de deviner le jeton octet par octet en mesurant le temps de
+// réponse. crypto.timingSafeEqual compare en temps constant. On vérifie
+// d'abord la longueur (celle-ci ne fuite pas d'information exploitable
+// pour un jeton aléatoire de longueur fixe).
+function timingSafeTokenEqual(a, b) {
+  const bufA = Buffer.from(String(a || ""));
+  const bufB = Buffer.from(String(b || ""));
+  if (bufA.length !== bufB.length) return false;
+  return crypto.timingSafeEqual(bufA, bufB);
+}
+
+// N'expose le détail technique d'une erreur (message d'exception, parfois
+// une requête SQL ou un chemin de fichier) qu'en dehors de la production —
+// utile pour déboguer en local, mais ça n'a rien à faire dans une réponse
+// visible par n'importe quel visiteur du site en ligne.
+function errorDetail(err) {
+  return process.env.NODE_ENV === "production" ? undefined : err.message;
+}
+
 function requireIngestToken(req, res, next) {
   const token = req.header("x-ingest-token");
-  if (!process.env.INGEST_TOKEN || token !== process.env.INGEST_TOKEN) {
+  if (!process.env.INGEST_TOKEN || !token || !timingSafeTokenEqual(token, process.env.INGEST_TOKEN)) {
     return res.status(401).json({ error: "Jeton invalide" });
   }
   next();
@@ -121,7 +146,7 @@ async function requireAdminSession(req, res, next) {
     }
     next();
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 }
 
@@ -144,7 +169,7 @@ app.post("/api/admin/auth/verify-otp", otpLimiter, async (req, res) => {
     pool.query("DELETE FROM admin_sessions WHERE expires_at < now()").catch(() => {});
     res.json({ sessionToken, expiresAt });
   } catch (err) {
-    res.status(500).json({ error: "Échec de la création de session", detail: err.message });
+    res.status(500).json({ error: "Échec de la création de session", detail: errorDetail(err) });
   }
 });
 
@@ -155,6 +180,19 @@ app.post("/api/admin/auth/logout", async (req, res) => {
     await pool.query("DELETE FROM admin_sessions WHERE session_token = $1", [token]).catch(() => {});
   }
   res.json({ status: "ok" });
+});
+
+// Révoque toutes les sessions admin actives, y compris celle qui appelle
+// cette route — utile si un jeton de session a pu fuiter (poste partagé,
+// ordinateur volé...) : plutôt que d'attendre l'expiration naturelle,
+// force tout le monde à se reconnecter immédiatement avec le code TOTP.
+app.post("/api/admin/auth/revoke-all", requireAdminSession, async (_req, res) => {
+  try {
+    const result = await pool.query("DELETE FROM admin_sessions");
+    res.json({ status: "ok", revokedCount: result.rowCount });
+  } catch (err) {
+    res.status(500).json({ error: "Échec de la révocation", detail: errorDetail(err) });
+  }
 });
 
 app.get("/health", (_req, res) => {
@@ -170,7 +208,7 @@ app.get("/api/co2/countries", async (_req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -186,7 +224,7 @@ app.get("/api/co2/:country", async (req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -195,7 +233,7 @@ app.post("/api/admin/ingest/co2", requireIngestToken, async (_req, res) => {
     const { inserted, skipped } = await ingestCo2(pool);
     res.json({ status: "ok", inserted, skipped });
   } catch (err) {
-    res.status(500).json({ error: "Échec de l'ingestion", detail: err.message });
+    res.status(500).json({ error: "Échec de l'ingestion", detail: errorDetail(err) });
   }
 });
 
@@ -208,7 +246,7 @@ app.get("/api/power-plants/countries", async (_req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -219,7 +257,7 @@ app.get("/api/power-plants/fuel-types", async (_req, res) => {
     );
     res.json(result.rows.map((r) => r.fuel_type));
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -246,7 +284,7 @@ app.get("/api/power-plants", async (req, res) => {
     const result = await pool.query(query, params);
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -255,7 +293,7 @@ app.post("/api/admin/ingest/power-plants", requireIngestToken, async (_req, res)
     const { inserted, skipped } = await ingestPowerPlants(pool);
     res.json({ status: "ok", inserted, skipped });
   } catch (err) {
-    res.status(500).json({ error: "Échec de l'ingestion", detail: err.message });
+    res.status(500).json({ error: "Échec de l'ingestion", detail: errorDetail(err) });
   }
 });
 
@@ -268,7 +306,7 @@ app.get("/api/species/categories", async (_req, res) => {
     );
     res.json(result.rows.map((r) => r.category));
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -300,7 +338,7 @@ app.get("/api/species", async (req, res) => {
     const result = await pool.query(query, params);
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -317,7 +355,7 @@ app.get("/api/species/kingdoms", async (req, res) => {
     const result = await pool.query(query, params);
     res.json(result.rows.map((r) => r.kingdom).filter(Boolean));
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -326,7 +364,7 @@ app.post("/api/admin/ingest/species", requireIngestToken, async (_req, res) => {
     const { inserted, skipped, countryLinks } = await ingestSpecies(pool);
     res.json({ status: "ok", inserted, skipped, countryLinks });
   } catch (err) {
-    res.status(500).json({ error: "Échec de l'ingestion", detail: err.message });
+    res.status(500).json({ error: "Échec de l'ingestion", detail: errorDetail(err) });
   }
 });
 
@@ -400,7 +438,7 @@ app.get("/api/country-summary/:country", async (req, res) => {
       pollution: pollutionResult.rows,
     });
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -425,7 +463,7 @@ app.get("/api/fires", async (req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -434,7 +472,7 @@ app.post("/api/admin/ingest/fires", requireIngestToken, async (_req, res) => {
     const { inserted, countriesSkipped, sampleErrors } = await ingestFires(pool);
     res.json({ status: "ok", inserted, countriesSkipped, sampleErrors });
   } catch (err) {
-    res.status(500).json({ error: "Échec de l'ingestion", detail: err.message });
+    res.status(500).json({ error: "Échec de l'ingestion", detail: errorDetail(err) });
   }
 });
 
@@ -474,7 +512,7 @@ app.get("/api/meta/last-updated", async (_req, res) => {
       worldBenchmarks: { lastIngested: worldBenchmarks.rows[0].updated_at },
     });
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -495,7 +533,7 @@ app.get("/api/environmental-metrics", async (_req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -523,7 +561,7 @@ app.post("/api/admin/environmental-metrics", requireIngestToken, async (req, res
     );
     res.json({ status: "ok" });
   } catch (err) {
-    res.status(500).json({ error: "Erreur serveur", detail: err.message });
+    res.status(500).json({ error: "Erreur serveur", detail: errorDetail(err) });
   }
 });
 
@@ -536,7 +574,7 @@ app.get("/api/vegetation/countries", async (_req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -552,7 +590,7 @@ app.get("/api/vegetation/:country", async (req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -561,7 +599,7 @@ app.post("/api/admin/ingest/vegetation", requireIngestToken, async (_req, res) =
     const { inserted, skipped } = await ingestVegetation(pool);
     res.json({ status: "ok", inserted, skipped });
   } catch (err) {
-    res.status(500).json({ error: "Échec de l'ingestion", detail: err.message });
+    res.status(500).json({ error: "Échec de l'ingestion", detail: errorDetail(err) });
   }
 });
 
@@ -575,7 +613,7 @@ app.get("/api/water/countries", async (_req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -591,7 +629,7 @@ app.get("/api/water/:country", async (req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -600,7 +638,7 @@ app.post("/api/admin/ingest/water", requireIngestToken, async (_req, res) => {
     const { inserted, skipped } = await ingestWater(pool);
     res.json({ status: "ok", inserted, skipped });
   } catch (err) {
-    res.status(500).json({ error: "Échec de l'ingestion", detail: err.message });
+    res.status(500).json({ error: "Échec de l'ingestion", detail: errorDetail(err) });
   }
 });
 
@@ -614,7 +652,7 @@ app.get("/api/electricity/countries", async (_req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -631,7 +669,7 @@ app.get("/api/electricity/:country", async (req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -640,7 +678,7 @@ app.post("/api/admin/ingest/electricity", requireIngestToken, async (_req, res) 
     const { inserted, skipped } = await ingestElectricity(pool);
     res.json({ status: "ok", inserted, skipped });
   } catch (err) {
-    res.status(500).json({ error: "Échec de l'ingestion", detail: err.message });
+    res.status(500).json({ error: "Échec de l'ingestion", detail: errorDetail(err) });
   }
 });
 
@@ -656,7 +694,7 @@ app.get("/api/species-threatened/countries", async (_req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -672,7 +710,7 @@ app.get("/api/species-threatened/:country", async (req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -683,7 +721,7 @@ app.get("/api/species-threatened/global/share", async (_req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -692,7 +730,7 @@ app.post("/api/admin/ingest/species-threatened", requireIngestToken, async (_req
     const { inserted, skipped } = await ingestSpeciesThreatened(pool);
     res.json({ status: "ok", inserted, skipped });
   } catch (err) {
-    res.status(500).json({ error: "Échec de l'ingestion", detail: err.message });
+    res.status(500).json({ error: "Échec de l'ingestion", detail: errorDetail(err) });
   }
 });
 
@@ -706,7 +744,7 @@ app.get("/api/pollution/countries", async (_req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -719,7 +757,7 @@ app.get("/api/pollution/:country", async (req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -728,7 +766,7 @@ app.post("/api/admin/ingest/pollution", requireIngestToken, async (_req, res) =>
     const { inserted, skipped } = await ingestPollution(pool);
     res.json({ status: "ok", inserted, skipped });
   } catch (err) {
-    res.status(500).json({ error: "Échec de l'ingestion", detail: err.message });
+    res.status(500).json({ error: "Échec de l'ingestion", detail: errorDetail(err) });
   }
 });
 
@@ -743,7 +781,7 @@ app.get("/api/world-benchmarks", async (_req, res) => {
     }
     res.json(benchmarks);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -752,7 +790,7 @@ app.post("/api/admin/ingest/world-benchmarks", requireIngestToken, async (_req, 
     const { set } = await ingestWorldBenchmarks(pool);
     res.json({ status: "ok", set });
   } catch (err) {
-    res.status(500).json({ error: "Échec de l'ingestion", detail: err.message });
+    res.status(500).json({ error: "Échec de l'ingestion", detail: errorDetail(err) });
   }
 });
 
@@ -770,7 +808,7 @@ app.get("/api/deputies", async (_req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -796,7 +834,7 @@ app.get("/api/deputies/participation", async (_req, res) => {
     );
     res.json({ minVotes: MIN_VOTES, deputies: result.rows });
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -827,7 +865,7 @@ app.get("/api/deputies/:acteurUid", async (req, res) => {
     }
     res.json({ deputy, votes: votesResult.rows, groupStats });
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -838,7 +876,7 @@ app.get("/api/an-groups", async (_req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -892,7 +930,7 @@ app.get("/api/an-groups/:abbreviation", async (req, res) => {
       recentScrutins: recentScrutins.rows,
     });
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -908,7 +946,7 @@ app.get("/api/scrutins", async (req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -927,7 +965,7 @@ app.get("/api/scrutins/stats", async (_req, res) => {
     const total = await pool.query("SELECT COUNT(*) AS count FROM scrutins WHERE legislature = 17");
     res.json({ total: parseInt(total.rows[0].count, 10), byResult: byResult.rows, byType: byType.rows });
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -952,7 +990,7 @@ app.get("/api/scrutins/search", async (req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -977,7 +1015,7 @@ app.get("/api/scrutins/:legislature/:numero", async (req, res) => {
     );
     res.json({ scrutin: scrutinResult.rows[0], votes: votesResult.rows });
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -986,7 +1024,7 @@ app.post("/api/admin/ingest/deputies", requireIngestToken, async (_req, res) => 
     const result = await ingestDeputies(pool);
     res.json({ status: "ok", ...result });
   } catch (err) {
-    res.status(500).json({ error: "Échec de l'ingestion", detail: err.message });
+    res.status(500).json({ error: "Échec de l'ingestion", detail: errorDetail(err) });
   }
 });
 
@@ -995,7 +1033,7 @@ app.post("/api/admin/ingest/an-groups", requireIngestToken, async (_req, res) =>
     const result = await ingestGroups(pool);
     res.json({ status: "ok", ...result });
   } catch (err) {
-    res.status(500).json({ error: "Échec de l'ingestion", detail: err.message });
+    res.status(500).json({ error: "Échec de l'ingestion", detail: errorDetail(err) });
   }
 });
 
@@ -1004,7 +1042,7 @@ app.post("/api/admin/ingest/scrutins", requireIngestToken, async (_req, res) => 
     const result = await ingestScrutins(pool);
     res.json({ status: "ok", ...result });
   } catch (err) {
-    res.status(500).json({ error: "Échec de l'ingestion", detail: err.message });
+    res.status(500).json({ error: "Échec de l'ingestion", detail: errorDetail(err) });
   }
 });
 
@@ -1013,7 +1051,7 @@ app.post("/api/admin/ingest/deputy-votes", requireIngestToken, async (_req, res)
     const result = await ingestDeputyVotes(pool);
     res.json({ status: "ok", ...result });
   } catch (err) {
-    res.status(500).json({ error: "Échec de l'ingestion", detail: err.message });
+    res.status(500).json({ error: "Échec de l'ingestion", detail: errorDetail(err) });
   }
 });
 
@@ -1089,7 +1127,7 @@ app.get("/api/settings/newsletter-enabled", async (req, res) => {
     const enabled = result.rows[0]?.value === "true";
     res.json({ enabled });
   } catch (err) {
-    res.status(500).json({ error: "Erreur serveur", detail: err.message });
+    res.status(500).json({ error: "Erreur serveur", detail: errorDetail(err) });
   }
 });
 
@@ -1100,7 +1138,7 @@ app.get("/api/admin/settings", requireAdminSession, async (req, res) => {
     for (const row of result.rows) settings[row.key] = row.value;
     res.json(settings);
   } catch (err) {
-    res.status(500).json({ error: "Erreur serveur", detail: err.message });
+    res.status(500).json({ error: "Erreur serveur", detail: errorDetail(err) });
   }
 });
 
@@ -1117,7 +1155,7 @@ app.post("/api/admin/settings/newsletter-enabled", requireAdminSession, async (r
     );
     res.json({ enabled });
   } catch (err) {
-    res.status(500).json({ error: "Erreur serveur", detail: err.message });
+    res.status(500).json({ error: "Erreur serveur", detail: errorDetail(err) });
   }
 });
 
@@ -1155,7 +1193,7 @@ app.get("/api/settings/legal-content/:key", async (req, res) => {
     const result = await pool.query("SELECT value FROM site_settings WHERE key = $1", [key]);
     res.json({ content: result.rows[0]?.value || "" });
   } catch (err) {
-    res.status(500).json({ error: "Erreur serveur", detail: err.message });
+    res.status(500).json({ error: "Erreur serveur", detail: errorDetail(err) });
   }
 });
 
@@ -1175,7 +1213,7 @@ app.post("/api/admin/settings/legal-content", requireAdminSession, async (req, r
     );
     res.json({ status: "ok" });
   } catch (err) {
-    res.status(500).json({ error: "Erreur serveur", detail: err.message });
+    res.status(500).json({ error: "Erreur serveur", detail: errorDetail(err) });
   }
 });
 
@@ -1190,32 +1228,73 @@ app.post("/api/newsletter/signup", publicWriteLimiter, async (req, res) => {
     return res.status(400).json({ error: "Valeur de profil invalide" });
   }
   try {
+    const normalizedEmail = email.trim().toLowerCase();
+    const confirmToken = crypto.randomBytes(24).toString("hex");
+    const unsubscribeToken = crypto.randomBytes(24).toString("hex");
     await pool.query(
-      `INSERT INTO newsletter_subscribers (email, area_type, housing_type, has_children)
-       VALUES ($1, $2, $3, $4)
+      `INSERT INTO newsletter_subscribers (email, area_type, housing_type, has_children, confirm_token, unsubscribe_token)
+       VALUES ($1, $2, $3, $4, $5, $6)
        ON CONFLICT (email)
-       DO UPDATE SET area_type = EXCLUDED.area_type, housing_type = EXCLUDED.housing_type, has_children = EXCLUDED.has_children`,
-      [email.trim().toLowerCase(), areaType || null, housingType || null, hasChildren === true]
+       DO UPDATE SET area_type = EXCLUDED.area_type, housing_type = EXCLUDED.housing_type, has_children = EXCLUDED.has_children,
+                     confirm_token = EXCLUDED.confirm_token, unsubscribe_token = EXCLUDED.unsubscribe_token,
+                     confirmed = false, unsubscribed_at = NULL`,
+      [normalizedEmail, areaType || null, housingType || null, hasChildren === true, confirmToken, unsubscribeToken]
     );
-    res.json({ status: "ok" });
+
+    const confirmUrl = `${process.env.WEB_URL || "http://localhost:3000"}/confirmer-newsletter?token=${confirmToken}`;
+    await sendEmail({
+      to: normalizedEmail,
+      subject: "Confirme ton inscription à la newsletter",
+      html: `<p>Merci de vouloir recevoir des actions concrètes pour agir au quotidien !</p>
+             <p><a href="${confirmUrl}">Confirme ton inscription en cliquant ici</a>.</p>
+             <p style="font-size:12px;color:#666">Si tu n'es pas à l'origine de cette demande, ignore simplement cet email.</p>`,
+    });
+
+    res.json({ status: "pending_confirmation" });
   } catch (err) {
-    res.status(500).json({ error: "Échec de l'inscription", detail: err.message });
+    res.status(500).json({ error: "Échec de l'inscription", detail: errorDetail(err) });
   }
 });
 
-app.post("/api/newsletter/unsubscribe", publicWriteLimiter, async (req, res) => {
-  const { email } = req.body || {};
-  if (!email || typeof email !== "string") {
-    return res.status(400).json({ error: "Adresse email invalide" });
+app.get("/api/newsletter/confirm", async (req, res) => {
+  const { token } = req.query;
+  if (!token || typeof token !== "string") {
+    return res.status(400).json({ error: "Jeton manquant" });
   }
   try {
-    await pool.query(
-      "UPDATE newsletter_subscribers SET unsubscribed_at = now() WHERE email = $1",
-      [email.trim().toLowerCase()]
+    // Idempotent (voir la même logique pour le suivi des députés) : un
+    // second clic ou un pré-chargement du lien par un client mail ne doit
+    // pas transformer un succès en erreur.
+    const result = await pool.query(
+      "SELECT id FROM newsletter_subscribers WHERE confirm_token = $1",
+      [token]
     );
-    res.json({ status: "ok" });
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Jeton invalide" });
+    }
+    await pool.query("UPDATE newsletter_subscribers SET confirmed = true WHERE id = $1", [result.rows[0].id]);
+    res.json({ status: "confirmed" });
   } catch (err) {
-    res.status(500).json({ error: "Échec du désabonnement", detail: err.message });
+    res.status(500).json({ error: "Erreur serveur", detail: errorDetail(err) });
+  }
+});
+
+app.get("/api/newsletter/unsubscribe", async (req, res) => {
+  const { token } = req.query;
+  if (!token || typeof token !== "string") {
+    return res.status(400).json({ error: "Jeton manquant" });
+  }
+  try {
+    const result = await pool.query(
+      "UPDATE newsletter_subscribers SET unsubscribed_at = now() WHERE unsubscribe_token = $1 RETURNING id",
+      [token]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Jeton invalide" });
+    }
+    res.json({ status: "unsubscribed" });
+  } catch (err) {
+    res.status(500).json({ error: "Échec du désabonnement", detail: errorDetail(err) });
   }
 });
 
@@ -1262,7 +1341,7 @@ app.post("/api/deputy-follows", publicWriteLimiter, async (req, res) => {
 
     res.json({ status: "pending_confirmation" });
   } catch (err) {
-    res.status(500).json({ error: "Erreur serveur", detail: err.message });
+    res.status(500).json({ error: "Erreur serveur", detail: errorDetail(err) });
   }
 });
 
@@ -1301,7 +1380,7 @@ app.get("/api/deputy-follows/confirm", async (req, res) => {
     );
     res.json({ status: "confirmed" });
   } catch (err) {
-    res.status(500).json({ error: "Erreur serveur", detail: err.message });
+    res.status(500).json({ error: "Erreur serveur", detail: errorDetail(err) });
   }
 });
 
@@ -1317,7 +1396,7 @@ app.get("/api/deputy-follows/unsubscribe", async (req, res) => {
     }
     res.json({ status: "unsubscribed" });
   } catch (err) {
-    res.status(500).json({ error: "Erreur serveur", detail: err.message });
+    res.status(500).json({ error: "Erreur serveur", detail: errorDetail(err) });
   }
 });
 
@@ -1368,7 +1447,7 @@ app.post("/api/admin/deputy-follows/send-digests", requireIngestToken, async (_r
 
     res.json({ status: "ok", digestsSent: sentCount, totalFollows: follows.rows.length });
   } catch (err) {
-    res.status(500).json({ error: "Erreur serveur", detail: err.message });
+    res.status(500).json({ error: "Erreur serveur", detail: errorDetail(err) });
   }
 });
 
@@ -1407,7 +1486,7 @@ app.get("/api/admin/content-translations/:contentType/:contentId", requireAdminS
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(500).json({ error: "Erreur serveur", detail: err.message });
+    res.status(500).json({ error: "Erreur serveur", detail: errorDetail(err) });
   }
 });
 
@@ -1441,7 +1520,7 @@ app.post("/api/admin/content-translations", requireAdminSession, async (req, res
     }
     res.json({ status: "ok" });
   } catch (err) {
-    res.status(500).json({ error: "Erreur serveur", detail: err.message });
+    res.status(500).json({ error: "Erreur serveur", detail: errorDetail(err) });
   }
 });
 
@@ -1450,7 +1529,7 @@ app.get("/api/debunk-categories", async (_req, res) => {
     const result = await pool.query("SELECT id, name, slug FROM debunk_categories ORDER BY name");
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -1487,7 +1566,7 @@ app.get("/api/debunk", async (req, res) => {
     }
     res.json(rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -1520,7 +1599,7 @@ app.get("/api/debunk/:slug", async (req, res) => {
     );
     res.json({ entry, sources: sourcesResult.rows });
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -1538,7 +1617,7 @@ app.get("/api/admin/debunk", requireAdminSession, async (_req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -1556,7 +1635,7 @@ app.post("/api/admin/debunk-categories", requireAdminSession, async (req, res) =
     );
     res.json(result.rows[0]);
   } catch (err) {
-    res.status(500).json({ error: "Échec de l'enregistrement", detail: err.message });
+    res.status(500).json({ error: "Échec de l'enregistrement", detail: errorDetail(err) });
   }
 });
 
@@ -1565,7 +1644,7 @@ app.delete("/api/admin/debunk-categories/:id", requireAdminSession, async (req, 
     await pool.query("DELETE FROM debunk_categories WHERE id = $1", [req.params.id]);
     res.json({ status: "ok" });
   } catch (err) {
-    res.status(500).json({ error: "Échec de la suppression", detail: err.message });
+    res.status(500).json({ error: "Échec de la suppression", detail: errorDetail(err) });
   }
 });
 
@@ -1581,7 +1660,7 @@ app.get("/api/admin/debunk/:slug", requireAdminSession, async (req, res) => {
     );
     res.json({ entry: entryResult.rows[0], sources: sourcesResult.rows });
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -1602,7 +1681,7 @@ app.post("/api/admin/debunk/:slug/publish", requireAdminSession, async (req, res
     }
     res.json({ status: "ok" });
   } catch (err) {
-    res.status(500).json({ error: "Échec de la mise à jour", detail: err.message });
+    res.status(500).json({ error: "Échec de la mise à jour", detail: errorDetail(err) });
   }
 });
 
@@ -1641,7 +1720,7 @@ app.post("/api/admin/debunk", requireAdminSession, async (req, res) => {
     res.json({ status: "ok" });
   } catch (err) {
     await client.query("ROLLBACK");
-    res.status(500).json({ error: "Échec de l'enregistrement", detail: err.message });
+    res.status(500).json({ error: "Échec de l'enregistrement", detail: errorDetail(err) });
   } finally {
     client.release();
   }
@@ -1680,7 +1759,7 @@ app.post("/api/citizen-votes", publicWriteLimiter, async (req, res) => {
     );
     res.json({ status: "ok" });
   } catch (err) {
-    res.status(500).json({ error: "Échec de l'enregistrement", detail: err.message });
+    res.status(500).json({ error: "Échec de l'enregistrement", detail: errorDetail(err) });
   }
 });
 
@@ -1701,7 +1780,7 @@ app.get("/api/citizen-votes/:anonymousId", async (req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -1749,7 +1828,7 @@ app.get("/api/citizen-votes/:anonymousId/alignment", async (req, res) => {
 
     res.json({ minCommonVotes: MIN_COMMON_VOTES, deputies: deputiesResult.rows, groups: groupsResult.rows });
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -1763,7 +1842,7 @@ app.delete("/api/citizen-votes/:anonymousId", async (req, res) => {
     await pool.query("DELETE FROM citizen_votes WHERE anonymous_id = $1", [anonymousId]);
     res.json({ status: "ok" });
   } catch (err) {
-    res.status(500).json({ error: "Échec de la suppression", detail: err.message });
+    res.status(500).json({ error: "Échec de la suppression", detail: errorDetail(err) });
   }
 });
 
@@ -1796,7 +1875,7 @@ app.get("/api/scrutins/:legislature/:numero/citizen-stats", async (req, res) => 
       counts: Object.fromEntries(result.rows.map((r) => [r.position, parseInt(r.count, 10)])),
     });
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -1809,7 +1888,7 @@ app.get("/api/interview-categories", async (_req, res) => {
     const result = await pool.query("SELECT id, name, slug FROM interview_categories ORDER BY name");
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -1827,7 +1906,7 @@ app.post("/api/admin/interview-categories", requireAdminSession, async (req, res
     );
     res.json(result.rows[0]);
   } catch (err) {
-    res.status(500).json({ error: "Échec de l'enregistrement", detail: err.message });
+    res.status(500).json({ error: "Échec de l'enregistrement", detail: errorDetail(err) });
   }
 });
 
@@ -1836,7 +1915,7 @@ app.delete("/api/admin/interview-categories/:id", requireAdminSession, async (re
     await pool.query("DELETE FROM interview_categories WHERE id = $1", [req.params.id]);
     res.json({ status: "ok" });
   } catch (err) {
-    res.status(500).json({ error: "Échec de la suppression", detail: err.message });
+    res.status(500).json({ error: "Échec de la suppression", detail: errorDetail(err) });
   }
 });
 
@@ -1873,7 +1952,7 @@ app.get("/api/science-relays", async (req, res) => {
     }
     res.json(rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -1902,7 +1981,7 @@ app.get("/api/science-relays/:slug", async (req, res) => {
     }
     res.json(entry);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -1916,7 +1995,7 @@ app.get("/api/admin/science-relays", requireAdminSession, async (_req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -1928,7 +2007,7 @@ app.get("/api/admin/science-relays/:slug", requireAdminSession, async (req, res)
     }
     res.json(result.rows[0]);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -1965,7 +2044,7 @@ app.post("/api/admin/science-relays", requireAdminSession, async (req, res) => {
     );
     res.json({ status: "ok" });
   } catch (err) {
-    res.status(500).json({ error: "Échec de l'enregistrement", detail: err.message });
+    res.status(500).json({ error: "Échec de l'enregistrement", detail: errorDetail(err) });
   }
 });
 
@@ -1984,7 +2063,7 @@ app.post("/api/admin/science-relays/:slug/publish", requireAdminSession, async (
     }
     res.json({ status: "ok" });
   } catch (err) {
-    res.status(500).json({ error: "Échec de la mise à jour", detail: err.message });
+    res.status(500).json({ error: "Échec de la mise à jour", detail: errorDetail(err) });
   }
 });
 
@@ -1998,7 +2077,7 @@ app.get("/api/paysan-categories", async (_req, res) => {
     const result = await pool.query("SELECT id, name, slug FROM paysan_categories ORDER BY name");
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -2016,7 +2095,7 @@ app.post("/api/admin/paysan-categories", requireAdminSession, async (req, res) =
     );
     res.json(result.rows[0]);
   } catch (err) {
-    res.status(500).json({ error: "Échec de l'enregistrement", detail: err.message });
+    res.status(500).json({ error: "Échec de l'enregistrement", detail: errorDetail(err) });
   }
 });
 
@@ -2025,7 +2104,7 @@ app.delete("/api/admin/paysan-categories/:id", requireAdminSession, async (req, 
     await pool.query("DELETE FROM paysan_categories WHERE id = $1", [req.params.id]);
     res.json({ status: "ok" });
   } catch (err) {
-    res.status(500).json({ error: "Échec de la suppression", detail: err.message });
+    res.status(500).json({ error: "Échec de la suppression", detail: errorDetail(err) });
   }
 });
 
@@ -2062,7 +2141,7 @@ app.get("/api/paysan-resources", async (req, res) => {
     }
     res.json(rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -2091,7 +2170,7 @@ app.get("/api/paysan-resources/:slug", async (req, res) => {
     }
     res.json(entry);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -2105,7 +2184,7 @@ app.get("/api/admin/paysan-resources", requireAdminSession, async (_req, res) =>
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -2117,7 +2196,7 @@ app.get("/api/admin/paysan-resources/:slug", requireAdminSession, async (req, re
     }
     res.json(result.rows[0]);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -2149,7 +2228,7 @@ app.post("/api/admin/paysan-resources", requireAdminSession, async (req, res) =>
     );
     res.json({ status: "ok" });
   } catch (err) {
-    res.status(500).json({ error: "Échec de l'enregistrement", detail: err.message });
+    res.status(500).json({ error: "Échec de l'enregistrement", detail: errorDetail(err) });
   }
 });
 
@@ -2168,7 +2247,7 @@ app.post("/api/admin/paysan-resources/:slug/publish", requireAdminSession, async
     }
     res.json({ status: "ok" });
   } catch (err) {
-    res.status(500).json({ error: "Échec de la mise à jour", detail: err.message });
+    res.status(500).json({ error: "Échec de la mise à jour", detail: errorDetail(err) });
   }
 });
 
@@ -2182,7 +2261,7 @@ app.get("/api/resource-categories", async (_req, res) => {
     const result = await pool.query("SELECT id, name, slug FROM resource_categories ORDER BY name");
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -2200,7 +2279,7 @@ app.post("/api/admin/resource-categories", requireAdminSession, async (req, res)
     );
     res.json(result.rows[0]);
   } catch (err) {
-    res.status(500).json({ error: "Échec de l'enregistrement", detail: err.message });
+    res.status(500).json({ error: "Échec de l'enregistrement", detail: errorDetail(err) });
   }
 });
 
@@ -2209,7 +2288,7 @@ app.delete("/api/admin/resource-categories/:id", requireAdminSession, async (req
     await pool.query("DELETE FROM resource_categories WHERE id = $1", [req.params.id]);
     res.json({ status: "ok" });
   } catch (err) {
-    res.status(500).json({ error: "Échec de la suppression", detail: err.message });
+    res.status(500).json({ error: "Échec de la suppression", detail: errorDetail(err) });
   }
 });
 
@@ -2258,7 +2337,7 @@ app.get("/api/resource-locations", async (req, res) => {
     }
     res.json(rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -2272,7 +2351,7 @@ app.get("/api/admin/resource-locations", requireAdminSession, async (_req, res) 
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -2288,7 +2367,7 @@ app.get("/api/admin/resource-locations/:slug", requireAdminSession, async (req, 
     );
     res.json({ location: location.rows[0], links: links.rows });
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -2329,7 +2408,7 @@ app.post("/api/admin/resource-locations", requireAdminSession, async (req, res) 
     res.json({ status: "ok" });
   } catch (err) {
     await client.query("ROLLBACK");
-    res.status(500).json({ error: "Échec de l'enregistrement", detail: err.message });
+    res.status(500).json({ error: "Échec de l'enregistrement", detail: errorDetail(err) });
   } finally {
     client.release();
   }
@@ -2350,7 +2429,7 @@ app.post("/api/admin/resource-locations/:slug/publish", requireAdminSession, asy
     }
     res.json({ status: "ok" });
   } catch (err) {
-    res.status(500).json({ error: "Échec de la mise à jour", detail: err.message });
+    res.status(500).json({ error: "Échec de la mise à jour", detail: errorDetail(err) });
   }
 });
 
@@ -2387,7 +2466,7 @@ app.get("/api/resource-online", async (req, res) => {
     }
     res.json(rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -2401,7 +2480,7 @@ app.get("/api/admin/resource-online", requireAdminSession, async (_req, res) => 
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -2413,7 +2492,7 @@ app.get("/api/admin/resource-online/:slug", requireAdminSession, async (req, res
     }
     res.json(result.rows[0]);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -2433,7 +2512,7 @@ app.post("/api/admin/resource-online", requireAdminSession, async (req, res) => 
     );
     res.json({ status: "ok" });
   } catch (err) {
-    res.status(500).json({ error: "Échec de l'enregistrement", detail: err.message });
+    res.status(500).json({ error: "Échec de l'enregistrement", detail: errorDetail(err) });
   }
 });
 
@@ -2452,7 +2531,7 @@ app.post("/api/admin/resource-online/:slug/publish", requireAdminSession, async 
     }
     res.json({ status: "ok" });
   } catch (err) {
-    res.status(500).json({ error: "Échec de la mise à jour", detail: err.message });
+    res.status(500).json({ error: "Échec de la mise à jour", detail: errorDetail(err) });
   }
 });
 
@@ -2490,7 +2569,7 @@ app.post("/api/paysan-resources/submit", publicWriteLimiter, async (req, res) =>
     );
     res.json({ status: "pending" });
   } catch (err) {
-    res.status(500).json({ error: "Erreur serveur", detail: err.message });
+    res.status(500).json({ error: "Erreur serveur", detail: errorDetail(err) });
   }
 });
 
@@ -2530,7 +2609,7 @@ app.post("/api/resource-locations/submit", publicWriteLimiter, async (req, res) 
     res.json({ status: "pending" });
   } catch (err) {
     await client.query("ROLLBACK");
-    res.status(500).json({ error: "Erreur serveur", detail: err.message });
+    res.status(500).json({ error: "Erreur serveur", detail: errorDetail(err) });
   } finally {
     client.release();
   }
@@ -2553,7 +2632,7 @@ app.post("/api/resource-online/submit", publicWriteLimiter, async (req, res) => 
     );
     res.json({ status: "pending" });
   } catch (err) {
-    res.status(500).json({ error: "Erreur serveur", detail: err.message });
+    res.status(500).json({ error: "Erreur serveur", detail: errorDetail(err) });
   }
 });
 
@@ -2623,7 +2702,7 @@ app.get("/api/charter", async (req, res) => {
       publishedSuggestions: suggestions.rows,
     });
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -2648,7 +2727,7 @@ app.post("/api/charter-votes", publicWriteLimiter, async (req, res) => {
     );
     res.json({ status: "ok" });
   } catch (err) {
-    res.status(500).json({ error: "Échec de l'enregistrement", detail: err.message });
+    res.status(500).json({ error: "Échec de l'enregistrement", detail: errorDetail(err) });
   }
 });
 
@@ -2664,7 +2743,7 @@ app.get("/api/charter-votes/:anonymousId", async (req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -2680,7 +2759,7 @@ app.post("/api/charter-suggestions", publicWriteLimiter, async (req, res) => {
     await pool.query("INSERT INTO charter_suggestions (text, status) VALUES ($1, 'pending')", [text.trim()]);
     res.json({ status: "ok" });
   } catch (err) {
-    res.status(500).json({ error: "Échec de l'enregistrement", detail: err.message });
+    res.status(500).json({ error: "Échec de l'enregistrement", detail: errorDetail(err) });
   }
 });
 
@@ -2691,7 +2770,7 @@ app.get("/api/admin/charter-sections", requireAdminSession, async (_req, res) =>
     const result = await pool.query("SELECT id, name, display_order FROM charter_sections ORDER BY display_order");
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -2713,7 +2792,7 @@ app.post("/api/admin/charter-sections", requireAdminSession, async (req, res) =>
       res.json({ status: "ok", id: result.rows[0].id });
     }
   } catch (err) {
-    res.status(500).json({ error: "Échec de l'enregistrement", detail: err.message });
+    res.status(500).json({ error: "Échec de l'enregistrement", detail: errorDetail(err) });
   }
 });
 
@@ -2722,7 +2801,7 @@ app.delete("/api/admin/charter-sections/:id", requireAdminSession, async (req, r
     await pool.query("DELETE FROM charter_sections WHERE id = $1", [req.params.id]);
     res.json({ status: "ok" });
   } catch (err) {
-    res.status(500).json({ error: "Échec de la suppression", detail: err.message });
+    res.status(500).json({ error: "Échec de la suppression", detail: errorDetail(err) });
   }
 });
 
@@ -2750,7 +2829,7 @@ app.post("/api/admin/charter-sections/:id/move", requireAdminSession, async (req
     res.json({ status: "ok" });
   } catch (err) {
     await client.query("ROLLBACK");
-    res.status(500).json({ error: "Échec du déplacement", detail: err.message });
+    res.status(500).json({ error: "Échec du déplacement", detail: errorDetail(err) });
   } finally {
     client.release();
   }
@@ -2768,7 +2847,7 @@ app.get("/api/admin/charter-items", requireAdminSession, async (_req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -2778,7 +2857,7 @@ app.get("/api/admin/charter-items/:id", requireAdminSession, async (req, res) =>
     if (result.rows.length === 0) return res.status(404).json({ error: "Élément non trouvé" });
     res.json(result.rows[0]);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -2807,7 +2886,7 @@ app.post("/api/admin/charter-items", requireAdminSession, async (req, res) => {
       res.json({ status: "ok", id: result.rows[0].id });
     }
   } catch (err) {
-    res.status(500).json({ error: "Échec de l'enregistrement", detail: err.message });
+    res.status(500).json({ error: "Échec de l'enregistrement", detail: errorDetail(err) });
   }
 });
 
@@ -2816,7 +2895,7 @@ app.delete("/api/admin/charter-items/:id", requireAdminSession, async (req, res)
     await pool.query("DELETE FROM charter_items WHERE id = $1", [req.params.id]);
     res.json({ status: "ok" });
   } catch (err) {
-    res.status(500).json({ error: "Échec de la suppression", detail: err.message });
+    res.status(500).json({ error: "Échec de la suppression", detail: errorDetail(err) });
   }
 });
 
@@ -2829,7 +2908,7 @@ app.post("/api/admin/charter-items/:id/publish", requireAdminSession, async (req
     await pool.query("UPDATE charter_items SET published = $1, updated_at = now() WHERE id = $2", [published, req.params.id]);
     res.json({ status: "ok" });
   } catch (err) {
-    res.status(500).json({ error: "Échec de la mise à jour", detail: err.message });
+    res.status(500).json({ error: "Échec de la mise à jour", detail: errorDetail(err) });
   }
 });
 
@@ -2857,7 +2936,7 @@ app.post("/api/admin/charter-items/:id/move", requireAdminSession, async (req, r
     res.json({ status: "ok" });
   } catch (err) {
     await client.query("ROLLBACK");
-    res.status(500).json({ error: "Échec du déplacement", detail: err.message });
+    res.status(500).json({ error: "Échec du déplacement", detail: errorDetail(err) });
   } finally {
     client.release();
   }
@@ -2872,7 +2951,7 @@ app.get("/api/admin/charter-suggestions", requireAdminSession, async (_req, res)
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -2885,7 +2964,7 @@ app.post("/api/admin/charter-suggestions/:id/status", requireAdminSession, async
     await pool.query("UPDATE charter_suggestions SET status = $1 WHERE id = $2", [status, req.params.id]);
     res.json({ status: "ok" });
   } catch (err) {
-    res.status(500).json({ error: "Échec de la mise à jour", detail: err.message });
+    res.status(500).json({ error: "Échec de la mise à jour", detail: errorDetail(err) });
   }
 });
 
@@ -2920,7 +2999,7 @@ app.get("/api/future-ideas", async (req, res) => {
     }
     res.json(rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -2944,7 +3023,7 @@ app.post("/api/future-idea-votes", publicWriteLimiter, async (req, res) => {
     await pool.query("INSERT INTO future_idea_votes (anonymous_id, idea_slug) VALUES ($1, $2)", [anonymousId, ideaSlug]);
     res.json({ status: "ok", voted: true });
   } catch (err) {
-    res.status(500).json({ error: "Échec de l'enregistrement", detail: err.message });
+    res.status(500).json({ error: "Échec de l'enregistrement", detail: errorDetail(err) });
   }
 });
 
@@ -2957,7 +3036,7 @@ app.get("/api/future-idea-votes/:anonymousId", async (req, res) => {
     const result = await pool.query("SELECT idea_slug FROM future_idea_votes WHERE anonymous_id = $1", [anonymousId]);
     res.json(result.rows.map((r) => r.idea_slug));
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -2972,7 +3051,7 @@ app.get("/api/admin/future-ideas", requireAdminSession, async (_req, res) => {
     );
     res.json(result.rows.map((r) => ({ ...r, support_count: parseInt(r.support_count, 10) })));
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -2982,7 +3061,7 @@ app.get("/api/admin/future-ideas/:slug", requireAdminSession, async (req, res) =
     if (result.rows.length === 0) return res.status(404).json({ error: "Idée non trouvée" });
     res.json(result.rows[0]);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -3002,7 +3081,7 @@ app.post("/api/admin/future-ideas", requireAdminSession, async (req, res) => {
     );
     res.json({ status: "ok" });
   } catch (err) {
-    res.status(500).json({ error: "Échec de l'enregistrement", detail: err.message });
+    res.status(500).json({ error: "Échec de l'enregistrement", detail: errorDetail(err) });
   }
 });
 
@@ -3011,7 +3090,7 @@ app.delete("/api/admin/future-ideas/:slug", requireAdminSession, async (req, res
     await pool.query("DELETE FROM future_ideas WHERE slug = $1", [req.params.slug]);
     res.json({ status: "ok" });
   } catch (err) {
-    res.status(500).json({ error: "Échec de la suppression", detail: err.message });
+    res.status(500).json({ error: "Échec de la suppression", detail: errorDetail(err) });
   }
 });
 
@@ -3028,7 +3107,7 @@ app.post("/api/admin/future-ideas/:slug/publish", requireAdminSession, async (re
     if (result.rows.length === 0) return res.status(404).json({ error: "Idée non trouvée" });
     res.json({ status: "ok" });
   } catch (err) {
-    res.status(500).json({ error: "Échec de la mise à jour", detail: err.message });
+    res.status(500).json({ error: "Échec de la mise à jour", detail: errorDetail(err) });
   }
 });
 
@@ -3047,7 +3126,7 @@ app.post("/api/future-idea-suggestions", publicWriteLimiter, async (req, res) =>
     await pool.query("INSERT INTO future_idea_suggestions (text, status) VALUES ($1, 'pending')", [text.trim()]);
     res.json({ status: "ok" });
   } catch (err) {
-    res.status(500).json({ error: "Échec de l'enregistrement", detail: err.message });
+    res.status(500).json({ error: "Échec de l'enregistrement", detail: errorDetail(err) });
   }
 });
 
@@ -3058,7 +3137,7 @@ app.get("/api/future-idea-suggestions/published", async (_req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -3069,7 +3148,7 @@ app.get("/api/admin/future-idea-suggestions", requireAdminSession, async (_req, 
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(503).json({ error: "Données non initialisées", detail: err.message });
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 
@@ -3082,7 +3161,7 @@ app.post("/api/admin/future-idea-suggestions/:id/status", requireAdminSession, a
     await pool.query("UPDATE future_idea_suggestions SET status = $1 WHERE id = $2", [status, req.params.id]);
     res.json({ status: "ok" });
   } catch (err) {
-    res.status(500).json({ error: "Échec de la mise à jour", detail: err.message });
+    res.status(500).json({ error: "Échec de la mise à jour", detail: errorDetail(err) });
   }
 });
 
