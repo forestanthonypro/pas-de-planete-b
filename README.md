@@ -110,7 +110,7 @@ Après le premier déploiement, mettre à jour les secrets GitHub `INGEST_TOKEN`
 
 ## Historique de build résolu
 
-`next build` échouait auparavant sur les pages `/404` et `/500` lors des tentatives de mise à jour vers Next.js 15/16 (`<Html> should not be imported outside of pages/_document`). Cause identifiée : l'image Docker `node:20-alpine` (musl libc) était incompatible avec le compilateur natif de Next.js 15+ — pas un problème de code applicatif. Résolu en passant à `node:20-slim` (Debian, glibc) sur `apps/web/Dockerfile` et `docker-compose.yml`. Détails complets dans `KNOWN_ISSUES_build.md`. Le projet tourne maintenant sur Next.js 15.x.
+`next build` échouait auparavant sur les pages `/404` et `/500` lors des tentatives de mise à jour vers Next.js 15/16 (`<Html> should not be imported outside of pages/_document`). Cause identifiée : l'image Docker `node:20-alpine` (musl libc) était incompatible avec le compilateur natif de Next.js 15+ — pas un problème de code applicatif. Résolu en passant à `node:20-slim` (Debian, glibc) sur `apps/web/Dockerfile` et `docker-compose.yml`. Détails complets dans `KNOWN_ISSUES_build.md`. Le projet tourne maintenant sur **Next.js 16 (Turbopack)** — build ~4× plus rapide qu'avec l'ancien Webpack.
 
 ## Licence
 
