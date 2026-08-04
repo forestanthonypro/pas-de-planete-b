@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+﻿import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { detectDefaultCountry } from "../../lib/detectCountry";
@@ -234,7 +234,6 @@ export default function PaysDashboard() {
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [summary, t]);
 
   useEffect(() => {
@@ -285,7 +284,6 @@ export default function PaysDashboard() {
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [compareCode, compareSummary, t]);
 
   function buildEnergyMixChart(energyMixData) {
@@ -783,7 +781,6 @@ export default function PaysDashboard() {
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [summary, t]);
 
   useEffect(() => {
@@ -797,7 +794,6 @@ export default function PaysDashboard() {
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [compareCode, compareSummary, t]);
 
   function buildStressChart(waterData, worldBenchmarksData, mainColor) {

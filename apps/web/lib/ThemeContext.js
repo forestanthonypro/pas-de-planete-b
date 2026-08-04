@@ -23,6 +23,9 @@ export function ThemeProvider({ children }) {
     } catch {
       // localStorage indisponible — on reste sur la valeur par défaut.
     }
+    // Même raisonnement que SobrietyProvider (voir SobrietyContext.js) :
+    // suppression volontaire, pas un oubli — un initialiseur paresseux
+    // casserait la compatibilité avec le rendu serveur.
     setThemeState(initial);
     setHydrated(true);
   }, []);

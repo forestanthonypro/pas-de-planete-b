@@ -31,13 +31,10 @@ function interpolate(str, params) {
 // contexte routeur n'est disponible — c'est le cas pendant la génération de
 // pages spéciales comme la 404 automatique de Next.js. Le try/catch protège
 // contre ce cas précis ; le hook reste appelé exactement une fois à chaque
-// rendu (jamais sauté ni répété), donc l'avertissement react-hooks/
-// rules-of-hooks ici est un faux positif propre à ce pattern, pas un vrai
-// problème d'ordre des hooks.
+// rendu (jamais sauté ni répété), donc ce pattern est sûr.
 export function useT() {
   let locale = "fr";
   try {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     const router = useRouter();
     locale = router?.locale || "fr";
   } catch {
