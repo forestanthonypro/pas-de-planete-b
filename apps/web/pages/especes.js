@@ -5,6 +5,7 @@ import { translateTaxonGroup } from "../lib/taxonGroupNames";
 import { formatCommonNames } from "../lib/commonNames";
 import { useLastUpdated, formatDate } from "../lib/useLastUpdated";
 import { localizedCountryName } from "../lib/countryNames";
+import { localeTag } from "../lib/dateLocale";
 import CountrySelect from "../components/CountrySelect";
 import PageHeader from "../components/PageHeader";
 import { IconPaw } from "../components/icons";
@@ -249,7 +250,7 @@ export default function EspecesPage() {
       <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginTop: "1rem" }}>
         {t("especes.source")}
         {lastUpdated?.species?.lastIngested && (
-          <> {t("especes.source_last_updated", { date: formatDate(lastUpdated.species.lastIngested) })}</>
+          <> {t("especes.source_last_updated", { date: formatDate(lastUpdated.species.lastIngested, locale) })}</>
         )}
         {t("especes.source_refresh")}
       </p>
@@ -284,7 +285,7 @@ export default function EspecesPage() {
                   {globalShare.map((g) => (
                     <tr key={g.taxon_group}>
                       <th scope="row" style={{ textAlign: "left", padding: 6, fontWeight: 400 }}>{translateTaxonGroup(g.taxon_group, locale)}</th>
-                      <td style={{ textAlign: "right", padding: 6 }}>{g.species_count != null ? g.species_count.toLocaleString("fr-FR") : "—"}</td>
+                      <td style={{ textAlign: "right", padding: 6 }}>{g.species_count != null ? g.species_count.toLocaleString(localeTag(locale)) : "—"}</td>
                       <td style={{ textAlign: "right", padding: 6 }}>{g.share_percent} %</td>
                     </tr>
                   ))}

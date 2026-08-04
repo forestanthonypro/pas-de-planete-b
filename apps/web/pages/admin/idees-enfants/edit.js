@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import AdminAuthGate from "../../../components/AdminAuthGate";
 import ContentTranslationsEditor from "../../../components/ContentTranslationsEditor";
 import Link from "next/link";
+import { slugify } from "../../../lib/slugify";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -10,15 +11,6 @@ const TRANSLATION_FIELDS = [
   { name: "title", label: "Titre de l'idée", multiline: false },
   { name: "description", label: "Description", multiline: true },
 ];
-
-function slugify(text) {
-  return text
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "");
-}
 
 function AdminFutureIdeaEditInner({ session }) {
   const router = useRouter();

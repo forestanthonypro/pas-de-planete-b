@@ -1061,13 +1061,6 @@ app.post("/api/admin/ingest/deputy-votes", requireIngestToken, async (_req, res)
 // séparément, une fois choisi.
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-// Liste blanche des plateformes autorisées pour embedUrl (interviews et
-// ressources "paysans"). embedUrl est injecté tel quel dans un <iframe src>
-// public côté frontend — sans cette validation, une session admin compromise
-// pourrait faire charger n'importe quel contenu arbitraire à tous les
-// visiteurs du site. La conversion automatique côté interface d'admin
-// (toYoutubeEmbedUrl) est un confort, pas une protection : elle n'empêche
-// pas un appel direct à l'API avec une autre valeur.
 // Génère un slug à partir d'un texte libre (titre saisi par le public,
 // par exemple), et garantit son unicité dans la table donnée en ajoutant
 // un suffixe numérique si besoin. "tableName" est toujours une valeur
@@ -1097,6 +1090,13 @@ async function generateUniqueSlug(baseText, tableName) {
   return `${base}-${Date.now()}`;
 }
 
+// Liste blanche des plateformes autorisées pour embedUrl (interviews et
+// ressources "paysans"). embedUrl est injecté tel quel dans un <iframe src>
+// public côté frontend — sans cette validation, une session admin compromise
+// pourrait faire charger n'importe quel contenu arbitraire à tous les
+// visiteurs du site. La conversion automatique côté interface d'admin
+// (toYoutubeEmbedUrl) est un confort, pas une protection : elle n'empêche
+// pas un appel direct à l'API avec une autre valeur.
 const ALLOWED_EMBED_HOSTS = [
   "www.youtube.com",
   "youtube.com",
@@ -1474,6 +1474,42 @@ const TRANSLATABLE_FIELDS = {
   future_idea: ["title", "description"],
 };
 
+// Fusionne les traductions disponibles dans une liste de lignes déjà
+// chargées depuis la table "source" (française) — remplace le même bloc
+// qui était dupliqué identiquement dans 7 routes différentes (débunk,
+// interviews, paysans, ressources×2, idées enfants, et la fusion
+// unitaire pour les pages détail). "idField" est le nom de la colonne qui
+// sert de content_id dans content_translations (toujours "slug" sauf
+// mention contraire).
+async function mergeTranslations(rows, contentType, locale, idField = "slug") {
+  if (!locale || locale === "fr" || rows.length === 0) return rows;
+  const trResult = await pool.query(
+    "SELECT content_id, field_name, value FROM content_translations WHERE content_type = $1 AND locale = $2",
+    [contentType, locale]
+  );
+  const overrides = {};
+  for (const r of trResult.rows) {
+    overrides[r.content_id] = overrides[r.content_id] || {};
+    overrides[r.content_id][r.field_name] = r.value;
+  }
+  return rows.map((row) => ({ ...row, ...(overrides[row[idField]] || {}) }));
+}
+
+// Même principe que mergeTranslations, mais pour une seule fiche détail
+// (mute l'objet directement plutôt que de retourner un tableau) — utilisé
+// par les routes /:slug de débunk, interviews, paysans, ressources.
+async function applyTranslations(entry, contentType, contentId, locale) {
+  if (!locale || locale === "fr") return entry;
+  const trResult = await pool.query(
+    "SELECT field_name, value FROM content_translations WHERE content_type = $1 AND content_id = $2 AND locale = $3",
+    [contentType, contentId, locale]
+  );
+  for (const r of trResult.rows) {
+    entry[r.field_name] = r.value;
+  }
+  return entry;
+}
+
 app.get("/api/admin/content-translations/:contentType/:contentId", requireAdminSession, async (req, res) => {
   const { contentType, contentId } = req.params;
   if (!TRANSLATABLE_CONTENT_TYPES.includes(contentType)) {
@@ -1551,19 +1587,7 @@ app.get("/api/debunk", async (req, res) => {
        ORDER BY d.updated_at DESC`,
       params
     );
-    let rows = result.rows;
-    if (locale && locale !== "fr") {
-      const trResult = await pool.query(
-        "SELECT content_id, field_name, value FROM content_translations WHERE content_type = 'debunk' AND locale = $1",
-        [locale]
-      );
-      const overrides = {};
-      for (const r of trResult.rows) {
-        overrides[r.content_id] = overrides[r.content_id] || {};
-        overrides[r.content_id][r.field_name] = r.value;
-      }
-      rows = rows.map((row) => ({ ...row, ...(overrides[row.slug] || {}) }));
-    }
+    const rows = await mergeTranslations(result.rows, "debunk", locale);
     res.json(rows);
   } catch (err) {
     res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
@@ -1583,16 +1607,7 @@ app.get("/api/debunk/:slug", async (req, res) => {
     if (entryResult.rows.length === 0) {
       return res.status(404).json({ error: "Entrée non trouvée" });
     }
-    let entry = entryResult.rows[0];
-    if (locale && locale !== "fr") {
-      const trResult = await pool.query(
-        "SELECT field_name, value FROM content_translations WHERE content_type = 'debunk' AND content_id = $1 AND locale = $2",
-        [req.params.slug, locale]
-      );
-      for (const r of trResult.rows) {
-        entry[r.field_name] = r.value;
-      }
-    }
+    const entry = await applyTranslations(entryResult.rows[0], "debunk", req.params.slug, locale);
     const sourcesResult = await pool.query(
       "SELECT label, url FROM debunk_sources WHERE debunk_slug = $1 ORDER BY id",
       [req.params.slug]
@@ -1937,19 +1952,7 @@ app.get("/api/science-relays", async (req, res) => {
        ORDER BY r.updated_at DESC`,
       params
     );
-    let rows = result.rows;
-    if (locale && locale !== "fr") {
-      const trResult = await pool.query(
-        "SELECT content_id, field_name, value FROM content_translations WHERE content_type = 'interview' AND locale = $1",
-        [locale]
-      );
-      const overrides = {};
-      for (const r of trResult.rows) {
-        overrides[r.content_id] = overrides[r.content_id] || {};
-        overrides[r.content_id][r.field_name] = r.value;
-      }
-      rows = rows.map((row) => ({ ...row, ...(overrides[row.slug] || {}) }));
-    }
+    const rows = await mergeTranslations(result.rows, "interview", locale);
     res.json(rows);
   } catch (err) {
     res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
@@ -1969,16 +1972,7 @@ app.get("/api/science-relays/:slug", async (req, res) => {
     if (result.rows.length === 0) {
       return res.status(404).json({ error: "Entrée non trouvée" });
     }
-    const entry = result.rows[0];
-    if (locale && locale !== "fr") {
-      const trResult = await pool.query(
-        "SELECT field_name, value FROM content_translations WHERE content_type = 'interview' AND content_id = $1 AND locale = $2",
-        [req.params.slug, locale]
-      );
-      for (const r of trResult.rows) {
-        entry[r.field_name] = r.value;
-      }
-    }
+    const entry = await applyTranslations(result.rows[0], "interview", req.params.slug, locale);
     res.json(entry);
   } catch (err) {
     res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
@@ -2126,19 +2120,7 @@ app.get("/api/paysan-resources", async (req, res) => {
        ORDER BY r.updated_at DESC`,
       params
     );
-    let rows = result.rows;
-    if (locale && locale !== "fr") {
-      const trResult = await pool.query(
-        "SELECT content_id, field_name, value FROM content_translations WHERE content_type = 'paysan' AND locale = $1",
-        [locale]
-      );
-      const overrides = {};
-      for (const r of trResult.rows) {
-        overrides[r.content_id] = overrides[r.content_id] || {};
-        overrides[r.content_id][r.field_name] = r.value;
-      }
-      rows = rows.map((row) => ({ ...row, ...(overrides[row.slug] || {}) }));
-    }
+    const rows = await mergeTranslations(result.rows, "paysan", locale);
     res.json(rows);
   } catch (err) {
     res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
@@ -2158,16 +2140,7 @@ app.get("/api/paysan-resources/:slug", async (req, res) => {
     if (result.rows.length === 0) {
       return res.status(404).json({ error: "Entrée non trouvée" });
     }
-    const entry = result.rows[0];
-    if (locale && locale !== "fr") {
-      const trResult = await pool.query(
-        "SELECT field_name, value FROM content_translations WHERE content_type = 'paysan' AND content_id = $1 AND locale = $2",
-        [req.params.slug, locale]
-      );
-      for (const r of trResult.rows) {
-        entry[r.field_name] = r.value;
-      }
-    }
+    const entry = await applyTranslations(result.rows[0], "paysan", req.params.slug, locale);
     res.json(entry);
   } catch (err) {
     res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
@@ -2322,19 +2295,8 @@ app.get("/api/resource-locations", async (req, res) => {
       if (!linksBySlug[l.location_slug]) linksBySlug[l.location_slug] = [];
       linksBySlug[l.location_slug].push({ label: l.label, url: l.url });
     }
-    let rows = locations.rows.map((l) => ({ ...l, links: linksBySlug[l.slug] || [] }));
-    if (locale && locale !== "fr") {
-      const trResult = await pool.query(
-        "SELECT content_id, field_name, value FROM content_translations WHERE content_type = 'resource_location' AND locale = $1",
-        [locale]
-      );
-      const overrides = {};
-      for (const r of trResult.rows) {
-        overrides[r.content_id] = overrides[r.content_id] || {};
-        overrides[r.content_id][r.field_name] = r.value;
-      }
-      rows = rows.map((row) => ({ ...row, ...(overrides[row.slug] || {}) }));
-    }
+    const rowsWithLinks = locations.rows.map((l) => ({ ...l, links: linksBySlug[l.slug] || [] }));
+    const rows = await mergeTranslations(rowsWithLinks, "resource_location", locale);
     res.json(rows);
   } catch (err) {
     res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
@@ -2451,19 +2413,7 @@ app.get("/api/resource-online", async (req, res) => {
        ORDER BY o.title`,
       params
     );
-    let rows = result.rows;
-    if (locale && locale !== "fr") {
-      const trResult = await pool.query(
-        "SELECT content_id, field_name, value FROM content_translations WHERE content_type = 'resource_online' AND locale = $1",
-        [locale]
-      );
-      const overrides = {};
-      for (const r of trResult.rows) {
-        overrides[r.content_id] = overrides[r.content_id] || {};
-        overrides[r.content_id][r.field_name] = r.value;
-      }
-      rows = rows.map((row) => ({ ...row, ...(overrides[row.slug] || {}) }));
-    }
+    const rows = await mergeTranslations(result.rows, "resource_online", locale);
     res.json(rows);
   } catch (err) {
     res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
@@ -2984,19 +2934,8 @@ app.get("/api/future-ideas", async (req, res) => {
        GROUP BY i.slug
        ORDER BY support_count DESC, i.updated_at DESC`
     );
-    let rows = result.rows.map((r) => ({ ...r, support_count: parseInt(r.support_count, 10) }));
-    if (locale && locale !== "fr") {
-      const trResult = await pool.query(
-        "SELECT content_id, field_name, value FROM content_translations WHERE content_type = 'future_idea' AND locale = $1",
-        [locale]
-      );
-      const overrides = {};
-      for (const r of trResult.rows) {
-        overrides[r.content_id] = overrides[r.content_id] || {};
-        overrides[r.content_id][r.field_name] = r.value;
-      }
-      rows = rows.map((row) => ({ ...row, ...(overrides[row.slug] || {}) }));
-    }
+    const parsedRows = result.rows.map((r) => ({ ...r, support_count: parseInt(r.support_count, 10) }));
+    const rows = await mergeTranslations(parsedRows, "future_idea", locale);
     res.json(rows);
   } catch (err) {
     res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
