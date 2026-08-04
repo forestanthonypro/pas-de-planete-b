@@ -33,12 +33,19 @@ router.post("/api/newsletter/signup", publicWriteLimiter, async (req, res) => {
     );
 
     const confirmUrl = `${process.env.WEB_URL || "http://localhost:3000"}/confirmer-newsletter?token=${confirmToken}`;
-    await sendEmail({
+    // L'inscription elle-même est déjà enregistrée à ce stade (la personne
+    // a donné son accord) — un souci d'envoi d'email (expéditeur Brevo pas
+    // encore vérifié, service tiers temporairement indisponible...) ne doit
+    // jamais faire échouer l'inscription. On log l'échec côté serveur pour
+    // pouvoir le repérer, sans le répercuter sur la personne qui s'inscrit.
+    sendEmail({
       to: normalizedEmail,
       subject: "Confirme ton inscription à la newsletter",
       html: `<p>Merci de vouloir recevoir des actions concrètes pour agir au quotidien !</p>
              <p><a href="${confirmUrl}">Confirme ton inscription en cliquant ici</a>.</p>
              <p style="font-size:12px;color:#666">Si tu n'es pas à l'origine de cette demande, ignore simplement cet email.</p>`,
+    }).catch((err) => {
+      console.error("Échec d'envoi de l'email de confirmation newsletter:", err.message);
     });
 
     res.json({ status: "pending_confirmation" });

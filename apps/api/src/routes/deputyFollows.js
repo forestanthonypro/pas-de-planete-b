@@ -42,12 +42,16 @@ router.post("/api/deputy-follows", publicWriteLimiter, async (req, res) => {
     );
 
     const confirmUrl = `${process.env.WEB_URL || "http://localhost:3000"}/confirmer-suivi?token=${confirmToken}`;
-    await sendEmail({
+    // Même principe que pour la newsletter : l'inscription est déjà
+    // enregistrée, un souci d'envoi d'email ne doit pas la faire échouer.
+    sendEmail({
       to: normalizedEmail,
       subject: `Confirme le suivi de ${deputyName}`,
       html: `<p>Tu as demandé à suivre les votes de <strong>${deputyName}</strong> à l'Assemblée nationale.</p>
              <p><a href="${confirmUrl}">Confirme ton suivi en cliquant ici</a>.</p>
              <p style="font-size:12px;color:#666">Si tu n'es pas à l'origine de cette demande, ignore simplement cet email.</p>`,
+    }).catch((err) => {
+      console.error("Échec d'envoi de l'email de confirmation de suivi:", err.message);
     });
 
     res.json({ status: "pending_confirmation" });
@@ -143,13 +147,21 @@ router.post("/api/admin/deputy-follows/send-digests", requireIngestToken, async 
         )
         .join("");
 
-      await sendEmail({
-        to: follow.email,
-        subject: `Nouveaux votes de ${follow.full_name}`,
-        html: `<p><strong>${follow.full_name}</strong> a pris part à ${newVotesResult.rows.length} nouveau(x) vote(s) :</p>
+      try {
+        await sendEmail({
+          to: follow.email,
+          subject: `Nouveaux votes de ${follow.full_name}`,
+          html: `<p><strong>${follow.full_name}</strong> a pris part à ${newVotesResult.rows.length} nouveau(x) vote(s) :</p>
                <ul>${itemsHtml}</ul>
                <p style="font-size:12px;color:#666"><a href="${unsubscribeUrl}">Se désabonner de ce suivi</a></p>`,
-      });
+        });
+      } catch (err) {
+        // Un échec d'envoi pour une personne ne doit ni planter le digest
+        // de tout le monde, ni faire avancer son curseur de notification —
+        // sinon elle ne serait plus jamais notifiée de ces votes précis.
+        console.error(`Échec d'envoi du digest à ${follow.email}:`, err.message);
+        continue;
+      }
 
       const maxScrutin = Math.max(...newVotesResult.rows.map((v) => v.numero_scrutin));
       await pool.query("UPDATE deputy_follows SET last_notified_scrutin = $2 WHERE id = $1", [follow.id, maxScrutin]);
