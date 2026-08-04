@@ -4,6 +4,7 @@ import ShareButtons from "../../components/ShareButtons";
 import PageHeader from "../../components/PageHeader";
 import { IconTree } from "../../components/icons";
 import { useT } from "../../lib/useT";
+import { useSobriety } from "../../lib/SobrietyContext";
 import { toYoutubeThumbnailUrl } from "../../lib/youtube";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
@@ -11,6 +12,7 @@ const TYPE_ICONS = { video: "▶", article: "📄", podcast: "🎙", document: "
 
 export default function PaysansPage() {
   const { t, locale } = useT();
+  const { sobriety } = useSobriety();
   const [entries, setEntries] = useState([]);
   const [categories, setCategories] = useState([]);
   const [categoryFilter, setCategoryFilter] = useState("");
@@ -126,8 +128,26 @@ export default function PaysansPage() {
         </div>
       )}
 
-      <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginTop: "1.5rem" }}>
-        <Link href="/paysans/proposer">{t("paysans.propose_link")}</Link>
+      <p style={{ fontSize: 12, marginTop: "1.5rem" }}>
+        <Link
+          href="/paysans/proposer"
+          style={
+            sobriety
+              ? { color: "var(--color-forest)", textDecoration: "underline" }
+              : {
+                  display: "inline-block",
+                  background: "var(--color-forest)",
+                  color: "white",
+                  padding: "8px 16px",
+                  borderRadius: 20,
+                  textDecoration: "none",
+                  fontWeight: 600,
+                  fontSize: 13,
+                }
+          }
+        >
+          {t("paysans.propose_link")}
+        </Link>
       </p>
 
       <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginTop: "0.5rem" }}>

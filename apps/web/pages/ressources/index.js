@@ -154,7 +154,25 @@ export default function RessourcesPage() {
       </div>
 
       <p style={{ fontSize: 12, marginBottom: "1rem" }}>
-        <Link href="/ressources/proposer">{t("ressources.propose_link")}</Link>
+        <Link
+          href="/ressources/proposer"
+          style={
+            sobriety
+              ? { color: "var(--color-forest)", textDecoration: "underline" }
+              : {
+                  display: "inline-block",
+                  background: "var(--color-forest)",
+                  color: "white",
+                  padding: "8px 16px",
+                  borderRadius: 20,
+                  textDecoration: "none",
+                  fontWeight: 600,
+                  fontSize: 13,
+                }
+          }
+        >
+          {t("ressources.propose_link")}
+        </Link>
       </p>
 
       {loading && <p>{t("common.loading")}</p>}
