@@ -51,21 +51,36 @@ jobs:
             ${{ env.IMAGE_BASE }}/${{ matrix.app }}:latest
             ${{ env.IMAGE_BASE }}/${{ matrix.app }}:${{ github.sha }}
 
-  deploy-staging:
-    needs: build-push
-    runs-on: ubuntu-latest
-    environment: staging
-    steps:
-      - name: Déployer sur le serveur de staging
-        run: 'echo "TODO: ssh vers le serveur de staging, docker compose pull && up -d"'
+  # Pas de serveur de staging distinct à ce jour (un seul VPS de production,
+  # voir TODO.md) — job désactivé plutôt que de faire semblant de déployer
+  # quelque part. À réactiver le jour où un vrai environnement de staging
+  # existe, sur le même modèle que deploy-production ci-dessous.
+  #
+  # deploy-staging:
+  #   needs: build-push
+  #   runs-on: ubuntu-latest
+  #   environment: staging
+  #   steps:
+  #     - name: Déployer sur le serveur de staging
+  #       run: 'echo "TODO"'
 
   deploy-production:
-    needs: deploy-staging
+    needs: build-push
     runs-on: ubuntu-latest
     environment: production
     steps:
-      - name: Déployer en production
-        run: 'echo "TODO: ssh vers le serveur de production, docker compose pull && up -d"'
+      - name: Déployer en production via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.PRODUCTION_SSH_HOST }}
+          username: ${{ secrets.PRODUCTION_SSH_USER }}
+          key: ${{ secrets.PRODUCTION_SSH_KEY }}
+          script: |
+            cd ~/pas-de-planete-b
+            git pull
+            docker compose -f docker-compose.prod.yml pull
+            docker compose -f docker-compose.prod.yml up -d
+            docker image prune -f
 
   environmental-audit:
     needs: deploy-production
@@ -88,7 +103,7 @@ jobs:
           import asyncio, json
           from ecoindex.scraper import EcoindexScraper
 
-          result = asyncio.run(EcoindexScraper(url="${{ vars.PRODUCTION_URL || 'https://pasdeplaneteb.fr' }}").get_page_analysis())
+          result = asyncio.run(EcoindexScraper(url="${{ vars.PRODUCTION_URL || 'https://pasdeplaneteb.com' }}").get_page_analysis())
           print(json.dumps({
               "grade": result.grade,
               "score": float(result.score),
@@ -108,7 +123,7 @@ jobs:
       - name: Mesurer les scores Lighthouse
         run: |
           npm install -g @lhci/cli@0.15.x
-          lhci collect --url="${{ vars.PRODUCTION_URL || 'https://pasdeplaneteb.fr' }}" --numberOfRuns=1
+          lhci collect --url="${{ vars.PRODUCTION_URL || 'https://pasdeplaneteb.com' }}" --numberOfRuns=1
 
       - name: Envoyer les résultats à l'API
         run: |
@@ -123,7 +138,7 @@ jobs:
           PAYLOAD=$(jq -n \
             --argjson eco "$ECOINDEX" \
             --argjson perf "$PERF" --argjson a11y "$A11Y" --argjson seo "$SEO" --argjson bp "$BP" --argjson loadtime "$LOAD_TIME" \
-            --arg url "${{ vars.PRODUCTION_URL || 'https://pasdeplaneteb.fr' }}" \
+            --arg url "${{ vars.PRODUCTION_URL || 'https://pasdeplaneteb.com' }}" \
             '{
               url: $url,
               ecoindexGrade: $eco.grade, ecoindexScore: $eco.score, pageWeightKb: $eco.size,
