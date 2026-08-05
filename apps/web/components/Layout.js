@@ -18,17 +18,16 @@ const LANGUAGE_LABELS = {
   hi: "हिन्दी",
 };
 
-// useRouter() lève une erreur quand aucun contexte routeur n'est disponible
+// useRouter() renvoie null quand aucun contexte routeur n'est disponible
 // (page d'erreur générée automatiquement par Next.js pendant le build) —
-// on n'affiche simplement rien dans ce cas précis plutôt que de planter.
+// on gère ce cas normalement après l'appel du Hook, jamais en enveloppant
+// le Hook lui-même dans un try/catch : ça viole les Rules of Hooks de
+// React (voir react.dev/warnings/invalid-hook-call-warning) et perturbe le
+// suivi interne de l'ordre des Hooks, avec des effets de bord difficiles
+// à diagnostiquer (a été la cause d'un bug de build sur /404 qui semblait
+// pourtant n'avoir aucun rapport avec ce fichier — voir KNOWN_ISSUES_build.md).
 function LanguageSwitcher() {
-  let router = null;
-  try {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    router = useRouter();
-  } catch {
-    return null;
-  }
+  const router = useRouter();
   if (!router) return null;
 
   function handleChange(e) {

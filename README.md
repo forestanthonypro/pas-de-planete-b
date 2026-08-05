@@ -28,7 +28,7 @@ infra/
   traefik/ Configuration du reverse-proxy pour la production
 docker-compose.yml       usage local (build à chaud, hot-reload)
 docker-compose.prod.yml  usage production (images pré-construites, Traefik, TLS, HSTS)
-KNOWN_ISSUES_build.md    bug de build Next.js actif — À LIRE avant tout déploiement (voir plus bas)
+KNOWN_ISSUES_build.md    historique du bug de build Next.js, résolu (voir plus bas)
 ```
 
 ## Architecture de l'API
@@ -133,11 +133,9 @@ Changer d'hébergeur = changer l'IP cible du déploiement SSH en CI, rien d'autr
 
 Après le premier déploiement, mettre à jour les secrets GitHub `INGEST_TOKEN` et `API_URL` (Settings > Secrets and variables > Actions) avec les vraies valeurs de production, sans quoi les workflows d'ingestion automatisée (`refresh-data.yml`, `refresh-fires.yml`) échoueront.
 
-## ⚠️ Bug de build actif — à lire avant tout déploiement
+## Historique de build résolu
 
-`next build` échoue actuellement sur les pages `/404`/`/500` avec l'erreur `<Html> should not be imported outside of pages/_document`. Ce bug avait été corrigé début août pour Next.js 15.x (passage de `node:20-alpine` à `node:20-slim`), mais est **réapparu à l'identique après la montée en version vers Next.js 16.2.12**, alors même que le projet est déjà sur `node:20-slim` — la cause précédente (musl/Alpine) est donc définitivement écartée pour cette occurrence. Forcer Webpack au lieu de Turbopack (`next build --webpack`) ne règle pas non plus le problème.
-
-Il s'agit très probablement d'un bug générique non résolu de Next.js (Pages Router + i18n + `_document` personnalisé), documenté dans plusieurs tickets ouverts sur `vercel/next.js` depuis la version 13.x. **Aucun impact en développement** (`npm run dev` fonctionne normalement), mais **bloquant pour tout déploiement de production** : le pipeline CI (`docker/build-push-action`) exécute `next build` en interne et échouera tant que ce n'est pas résolu. Détails complets, chronologie et pistes de correctif non encore testées dans `KNOWN_ISSUES_build.md`.
+`next build` échouait auparavant sur les pages `/404`/`/500` (`<Html> should not be imported outside of pages/_document`). Cause réelle : `NODE_ENV` restait sur `development` (hérité de `.env`, légitime pour `npm run dev`) au moment d'exécuter `next build`, ce que Next.js signale comme risquant de créer des incohérences — dans ce projet, ça suffisait à casser le pipeline interne de rendu de `_document`. Résolu en forçant `NODE_ENV=production` explicitement dans le script `build` (`apps/web/package.json`), indépendamment du contenu de `.env`. Projet à jour sur **Next.js 16.3.0 (Turbopack)**, **React 19.2.8** et **Node 24**. Détails complets et chronologie de l'investigation dans `KNOWN_ISSUES_build.md`.
 
 ## Licence
 

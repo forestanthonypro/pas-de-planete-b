@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 
 // Page 404 personnalisée — remplace celle générée automatiquement par
 // Next.js. Volontairement autonome (pas de Layout, pas de useT, pas de
@@ -29,3 +29,9 @@ export default function Custom404() {
     </div>
   );
 }
+
+// Exclut explicitement cette page du Layout appliqué par _app.js : Layout
+// (via LanguageSwitcher) appelle useRouter(), qui lève une exception
+// pendant la génération statique de /404 (aucun contexte routeur
+// disponible à ce moment précis). Voir KNOWN_ISSUES_build.md.
+Custom404.noLayout = true;
