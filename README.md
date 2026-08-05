@@ -28,8 +28,33 @@ infra/
   traefik/ Configuration du reverse-proxy pour la production
 docker-compose.yml       usage local (build à chaud, hot-reload)
 docker-compose.prod.yml  usage production (images pré-construites, Traefik, TLS, HSTS)
-KNOWN_ISSUES_build.md    historique du bug de build Next.js, résolu (voir plus bas)
+KNOWN_ISSUES_build.md    bug de build Next.js actif — À LIRE avant tout déploiement (voir plus bas)
 ```
+
+## Architecture de l'API
+
+L'API (`apps/api`) est organisée en modules par domaine plutôt qu'un fichier unique :
+- `src/lib/` : utilitaires transverses (`db.js`, `auth.js`, `rateLimits.js`, `slug.js`, `embedValidation.js`, `validators.js`, `translations.js`, `errors.js`)
+- `src/routes/` : une route par domaine fonctionnel (`auth.js`, `environmentalData.js`, `parliamentary.js`, `citizenVotes.js`, `newsletter.js`, `deputyFollows.js`, `contentTranslations.js`, `debunk.js`, `interviews.js`, `paysans.js`, `resources.js`, `charter.js`, `futureIdeas.js`, `settings.js`)
+
+Basé sur **Express 5**. Pour ajouter une nouvelle route, créer/étendre le fichier de domaine concerné dans `src/routes/` plutôt que d'agrandir un fichier central.
+
+## Récupération de données côté client (`useApiFetch`)
+
+Les pages du site web utilisent un hook partagé plutôt que de dupliquer le pattern `fetch` + `loading`/`error`/`data` :
+
+```javascript
+const { data, loading, error } = useApiFetch("/api/mon-endpoint", {
+  transform: (rows) => (Array.isArray(rows) ? rows : []), // optionnel
+  errorMessage: t("ma_section.erreur"),                    // optionnel
+  headers: { Authorization: `Bearer ${sessionToken}` },     // optionnel, pages admin
+  deps: [autreDependance],                                  // optionnel, en plus du chemin
+});
+```
+
+Passer `null` comme chemin désactive le fetch (utile tant qu'une dépendance requise, ex. `router.query`, n'est pas encore disponible). Convention du projet : **les GET de chargement passent par `useApiFetch`** ; **les POST/PUT/DELETE de sauvegarde restent en `fetch` brut** dans les gestionnaires d'événements (pas d'abstraction pour les mutations). Le hook lui-même est dans `apps/web/lib/useApiFetch.js`.
+
+Point de vigilance récurrent : si une valeur dérivée d'un `data` potentiellement `null` (ex. `const x = data ?? []`) est elle-même utilisée comme dépendance d'un `useMemo`/`useEffect`, l'envelopper dans son propre `useMemo(() => data ?? [], [data])` — sinon un nouveau tableau est recréé à chaque rendu tant que la donnée n'est pas chargée, ce qui invalide inutilement les hooks qui en dépendent (bug rencontré et corrigé à plusieurs reprises lors de la conversion de ~27 pages vers ce hook, cf. historique de commits).
 
 ## Sécurité
 
@@ -91,7 +116,13 @@ Page publique listant chaque source de données ingérée automatiquement, sa fr
 
 ## Hébergement
 
-VPS chez **Digital Forest** (marque de GreenWeb SAS, Annecy) — hébergeur français alimenté à 100% en hydroélectricité alpine, choisi pour sa cohérence avec la mission du projet. VPS non managé avec accès root complet, compatible tel quel avec `docker-compose.prod.yml` (aucune adaptation de code nécessaire). Changer d'hébergeur reste possible à tout moment : il suffit de changer l'IP cible du déploiement SSH en CI, tout tourne en conteneurs portables.
+VPS **HybridCloud N0C** chez **PlanetHoster** (hébergeur franco-canadien, datacenter France + Suisse pour ce projet — Paris & Lausanne), commandé le 5 août 2026 : 2 CPU, 4 GB RAM, 40 GB SSD NVMe, ~40 €/mois. Accès SSH root complet, compatible tel quel avec `docker-compose.prod.yml` (aucune adaptation de code nécessaire — Docker/Docker Compose s'installent normalement sur la VM comme sur n'importe quel Linux). Ressources (CPU/RAM) ajustables à chaud depuis l'espace client sans interruption si le trafic augmente.
+
+*(Anciennement chez Digital Forest, racheté par PlanetHoster — c'est ce rachat qui a motivé le changement d'hébergeur ; le blocage DNS qui empêchait la vérification Brevo et la finalisation du VPS chez Digital Forest est attendu comme résolu avec cette migration.)*
+
+Nom de domaine : **`pasdeplaneteb.com`** (domaine principal). Le `.fr`, déjà possédé par ailleurs, sera transféré ultérieurement — prévoir à ce moment-là une redirection `.fr → .com` ou une gestion des deux domaines dans `CORS_ORIGIN`.
+
+Changer d'hébergeur reste possible à tout moment : il suffit de changer l'IP cible du déploiement SSH en CI, tout tourne en conteneurs portables.
 
 ## Déploiement
 
@@ -108,12 +139,15 @@ Changer d'hébergeur = changer l'IP cible du déploiement SSH en CI, rien d'autr
 
 Après le premier déploiement, mettre à jour les secrets GitHub `INGEST_TOKEN` et `API_URL` (Settings > Secrets and variables > Actions) avec les vraies valeurs de production, sans quoi les workflows d'ingestion automatisée (`refresh-data.yml`, `refresh-fires.yml`) échoueront.
 
-## Historique de build résolu
+## ⚠️ Bug de build actif — à lire avant tout déploiement
 
-`next build` échouait auparavant sur les pages `/404` et `/500` lors des tentatives de mise à jour vers Next.js 15/16 (`<Html> should not be imported outside of pages/_document`). Cause identifiée : l'image Docker `node:20-alpine` (musl libc) était incompatible avec le compilateur natif de Next.js 15+ — pas un problème de code applicatif. Résolu en passant à `node:20-slim` (Debian, glibc) sur `apps/web/Dockerfile` et `docker-compose.yml`. Détails complets dans `KNOWN_ISSUES_build.md`. Le projet tourne maintenant sur **Next.js 16 (Turbopack)** et **React 19** — build ~4× plus rapide qu'avec l'ancien Webpack/React 18.
+`next build` échoue actuellement sur les pages `/404`/`/500` avec l'erreur `<Html> should not be imported outside of pages/_document`. Ce bug avait été corrigé début août pour Next.js 15.x (passage de `node:20-alpine` à `node:20-slim`), mais est **réapparu à l'identique après la montée en version vers Next.js 16.2.12**, alors même que le projet est déjà sur `node:20-slim` — la cause précédente (musl/Alpine) est donc définitivement écartée pour cette occurrence. Forcer Webpack au lieu de Turbopack (`next build --webpack`) ne règle pas non plus le problème.
+
+Il s'agit très probablement d'un bug générique non résolu de Next.js (Pages Router + i18n + `_document` personnalisé), documenté dans plusieurs tickets ouverts sur `vercel/next.js` depuis la version 13.x. **Aucun impact en développement** (`npm run dev` fonctionne normalement), mais **bloquant pour tout déploiement de production** : le pipeline CI (`docker/build-push-action`) exécute `next build` en interne et échouera tant que ce n'est pas résolu. Détails complets, chronologie et pistes de correctif non encore testées dans `KNOWN_ISSUES_build.md`.
 
 ## Licence
 
 Ce projet est distribué sous licence **GNU Affero General Public License v3.0 (AGPL-3.0)** — voir le fichier [`LICENSE`](./LICENSE) à la racine du dépôt pour le texte complet.
 
 Choix motivé par l'esprit transparence/données ouvertes du projet : contrairement à une licence permissive (MIT), l'AGPL garantit que toute personne qui modifie le code et le fait tourner sur un serveur public (site web, API) doit rendre ses propres modifications disponibles aux utilisateurs de ce service — pas seulement en cas de distribution d'un fichier. Ça empêche qu'une version dérivée fermée (associative ou commerciale) s'écarte du principe d'ouverture du projet d'origine.
+

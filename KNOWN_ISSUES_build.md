@@ -34,3 +34,4 @@ L'image Docker utilisée (`node:20-alpine`, basée sur `musl libc`) est connue p
 ## État du projet pendant l'investigation
 
 Revenu sur `next@14.2.35` / `react@18.3.1` (dernière version patchée de la branche 14, avant sa fin de vie en octobre 2025) après avoir testé sans succès 15.5.21 et 16.2.12. Tous les autres correctifs de sécurité et d'interface faits en parallèle (rate limiting TOTP, Helmet, validation embedUrl, HSTS, bouton retour en haut, protection useT()/LanguageSwitcher contre l'absence de routeur, page 404 personnalisée, getServerSideProps sur les pages dynamiques) sont conservés et fonctionnels, indépendamment de ce bug de build.
+
