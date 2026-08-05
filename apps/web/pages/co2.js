@@ -3,24 +3,19 @@ import { detectDefaultCountry } from "../lib/detectCountry";
 import { localizedCountryName } from "../lib/countryNames";
 import { useLastUpdated, formatDate } from "../lib/useLastUpdated";
 import { useT } from "../lib/useT";
+import { useApiFetch } from "../lib/useApiFetch";
 import CountrySelect from "../components/CountrySelect";
 import PageHeader from "../components/PageHeader";
 import { IconCloud } from "../components/icons";
 import ShareButtons from "../components/ShareButtons";
 import ScrollableTable from "../components/ScrollableTable";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
-
 export default function Co2Page() {
   const { t, locale } = useT();
   const lastUpdated = useLastUpdated();
-  const [countries, setCountries] = useState([]);
   const [countryCode, setCountryCode] = useState("FRA");
   const [metric, setMetric] = useState("emissions_mt"); // ou "emissions_per_capita"
-  const [data, setData] = useState([]);
   const [view, setView] = useState("chart"); // "chart" ou "table"
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
   const canvasRef = useRef(null);
   const chartRef = useRef(null);
@@ -30,33 +25,19 @@ export default function Co2Page() {
     setCountryCode(detectDefaultCountry());
   }, []);
 
-  // Charge la liste des pays une seule fois, pour peupler le filtre.
-  useEffect(() => {
-    fetch(`${API_URL}/api/co2/countries`)
-      .then((res) => res.json())
-      .then((rows) => setCountries(Array.isArray(rows) ? rows : []))
-      .catch(() => setCountries([]));
-  }, []);
+  // Charge la liste des pays une seule fois, pour peupler le filtre — pas
+  // de loading/error suivis ici, un échec silencieux (liste vide) suffit.
+  const { data: countriesData } = useApiFetch("/api/co2/countries", {
+    transform: (rows) => (Array.isArray(rows) ? rows : []),
+  });
+  const countries = countriesData || [];
 
   // Recharge la série à chaque changement de pays.
-  useEffect(() => {
-    setLoading(true);
-    setError(null);
-    fetch(`${API_URL}/api/co2/${countryCode}`)
-      .then((res) => {
-        if (!res.ok) throw new Error(t("co2.error_no_data"));
-        return res.json();
-      })
-      .then((rows) => {
-        setData(rows);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
-      });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [countryCode]);
+  const { data: co2Data, loading, error } = useApiFetch(countryCode ? `/api/co2/${countryCode}` : null, {
+    errorMessage: t("co2.error_no_data"),
+    deps: [countryCode],
+  });
+  const data = co2Data || [];
 
   // Dessine/redessine le graphique quand les données, le métrique ou la vue changent.
   useEffect(() => {
@@ -200,7 +181,7 @@ export default function Co2Page() {
           <> {t("co2.source_latest_year", { year: lastUpdated.co2.latestYear })}</>
         )}
         {lastUpdated?.co2?.lastIngested && (
-          <> {t("co2.source_last_updated", { date: formatDate(lastUpdated.co2.lastIngested) })}</>
+          <> {t("co2.source_last_updated", { date: formatDate(lastUpdated.co2.lastIngested, locale) })}</>
         )}
         {t("co2.source_refresh")}
       </p>

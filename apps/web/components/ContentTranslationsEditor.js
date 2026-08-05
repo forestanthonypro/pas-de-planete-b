@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useApiFetch } from "../lib/useApiFetch";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -25,28 +26,29 @@ export default function ContentTranslationsEditor({ contentType, contentId, fiel
   const [lang, setLang] = useState("en");
   const [values, setValues] = useState({});
   const [initialValues, setInitialValues] = useState({});
-  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState("idle"); // idle | saved | error
 
-  useEffect(() => {
-    if (!contentId) return;
-    setLoading(true);
-    fetch(`${API_URL}/api/admin/content-translations/${contentType}/${contentId}`, {
+  const { data: forLang, loading } = useApiFetch(
+    contentId ? `/api/admin/content-translations/${contentType}/${contentId}` : null,
+    {
       headers: { Authorization: `Bearer ${sessionToken}` },
-    })
-      .then((res) => (res.ok ? res.json() : []))
-      .then((rows) => {
-        const forLang = {};
-        for (const row of rows) {
-          if (row.locale === lang) forLang[row.field_name] = row.value;
+      transform: (rows) => {
+        const result = {};
+        for (const row of Array.isArray(rows) ? rows : []) {
+          if (row.locale === lang) result[row.field_name] = row.value;
         }
-        setValues(forLang);
-        setInitialValues(forLang);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, [contentType, contentId, lang, sessionToken]);
+        return result;
+      },
+      deps: [lang, sessionToken],
+    }
+  );
+
+  useEffect(() => {
+    if (!forLang) return;
+    setValues(forLang);
+    setInitialValues(forLang);
+  }, [forLang]);
 
   function handleChange(fieldName, value) {
     setValues((prev) => ({ ...prev, [fieldName]: value }));

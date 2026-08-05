@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import AdminAuthGate from "../../../components/AdminAuthGate";
 import ContentTranslationsEditor from "../../../components/ContentTranslationsEditor";
 import Link from "next/link";
+import { useApiFetch } from "../../../lib/useApiFetch";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -15,47 +16,44 @@ function AdminCharterItemEditInner({ session }) {
   const router = useRouter();
   const { id: editId, sectionId: presetSectionId } = router.query;
   const isEditing = Boolean(editId);
-  const [sections, setSections] = useState([]);
   const [sectionId, setSectionId] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [published, setPublished] = useState(false);
 
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [status, setStatus] = useState("idle");
 
-  useEffect(() => {
-    fetch(`${API_URL}/api/admin/charter-sections`, { headers: { ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) } })
-      .then((res) => (res.ok ? res.json() : []))
-      .then((rows) => {
-        setSections(rows);
-        if (!isEditing && presetSectionId) setSectionId(String(presetSectionId));
-      })
-      .catch(() => setSections([]));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session, presetSectionId]);
+  const { data: sectionRows } = useApiFetch("/api/admin/charter-sections", {
+    headers: session ? { Authorization: `Bearer ${session.sessionToken}` } : undefined,
+    transform: (rows) => (Array.isArray(rows) ? rows : []),
+  });
+  const sections = sectionRows ?? [];
 
   useEffect(() => {
-    if (!editId) return;
-    setLoading(true);
-    fetch(`${API_URL}/api/admin/charter-items/${editId}`, { headers: { ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) } })
-      .then((res) => {
-        if (!res.ok) throw new Error("Élément non trouvé");
-        return res.json();
-      })
-      .then((data) => {
-        setSectionId(String(data.section_id));
-        setTitle(data.title);
-        setDescription(data.description || "");
-        setPublished(data.published);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
-      });
-  }, [editId, session]);
+    if (!isEditing && presetSectionId) setSectionId(String(presetSectionId));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [presetSectionId]);
+
+  const { data: itemData, loading, error: fetchError } = useApiFetch(
+    editId ? `/api/admin/charter-items/${editId}` : null,
+    {
+      headers: session ? { Authorization: `Bearer ${session.sessionToken}` } : undefined,
+      errorMessage: "Élément non trouvé",
+    }
+  );
+
+  useEffect(() => {
+    if (!itemData) return;
+    setSectionId(String(itemData.section_id));
+    setTitle(itemData.title);
+    setDescription(itemData.description || "");
+    setPublished(itemData.published);
+  }, [itemData]);
+
+  useEffect(() => {
+    if (fetchError) setError(fetchError);
+  }, [fetchError]);
 
   function handleSubmit(e) {
     e.preventDefault();

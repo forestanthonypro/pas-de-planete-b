@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import ShareButtons from "../../components/ShareButtons";
@@ -7,42 +7,21 @@ import { IconLandmark } from "../../components/icons";
 import { useT } from "../../lib/useT";
 import { localeTag } from "../../lib/dateLocale";
 import ScrollableTable from "../../components/ScrollableTable";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+import { useApiFetch } from "../../lib/useApiFetch";
 
 export default function GroupDetailPage() {
   const { t, locale } = useT();
   const router = useRouter();
   const { abbreviation } = router.query;
-  const [group, setGroup] = useState(null);
-  const [resultBreakdown, setResultBreakdown] = useState([]);
-  const [recentScrutins, setRecentScrutins] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const canvasRef = useRef(null);
   const chartRef = useRef(null);
 
-  useEffect(() => {
-    if (!abbreviation) return;
-    setLoading(true);
-    setError(null);
-    fetch(`${API_URL}/api/an-groups/${abbreviation}`)
-      .then((res) => {
-        if (!res.ok) throw new Error(t("groupes.group_not_found"));
-        return res.json();
-      })
-      .then((data) => {
-        setGroup(data.group);
-        setResultBreakdown(data.resultBreakdown || []);
-        setRecentScrutins(data.recentScrutins || []);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
-      });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [abbreviation]);
+  const { data, loading, error } = useApiFetch(abbreviation ? `/api/an-groups/${abbreviation}` : null, {
+    errorMessage: t("groupes.group_not_found"),
+  });
+  const group = data?.group ?? null;
+  const resultBreakdown = data?.resultBreakdown ?? [];
+  const recentScrutins = data?.recentScrutins ?? [];
 
   const totalScrutins = resultBreakdown.reduce((sum, r) => sum + parseInt(r.count, 10), 0);
 

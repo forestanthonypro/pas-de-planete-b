@@ -4,6 +4,7 @@ import AdminAuthGate from "../../../components/AdminAuthGate";
 import ContentTranslationsEditor from "../../../components/ContentTranslationsEditor";
 import Link from "next/link";
 import { slugify } from "../../../lib/slugify";
+import { useApiFetch } from "../../../lib/useApiFetch";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -16,7 +17,6 @@ function AdminOnlineResourceEditInner({ session }) {
   const router = useRouter();
   const { slug: editSlug } = router.query;
   const isEditing = Boolean(editSlug);
-  const [categories, setCategories] = useState([]);
   const [slug, setSlug] = useState("");
   const [slugTouched, setSlugTouched] = useState(false);
   const [title, setTitle] = useState("");
@@ -25,42 +25,36 @@ function AdminOnlineResourceEditInner({ session }) {
   const [categoryId, setCategoryId] = useState("");
   const [published, setPublished] = useState(false);
 
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [status, setStatus] = useState("idle");
 
-  useEffect(() => {
-    fetch(`${API_URL}/api/resource-categories`)
-      .then((res) => (res.ok ? res.json() : []))
-      .then(setCategories)
-      .catch(() => setCategories([]));
-  }, [session]);
+  const { data: categoryRows } = useApiFetch("/api/resource-categories", {
+    transform: (rows) => (Array.isArray(rows) ? rows : []),
+  });
+  const categories = categoryRows ?? [];
+
+  const { data: onlineData, loading, error: fetchError } = useApiFetch(
+    editSlug ? `/api/admin/resource-online/${editSlug}` : null,
+    {
+      headers: session ? { Authorization: `Bearer ${session.sessionToken}` } : undefined,
+      errorMessage: "Entrée non trouvée",
+    }
+  );
 
   useEffect(() => {
-    if (!editSlug) return;
-    setLoading(true);
-    fetch(`${API_URL}/api/admin/resource-online/${editSlug}`, {
-      headers: { ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error("Entrée non trouvée");
-        return res.json();
-      })
-      .then((data) => {
-        setSlug(data.slug);
-        setSlugTouched(true);
-        setTitle(data.title);
-        setDescription(data.description);
-        setUrl(data.url);
-        setCategoryId(data.category_id || "");
-        setPublished(data.published);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
-      });
-  }, [editSlug, session]);
+    if (!onlineData) return;
+    setSlug(onlineData.slug);
+    setSlugTouched(true);
+    setTitle(onlineData.title);
+    setDescription(onlineData.description);
+    setUrl(onlineData.url);
+    setCategoryId(onlineData.category_id || "");
+    setPublished(onlineData.published);
+  }, [onlineData]);
+
+  useEffect(() => {
+    if (fetchError) setError(fetchError);
+  }, [fetchError]);
 
   function handleTitleChange(value) {
     setTitle(value);

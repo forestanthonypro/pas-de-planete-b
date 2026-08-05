@@ -1,11 +1,9 @@
-import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import ShareButtons from "../../components/ShareButtons";
 import { formatDate } from "../../lib/useLastUpdated";
 import { useT } from "../../lib/useT";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+import { useApiFetch } from "../../lib/useApiFetch";
 
 const VERDICT_COLORS = {
   faux: "#d63e2a",
@@ -17,31 +15,13 @@ export default function DebunkEntryPage() {
   const { t, locale } = useT();
   const router = useRouter();
   const { slug } = router.query;
-  const [entry, setEntry] = useState(null);
-  const [sources, setSources] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
-  useEffect(() => {
-    if (!slug) return;
-    setLoading(true);
-    setError(null);
-    fetch(`${API_URL}/api/debunk/${slug}?locale=${locale}`)
-      .then((res) => {
-        if (!res.ok) throw new Error(t("debunk.entry_not_found"));
-        return res.json();
-      })
-      .then((data) => {
-        setEntry(data.entry);
-        setSources(data.sources || []);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
-      });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [slug, locale]);
+  const { data, loading, error } = useApiFetch(slug ? `/api/debunk/${slug}?locale=${locale}` : null, {
+    errorMessage: t("debunk.entry_not_found"),
+    deps: [locale],
+  });
+  const entry = data?.entry ?? null;
+  const sources = data?.sources ?? [];
 
   function verdictLabel(verdict) {
     if (verdict === "trompeur") return t("debunk.verdict_trompeur");

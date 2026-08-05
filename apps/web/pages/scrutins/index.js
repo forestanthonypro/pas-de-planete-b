@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import ShareButtons from "../../components/ShareButtons";
 import PageHeader from "../../components/PageHeader";
@@ -9,16 +9,13 @@ import { localeTag } from "../../lib/dateLocale";
 import { getConsent, getAnonymousId } from "../../lib/anonymousId";
 import { fetchCitizenVotes } from "../../lib/citizenVotes";
 import ScrollableTable from "../../components/ScrollableTable";
+import { useApiFetch } from "../../lib/useApiFetch";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 const PAGE_SIZE = 30;
 
 export default function ScrutinsPage() {
   const { t, locale } = useT();
-  const [scrutins, setScrutins] = useState([]);
-  const [stats, setStats] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const canvasRef = useRef(null);
   const chartRef = useRef(null);
   const [query, setQuery] = useState("");
@@ -70,25 +67,16 @@ export default function ScrutinsPage() {
     setPage(1);
   }, [resultFilter]);
 
-  useEffect(() => {
-    Promise.all([
-      fetch(`${API_URL}/api/scrutins?limit=200`).then((res) => {
-        if (!res.ok) throw new Error(t("scrutins.error_no_data"));
-        return res.json();
-      }),
-      fetch(`${API_URL}/api/scrutins/stats`).then((res) => (res.ok ? res.json() : null)),
-    ])
-      .then(([scrutinRows, statsData]) => {
-        setScrutins(Array.isArray(scrutinRows) ? scrutinRows : []);
-        setStats(statsData);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
-      });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const { data: scrutinRows, loading, error } = useApiFetch("/api/scrutins?limit=200", {
+    errorMessage: t("scrutins.error_no_data"),
+    transform: (rows) => (Array.isArray(rows) ? rows : []),
+  });
+  const scrutins = useMemo(() => scrutinRows ?? [], [scrutinRows]);
+
+  // Les stats sont décoratives (graphique) : une erreur ici ne doit pas
+  // bloquer l'affichage de la liste des scrutins, contrairement à l'échec
+  // du chargement principal ci-dessus.
+  const { data: stats } = useApiFetch("/api/scrutins/stats");
 
   useEffect(() => {
     if (!stats || !stats.byResult || stats.byResult.length === 0) return;

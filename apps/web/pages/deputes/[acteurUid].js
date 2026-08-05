@@ -8,8 +8,7 @@ import { IconUsers } from "../../components/icons";
 import { useT } from "../../lib/useT";
 import { localeTag } from "../../lib/dateLocale";
 import ScrollableTable from "../../components/ScrollableTable";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+import { useApiFetch } from "../../lib/useApiFetch";
 
 function usePositionLabels(t) {
   return {
@@ -26,37 +25,17 @@ export default function DeputyPage() {
   const POSITION_LABELS = usePositionLabels(t);
   const router = useRouter();
   const { acteurUid } = router.query;
-  const [deputy, setDeputy] = useState(null);
-  const [votes, setVotes] = useState([]);
-  const [groupStats, setGroupStats] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [positionFilter, setPositionFilter] = useState("");
   const [resultFilter, setResultFilter] = useState("");
   const canvasRef = useRef(null);
   const chartRef = useRef(null);
 
-  useEffect(() => {
-    if (!acteurUid) return;
-    setLoading(true);
-    setError(null);
-    fetch(`${API_URL}/api/deputies/${acteurUid}`)
-      .then((res) => {
-        if (!res.ok) throw new Error(t("deputes.deputy_not_found"));
-        return res.json();
-      })
-      .then((data) => {
-        setDeputy(data.deputy);
-        setVotes(data.votes || []);
-        setGroupStats(data.groupStats || null);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
-      });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [acteurUid]);
+  const { data, loading, error } = useApiFetch(acteurUid ? `/api/deputies/${acteurUid}` : null, {
+    errorMessage: t("deputes.deputy_not_found"),
+  });
+  const deputy = data?.deputy ?? null;
+  const votes = data?.votes ?? [];
+  const groupStats = data?.groupStats ?? null;
 
   const tally = votes.reduce((acc, v) => {
     acc[v.position] = (acc[v.position] || 0) + 1;

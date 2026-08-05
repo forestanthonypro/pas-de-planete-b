@@ -12,6 +12,13 @@ Document de suivi des chantiers en attente, à garder à jour d'une session à l
 - **`CORS_ORIGIN`** en production : à régler avec la vraie URL une fois le VPS/domaine finalisés (actuellement en localhost).
 - **Mentions légales** : compléter les champs `[À COMPLÉTER]` (nom/raison sociale de l'association, adresse du siège, SIRET, directeur·rice de publication, email de contact).
 - **Secret GitHub `API_URL`** : à mettre à jour avec la vraie URL de prod une fois le déploiement fait.
+- **Build Next.js échoue sur `/404`** (découvert le 5 août 2026, indépendant du chantier `useApiFetch` en cours à ce moment-là) :
+  ```
+  Error: <Html> should not be imported outside of pages/_document.
+  Error occurred prerendering page "/fr/404".
+  Export encountered an error on /404: /fr/404, exiting the build.
+  ```
+  Le lint passe et `npm run dev` fonctionne — seul `npm run build` (Next.js 16.2.12 / Turbopack) échoue à l'étape de génération statique. Pistes à vérifier : contenu de `pages/_document.js` (export correct de `<Html>`), un import transitif de `next/document` déclenché depuis `pages/404.js` ou un composant partagé (Layout, etc.), et compatibilité `next/document` + Turbopack en 16.x (possible régression ne touchant que le build de prod).
 
 ## 🟡 Pull requests Dependabot en attente
 
@@ -20,12 +27,16 @@ Document de suivi des chantiers en attente, à garder à jour d'une session à l
   - `csv-parse` (5.6 → 7.0) — deux versions majeures, vérifier l'usage dans `apps/api/src/ingest/`
   - `adm-zip` (0.5.18 → 0.6.0) — vérifier où il est utilisé
 - **À fermer sans fusionner** (déjà testées, cassent le projet) :
-  - PR `eslint` 8.57/9.39 → 10.8 (incompatibilité interne confirmée avec `eslint-config-next`, testée en conditions réelles) — on reste sur ESLint 9.x
-- **Déjà traitée manuellement, à fermer si encore ouverte** : PR `eslint-config-next` 14→16 (fait dans un commit dédié)
+  - PR `eslint` 8.57/9.39 → 10.8.0 (incompatibilité interne confirmée avec `eslint-config-next`, testée en conditions réelles) — on reste sur ESLint 9.x. Rescannée par Dependabot sous PR #5 après le commit manuel — à fermer si encore ouverte.
+- **Déjà traitée manuellement, à fermer si encore ouverte** : PR `eslint-config-next` 14→16 (fait dans un commit dédié), rescannée par Dependabot sous PR #14.
 
-## 🟢 Qualité de code (revue approfondie déjà faite, suite à prévoir)
+## 🟢 Qualité de code
 
-- **Hook partagé `useApiFetch(url, deps)`** : élimine la duplication du pattern `loading/error/fetch` répété dans ~40 pages. Actuellement, la règle ESLint `react-hooks/set-state-in-effect` est désactivée globalement à cause de ce pattern — un hook dédié réglerait la duplication *et* permettrait de réactiver la règle proprement. Chantier à part entière, à faire calmement avec tests page par page (fort risque de régression si précipité).
+- ✅ **Hook partagé `useApiFetch(path, options)`** — **terminé** (5 août 2026). Éliminait la duplication du pattern `loading/error/fetch` répétée dans ~40 pages. Converti page par page, testé (validation JSX + lint réel ESLint 9 + `eslint-plugin-react-hooks` à chaque lot) :
+  - Lot 1 : `co2.js` (page pilote, hook conçu et validé ici)
+  - Lot 2 (batch2, 22 fichiers) : pages publiques (`debunk`, `deputes` [détail + liste], `groupes`, `interviews`, `paysans`, `scrutins` [détail + liste], `eau`, `energie`, `especes`, `incendies`, `pollution`, `vegetation`) + pages admin (`settings`, `charte/item-edit`, `idees-enfants/edit`, `interviews/edit`, `paysans/edit`, `ressources/location-edit`, `ressources/online-edit`, `ContentTranslationsEditor.js`) — GET de chargement convertis, POST/PUT de sauvegarde volontairement laissés en `fetch` brut.
+  - Bug attrapé et corrigé pendant la conversion : le pattern `const x = data ?? []` recréait un nouveau tableau à chaque rendu tant que la donnée n'était pas chargée, invalidant inutilement des `useMemo`/`useEffect` (dont un vrai bug d'ordre de déclaration dans `energie.js`, corrigé). Partout stabilisé avec `useMemo(() => data ?? [], [data])`.
+  - Reste (si des pages existent en dehors de ce périmètre, à vérifier au prochain passage) : `pays/[code].js` n'a pas été traité dans ce chantier — voir point suivant.
 - **`useCallback` sur les fonctions `build*Chart`** dans `apps/web/pages/pays/[code].js` (`buildWaterChart`, `buildStressChart`, `buildEnergyMixChart`...) : 2 avertissements `exhaustive-deps` actuellement ignorés sans risque, mais une vraie correction demande d'envelopper ces fonctions dans `useCallback` avec les bonnes dépendances, sans casser les graphiques.
 
 ## 🆕 Nouvelles fonctionnalités demandées (à faire)
@@ -45,4 +56,4 @@ Document de suivi des chantiers en attente, à garder à jour d'une session à l
 
 ---
 
-*Dernière mise à jour : voir date du dernier commit de ce fichier.*
+*Dernière mise à jour : 5 août 2026 — voir aussi la date du dernier commit de ce fichier.*

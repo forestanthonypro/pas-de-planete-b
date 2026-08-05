@@ -8,8 +8,7 @@ import CitizenVote from "../../../components/CitizenVote";
 import { useT } from "../../../lib/useT";
 import { localeTag } from "../../../lib/dateLocale";
 import ScrollableTable from "../../../components/ScrollableTable";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+import { useApiFetch } from "../../../lib/useApiFetch";
 
 const POSITIONS = ["pour", "contre", "abstention", "absent"];
 
@@ -35,10 +34,6 @@ export default function ScrutinPage() {
   const POSITION_LABELS = usePositionLabels(t);
   const router = useRouter();
   const { legislature, numero } = router.query;
-  const [scrutin, setScrutin] = useState(null);
-  const [votes, setVotes] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [groupFilter, setGroupFilter] = useState("");
   const [nameQuery, setNameQuery] = useState("");
   const [revealed, setRevealed] = useState(false);
@@ -46,27 +41,16 @@ export default function ScrutinPage() {
   const canvasRef = useRef(null);
   const chartRef = useRef(null);
 
+  const { data, loading, error } = useApiFetch(
+    legislature && numero ? `/api/scrutins/${legislature}/${numero}` : null,
+    { errorMessage: t("scrutins.not_found") }
+  );
+  const scrutin = data?.scrutin ?? null;
+  const votes = data?.votes ?? [];
+
   useEffect(() => {
-    if (!legislature || !numero) return;
-    setLoading(true);
-    setError(null);
     setRevealed(false);
     setBannerDismissed(false);
-    fetch(`${API_URL}/api/scrutins/${legislature}/${numero}`)
-      .then((res) => {
-        if (!res.ok) throw new Error(t("scrutins.not_found"));
-        return res.json();
-      })
-      .then((data) => {
-        setScrutin(data.scrutin);
-        setVotes(data.votes || []);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
-      });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [legislature, numero]);
 
   const groups = [...new Set(votes.map((v) => v.group_abbreviation).filter(Boolean))].sort();

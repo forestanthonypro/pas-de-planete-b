@@ -9,19 +9,14 @@ import ShareButtons from "../components/ShareButtons";
 import { useWorldBenchmarks } from "../lib/useWorldBenchmarks";
 import { useT } from "../lib/useT";
 import ScrollableTable from "../components/ScrollableTable";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+import { useApiFetch } from "../lib/useApiFetch";
 
 export default function VegetationPage() {
   const { t, locale } = useT();
   const lastUpdated = useLastUpdated();
   const worldBenchmarks = useWorldBenchmarks();
-  const [countries, setCountries] = useState([]);
   const [countryCode, setCountryCode] = useState("FRA");
-  const [data, setData] = useState([]);
   const [view, setView] = useState("chart");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
   const canvasRef = useRef(null);
   const chartRef = useRef(null);
@@ -30,31 +25,15 @@ export default function VegetationPage() {
     setCountryCode(detectDefaultCountry());
   }, []);
 
-  useEffect(() => {
-    fetch(`${API_URL}/api/vegetation/countries`)
-      .then((res) => res.json())
-      .then((rows) => setCountries(Array.isArray(rows) ? rows : []))
-      .catch(() => setCountries([]));
-  }, []);
+  const { data: countryRows } = useApiFetch("/api/vegetation/countries", {
+    transform: (rows) => (Array.isArray(rows) ? rows : []),
+  });
+  const countries = countryRows ?? [];
 
-  useEffect(() => {
-    setLoading(true);
-    setError(null);
-    fetch(`${API_URL}/api/vegetation/${countryCode}`)
-      .then((res) => {
-        if (!res.ok) throw new Error(t("vegetation.error_no_data"));
-        return res.json();
-      })
-      .then((rows) => {
-        setData(rows);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
-      });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [countryCode]);
+  const { data: vegetationRows, loading, error } = useApiFetch(`/api/vegetation/${countryCode}`, {
+    errorMessage: t("vegetation.error_no_data"),
+  });
+  const data = useMemo(() => vegetationRows ?? [], [vegetationRows]);
 
   const cumulativeSummary = useMemo(() => {
     if (data.length === 0) return null;

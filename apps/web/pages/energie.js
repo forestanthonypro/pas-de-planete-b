@@ -11,21 +11,15 @@ import { useSobriety } from "../lib/SobrietyContext";
 import { barEndLabelsPlugin } from "../lib/barEndLabelsPlugin";
 import { useT } from "../lib/useT";
 import ScrollableTable from "../components/ScrollableTable";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+import { useApiFetch } from "../lib/useApiFetch";
 
 export default function EnergiePage() {
   const { t, locale } = useT();
   const lastUpdated = useLastUpdated();
-  const [countries, setCountries] = useState([]);
-  const [fuelTypes, setFuelTypes] = useState([]);
   const [country, setCountry] = useState("FRA");
   const [fuelType, setFuelType] = useState("");
-  const [plants, setPlants] = useState([]);
-  const [generation, setGeneration] = useState([]);
   const [view, setView] = useState("map"); // "map" ou "table"
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [mapError, setMapError] = useState(null);
   const { sobriety } = useSobriety();
 
   useEffect(() => {
@@ -40,6 +34,29 @@ export default function EnergiePage() {
   const generationCanvasRef = useRef(null);
   const generationChartRef = useRef(null);
 
+  useEffect(() => {
+    setCountry(detectDefaultCountry());
+  }, []);
+
+  const { data: countryRows } = useApiFetch("/api/power-plants/countries", {
+    transform: (rows) => (Array.isArray(rows) ? rows.map((r) => r.country_code) : []),
+  });
+  const countries = countryRows ?? [];
+
+  const { data: fuelTypeRows } = useApiFetch("/api/power-plants/fuel-types", {
+    transform: (rows) => (Array.isArray(rows) ? rows : []),
+  });
+  const fuelTypes = fuelTypeRows ?? [];
+
+  const plantsParams = new URLSearchParams({ country });
+  if (fuelType) plantsParams.set("fuel_type", fuelType);
+  const { data: plantRows, loading, error: fetchError } = useApiFetch(`/api/power-plants?${plantsParams}`, {
+    errorMessage: t("energie.error_no_data"),
+    transform: (rows) => (Array.isArray(rows) ? rows : []),
+  });
+  const plants = useMemo(() => plantRows ?? [], [plantRows]);
+  const error = fetchError || mapError;
+
   const energyMix = useMemo(() => {
     const byFuel = {};
     for (const p of plants) {
@@ -50,44 +67,6 @@ export default function EnergiePage() {
     }
     return Object.values(byFuel).sort((a, b) => b.total_capacity_mw - a.total_capacity_mw);
   }, [plants]);
-
-  useEffect(() => {
-    setCountry(detectDefaultCountry());
-  }, []);
-
-  useEffect(() => {
-    fetch(`${API_URL}/api/power-plants/countries`)
-      .then((res) => res.json())
-      .then((rows) => setCountries(Array.isArray(rows) ? rows.map((r) => r.country_code) : []))
-      .catch(() => setCountries([]));
-
-    fetch(`${API_URL}/api/power-plants/fuel-types`)
-      .then((res) => res.json())
-      .then((rows) => setFuelTypes(Array.isArray(rows) ? rows : []))
-      .catch(() => setFuelTypes([]));
-  }, []);
-
-  useEffect(() => {
-    setLoading(true);
-    setError(null);
-    const params = new URLSearchParams({ country });
-    if (fuelType) params.set("fuel_type", fuelType);
-
-    fetch(`${API_URL}/api/power-plants?${params}`)
-      .then((res) => {
-        if (!res.ok) throw new Error(t("energie.error_no_data"));
-        return res.json();
-      })
-      .then((rows) => {
-        setPlants(Array.isArray(rows) ? rows : []);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
-      });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [country, fuelType]);
 
   useEffect(() => {
     if (energyMix.length === 0) return;
@@ -128,12 +107,10 @@ export default function EnergiePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [energyMix, locale]);
 
-  useEffect(() => {
-    fetch(`${API_URL}/api/electricity/${country}`)
-      .then((res) => (res.ok ? res.json() : []))
-      .then((rows) => setGeneration(Array.isArray(rows) ? rows : []))
-      .catch(() => setGeneration([]));
-  }, [country]);
+  const { data: generationRows } = useApiFetch(`/api/electricity/${country}`, {
+    transform: (rows) => (Array.isArray(rows) ? rows : []),
+  });
+  const generation = generationRows ?? [];
 
   useEffect(() => {
     if (generation.length === 0) return;
@@ -236,7 +213,7 @@ export default function EnergiePage() {
       })
       .catch((err) => {
         console.error("Échec de l'initialisation de la carte Leaflet :", err);
-        setError(t("energie.map_init_error", { message: err.message }));
+        setMapError(t("energie.map_init_error", { message: err.message }));
       });
 
     return () => {

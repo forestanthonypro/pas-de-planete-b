@@ -1,38 +1,18 @@
-import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import ShareButtons from "../../components/ShareButtons";
 import { useT } from "../../lib/useT";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+import { useApiFetch } from "../../lib/useApiFetch";
 
 export default function PaysanDetailPage() {
   const { t, locale } = useT();
   const router = useRouter();
   const { slug } = router.query;
-  const [entry, setEntry] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
-  useEffect(() => {
-    if (!slug) return;
-    setLoading(true);
-    setError(null);
-    fetch(`${API_URL}/api/paysan-resources/${slug}?locale=${locale}`)
-      .then((res) => {
-        if (!res.ok) throw new Error(t("paysans.entry_not_found"));
-        return res.json();
-      })
-      .then((data) => {
-        setEntry(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
-      });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [slug, locale]);
+  const { data: entry, loading, error } = useApiFetch(slug ? `/api/paysan-resources/${slug}?locale=${locale}` : null, {
+    errorMessage: t("paysans.entry_not_found"),
+    deps: [locale],
+  });
 
   function typeLabel(type) {
     if (type === "video") return t("paysans.type_video");

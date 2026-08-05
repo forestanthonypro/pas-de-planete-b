@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { detectDefaultCountry } from "../lib/detectCountry";
 import { useLastUpdated, formatDate } from "../lib/useLastUpdated";
 import { localizedCountryName } from "../lib/countryNames";
@@ -9,19 +9,14 @@ import ShareButtons from "../components/ShareButtons";
 import { useSobriety } from "../lib/SobrietyContext";
 import { useT } from "../lib/useT";
 import ScrollableTable from "../components/ScrollableTable";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+import { useApiFetch } from "../lib/useApiFetch";
 
 export default function IncendiesPage() {
   const { t, locale } = useT();
   const { sobriety } = useSobriety();
   const lastUpdated = useLastUpdated();
-  const [countries, setCountries] = useState([]);
   const [country, setCountry] = useState("FRA");
-  const [fires, setFires] = useState([]);
   const [view, setView] = useState("map");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
   const mapContainerRef = useRef(null);
   const mapRef = useRef(null);
@@ -35,31 +30,16 @@ export default function IncendiesPage() {
     setCountry(detectDefaultCountry());
   }, []);
 
-  useEffect(() => {
-    fetch(`${API_URL}/api/co2/countries`)
-      .then((res) => res.json())
-      .then((rows) => setCountries(Array.isArray(rows) ? rows : []))
-      .catch(() => setCountries([]));
-  }, []);
+  const { data: countryRows } = useApiFetch("/api/co2/countries", {
+    transform: (rows) => (Array.isArray(rows) ? rows : []),
+  });
+  const countries = countryRows ?? [];
 
-  useEffect(() => {
-    setLoading(true);
-    setError(null);
-    fetch(`${API_URL}/api/fires?country=${country}`)
-      .then((res) => {
-        if (!res.ok) throw new Error(t("incendies.error_no_data"));
-        return res.json();
-      })
-      .then((rows) => {
-        setFires(Array.isArray(rows) ? rows : []);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
-      });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [country]);
+  const { data: fireRows, loading, error } = useApiFetch(`/api/fires?country=${country}`, {
+    errorMessage: t("incendies.error_no_data"),
+    transform: (rows) => (Array.isArray(rows) ? rows : []),
+  });
+  const fires = useMemo(() => fireRows ?? [], [fireRows]);
 
   useEffect(() => {
     if (view !== "map" || sobriety || !mapContainerRef.current) return;

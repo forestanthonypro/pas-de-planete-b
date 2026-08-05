@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { detectDefaultCountry } from "../lib/detectCountry";
 import { localizedCountryName } from "../lib/countryNames";
 import { useLastUpdated, formatDate } from "../lib/useLastUpdated";
@@ -9,19 +9,14 @@ import { IconSmog } from "../components/icons";
 import ShareButtons from "../components/ShareButtons";
 import { useT } from "../lib/useT";
 import ScrollableTable from "../components/ScrollableTable";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+import { useApiFetch } from "../lib/useApiFetch";
 
 export default function PollutionPage() {
   const { t, locale } = useT();
   const lastUpdated = useLastUpdated();
   const benchmarks = useWorldBenchmarks();
-  const [countries, setCountries] = useState([]);
   const [countryCode, setCountryCode] = useState("FRA");
-  const [data, setData] = useState([]);
   const [view, setView] = useState("chart");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
   const canvasRef = useRef(null);
   const chartRef = useRef(null);
@@ -30,31 +25,15 @@ export default function PollutionPage() {
     setCountryCode(detectDefaultCountry());
   }, []);
 
-  useEffect(() => {
-    fetch(`${API_URL}/api/pollution/countries`)
-      .then((res) => res.json())
-      .then((rows) => setCountries(Array.isArray(rows) ? rows : []))
-      .catch(() => setCountries([]));
-  }, []);
+  const { data: countryRows } = useApiFetch("/api/pollution/countries", {
+    transform: (rows) => (Array.isArray(rows) ? rows : []),
+  });
+  const countries = countryRows ?? [];
 
-  useEffect(() => {
-    setLoading(true);
-    setError(null);
-    fetch(`${API_URL}/api/pollution/${countryCode}`)
-      .then((res) => {
-        if (!res.ok) throw new Error(t("pollution.error_no_data"));
-        return res.json();
-      })
-      .then((rows) => {
-        setData(rows);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
-      });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [countryCode]);
+  const { data: pollutionRows, loading, error } = useApiFetch(`/api/pollution/${countryCode}`, {
+    errorMessage: t("pollution.error_no_data"),
+  });
+  const data = useMemo(() => pollutionRows ?? [], [pollutionRows]);
 
   useEffect(() => {
     if (view !== "chart" || loading || error || data.length === 0) return;

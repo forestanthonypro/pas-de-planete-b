@@ -5,6 +5,7 @@ import ContentTranslationsEditor from "../../../components/ContentTranslationsEd
 import Link from "next/link";
 import { slugify } from "../../../lib/slugify";
 import { toYoutubeEmbedUrl, isYoutubeUrl } from "../../../lib/youtube";
+import { useApiFetch } from "../../../lib/useApiFetch";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -17,7 +18,6 @@ function AdminPaysanEditInner({ session }) {
   const router = useRouter();
   const { slug: editSlug } = router.query;
   const isEditing = Boolean(editSlug);
-  const [categories, setCategories] = useState([]);
   const [slug, setSlug] = useState("");
   const [slugTouched, setSlugTouched] = useState(false);
   const [title, setTitle] = useState("");
@@ -30,46 +30,40 @@ function AdminPaysanEditInner({ session }) {
   const [categoryId, setCategoryId] = useState("");
   const [published, setPublished] = useState(false);
 
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [status, setStatus] = useState("idle");
 
-  useEffect(() => {
-    fetch(`${API_URL}/api/paysan-categories`)
-      .then((res) => (res.ok ? res.json() : []))
-      .then(setCategories)
-      .catch(() => setCategories([]));
-  }, [session]);
+  const { data: categoryRows } = useApiFetch("/api/paysan-categories", {
+    transform: (rows) => (Array.isArray(rows) ? rows : []),
+  });
+  const categories = categoryRows ?? [];
+
+  const { data: paysanData, loading, error: fetchError } = useApiFetch(
+    editSlug ? `/api/admin/paysan-resources/${editSlug}` : null,
+    {
+      headers: session ? { Authorization: `Bearer ${session.sessionToken}` } : undefined,
+      errorMessage: "Entrée non trouvée",
+    }
+  );
 
   useEffect(() => {
-    if (!editSlug) return;
-    setLoading(true);
-    fetch(`${API_URL}/api/admin/paysan-resources/${editSlug}`, {
-      headers: { ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error("Entrée non trouvée");
-        return res.json();
-      })
-      .then((data) => {
-        setSlug(data.slug);
-        setSlugTouched(true);
-        setTitle(data.title);
-        setDescription(data.description);
-        setContentType(data.content_type);
-        setSourceUrl(data.source_url);
-        setSourceName(data.source_name || "");
-        setEmbedUrl(data.embed_url || "");
-        setImageUrl(data.image_url || "");
-        setCategoryId(data.category_id || "");
-        setPublished(data.published);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
-      });
-  }, [editSlug, session]);
+    if (!paysanData) return;
+    setSlug(paysanData.slug);
+    setSlugTouched(true);
+    setTitle(paysanData.title);
+    setDescription(paysanData.description);
+    setContentType(paysanData.content_type);
+    setSourceUrl(paysanData.source_url);
+    setSourceName(paysanData.source_name || "");
+    setEmbedUrl(paysanData.embed_url || "");
+    setImageUrl(paysanData.image_url || "");
+    setCategoryId(paysanData.category_id || "");
+    setPublished(paysanData.published);
+  }, [paysanData]);
+
+  useEffect(() => {
+    if (fetchError) setError(fetchError);
+  }, [fetchError]);
 
   function handleTitleChange(value) {
     setTitle(value);

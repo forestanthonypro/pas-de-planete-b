@@ -5,6 +5,7 @@ import ContentTranslationsEditor from "../../../components/ContentTranslationsEd
 import Link from "next/link";
 import { slugify } from "../../../lib/slugify";
 import { toYoutubeEmbedUrl, isYoutubeUrl } from "../../../lib/youtube";
+import { useApiFetch } from "../../../lib/useApiFetch";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -30,53 +31,46 @@ function AdminInterviewEditInner({ session }) {
   const [embedUrl, setEmbedUrl] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [categoryId, setCategoryId] = useState("");
-  const [categories, setCategories] = useState([]);
   const [relatedDebunkSlug, setRelatedDebunkSlug] = useState("");
   const [published, setPublished] = useState(false);
 
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [status, setStatus] = useState("idle");
 
-  useEffect(() => {
-    fetch(`${API_URL}/api/interview-categories`)
-      .then((res) => (res.ok ? res.json() : []))
-      .then(setCategories)
-      .catch(() => setCategories([]));
-  }, [session]);
+  const { data: categoryRows } = useApiFetch("/api/interview-categories", {
+    transform: (rows) => (Array.isArray(rows) ? rows : []),
+  });
+  const categories = categoryRows ?? [];
+
+  const { data: interviewData, loading, error: fetchError } = useApiFetch(
+    editSlug ? `/api/admin/science-relays/${editSlug}` : null,
+    {
+      headers: session ? { Authorization: `Bearer ${session.sessionToken}` } : undefined,
+      errorMessage: "Entrée non trouvée",
+    }
+  );
 
   useEffect(() => {
-    if (!editSlug) return;
-    setLoading(true);
-    fetch(`${API_URL}/api/admin/science-relays/${editSlug}`, {
-      headers: { ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error("Entrée non trouvée");
-        return res.json();
-      })
-      .then((data) => {
-        setSlug(data.slug);
-        setSlugTouched(true);
-        setTitle(data.title);
-        setDescription(data.description);
-        setScientistName(data.scientist_name || "");
-        setScientistField(data.scientist_field || "");
-        setContentType(data.content_type);
-        setSourceUrl(data.source_url);
-        setSourceName(data.source_name || "");
-        setEmbedUrl(data.embed_url || "");
-        setImageUrl(data.image_url || "");
-        setCategoryId(data.category_id || "");
-        setRelatedDebunkSlug(data.related_debunk_slug || "");
-        setPublished(data.published);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
-      });
-  }, [editSlug, session]);
+    if (!interviewData) return;
+    setSlug(interviewData.slug);
+    setSlugTouched(true);
+    setTitle(interviewData.title);
+    setDescription(interviewData.description);
+    setScientistName(interviewData.scientist_name || "");
+    setScientistField(interviewData.scientist_field || "");
+    setContentType(interviewData.content_type);
+    setSourceUrl(interviewData.source_url);
+    setSourceName(interviewData.source_name || "");
+    setEmbedUrl(interviewData.embed_url || "");
+    setImageUrl(interviewData.image_url || "");
+    setCategoryId(interviewData.category_id || "");
+    setRelatedDebunkSlug(interviewData.related_debunk_slug || "");
+    setPublished(interviewData.published);
+  }, [interviewData]);
+
+  useEffect(() => {
+    if (fetchError) setError(fetchError);
+  }, [fetchError]);
 
   function handleTitleChange(value) {
     setTitle(value);

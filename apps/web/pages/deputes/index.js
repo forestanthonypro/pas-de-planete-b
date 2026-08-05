@@ -8,8 +8,8 @@ import SearchableSelect from "../../components/SearchableSelect";
 import { IconUsers } from "../../components/icons";
 import { useT } from "../../lib/useT";
 import ScrollableTable from "../../components/ScrollableTable";
+import { useApiFetch } from "../../lib/useApiFetch";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 const PAGE_SIZE = 30;
 
 function normalize(str) {
@@ -21,9 +21,6 @@ function normalize(str) {
 
 export default function DeputesPage() {
   const { t } = useT();
-  const [deputies, setDeputies] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [query, setQuery] = useState("");
   const [groupFilter, setGroupFilter] = useState("");
   const [departmentFilter, setDepartmentFilter] = useState("");
@@ -34,23 +31,11 @@ export default function DeputesPage() {
     if (typeof router.query.groupe === "string") setGroupFilter(router.query.groupe);
   }, [router.query.groupe]);
 
-  useEffect(() => {
-    setLoading(true);
-    fetch(`${API_URL}/api/deputies`)
-      .then((res) => {
-        if (!res.ok) throw new Error(t("deputes.error_no_data"));
-        return res.json();
-      })
-      .then((rows) => {
-        setDeputies(Array.isArray(rows) ? rows : []);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
-      });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const { data, loading, error } = useApiFetch("/api/deputies", {
+    errorMessage: t("deputes.error_no_data"),
+    transform: (rows) => (Array.isArray(rows) ? rows : []),
+  });
+  const deputies = useMemo(() => data ?? [], [data]);
 
   const groups = useMemo(() => {
     const set = new Set(deputies.map((d) => d.group_abbreviation).filter(Boolean));

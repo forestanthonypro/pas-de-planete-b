@@ -12,8 +12,7 @@ import { IconPaw } from "../components/icons";
 import ShareButtons from "../components/ShareButtons";
 import ScrollableTable from "../components/ScrollableTable";
 import { useT } from "../lib/useT";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+import { useApiFetch } from "../lib/useApiFetch";
 
 function useCategoryInfo(t) {
   return {
@@ -32,16 +31,9 @@ export default function EspecesPage() {
   const { t, locale } = useT();
   const CATEGORY_INFO = useCategoryInfo(t);
   const lastUpdated = useLastUpdated();
-  const [countries, setCountries] = useState([]);
   const [country, setCountry] = useState("FRA");
-  const [categories, setCategories] = useState([]);
   const [category, setCategory] = useState("");
   const [group, setGroup] = useState("");
-  const [species, setSpecies] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [threatenedCounts, setThreatenedCounts] = useState([]);
-  const [globalShare, setGlobalShare] = useState([]);
   const threatenedCanvasRef = useRef(null);
   const threatenedChartRef = useRef(null);
 
@@ -49,29 +41,25 @@ export default function EspecesPage() {
     setCountry(detectDefaultCountry());
   }, []);
 
-  useEffect(() => {
-    fetch(`${API_URL}/api/co2/countries`)
-      .then((res) => res.json())
-      .then((rows) => setCountries(Array.isArray(rows) ? rows : []))
-      .catch(() => setCountries([]));
+  const { data: countryRows } = useApiFetch("/api/co2/countries", {
+    transform: (rows) => (Array.isArray(rows) ? rows : []),
+  });
+  const countries = countryRows ?? [];
 
-    fetch(`${API_URL}/api/species/categories`)
-      .then((res) => res.json())
-      .then((rows) => setCategories(Array.isArray(rows) ? rows : []))
-      .catch(() => setCategories([]));
+  const { data: categoryRows } = useApiFetch("/api/species/categories", {
+    transform: (rows) => (Array.isArray(rows) ? rows : []),
+  });
+  const categories = categoryRows ?? [];
 
-    fetch(`${API_URL}/api/species-threatened/global/share`)
-      .then((res) => (res.ok ? res.json() : []))
-      .then((rows) => setGlobalShare(Array.isArray(rows) ? rows : []))
-      .catch(() => setGlobalShare([]));
-  }, []);
+  const { data: globalShareRows } = useApiFetch("/api/species-threatened/global/share", {
+    transform: (rows) => (Array.isArray(rows) ? rows : []),
+  });
+  const globalShare = globalShareRows ?? [];
 
-  useEffect(() => {
-    fetch(`${API_URL}/api/species-threatened/${country}`)
-      .then((res) => (res.ok ? res.json() : []))
-      .then((rows) => setThreatenedCounts(Array.isArray(rows) ? rows : []))
-      .catch(() => setThreatenedCounts([]));
-  }, [country]);
+  const { data: threatenedRows } = useApiFetch(`/api/species-threatened/${country}`, {
+    transform: (rows) => (Array.isArray(rows) ? rows : []),
+  });
+  const threatenedCounts = threatenedRows ?? [];
 
   useEffect(() => {
     if (threatenedCounts.length === 0) return;
@@ -110,28 +98,14 @@ export default function EspecesPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [threatenedCounts]);
 
-  useEffect(() => {
-    setLoading(true);
-    setError(null);
-    const params = new URLSearchParams();
-    if (category) params.set("category", category);
-    if (country) params.set("country", country);
-
-    fetch(`${API_URL}/api/species?${params}`)
-      .then((res) => {
-        if (!res.ok) throw new Error(t("especes.error_no_data"));
-        return res.json();
-      })
-      .then((rows) => {
-        setSpecies(Array.isArray(rows) ? rows : []);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
-      });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [category, country]);
+  const speciesParams = new URLSearchParams();
+  if (category) speciesParams.set("category", category);
+  if (country) speciesParams.set("country", country);
+  const { data: speciesRows, loading, error } = useApiFetch(`/api/species?${speciesParams}`, {
+    errorMessage: t("especes.error_no_data"),
+    transform: (rows) => (Array.isArray(rows) ? rows : []),
+  });
+  const species = useMemo(() => speciesRows ?? [], [speciesRows]);
 
   const availableGroups = useMemo(() => {
     const set = new Set(species.map((s) => speciesGroupLabel(s.kingdom, s.class, s.taxon_order, locale)));

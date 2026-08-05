@@ -4,6 +4,7 @@ import AdminAuthGate from "../../../components/AdminAuthGate";
 import ContentTranslationsEditor from "../../../components/ContentTranslationsEditor";
 import Link from "next/link";
 import { slugify } from "../../../lib/slugify";
+import { useApiFetch } from "../../../lib/useApiFetch";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -22,31 +23,29 @@ function AdminFutureIdeaEditInner({ session }) {
   const [description, setDescription] = useState("");
   const [published, setPublished] = useState(false);
 
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [status, setStatus] = useState("idle");
 
+  const { data: ideaData, loading, error: fetchError } = useApiFetch(
+    editSlug ? `/api/admin/future-ideas/${editSlug}` : null,
+    {
+      headers: session ? { Authorization: `Bearer ${session.sessionToken}` } : undefined,
+      errorMessage: "Idée non trouvée",
+    }
+  );
+
   useEffect(() => {
-    if (!editSlug) return;
-    setLoading(true);
-    fetch(`${API_URL}/api/admin/future-ideas/${editSlug}`, { headers: { ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) } })
-      .then((res) => {
-        if (!res.ok) throw new Error("Idée non trouvée");
-        return res.json();
-      })
-      .then((data) => {
-        setSlug(data.slug);
-        setSlugTouched(true);
-        setTitle(data.title);
-        setDescription(data.description || "");
-        setPublished(data.published);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
-      });
-  }, [editSlug, session]);
+    if (!ideaData) return;
+    setSlug(ideaData.slug);
+    setSlugTouched(true);
+    setTitle(ideaData.title);
+    setDescription(ideaData.description || "");
+    setPublished(ideaData.published);
+  }, [ideaData]);
+
+  useEffect(() => {
+    if (fetchError) setError(fetchError);
+  }, [fetchError]);
 
   function handleTitleChange(value) {
     setTitle(value);

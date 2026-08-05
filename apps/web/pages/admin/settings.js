@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import AdminAuthGate from "../../components/AdminAuthGate";
 import SimpleWysiwygEditor from "../../components/SimpleWysiwygEditor";
+import { useApiFetch } from "../../lib/useApiFetch";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -25,24 +26,20 @@ function LegalContentEditor({ baseKey, label, href, sessionToken }) {
   const [lang, setLang] = useState("fr");
   const [value, setValue] = useState("");
   const [initialValue, setInitialValue] = useState("");
-  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState("idle"); // idle | saved | error
   const [viewMode, setViewMode] = useState("visual"); // visual | code
 
   const pageKey = lang === "fr" ? baseKey : `${baseKey}_${lang}`;
 
+  const { data: legalContent, loading } = useApiFetch(`/api/settings/legal-content/${pageKey}`, {
+    transform: (data) => (data && data.content) || "",
+  });
+
   useEffect(() => {
-    setLoading(true);
-    fetch(`${API_URL}/api/settings/legal-content/${pageKey}`)
-      .then((res) => (res.ok ? res.json() : { content: "" }))
-      .then((data) => {
-        setValue(data.content || "");
-        setInitialValue(data.content || "");
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, [pageKey]);
+    setValue(legalContent || "");
+    setInitialValue(legalContent || "");
+  }, [legalContent]);
 
   function handleSave() {
     setSaving(true);
@@ -185,27 +182,20 @@ function AdminSettingsInner({ session }) {
   const [revoking, setRevoking] = useState(false);
   const [revokeConfirming, setRevokeConfirming] = useState(false);
   const [revokeStatus, setRevokeStatus] = useState("idle"); // idle | done
-  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
 
+  const { data: settingsData, loading, error: fetchError } = useApiFetch("/api/admin/settings", {
+    headers: { Authorization: `Bearer ${session.sessionToken}` },
+  });
+
   useEffect(() => {
-    fetch(`${API_URL}/api/admin/settings`, {
-      headers: { Authorization: `Bearer ${session.sessionToken}` },
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error("Erreur de chargement");
-        return res.json();
-      })
-      .then((data) => {
-        setNewsletterEnabled(data.newsletter_enabled === "true");
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
-      });
-  }, [session.sessionToken]);
+    if (settingsData) setNewsletterEnabled(settingsData.newsletter_enabled === "true");
+  }, [settingsData]);
+
+  useEffect(() => {
+    if (fetchError) setError(fetchError);
+  }, [fetchError]);
 
   function handleRevokeAll() {
     if (!revokeConfirming) {
