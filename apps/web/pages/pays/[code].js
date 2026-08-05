@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { detectDefaultCountry } from "../../lib/detectCountry";
@@ -6,6 +6,7 @@ import { FUEL_COLORS, DEFAULT_FUEL_COLOR, translateFuel } from "../../lib/fuelTy
 import { speciesGroupLabel } from "../../lib/speciesGroups";
 import { formatCommonNames } from "../../lib/commonNames";
 import { useLastUpdated, formatDate } from "../../lib/useLastUpdated";
+import { localeTag } from "../../lib/dateLocale";
 import { localizedCountryName } from "../../lib/countryNames";
 import { useWorldBenchmarks } from "../../lib/useWorldBenchmarks";
 import CountrySelect from "../../components/CountrySelect";
@@ -28,6 +29,259 @@ function useCategoryInfo(t) {
     NT: { label: t("especes.cat_nt"), color: "#cbd423" },
     LC: { label: t("especes.cat_lc"), color: "#1baf7a" },
     DD: { label: t("especes.cat_dd"), color: "#95a5a6" },
+  };
+}
+
+// Fonctions de construction des configurations Chart.js, déplacées hors
+// du composant : elles ne dépendent que de leurs paramètres (dont t/locale,
+// passés explicitement), donc plus besoin de useCallback ni de les lister
+// dans les dépendances des useEffect qui les utilisent.
+function buildEnergyMixChart(energyMixData, locale, t) {
+  const sorted = [...energyMixData].sort(
+    (a, b) => Number(b.total_capacity_mw || 0) - Number(a.total_capacity_mw || 0)
+  );
+  return {
+    type: "bar",
+    data: {
+      labels: sorted.map((r) => translateFuel(r.fuel_type, locale)),
+      datasets: [
+        {
+          label: t("energie.chart_capacity_axis"),
+          data: sorted.map((r) => r.total_capacity_mw || 0),
+          backgroundColor: sorted.map((r) => FUEL_COLORS[r.fuel_type] || DEFAULT_FUEL_COLOR),
+          plantLabels: sorted.map((r) => t("energie.plant_count", { count: r.plant_count, s: r.plant_count > 1 ? "s" : "" })),
+        },
+      ],
+    },
+    plugins: [barEndLabelsPlugin],
+    options: {
+      indexAxis: "y",
+      responsive: true,
+      maintainAspectRatio: false,
+      layout: { padding: { right: 90 } },
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { title: { display: true, text: t("energie.chart_capacity_axis") } },
+      },
+    },
+  };
+}
+
+function buildGenerationChart(generationData, locale, t) {
+  const sources = [
+    { key: "coal_twh", label: translateFuel("Coal", locale), color: FUEL_COLORS.Coal },
+    { key: "gas_twh", label: translateFuel("Gas", locale), color: FUEL_COLORS.Gas },
+    { key: "oil_twh", label: translateFuel("Oil", locale), color: FUEL_COLORS.Oil },
+    { key: "nuclear_twh", label: translateFuel("Nuclear", locale), color: FUEL_COLORS.Nuclear },
+    { key: "hydro_twh", label: translateFuel("Hydro", locale), color: FUEL_COLORS.Hydro },
+    { key: "wind_twh", label: translateFuel("Wind", locale), color: FUEL_COLORS.Wind },
+    { key: "solar_twh", label: translateFuel("Solar", locale), color: FUEL_COLORS.Solar },
+    { key: "biofuel_twh", label: translateFuel("Biomass", locale), color: FUEL_COLORS.Biomass },
+    { key: "other_renewable_twh", label: t("energie.other_renewable"), color: DEFAULT_FUEL_COLOR },
+  ];
+  return {
+    type: "bar",
+    data: {
+      labels: generationData.map((d) => d.year),
+      datasets: [
+        ...sources.map((s) => ({
+          label: s.label,
+          data: generationData.map((d) => d[s.key] || 0),
+          backgroundColor: s.color || DEFAULT_FUEL_COLOR,
+          stack: "generation",
+        })),
+        {
+          type: "line",
+          label: t("energie.chart_demand"),
+          data: generationData.map((d) => d.demand_twh),
+          borderColor: "#000000",
+          borderWidth: 2,
+          borderDash: [4, 3],
+          pointRadius: 0,
+          fill: false,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: true, position: "bottom" } },
+      scales: {
+        x: { stacked: true },
+        y: { stacked: true, title: { display: true, text: t("energie.axis_twh_year") } },
+      },
+    },
+  };
+}
+
+function buildVegetationChart(vegetationData, worldBenchmarksData, barColor, cumulativeColor, t) {
+  function fillNearestForestArea(rows) {
+    const filled = rows.map((r) => ({ ...r }));
+    let last = null;
+    for (let i = 0; i < filled.length; i++) {
+      if (filled[i].forest_area_ha != null) last = filled[i].forest_area_ha;
+      else if (last != null) filled[i].forest_area_ha = last;
+    }
+    let next = null;
+    for (let i = filled.length - 1; i >= 0; i--) {
+      if (rows[i].forest_area_ha != null) next = rows[i].forest_area_ha;
+      else if (filled[i].forest_area_ha == null && next != null) filled[i].forest_area_ha = next;
+    }
+    return filled;
+  }
+  const filledVegetation = fillNearestForestArea(vegetationData);
+
+  const firstLossYear = vegetationData.find((d) => d.tree_cover_loss_ha != null)?.year;
+  const baselineArea = filledVegetation.find((d) => d.year === firstLossYear)?.forest_area_ha;
+  let cumulativeLoss = 0;
+  const cumulativeShareData = filledVegetation.map((d) => {
+    cumulativeLoss += parseFloat(d.tree_cover_loss_ha) || 0;
+    return baselineArea ? (cumulativeLoss / baselineArea) * 100 : null;
+  });
+
+  return {
+    type: "bar",
+    data: {
+      labels: vegetationData.map((d) => d.year),
+      datasets: [
+        {
+          type: "bar",
+          label: t("vegetation.chart_loss_ha"),
+          data: vegetationData.map((d) => d.tree_cover_loss_ha),
+          backgroundColor: barColor,
+          yAxisID: "y",
+        },
+        {
+          type: "line",
+          label: t("vegetation.chart_share_year"),
+          data: filledVegetation.map((d) =>
+            d.forest_area_ha ? (d.tree_cover_loss_ha / d.forest_area_ha) * 100 : null
+          ),
+          borderColor: "#d63e2a",
+          backgroundColor: "rgba(214,62,42,0.1)",
+          yAxisID: "y1",
+          tension: 0.3,
+          pointRadius: 2,
+          borderWidth: 2,
+        },
+        {
+          type: "line",
+          label: t("vegetation.chart_cumulative"),
+          data: cumulativeShareData,
+          borderColor: cumulativeColor,
+          backgroundColor: "rgba(108,52,131,0.08)",
+          yAxisID: "y1",
+          tension: 0.3,
+          pointRadius: 0,
+          borderWidth: 2,
+          borderDash: [2, 2],
+          fill: true,
+        },
+        ...(worldBenchmarksData?.forest_loss_share_world
+          ? [
+              {
+                type: "line",
+                label: t("vegetation.chart_world_avg"),
+                data: vegetationData.map(() => worldBenchmarksData.forest_loss_share_world.value),
+                borderColor: "#95a5a6",
+                borderDash: [4, 4],
+                yAxisID: "y1",
+                pointRadius: 0,
+                borderWidth: 1.5,
+                fill: false,
+              },
+            ]
+          : []),
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: true } },
+      scales: {
+        y: { type: "linear", position: "left", title: { display: true, text: t("vegetation.axis_loss_ha") } },
+        y1: { type: "linear", position: "right", title: { display: true, text: t("vegetation.axis_share_lost") }, grid: { drawOnChartArea: false } },
+      },
+    },
+  };
+}
+
+function buildWaterChart(waterData, mainColor, t) {
+  return {
+    type: "line",
+    data: {
+      labels: waterData.map((d) => d.year),
+      datasets: [
+        {
+          label: t("eau.chart_freshwater"),
+          data: waterData.map((d) => d.renewable_freshwater_m3_per_capita),
+          borderColor: mainColor,
+          backgroundColor: "rgba(42,120,214,0.1)",
+          yAxisID: "y",
+          fill: true,
+          tension: 0.3,
+          pointRadius: 0,
+          borderWidth: 2,
+        },
+        {
+          label: t("eau.chart_precipitation"),
+          data: waterData.map((d) => d.precipitation_mm),
+          borderColor: "#1baf7a",
+          backgroundColor: "rgba(27,175,122,0.1)",
+          yAxisID: "y1",
+          fill: false,
+          tension: 0.3,
+          pointRadius: 0,
+          borderWidth: 2,
+          borderDash: [5, 4],
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: true } },
+      scales: {
+        y: { type: "linear", position: "left", title: { display: true, text: t("eau.axis_per_capita") } },
+        y1: { type: "linear", position: "right", title: { display: true, text: t("eau.axis_mm_year") }, grid: { drawOnChartArea: false } },
+      },
+    },
+  };
+}
+
+function buildStressChart(waterData, worldBenchmarksData, mainColor, t) {
+  const datasets = [
+    {
+      label: t("eau.chart_stress"),
+      data: waterData.map((d) => d.withdrawal_share_percent),
+      borderColor: mainColor,
+      backgroundColor: "rgba(142,68,173,0.1)",
+      fill: true,
+      tension: 0.3,
+      pointRadius: 0,
+      borderWidth: 2,
+    },
+  ];
+  if (worldBenchmarksData?.water_stress_share) {
+    datasets.push({
+      label: t("eau.chart_world_avg"),
+      data: waterData.map(() => worldBenchmarksData.water_stress_share.value),
+      borderColor: "#95a5a6",
+      borderDash: [4, 4],
+      pointRadius: 0,
+      borderWidth: 1.5,
+      fill: false,
+    });
+  }
+  return {
+    type: "line",
+    data: { labels: waterData.map((d) => d.year), datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: true } },
+      scales: { y: { title: { display: true, text: t("eau.axis_share_used") } } },
+    },
   };
 }
 
@@ -286,50 +540,18 @@ export default function PaysDashboard() {
     };
   }, [compareCode, compareSummary, t]);
 
-  function buildEnergyMixChart(energyMixData) {
-    const sorted = [...energyMixData].sort(
-      (a, b) => Number(b.total_capacity_mw || 0) - Number(a.total_capacity_mw || 0)
-    );
-    return {
-      type: "bar",
-      data: {
-        labels: sorted.map((r) => translateFuel(r.fuel_type, locale)),
-        datasets: [
-          {
-            label: t("energie.chart_capacity_axis"),
-            data: sorted.map((r) => r.total_capacity_mw || 0),
-            backgroundColor: sorted.map((r) => FUEL_COLORS[r.fuel_type] || DEFAULT_FUEL_COLOR),
-            plantLabels: sorted.map((r) => t("energie.plant_count", { count: r.plant_count, s: r.plant_count > 1 ? "s" : "" })),
-          },
-        ],
-      },
-      plugins: [barEndLabelsPlugin],
-      options: {
-        indexAxis: "y",
-        responsive: true,
-        maintainAspectRatio: false,
-        layout: { padding: { right: 90 } },
-        plugins: { legend: { display: false } },
-        scales: {
-          x: { title: { display: true, text: t("energie.chart_capacity_axis") } },
-        },
-      },
-    };
-  }
-
   useEffect(() => {
     if (!summary || summary.energyMix.length === 0) return;
     let cancelled = false;
     import("../../lib/chartSetup").then((Chart) => {
       if (cancelled || !energyCanvasRef.current) return;
       if (energyChartRef.current) energyChartRef.current.destroy();
-      energyChartRef.current = new Chart.default(energyCanvasRef.current, buildEnergyMixChart(summary.energyMix));
+      energyChartRef.current = new Chart.default(energyCanvasRef.current, buildEnergyMixChart(summary.energyMix, locale, t));
     });
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [summary, locale]);
+  }, [summary, locale, t]);
 
   useEffect(() => {
     if (!compareCode || !compareSummary || !compareSummary.energyMix || compareSummary.energyMix.length === 0) return;
@@ -337,60 +559,12 @@ export default function PaysDashboard() {
     import("../../lib/chartSetup").then((Chart) => {
       if (cancelled || !energyCompareCanvasRef.current) return;
       if (energyCompareChartRef.current) energyCompareChartRef.current.destroy();
-      energyCompareChartRef.current = new Chart.default(energyCompareCanvasRef.current, buildEnergyMixChart(compareSummary.energyMix));
+      energyCompareChartRef.current = new Chart.default(energyCompareCanvasRef.current, buildEnergyMixChart(compareSummary.energyMix, locale, t));
     });
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [compareCode, compareSummary, locale]);
-
-  function buildGenerationChart(generationData) {
-    const sources = [
-      { key: "coal_twh", label: translateFuel("Coal", locale), color: FUEL_COLORS.Coal },
-      { key: "gas_twh", label: translateFuel("Gas", locale), color: FUEL_COLORS.Gas },
-      { key: "oil_twh", label: translateFuel("Oil", locale), color: FUEL_COLORS.Oil },
-      { key: "nuclear_twh", label: translateFuel("Nuclear", locale), color: FUEL_COLORS.Nuclear },
-      { key: "hydro_twh", label: translateFuel("Hydro", locale), color: FUEL_COLORS.Hydro },
-      { key: "wind_twh", label: translateFuel("Wind", locale), color: FUEL_COLORS.Wind },
-      { key: "solar_twh", label: translateFuel("Solar", locale), color: FUEL_COLORS.Solar },
-      { key: "biofuel_twh", label: translateFuel("Biomass", locale), color: FUEL_COLORS.Biomass },
-      { key: "other_renewable_twh", label: t("energie.other_renewable"), color: DEFAULT_FUEL_COLOR },
-    ];
-    return {
-      type: "bar",
-      data: {
-        labels: generationData.map((d) => d.year),
-        datasets: [
-          ...sources.map((s) => ({
-            label: s.label,
-            data: generationData.map((d) => d[s.key] || 0),
-            backgroundColor: s.color || DEFAULT_FUEL_COLOR,
-            stack: "generation",
-          })),
-          {
-            type: "line",
-            label: t("energie.chart_demand"),
-            data: generationData.map((d) => d.demand_twh),
-            borderColor: "#000000",
-            borderWidth: 2,
-            borderDash: [4, 3],
-            pointRadius: 0,
-            fill: false,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: true, position: "bottom" } },
-        scales: {
-          x: { stacked: true },
-          y: { stacked: true, title: { display: true, text: t("energie.axis_twh_year") } },
-        },
-      },
-    };
-  }
+  }, [compareCode, compareSummary, locale, t]);
 
   useEffect(() => {
     if (!summary || !summary.electricityGeneration || summary.electricityGeneration.length === 0) return;
@@ -398,13 +572,12 @@ export default function PaysDashboard() {
     import("../../lib/chartSetup").then((Chart) => {
       if (cancelled || !generationCanvasRef.current) return;
       if (generationChartRef.current) generationChartRef.current.destroy();
-      generationChartRef.current = new Chart.default(generationCanvasRef.current, buildGenerationChart(summary.electricityGeneration));
+      generationChartRef.current = new Chart.default(generationCanvasRef.current, buildGenerationChart(summary.electricityGeneration, locale, t));
     });
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [summary, locale]);
+  }, [summary, locale, t]);
 
   useEffect(() => {
     if (!compareCode || !compareSummary || !compareSummary.electricityGeneration || compareSummary.electricityGeneration.length === 0) return;
@@ -412,13 +585,12 @@ export default function PaysDashboard() {
     import("../../lib/chartSetup").then((Chart) => {
       if (cancelled || !generationCompareCanvasRef.current) return;
       if (generationCompareChartRef.current) generationCompareChartRef.current.destroy();
-      generationCompareChartRef.current = new Chart.default(generationCompareCanvasRef.current, buildGenerationChart(compareSummary.electricityGeneration));
+      generationCompareChartRef.current = new Chart.default(generationCompareCanvasRef.current, buildGenerationChart(compareSummary.electricityGeneration, locale, t));
     });
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [compareCode, compareSummary, locale]);
+  }, [compareCode, compareSummary, locale, t]);
 
   useEffect(() => {
     if (!summary || !worldBenchmarks) return;
@@ -601,98 +773,6 @@ export default function PaysDashboard() {
     };
   }, [summary, worldBenchmarks, code, locale, compareCode, compareSummary, t]);
 
-  function buildVegetationChart(canvasEl, chartRefObj, vegetationData, worldBenchmarksData, barColor, cumulativeColor) {
-    function fillNearestForestArea(rows) {
-      const filled = rows.map((r) => ({ ...r }));
-      let last = null;
-      for (let i = 0; i < filled.length; i++) {
-        if (filled[i].forest_area_ha != null) last = filled[i].forest_area_ha;
-        else if (last != null) filled[i].forest_area_ha = last;
-      }
-      let next = null;
-      for (let i = filled.length - 1; i >= 0; i--) {
-        if (rows[i].forest_area_ha != null) next = rows[i].forest_area_ha;
-        else if (filled[i].forest_area_ha == null && next != null) filled[i].forest_area_ha = next;
-      }
-      return filled;
-    }
-    const filledVegetation = fillNearestForestArea(vegetationData);
-
-    const firstLossYear = vegetationData.find((d) => d.tree_cover_loss_ha != null)?.year;
-    const baselineArea = filledVegetation.find((d) => d.year === firstLossYear)?.forest_area_ha;
-    let cumulativeLoss = 0;
-    const cumulativeShareData = filledVegetation.map((d) => {
-      cumulativeLoss += parseFloat(d.tree_cover_loss_ha) || 0;
-      return baselineArea ? (cumulativeLoss / baselineArea) * 100 : null;
-    });
-
-    return {
-      type: "bar",
-      data: {
-        labels: vegetationData.map((d) => d.year),
-        datasets: [
-          {
-            type: "bar",
-            label: t("vegetation.chart_loss_ha"),
-            data: vegetationData.map((d) => d.tree_cover_loss_ha),
-            backgroundColor: barColor,
-            yAxisID: "y",
-          },
-          {
-            type: "line",
-            label: t("vegetation.chart_share_year"),
-            data: filledVegetation.map((d) =>
-              d.forest_area_ha ? (d.tree_cover_loss_ha / d.forest_area_ha) * 100 : null
-            ),
-            borderColor: "#d63e2a",
-            backgroundColor: "rgba(214,62,42,0.1)",
-            yAxisID: "y1",
-            tension: 0.3,
-            pointRadius: 2,
-            borderWidth: 2,
-          },
-          {
-            type: "line",
-            label: t("vegetation.chart_cumulative"),
-            data: cumulativeShareData,
-            borderColor: cumulativeColor,
-            backgroundColor: "rgba(108,52,131,0.08)",
-            yAxisID: "y1",
-            tension: 0.3,
-            pointRadius: 0,
-            borderWidth: 2,
-            borderDash: [2, 2],
-            fill: true,
-          },
-          ...(worldBenchmarksData?.forest_loss_share_world
-            ? [
-                {
-                  type: "line",
-                  label: t("vegetation.chart_world_avg"),
-                  data: vegetationData.map(() => worldBenchmarksData.forest_loss_share_world.value),
-                  borderColor: "#95a5a6",
-                  borderDash: [4, 4],
-                  yAxisID: "y1",
-                  pointRadius: 0,
-                  borderWidth: 1.5,
-                  fill: false,
-                },
-              ]
-            : []),
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: true } },
-        scales: {
-          y: { type: "linear", position: "left", title: { display: true, text: t("vegetation.axis_loss_ha") } },
-          y1: { type: "linear", position: "right", title: { display: true, text: t("vegetation.axis_share_lost") }, grid: { drawOnChartArea: false } },
-        },
-      },
-    };
-  }
-
   useEffect(() => {
     if (!summary || !summary.vegetation || summary.vegetation.length === 0) return;
     let cancelled = false;
@@ -701,13 +781,12 @@ export default function PaysDashboard() {
       if (vegetationChartRef.current) vegetationChartRef.current.destroy();
       vegetationChartRef.current = new Chart.default(
         vegetationCanvasRef.current,
-        buildVegetationChart(vegetationCanvasRef.current, vegetationChartRef, summary.vegetation, worldBenchmarks, "#e67e22", "#6c3483")
+        buildVegetationChart(summary.vegetation, worldBenchmarks, "#e67e22", "#6c3483", t)
       );
     });
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [summary, worldBenchmarks, t]);
 
   useEffect(() => {
@@ -718,57 +797,13 @@ export default function PaysDashboard() {
       if (vegetationCompareChartRef.current) vegetationCompareChartRef.current.destroy();
       vegetationCompareChartRef.current = new Chart.default(
         vegetationCompareCanvasRef.current,
-        buildVegetationChart(vegetationCompareCanvasRef.current, vegetationCompareChartRef, compareSummary.vegetation, worldBenchmarks, "#6c3483", "#2a78d6")
+        buildVegetationChart(compareSummary.vegetation, worldBenchmarks, "#6c3483", "#2a78d6", t)
       );
     });
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [compareCode, compareSummary, worldBenchmarks, t]);
-
-  function buildWaterChart(waterData, mainColor) {
-    return {
-      type: "line",
-      data: {
-        labels: waterData.map((d) => d.year),
-        datasets: [
-          {
-            label: t("eau.chart_freshwater"),
-            data: waterData.map((d) => d.renewable_freshwater_m3_per_capita),
-            borderColor: mainColor,
-            backgroundColor: "rgba(42,120,214,0.1)",
-            yAxisID: "y",
-            fill: true,
-            tension: 0.3,
-            pointRadius: 0,
-            borderWidth: 2,
-          },
-          {
-            label: t("eau.chart_precipitation"),
-            data: waterData.map((d) => d.precipitation_mm),
-            borderColor: "#1baf7a",
-            backgroundColor: "rgba(27,175,122,0.1)",
-            yAxisID: "y1",
-            fill: false,
-            tension: 0.3,
-            pointRadius: 0,
-            borderWidth: 2,
-            borderDash: [5, 4],
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: true } },
-        scales: {
-          y: { type: "linear", position: "left", title: { display: true, text: t("eau.axis_per_capita") } },
-          y1: { type: "linear", position: "right", title: { display: true, text: t("eau.axis_mm_year") }, grid: { drawOnChartArea: false } },
-        },
-      },
-    };
-  }
 
   useEffect(() => {
     if (!summary || !summary.water || summary.water.length === 0) return;
@@ -776,7 +811,7 @@ export default function PaysDashboard() {
     import("../../lib/chartSetup").then((Chart) => {
       if (cancelled || !waterCanvasRef.current) return;
       if (waterChartRef.current) waterChartRef.current.destroy();
-      waterChartRef.current = new Chart.default(waterCanvasRef.current, buildWaterChart(summary.water, "#2a78d6"));
+      waterChartRef.current = new Chart.default(waterCanvasRef.current, buildWaterChart(summary.water, "#2a78d6", t));
     });
     return () => {
       cancelled = true;
@@ -789,48 +824,12 @@ export default function PaysDashboard() {
     import("../../lib/chartSetup").then((Chart) => {
       if (cancelled || !waterCompareCanvasRef.current) return;
       if (waterCompareChartRef.current) waterCompareChartRef.current.destroy();
-      waterCompareChartRef.current = new Chart.default(waterCompareCanvasRef.current, buildWaterChart(compareSummary.water, "#6c3483"));
+      waterCompareChartRef.current = new Chart.default(waterCompareCanvasRef.current, buildWaterChart(compareSummary.water, "#6c3483", t));
     });
     return () => {
       cancelled = true;
     };
   }, [compareCode, compareSummary, t]);
-
-  function buildStressChart(waterData, worldBenchmarksData, mainColor) {
-    const datasets = [
-      {
-        label: t("eau.chart_stress"),
-        data: waterData.map((d) => d.withdrawal_share_percent),
-        borderColor: mainColor,
-        backgroundColor: "rgba(142,68,173,0.1)",
-        fill: true,
-        tension: 0.3,
-        pointRadius: 0,
-        borderWidth: 2,
-      },
-    ];
-    if (worldBenchmarksData?.water_stress_share) {
-      datasets.push({
-        label: t("eau.chart_world_avg"),
-        data: waterData.map(() => worldBenchmarksData.water_stress_share.value),
-        borderColor: "#95a5a6",
-        borderDash: [4, 4],
-        pointRadius: 0,
-        borderWidth: 1.5,
-        fill: false,
-      });
-    }
-    return {
-      type: "line",
-      data: { labels: waterData.map((d) => d.year), datasets },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: true } },
-        scales: { y: { title: { display: true, text: t("eau.axis_share_used") } } },
-      },
-    };
-  }
 
   useEffect(() => {
     if (!summary || !summary.water || summary.water.length === 0) return;
@@ -840,12 +839,11 @@ export default function PaysDashboard() {
     import("../../lib/chartSetup").then((Chart) => {
       if (cancelled || !stressCanvasRef.current) return;
       if (stressChartRef.current) stressChartRef.current.destroy();
-      stressChartRef.current = new Chart.default(stressCanvasRef.current, buildStressChart(summary.water, worldBenchmarks, "#8e44ad"));
+      stressChartRef.current = new Chart.default(stressCanvasRef.current, buildStressChart(summary.water, worldBenchmarks, "#8e44ad", t));
     });
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [summary, worldBenchmarks, t]);
 
   useEffect(() => {
@@ -856,12 +854,11 @@ export default function PaysDashboard() {
     import("../../lib/chartSetup").then((Chart) => {
       if (cancelled || !stressCompareCanvasRef.current) return;
       if (stressCompareChartRef.current) stressCompareChartRef.current.destroy();
-      stressCompareChartRef.current = new Chart.default(stressCompareCanvasRef.current, buildStressChart(compareSummary.water, worldBenchmarks, "#6c3483"));
+      stressCompareChartRef.current = new Chart.default(stressCompareCanvasRef.current, buildStressChart(compareSummary.water, worldBenchmarks, "#6c3483", t));
     });
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [compareCode, compareSummary, worldBenchmarks, t]);
 
   useEffect(() => {
@@ -891,7 +888,7 @@ export default function PaysDashboard() {
           weight: 1,
         })
           .bindPopup(
-            `Détecté le ${new Date(f.detected_at).toLocaleString("fr-FR")}<br/>Puissance radiative : ${f.frp ?? "?"} MW`
+            `Détecté le ${new Date(f.detected_at).toLocaleString(localeTag(locale))}<br/>Puissance radiative : ${f.frp ?? "?"} MW`
           )
           .addTo(fireMarkersLayerRef.current);
       });
@@ -905,7 +902,7 @@ export default function PaysDashboard() {
     return () => {
       cancelled = true;
     };
-  }, [sobriety, fires]);
+  }, [sobriety, fires, locale]);
 
   useEffect(() => {
     if (sobriety || !compareCode || !compareSummary || !fireMapCompareContainerRef.current) return;
@@ -934,7 +931,7 @@ export default function PaysDashboard() {
           weight: 1,
         })
           .bindPopup(
-            `Détecté le ${new Date(f.detected_at).toLocaleString("fr-FR")}<br/>Puissance radiative : ${f.frp ?? "?"} MW`
+            `Détecté le ${new Date(f.detected_at).toLocaleString(localeTag(locale))}<br/>Puissance radiative : ${f.frp ?? "?"} MW`
           )
           .addTo(fireMarkersCompareLayerRef.current);
       });
@@ -948,7 +945,7 @@ export default function PaysDashboard() {
     return () => {
       cancelled = true;
     };
-  }, [compareCode, compareSummary, compareFires, sobriety]);
+  }, [compareCode, compareSummary, compareFires, sobriety, locale]);
 
   const countryName = localizedCountryName(code, locale);
   const latestCo2 = summary?.co2?.[summary.co2.length - 1];
@@ -1098,7 +1095,7 @@ export default function PaysDashboard() {
             {summary.energyMix.length > 0 ? (
               <>
                 <p>
-                  {t("pays.energie_summary", { count: summary.energyMix.length, capacity: Math.round(totalCapacity).toLocaleString("fr-FR") })}
+                  {t("pays.energie_summary", { count: summary.energyMix.length, capacity: Math.round(totalCapacity).toLocaleString(localeTag(locale)) })}
                 </p>
                 <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>{t("energie.map_explain")}</p>
                 <div style={{ display: "grid", gridTemplateColumns: compareCode && compareSummary ? "repeat(auto-fit, minmax(320px, 1fr))" : "1fr", gap: "1rem" }}>
@@ -1136,7 +1133,7 @@ export default function PaysDashboard() {
                           <th scope="row" style={{ textAlign: "left", padding: 6, fontWeight: 400 }}>{translateFuel(r.fuel_type, locale)}</th>
                           <td style={{ textAlign: "right", padding: 6 }}>{r.plant_count}</td>
                           <td style={{ textAlign: "right", padding: 6 }}>
-                            {r.total_capacity_mw ? Math.round(r.total_capacity_mw).toLocaleString("fr-FR") : "—"}
+                            {r.total_capacity_mw ? Math.round(r.total_capacity_mw).toLocaleString(localeTag(locale)) : "—"}
                           </td>
                         </tr>
                       ))}
@@ -1151,7 +1148,7 @@ export default function PaysDashboard() {
             <p style={{ fontSize: 12, color: "var(--color-texte-clair)" }}>
               {t("pays.energie_source")}
               {lastUpdated?.powerPlants?.lastIngested && (
-                <>{t("pays.energie_source_updated", { date: formatDate(lastUpdated.powerPlants.lastIngested) })}</>
+                <>{t("pays.energie_source_updated", { date: formatDate(lastUpdated.powerPlants.lastIngested, locale) })}</>
               )}
               {" "}<Link href="/energie">{t("pays.energie_map_link")}</Link>
             </p>
@@ -1250,7 +1247,7 @@ export default function PaysDashboard() {
             <p style={{ fontSize: 12, color: "var(--color-texte-clair)" }}>
               {t("pays.biodiversity_source")}
               {lastUpdated?.species?.lastIngested && (
-                <>{t("pays.biodiversity_source_updated", { date: formatDate(lastUpdated.species.lastIngested) })}</>
+                <>{t("pays.biodiversity_source_updated", { date: formatDate(lastUpdated.species.lastIngested, locale) })}</>
               )}
               {" "}<Link href="/especes">{t("pays.biodiversity_filter_link")}</Link>
             </p>
@@ -1292,7 +1289,7 @@ export default function PaysDashboard() {
             <p>
               {t("pays.fires_summary", { count: summary?.fires?.fire_count ?? fires.length })}
               {summary?.fires?.latest_detection && (
-                <>{t("pays.fires_summary_latest", { date: new Date(summary.fires.latest_detection).toLocaleString("fr-FR") })}</>
+                <>{t("pays.fires_summary_latest", { date: new Date(summary.fires.latest_detection).toLocaleString(localeTag(locale)) })}</>
               )}
               .
             </p>
@@ -1343,7 +1340,7 @@ export default function PaysDashboard() {
               const latestLoss = [...summary.vegetation].reverse().find((d) => d.tree_cover_loss_ha != null);
               return latestLoss ? (
                 <p>
-                  {t("pays.vegetation_latest", { year: latestLoss.year, value: Math.round(parseFloat(latestLoss.tree_cover_loss_ha)).toLocaleString("fr-FR") })}
+                  {t("pays.vegetation_latest", { year: latestLoss.year, value: Math.round(parseFloat(latestLoss.tree_cover_loss_ha)).toLocaleString(localeTag(locale)) })}
                 </p>
               ) : (
                 <p>{t("pays.vegetation_no_year_data")}</p>
@@ -1373,7 +1370,7 @@ export default function PaysDashboard() {
                   startYear: vegetationCumulativeSummary.startYear,
                   endYear: vegetationCumulativeSummary.endYear,
                   country: countryName,
-                  totalLoss: Math.round(vegetationCumulativeSummary.totalLossHa).toLocaleString("fr-FR"),
+                  totalLoss: Math.round(vegetationCumulativeSummary.totalLossHa).toLocaleString(localeTag(locale)),
                   percent: vegetationCumulativeSummary.percent.toFixed(2),
                 })}
               </p>
@@ -1397,10 +1394,10 @@ export default function PaysDashboard() {
           <p>
             {t("pays.water_latest_prefix", { year: summary.water[summary.water.length - 1].year })}{" "}
             {summary.water[summary.water.length - 1].renewable_freshwater_m3_per_capita && (
-              <>{t("pays.water_renewable", { value: Math.round(summary.water[summary.water.length - 1].renewable_freshwater_m3_per_capita).toLocaleString("fr-FR") })}</>
+              <>{t("pays.water_renewable", { value: Math.round(summary.water[summary.water.length - 1].renewable_freshwater_m3_per_capita).toLocaleString(localeTag(locale)) })}</>
             )}
             {summary.water[summary.water.length - 1].precipitation_mm && (
-              <>{t("pays.water_precipitation", { value: Math.round(summary.water[summary.water.length - 1].precipitation_mm).toLocaleString("fr-FR") })}</>
+              <>{t("pays.water_precipitation", { value: Math.round(summary.water[summary.water.length - 1].precipitation_mm).toLocaleString(localeTag(locale)) })}</>
             )}
             {(() => {
               const lastWithdrawal = [...summary.water].reverse().find((d) => d.withdrawal_m3);

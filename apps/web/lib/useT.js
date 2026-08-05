@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import { useRouter } from "next/router";
 import fr from "./i18n/fr.json";
 import en from "./i18n/en.json";
@@ -43,11 +44,26 @@ export function useT() {
   }
   const dict = DICTIONARIES[locale] || DICTIONARIES.fr;
 
-  function t(key, params) {
-    const value = getNested(dict, key) ?? getNested(DICTIONARIES.fr, key);
-    if (value === undefined) return key;
-    return interpolate(value, params);
-  }
+  // Mémoïsée sur "locale" uniquement : sans ça, t() change de référence à
+  // chaque rendu du composant (même quand la langue ne change pas), ce qui
+  // oblige soit à l'omettre des tableaux de dépendances des useEffect (avec
+  // un commentaire de suppression ESLint), soit — si on l'y inclut quand
+  // même — à réexécuter ces effets à chaque rendu au lieu de seulement au
+  // changement de langue. Avec cette mémoïsation, t peut être ajoutée aux
+  // dépendances en toute sécurité : elle ne change que quand locale change.
+  const t = useCallback(
+    (key, params) => {
+      const value = getNested(dict, key) ?? getNested(DICTIONARIES.fr, key);
+      if (value === undefined) return key;
+      return interpolate(value, params);
+    },
+    // "dict" est dérivé uniquement de "locale" (accès à une propriété d'un
+    // objet stable importé), donc les deux sont équivalents ici — on garde
+    // "locale" en dépendance : plus explicite sur ce qui déclenche réellement
+    // le changement.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [locale]
+  );
 
   return { t, locale };
 }
