@@ -116,13 +116,7 @@ Page publique listant chaque source de données ingérée automatiquement, sa fr
 
 ## Hébergement
 
-VPS **HybridCloud N0C** chez **PlanetHoster** (hébergeur franco-canadien, datacenter France + Suisse pour ce projet — Paris & Lausanne), commandé le 5 août 2026 : 2 CPU, 4 GB RAM, 40 GB SSD NVMe, ~40 €/mois. Accès SSH root complet, compatible tel quel avec `docker-compose.prod.yml` (aucune adaptation de code nécessaire — Docker/Docker Compose s'installent normalement sur la VM comme sur n'importe quel Linux). Ressources (CPU/RAM) ajustables à chaud depuis l'espace client sans interruption si le trafic augmente.
-
-*(Anciennement chez Digital Forest, racheté par PlanetHoster — c'est ce rachat qui a motivé le changement d'hébergeur ; le blocage DNS qui empêchait la vérification Brevo et la finalisation du VPS chez Digital Forest est attendu comme résolu avec cette migration.)*
-
-Nom de domaine : **`pasdeplaneteb.com`** (domaine principal). Le `.fr`, déjà possédé par ailleurs, sera transféré ultérieurement — prévoir à ce moment-là une redirection `.fr → .com` ou une gestion des deux domaines dans `CORS_ORIGIN`.
-
-Changer d'hébergeur reste possible à tout moment : il suffit de changer l'IP cible du déploiement SSH en CI, tout tourne en conteneurs portables.
+VPS avec accès SSH root complet et Docker/Docker Compose installés — compatible tel quel avec `docker-compose.prod.yml`, aucune adaptation de code nécessaire. Changer d'hébergeur ne demande de modifier que l'IP cible du déploiement SSH en CI, tout tourne en conteneurs portables.
 
 ## Déploiement
 
