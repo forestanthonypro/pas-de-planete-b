@@ -10,13 +10,13 @@ services:
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
       # Redirige systématiquement tout trafic HTTP (port 80) vers HTTPS —
-      # sans ça, http://pasdeplaneteb.fr reste servi en clair au lieu de
+      # sans ça, http://pasdeplaneteb.com reste servi en clair au lieu de
       # basculer automatiquement sur la version chiffrée.
       - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
       - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
       - "--certificatesresolvers.le.acme.httpchallenge=true"
       - "--certificatesresolvers.le.acme.httpchallenge.entrypoint=web"
-      - "--certificatesresolvers.le.acme.email=admin@pasdeplaneteb.fr"
+      - "--certificatesresolvers.le.acme.email=admin@pasdeplaneteb.com"
       - "--certificatesresolvers.le.acme.storage=/letsencrypt/acme.json"
     ports:
       - "80:80"
@@ -49,7 +49,7 @@ services:
       - postgres
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.api.rule=Host(`api.pasdeplaneteb.fr`)"
+      - "traefik.http.routers.api.rule=Host(`api.pasdeplaneteb.com`)"
       - "traefik.http.routers.api.entrypoints=websecure"
       - "traefik.http.routers.api.tls.certresolver=le"
       - "traefik.http.routers.api.middlewares=security-headers"
@@ -71,7 +71,7 @@ services:
       - api
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.web.rule=Host(`pasdeplaneteb.fr`)"
+      - "traefik.http.routers.web.rule=Host(`pasdeplaneteb.com`)"
       - "traefik.http.routers.web.entrypoints=websecure"
       - "traefik.http.routers.web.tls.certresolver=le"
       - "traefik.http.routers.web.middlewares=security-headers"
