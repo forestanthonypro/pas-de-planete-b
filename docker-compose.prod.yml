@@ -2,7 +2,7 @@
 # Les images sont construites en CI et poussées sur le registry, jamais buildées ici.
 services:
   traefik:
-    image: traefik:v3.1
+    image: traefik:v3.7
     restart: unless-stopped
     command:
       - "--providers.docker=true"
