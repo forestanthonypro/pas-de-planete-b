@@ -68,6 +68,8 @@
     "card_paysans_desc": "विषय अनुसार व्यावहारिक संसाधन",
     "card_ressources_label": "संसाधन",
     "card_ressources_desc": "स्थान और आदान-प्रदान मंच",
+    "card_petitions_label": "याचिकाएं",
+    "card_petitions_desc": "हस्ताक्षर करें, साझा करें या सुझाएं",
     "card_futureideas_label": "आज और कल के बच्चे",
     "card_futureideas_desc": "अपने वोट से विचारों का समर्थन करें"
   },
@@ -620,6 +622,19 @@
     "table_address": "पता",
     "table_links": "लिंक",
     "propose_link": "संसाधन सुझाएं →"
+  },
+  "petitions": {
+    "title": "याचिकाएं",
+    "share_title": "याचिकाएं — Pas de planète B",
+    "intro": "महत्वपूर्ण निर्णयों को प्रभावित करने के लिए चल रही या पूरी हो चुकी याचिकाएं — हस्ताक्षर करें, साझा करें, या एक सुझाएं।",
+    "tab_ongoing": "चल रही",
+    "tab_closed": "समाप्त",
+    "propose_link": "याचिका सुझाएं →",
+    "sign_link": "हस्ताक्षर करें →",
+    "view_link": "देखें →",
+    "no_ongoing": "फिलहाल कोई चल रही याचिका प्रकाशित नहीं हुई है।",
+    "no_closed": "फिलहाल कोई समाप्त याचिका प्रकाशित नहीं हुई है।",
+    "error_no_data": "डेटा उपलब्ध नहीं है"
   },
   "charter": {
     "title": "नैतिक चार्टर",

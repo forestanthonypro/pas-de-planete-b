@@ -68,6 +68,8 @@
     "card_paysans_desc": "Recursos prácticos, por tema",
     "card_ressources_label": "Recursos",
     "card_ressources_desc": "Lugares y plataformas de intercambio",
+    "card_petitions_label": "Peticiones",
+    "card_petitions_desc": "Firma, comparte o propón una",
     "card_futureideas_label": "Los niños de hoy y de mañana",
     "card_futureideas_desc": "Apoya las ideas con tu voto"
   },
@@ -620,6 +622,19 @@
     "table_address": "Dirección",
     "table_links": "Enlaces",
     "propose_link": "Proponer un recurso →"
+  },
+  "petitions": {
+    "title": "Peticiones",
+    "share_title": "Peticiones — Pas de planète B",
+    "intro": "Peticiones en curso o ya concluidas para influir en las decisiones que importan — firma, comparte o propón una.",
+    "tab_ongoing": "En curso",
+    "tab_closed": "Cerradas",
+    "propose_link": "Proponer una petición →",
+    "sign_link": "Firmar →",
+    "view_link": "Ver →",
+    "no_ongoing": "Ninguna petición en curso publicada por el momento.",
+    "no_closed": "Ninguna petición cerrada publicada por el momento.",
+    "error_no_data": "Datos no disponibles"
   },
   "charter": {
     "title": "Carta ética",

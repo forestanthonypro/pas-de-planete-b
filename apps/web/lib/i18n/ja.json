@@ -68,6 +68,8 @@
     "card_paysans_desc": "テーマ別の実用資料",
     "card_ressources_label": "リソース",
     "card_ressources_desc": "交流の場所とプラットフォーム",
+    "card_petitions_label": "署名活動",
+    "card_petitions_desc": "署名、共有、または提案する",
     "card_futureideas_label": "今日と未来の子どもたち",
     "card_futureideas_desc": "投票でアイデアを支援しよう"
   },
@@ -620,6 +622,19 @@
     "table_address": "住所",
     "table_links": "リンク",
     "propose_link": "リソースを提案する →"
+  },
+  "petitions": {
+    "title": "署名活動",
+    "share_title": "署名活動 — Pas de planète B",
+    "intro": "重要な決定に影響を与えるための、進行中または終了した署名活動 — 署名する、共有する、または提案してください。",
+    "tab_ongoing": "進行中",
+    "tab_closed": "終了",
+    "propose_link": "署名活動を提案する →",
+    "sign_link": "署名する →",
+    "view_link": "見る →",
+    "no_ongoing": "現在公開されている進行中の署名活動はありません。",
+    "no_closed": "現在公開されている終了した署名活動はありません。",
+    "error_no_data": "データは利用できません"
   },
   "charter": {
     "title": "倫理憲章",

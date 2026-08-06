@@ -68,6 +68,8 @@
     "card_paysans_desc": "Практические материалы по темам",
     "card_ressources_label": "Ресурсы",
     "card_ressources_desc": "Места и платформы обмена",
+    "card_petitions_label": "Петиции",
+    "card_petitions_desc": "Подпишите, поделитесь или предложите",
     "card_futureideas_label": "Дети сегодня и завтра",
     "card_futureideas_desc": "Поддержите идеи своим голосом"
   },
@@ -620,6 +622,19 @@
     "table_address": "Адрес",
     "table_links": "Ссылки",
     "propose_link": "Предложить ресурс →"
+  },
+  "petitions": {
+    "title": "Петиции",
+    "share_title": "Петиции — Pas de planète B",
+    "intro": "Текущие или уже завершённые петиции, чтобы повлиять на важные решения — подпишите, поделитесь или предложите свою.",
+    "tab_ongoing": "Текущие",
+    "tab_closed": "Завершённые",
+    "propose_link": "Предложить петицию →",
+    "sign_link": "Подписать →",
+    "view_link": "Посмотреть →",
+    "no_ongoing": "Пока нет опубликованных текущих петиций.",
+    "no_closed": "Пока нет опубликованных завершённых петиций.",
+    "error_no_data": "Данные недоступны"
   },
   "charter": {
     "title": "Этическая хартия",

@@ -68,6 +68,8 @@
     "card_paysans_desc": "Ressources pratiques, par thème",
     "card_ressources_label": "Ressources",
     "card_ressources_desc": "Lieux et plateformes d'échange",
+    "card_petitions_label": "Pétitions",
+    "card_petitions_desc": "Signe, partage ou propose-en une",
     "card_futureideas_label": "Les enfants d'aujourd'hui et de demain",
     "card_futureideas_desc": "Soutenez les idées par le vote"
   },
@@ -620,6 +622,19 @@
     "table_address": "Adresse",
     "table_links": "Liens",
     "propose_link": "Proposer une ressource →"
+  },
+  "petitions": {
+    "title": "Pétitions",
+    "share_title": "Pétitions — Pas de planète B",
+    "intro": "Des pétitions en cours ou déjà abouties pour peser sur les décisions qui comptent — signe, partage, ou propose-en une.",
+    "tab_ongoing": "En cours",
+    "tab_closed": "Clôturées",
+    "propose_link": "Proposer une pétition →",
+    "sign_link": "Signer →",
+    "view_link": "Voir →",
+    "no_ongoing": "Aucune pétition en cours publiée pour l'instant.",
+    "no_closed": "Aucune pétition clôturée publiée pour l'instant.",
+    "error_no_data": "Données indisponibles"
   },
   "charter": {
     "title": "Charte éthique",

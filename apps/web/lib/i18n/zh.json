@@ -68,6 +68,8 @@
     "card_paysans_desc": "按主题分类的实用资源",
     "card_ressources_label": "资源",
     "card_ressources_desc": "交流场所与平台",
+    "card_petitions_label": "请愿活动",
+    "card_petitions_desc": "签署、分享或推荐一个",
     "card_futureideas_label": "今天与明天的孩子",
     "card_futureideas_desc": "为你支持的想法投票"
   },
@@ -620,6 +622,19 @@
     "table_address": "地址",
     "table_links": "链接",
     "propose_link": "推荐资源 →"
+  },
+  "petitions": {
+    "title": "请愿活动",
+    "share_title": "请愿活动 — Pas de planète B",
+    "intro": "正在进行或已经结束的请愿活动，助力推动重要决策——签署、分享，或推荐一个。",
+    "tab_ongoing": "进行中",
+    "tab_closed": "已结束",
+    "propose_link": "推荐请愿活动 →",
+    "sign_link": "签署 →",
+    "view_link": "查看 →",
+    "no_ongoing": "目前暂无已发布的进行中请愿活动。",
+    "no_closed": "目前暂无已发布的已结束请愿活动。",
+    "error_no_data": "数据不可用"
   },
   "charter": {
     "title": "道德宪章",

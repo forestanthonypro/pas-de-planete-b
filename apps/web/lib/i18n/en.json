@@ -68,6 +68,8 @@
     "card_paysans_desc": "Practical resources, by topic",
     "card_ressources_label": "Resources",
     "card_ressources_desc": "Places and exchange platforms",
+    "card_petitions_label": "Petitions",
+    "card_petitions_desc": "Sign, share, or suggest one",
     "card_futureideas_label": "Today's and tomorrow's children",
     "card_futureideas_desc": "Support ideas through voting"
   },
@@ -620,6 +622,19 @@
     "table_address": "Address",
     "table_links": "Links",
     "propose_link": "Suggest a resource →"
+  },
+  "petitions": {
+    "title": "Petitions",
+    "share_title": "Petitions — Pas de planète B",
+    "intro": "Ongoing or completed petitions to help push for decisions that matter — sign, share, or suggest one.",
+    "tab_ongoing": "Ongoing",
+    "tab_closed": "Closed",
+    "propose_link": "Suggest a petition →",
+    "sign_link": "Sign →",
+    "view_link": "View →",
+    "no_ongoing": "No ongoing petitions published yet.",
+    "no_closed": "No closed petitions published yet.",
+    "error_no_data": "Data unavailable"
   },
   "charter": {
     "title": "Ethical charter",
