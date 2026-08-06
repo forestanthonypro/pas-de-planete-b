@@ -297,6 +297,6 @@ export default function CharterPage() {
   );
 }
 
-export async function getServerSideProps() {
+export async function getStaticProps() {
   return { props: {} };
 }
