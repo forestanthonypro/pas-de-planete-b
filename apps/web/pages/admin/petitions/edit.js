@@ -7,6 +7,11 @@ import { useApiFetch } from "../../../lib/useApiFetch";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
+const TRANSLATION_FIELDS = [
+  { name: "title", label: "Titre", multiline: false },
+  { name: "description", label: "Description", multiline: true },
+];
+
 function slugify(text) {
   return text
     .normalize("NFD")
@@ -162,7 +167,13 @@ function AdminPetitionEditInner({ session }) {
       {isEditing && (
         <div style={{ marginTop: "2rem" }}>
           <h2 style={{ fontSize: 16 }}>Traductions</h2>
-          <ContentTranslationsEditor contentType="petition" contentId={slug} sessionToken={session.sessionToken} />
+          <ContentTranslationsEditor
+            contentType="petition"
+            contentId={isEditing ? slug : null}
+            fields={TRANSLATION_FIELDS}
+            baseValues={{ title, description }}
+            sessionToken={session.sessionToken}
+          />
         </div>
       )}
     </div>

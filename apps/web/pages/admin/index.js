@@ -27,6 +27,12 @@ const SECTIONS = [
     icon: "📍",
   },
   {
+    title: "Pétitions",
+    description: "Pétitions en cours ou clôturées, avec formulaire public modéré.",
+    href: "/admin/petitions",
+    icon: "✊",
+  },
+  {
     title: "Charte éthique",
     description: "Sections, éléments numérotés et réordonnables, boîte à idées modérée.",
     href: "/admin/charte",
