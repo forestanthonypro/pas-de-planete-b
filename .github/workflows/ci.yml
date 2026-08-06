@@ -47,6 +47,10 @@ jobs:
         with:
           context: apps/${{ matrix.app }}
           push: true
+          # Utilisé uniquement par apps/web (voir son Dockerfile) — ignoré
+          # sans erreur pour apps/api, qui ne déclare pas cet ARG.
+          build-args: |
+            NEXT_PUBLIC_API_URL=https://api.pasdeplaneteb.com
           tags: |
             ${{ env.IMAGE_BASE }}/${{ matrix.app }}:latest
             ${{ env.IMAGE_BASE }}/${{ matrix.app }}:${{ github.sha }}
