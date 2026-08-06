@@ -46,12 +46,10 @@ Document de suivi des chantiers en attente, à garder à jour d'une session à l
 ## 🆕 Nouvelles fonctionnalités demandées (à faire)
 
 1. **Revérifier que l'application mobile (Capacitor) fonctionne toujours** — plusieurs montées de version importantes ont eu lieu depuis le dernier test (Next.js 16, React 19, Express 5, ESLint 9, refactor complet de l'API). Aucune régression attendue en théorie, mais à valider concrètement sur un vrai appareil/émulateur.
-2. **Section RGPD dédiée** pour les utilisateurs — à définir précisément (page à part ? section dans les mentions légales/confidentialité existantes ? droits d'accès/suppression/export des données ?).
-3. **Page "Pétitions"** — nouveau type de contenu à créer, sur le modèle déjà établi (débunk, paysans, ressources...) :
-   - Recenser des pétitions en cours ou clôturées via un lien + une description
-   - Formulaire public de proposition (lien + description), modéré avant publication — même mécanisme que les ressources/paysans (`published = false` par défaut, badge "Proposé par le public" en admin)
-   - Prise en charge du multilingue via le système de traductions de contenu déjà en place (`content_translations`, `ContentTranslationsEditor`)
-   - Anti-bot par piège à bots (honeypot), comme pour les autres formulaires publics
+2. ✅ **Section RGPD** — **terminé** (6 août 2026). Politique de confidentialité RGPD complète rédigée et intégrée à la page `/confidentialite` existante (éditable depuis `/admin/settings`), plutôt qu'une page séparée. Couvre les données réellement collectées (newsletter, suivi de député, votes citoyens déjà anonymes), les droits (accès/rectification/effacement/opposition/portabilité), et confirme l'absence de cookies de suivi. Gap technique repéré au passage : la newsletter n'a pas de double opt-in contrairement au suivi de député — à corriger pour aligner le comportement réel sur les bonnes pratiques RGPD (non bloquant, le texte reste honnête sur l'état actuel).
+3. ✅ **Page "Pétitions"** — **terminé** (6 août 2026). Nouveau type de contenu complet sur le modèle "paysans"/ressources : table `petitions`, route API (liste filtrable par statut, détail, CRUD admin, formulaire public avec piège à bots), 4 pages (`/petitions`, `/petitions/proposer`, `/admin/petitions`, `/admin/petitions/edit`), traductions dans les 8 langues, carte ajoutée à la page d'accueil et au tableau de bord admin. Testé de bout en bout en local (soumission publique → modération admin → publication → affichage).
+   - **À faire lors du prochain déploiement** : appliquer la migration `039_petitions.sql` en production (`./db/migrate.sh docker-compose.prod.yml`).
+   - **Découverte au passage** : la base de données locale de développement avait pris du retard sur les migrations (`admin_sessions` notamment manquante, bloquant la connexion admin en local) — rattrapé en rejouant toutes les migrations via `db/migrate.sh`. Bon réflexe à avoir si un comportement local semble incohérent avec la production : vérifier d'abord que toutes les migrations sont bien appliquées localement aussi.
 
 ## 💡 Idées en suspens (mentionnées, pas encore engagées)
 
