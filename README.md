@@ -39,6 +39,23 @@ L'API (`apps/api`) est organisée en modules par domaine plutôt qu'un fichier u
 
 Basé sur **Express 5**. Pour ajouter une nouvelle route, créer/étendre le fichier de domaine concerné dans `src/routes/` plutôt que d'agrandir un fichier central.
 
+## Migrations de base de données
+
+Les fichiers `db/migrations/*.sql` sont numérotés et appliqués dans l'ordre par `db/migrate.sh`, qui garde la trace de ce qui a déjà été appliqué (table `_migrations`) — plus besoin de les rejouer un par un à la main.
+
+```bash
+./db/migrate.sh                          # local (docker-compose.yml)
+./db/migrate.sh docker-compose.prod.yml  # production
+```
+
+Sur une base où les migrations existantes ont déjà été appliquées manuellement (ex: avant que ce script existe), poser une base de référence sans rejouer les fichiers :
+
+```bash
+./db/migrate.sh docker-compose.prod.yml --baseline
+```
+
+Pour ajouter une nouvelle migration : créer un fichier `db/migrations/0XX_description.sql` avec le numéro suivant, puis relancer `./db/migrate.sh` (local) ou l'inclure dans le déploiement pour qu'elle s'applique en production.
+
 ## Récupération de données côté client (`useApiFetch`)
 
 Les pages du site web utilisent un hook partagé plutôt que de dupliquer le pattern `fetch` + `loading`/`error`/`data` :
@@ -143,4 +160,3 @@ Ce projet est distribué sous licence **GNU Affero General Public License v3.0 (
 
 Choix motivé par l'esprit transparence/données ouvertes du projet : contrairement à une licence permissive (MIT), l'AGPL garantit que toute personne qui modifie le code et le fait tourner sur un serveur public (site web, API) doit rendre ses propres modifications disponibles aux utilisateurs de ce service — pas seulement en cas de distribution d'un fichier. Ça empêche qu'une version dérivée fermée (associative ou commerciale) s'écarte du principe d'ouverture du projet d'origine.
 
-# test 08/06/2026 22:07:18

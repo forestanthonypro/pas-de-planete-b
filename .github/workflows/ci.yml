@@ -84,6 +84,8 @@ jobs:
             git pull
             docker compose -f docker-compose.prod.yml pull
             docker compose -f docker-compose.prod.yml up -d
+            chmod +x db/migrate.sh
+            ./db/migrate.sh docker-compose.prod.yml
             docker image prune -f
 
   environmental-audit:
