@@ -45,6 +45,19 @@ export default function IncendiesPage() {
   useEffect(() => {
     if (view !== "map" || sobriety || !mapContainerRef.current) return;
     let cancelled = false;
+
+    // Le CSS de Leaflet n'est plus chargé globalement pour toutes les pages
+    // du site — seules celles qui affichent effectivement une carte en ont
+    // besoin. Injecté ici, une seule fois, uniquement quand la carte est
+    // effectivement affichée.
+    if (!document.getElementById("leaflet-css")) {
+      const link = document.createElement("link");
+      link.id = "leaflet-css";
+      link.rel = "stylesheet";
+      link.href = "/vendor/leaflet.css";
+      document.head.appendChild(link);
+    }
+
     import("leaflet").then((L) => {
       if (cancelled || !mapContainerRef.current) return;
 
@@ -91,6 +104,11 @@ export default function IncendiesPage() {
     });
     return () => {
       cancelled = true;
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
+      }
+      markersLayerRef.current = null;
     };
   }, [view, sobriety, fires]);
 

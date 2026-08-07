@@ -175,7 +175,42 @@ export default function EnergiePage() {
     if (view !== "map" || sobriety || !mapContainerRef.current) return;
 
     let cancelled = false;
+
+    // Le CSS de Leaflet (et du plugin de clustering) n'est plus chargé
+    // globalement pour toutes les pages du site — seules celles qui
+    // affichent effectivement une carte en ont besoin. Injecté ici, une
+    // seule fois, uniquement quand la carte est effectivement affichée.
+    if (!document.getElementById("leaflet-css")) {
+      const link = document.createElement("link");
+      link.id = "leaflet-css";
+      link.rel = "stylesheet";
+      link.href = "/vendor/leaflet.css";
+      document.head.appendChild(link);
+    }
+    if (!document.getElementById("leaflet-markercluster-css")) {
+      const link1 = document.createElement("link");
+      link1.id = "leaflet-markercluster-css";
+      link1.rel = "stylesheet";
+      link1.href = "/vendor/MarkerCluster.css";
+      document.head.appendChild(link1);
+      const link2 = document.createElement("link");
+      link2.id = "leaflet-markercluster-default-css";
+      link2.rel = "stylesheet";
+      link2.href = "/vendor/MarkerCluster.Default.css";
+      document.head.appendChild(link2);
+    }
+
     import("leaflet")
+      .then((leafletModule) => {
+        const L = leafletModule.default || leafletModule;
+        // leaflet.markercluster est un plugin à l'ancienne qui s'attache à
+        // une variable globale `L` plutôt que d'exporter proprement son
+        // propre module — on doit donc la poser explicitement avant de
+        // l'importer, plutôt que de compter sur un comportement implicite
+        // qui varie selon la façon dont le bundler résout les imports.
+        if (typeof window !== "undefined") window.L = L;
+        return import("leaflet.markercluster").then(() => L);
+      })
       .then((L) => {
         if (cancelled || !mapContainerRef.current) return;
 
@@ -185,7 +220,14 @@ export default function EnergiePage() {
             attribution: "&copy; contributeurs OpenStreetMap",
             maxZoom: 18,
           }).addTo(mapRef.current);
-          markersLayerRef.current = L.layerGroup().addTo(mapRef.current);
+          // Regroupe les marqueurs proches en bulles à faible zoom plutôt
+          // que de dessiner les ~35 000 centrales individuellement d'un
+          // coup — nécessaire à cette échelle, un simple layerGroup montrait
+          // des signes de surcharge visuelle avec un jeu de données de
+          // cette taille.
+          markersLayerRef.current = L.markerClusterGroup({
+            maxClusterRadius: 50,
+          }).addTo(mapRef.current);
         }
 
         markersLayerRef.current.clearLayers();
@@ -228,6 +270,16 @@ export default function EnergiePage() {
 
     return () => {
       cancelled = true;
+      // Détruit vraiment l'instance Leaflet au démontage — sans ça, le mode
+      // strict de React (monte/démonte deux fois chaque effet en
+      // développement, volontairement, pour détecter ce genre de bug) laisse
+      // une instance fantôme derrière lui, et la carte se réaffiche cassée
+      // au second montage (tuiles dupliquées/mal cadrées).
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
+      }
+      markersLayerRef.current = null;
     };
   }, [view, sobriety, plants, t, locale]);
 

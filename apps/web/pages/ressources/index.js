@@ -109,6 +109,11 @@ export default function RessourcesPage() {
     });
     return () => {
       cancelled = true;
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
+      }
+      markersLayerRef.current = null;
     };
   }, [tab, sobriety, filteredLocations]);
 
