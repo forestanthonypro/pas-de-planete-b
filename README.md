@@ -17,12 +17,31 @@ Application de sensibilisation au changement climatique — site web, applicatio
 ```bash
 cp .env.example .env
 docker compose up --build
+./db/migrate.sh
 ```
 
 - Site web : http://localhost:3000
 - API : http://localhost:4000/health
 - Base de données PostGIS : localhost:5432
 - Administration éditoriale : http://localhost:3000/admin (protégée par code TOTP, voir `apps/web/components/AdminAuthGate.js`)
+
+**Les migrations créent uniquement la structure des tables, pas les données.** Sans lancer les scripts d'ingestion, les pages du site n'auront rien à afficher (graphiques vides, listes vides) — pas un bug, juste une base neuve sans contenu :
+
+```bash
+docker compose exec api npm run ingest:co2
+docker compose exec api npm run ingest:deputies
+docker compose exec api npm run ingest:an-groups
+docker compose exec api npm run ingest:scrutins
+docker compose exec api npm run ingest:power-plants
+docker compose exec api npm run ingest:species
+docker compose exec api npm run ingest:vegetation
+docker compose exec api npm run ingest:water
+docker compose exec api npm run ingest:electricity
+docker compose exec api npm run ingest:species-threatened
+docker compose exec api npm run ingest:pollution
+docker compose exec api npm run ingest:world-benchmarks
+docker compose exec api npm run ingest:fires   # nécessite FIRMS_MAP_KEY dans .env
+```
 
 ## Structure du dépôt
 
@@ -86,6 +105,14 @@ const { data, loading, error } = useApiFetch("/api/mon-endpoint", {
 Passer `null` comme chemin désactive le fetch (utile tant qu'une dépendance requise, ex. `router.query`, n'est pas encore disponible). Convention du projet : **les GET de chargement passent par `useApiFetch`** ; **les POST/PUT/DELETE de sauvegarde restent en `fetch` brut** dans les gestionnaires d'événements (pas d'abstraction pour les mutations). Le hook lui-même est dans `apps/web/lib/useApiFetch.js`.
 
 **Point de vigilance** : si une valeur dérivée d'un `data` potentiellement `null` (ex. `const x = data ?? []`) est elle-même utilisée comme dépendance d'un `useMemo`/`useEffect`, l'envelopper dans son propre `useMemo(() => data ?? [], [data])` — sinon un nouveau tableau est recréé à chaque rendu tant que la donnée n'est pas chargée, ce qui invalide inutilement les hooks qui en dépendent.
+
+## Hooks React : ne jamais envelopper un Hook dans un `try/catch`
+
+`useRouter()` (et d'autres Hooks Next.js) lèvent une exception plutôt que de renvoyer `null` quand le contexte nécessaire est absent (ex: pendant la génération statique d'une page qui n'a pas de contexte routeur complet). Le réflexe d'envelopper l'appel dans un `try/catch` est **incorrect** : ça viole les Rules of Hooks de React (un Hook doit être appelé de façon strictement identique à chaque rendu) et peut provoquer des décalages d'hydratation serveur/client difficiles à diagnostiquer (l'erreur affichée ne pointe généralement pas vers la vraie cause).
+
+La bonne approche : exposer la donnée nécessaire via un contexte React alimenté depuis une source qui ne lève jamais d'exception (ex: `lib/LocaleContext.js`, alimenté par la prop `router` de `_app.js`, jamais par le Hook `useRouter()` directement), puis consommer ce contexte via `useContext()` — qui retombe silencieusement sur une valeur par défaut en l'absence de Provider, sans jamais planter.
+
+De la même façon, ne jamais lire `window`/`document`/`navigator` **pendant le rendu** d'un composant (ex: `typeof window !== "undefined" ? window.location.href : ""`) — ça produit un HTML différent entre le serveur (pas de `window`) et le client, donc un décalage d'hydratation. Toujours partir d'une valeur par défaut identique des deux côtés, et ne lire l'API navigateur que dans un `useEffect` (voir `components/ShareButtons.js` pour un exemple).
 
 ## Sécurité
 
