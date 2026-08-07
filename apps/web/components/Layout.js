@@ -72,7 +72,7 @@ export default function Layout({ children }) {
           background: "var(--color-fond)",
         }}
       >
-        <Link href="/" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none", color: "var(--color-texte)" }}>
+        <Link href="/" prefetch={false} style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none", color: "var(--color-texte)" }}>
           {!sobriety && <IconLeaf size={22} style={{ color: "var(--color-forest)" }} />}
           <strong style={{ fontSize: 16 }}>Pas de planète B</strong>
         </Link>
@@ -87,6 +87,7 @@ export default function Layout({ children }) {
             <Link
               key={item.href}
               href={item.href}
+              prefetch={false}
               style={
                 sobriety
                   ? { color: "var(--color-bleu-clair)" }
@@ -108,6 +109,7 @@ export default function Layout({ children }) {
 
         <Link
           href="/charte"
+          prefetch={false}
           title={t("common.nav_charter_title")}
           aria-label={t("common.nav_charter_title")}
           style={
@@ -200,13 +202,13 @@ export default function Layout({ children }) {
         {!sobriety && <IconLeaf size={15} style={{ color: "var(--color-forest)" }} />}
         {t("common.footer_ecoconception")}
         <span aria-hidden="true">·</span>
-        <Link href="/impact" style={{ color: "inherit" }}>{t("common.footer_impact")}</Link>
+        <Link href="/impact" prefetch={false} style={{ color: "inherit" }}>{t("common.footer_impact")}</Link>
         <span aria-hidden="true">·</span>
-        <Link href="/etat-des-donnees" style={{ color: "inherit" }}>{t("common.footer_data_status")}</Link>
+        <Link href="/etat-des-donnees" prefetch={false} style={{ color: "inherit" }}>{t("common.footer_data_status")}</Link>
         <span aria-hidden="true">·</span>
-        <Link href="/mentions-legales" style={{ color: "inherit" }}>{t("common.footer_legal")}</Link>
+        <Link href="/mentions-legales" prefetch={false} style={{ color: "inherit" }}>{t("common.footer_legal")}</Link>
         <span aria-hidden="true">·</span>
-        <Link href="/confidentialite" style={{ color: "inherit" }}>{t("common.footer_privacy")}</Link>
+        <Link href="/confidentialite" prefetch={false} style={{ color: "inherit" }}>{t("common.footer_privacy")}</Link>
       </footer>
 
       <ScrollTopButton />

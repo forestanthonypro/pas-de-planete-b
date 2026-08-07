@@ -98,7 +98,7 @@ export default function Home() {
               {t("home.intro")}
             </p>
             <p style={{ margin: 0 }}>
-              <Link href={`/pays/${country}`} style={{ fontWeight: 600 }}>{t("home.see_my_country")}</Link>
+              <Link href={`/pays/${country}`} prefetch={false} style={{ fontWeight: 600 }}>{t("home.see_my_country")}</Link>
             </p>
           </div>
         ) : (
@@ -127,6 +127,7 @@ export default function Home() {
             </p>
             <Link
               href={`/pays/${country}`}
+              prefetch={false}
               style={{
                 position: "relative",
                 display: "inline-block",
@@ -152,7 +153,7 @@ export default function Home() {
 
       {section && (
         <p style={{ fontSize: 13, marginBottom: "1rem" }}>
-          <Link href="/">← {t("home.see_all_sections")}</Link>
+          <Link href="/" prefetch={false}>← {t("home.see_all_sections")}</Link>
         </p>
       )}
 
