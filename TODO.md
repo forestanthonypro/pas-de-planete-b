@@ -18,11 +18,11 @@ Document de suivi des chantiers en attente, à garder à jour d'une session à l
 - ✅ **Secrets GitHub `API_URL` et `INGEST_TOKEN`** : mis à jour avec les vraies valeurs de production — le job `environmental-audit` fonctionne maintenant de bout en bout (mesure EcoIndex + Lighthouse envoyée à l'API après chaque déploiement).
 - ✅ **Base de production peuplée** — **terminé** (6 août 2026). Toutes les 14 commandes `npm run ingest:*` lancées manuellement sur le VPS après le premier déploiement (les migrations ne créent que la structure des tables, pas les données — distinction à garder en tête pour tout futur déploiement sur un nouvel environnement). Résultat : 577 députés, 12 groupes, 8434 scrutins, ~1,2M votes détaillés, 23k lignes CO2, 35k centrales électriques, 538 espèces, 16k+ détections d'incendies, et le reste des jeux de données environnementales.
 - ✅ **`ADMIN_TOTP_SECRET` et `FIRMS_MAP_KEY`** ajoutés au `.env` de production — absents de `.env.example` au moment de la création initiale du `.env`, ce qui bloquait respectivement la connexion admin et l'ingestion des incendies. À vérifier que `.env.example` est exhaustif pour éviter que ça se reproduise sur un futur environnement.
-- **⚠️ Image `web` en production actuellement reconstruite manuellement sur le VPS** (contournement du correctif `NEXT_PUBLIC_API_URL`, le temps que l'incident GitHub Actions du 6 août se résolve — voir `githubstatus.com`). Une fois GitHub Actions rétabli, le prochain déploiement automatique republiera la vraie image depuis GHCR ; comme le `Dockerfile`/`ci.yml` contiennent déjà le même correctif, ce sera cohérent. À vérifier une fois l'incident terminé que le déploiement automatique s'est bien fait sans repasser par du manuel.
+- ✅ **Image `web` en production** — reconstruction manuelle n'a été que temporaire, le temps de l'incident GitHub Actions du 6 août. Plusieurs déploiements automatiques réussis depuis (Matomo, correctifs mobile...) confirment que le pipeline standard fonctionne normalement.
   - Les workflows programmés (`Rafraîchir les feux actifs`, `Envoi des digests de suivi des députés`) avaient aussi échoué le 6 août (panne DNS + `FIRMS_MAP_KEY` manquante) — à revérifier une fois l'incident GitHub Actions résolu.
 - **Vérification de domaine Brevo** : toujours à faire sur le domaine définitif. Attendre si possible la fin du transfert de domaine (voir point ci-dessus) pour éviter de configurer ça deux fois.
   - Alternative temporaire pour tester le circuit en attendant : utiliser une adresse Gmail personnelle comme expéditeur (pas `ik.me`, qui bloque à cause de sa politique DMARC stricte).
-- **Mentions légales** : compléter les champs `[À COMPLÉTER]` (nom/raison sociale de l'association, adresse du siège, SIRET, directeur·rice de publication, email de contact).
+- ✅ **Mentions légales** : rédigées (6 août 2026) sur le modèle "particulier, à titre non professionnel" (LCEN art. 6-III-2) — identité de l'éditeur non publiée, seul l'hébergeur (OVH) est mentionné.
 
 ## 🟡 Pull requests Dependabot en attente
 
@@ -69,7 +69,6 @@ Document de suivi des chantiers en attente, à garder à jour d'une session à l
 
 ## 💡 Idées en suspens (mentionnées, pas encore engagées)
 
-- Analytics respectueux de la vie privée (Matomo ou Plausible, hébergés)
 - Notifications push natives pour l'app mobile (actuellement le suivi de député se fait uniquement par email)
 - Stockage externalisé (type S3, souvent inclus gratuitement selon l'hébergeur) à envisager si un jour un vrai upload de fichiers est ajouté (ex. photos pour les pétitions), plutôt que de charger le disque du VPS
 
