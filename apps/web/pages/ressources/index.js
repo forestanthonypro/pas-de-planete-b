@@ -55,6 +55,19 @@ export default function RessourcesPage() {
   useEffect(() => {
     if (tab !== "map" || sobriety || !mapContainerRef.current) return;
     let cancelled = false;
+
+    // Le CSS de Leaflet n'est plus chargé globalement pour toutes les pages
+    // du site (import "leaflet/dist/leaflet.css" dans _app.js retiré) —
+    // seule cette page en a besoin. Injecté ici, une seule fois, uniquement
+    // quand la carte est effectivement affichée.
+    if (!document.getElementById("leaflet-css")) {
+      const link = document.createElement("link");
+      link.id = "leaflet-css";
+      link.rel = "stylesheet";
+      link.href = "/vendor/leaflet.css";
+      document.head.appendChild(link);
+    }
+
     import("leaflet").then((L) => {
       if (cancelled || !mapContainerRef.current) return;
 

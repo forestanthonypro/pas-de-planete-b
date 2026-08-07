@@ -58,7 +58,7 @@ function Card({ href, Icon, label, desc, tint }) {
   const { sobriety } = useSobriety();
   const colors = TINTS[tint] || TINTS.green;
   return (
-    <Link href={href} className="pdpb-card" style={{ display: "block", textDecoration: "none", color: "var(--color-texte)" }}>
+    <Link href={href} prefetch={false} className="pdpb-card" style={{ display: "block", textDecoration: "none", color: "var(--color-texte)" }}>
       {!sobriety && (
         <div className="pdpb-icon-badge" style={{ background: colors.bg }}>
           <Icon size={18} style={{ color: colors.color }} />

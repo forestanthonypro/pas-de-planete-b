@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import Head from "next/head";
 import "../styles/globals.css";
-import "leaflet/dist/leaflet.css";
 import { SobrietyProvider } from "../lib/SobrietyContext";
 import { ThemeProvider } from "../lib/ThemeContext";
 import { LocaleContext } from "../lib/LocaleContext";
