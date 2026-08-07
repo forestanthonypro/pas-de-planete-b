@@ -206,6 +206,16 @@ export default function EnergiePage() {
             .addTo(markersLayerRef.current);
         });
 
+        // Sans ça, Leaflet peut garder en mémoire de mauvaises dimensions
+        // calculées au moment précis de la création (ex: juste après un
+        // changement d'onglet, ou sur mobile où la mise en page peut
+        // prendre un cycle de rendu de plus à se stabiliser) — la carte
+        // apparaît alors grisée/mal cadrée. setTimeout(0) laisse le DOM se
+        // stabiliser avant de forcer le recalcul.
+        setTimeout(() => {
+          if (!cancelled && mapRef.current) mapRef.current.invalidateSize();
+        }, 0);
+
         if (plants.length > 0) {
           const bounds = L.latLngBounds(plants.map((p) => [p.latitude, p.longitude]));
           mapRef.current.fitBounds(bounds, { padding: [20, 20], maxZoom: 8 });

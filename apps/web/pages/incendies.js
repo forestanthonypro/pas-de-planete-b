@@ -8,6 +8,7 @@ import { IconFlame } from "../components/icons";
 import ShareButtons from "../components/ShareButtons";
 import { useSobriety } from "../lib/SobrietyContext";
 import { useT } from "../lib/useT";
+import { localeTag } from "../lib/dateLocale";
 import ScrollableTable from "../components/ScrollableTable";
 import { useApiFetch } from "../lib/useApiFetch";
 
@@ -68,10 +69,20 @@ export default function IncendiesPage() {
           weight: 1,
         })
           .bindPopup(
-            `Détecté le ${new Date(f.detected_at).toLocaleString("fr-FR")}<br/>Puissance radiative : ${f.frp ?? "?"} MW<br/>Confiance : ${f.confidence ?? "?"}%`
+            `Détecté le ${new Date(f.detected_at).toLocaleString(localeTag(locale))}<br/>Puissance radiative : ${f.frp ?? "?"} MW<br/>Confiance : ${f.confidence ?? "?"}%`
           )
           .addTo(markersLayerRef.current);
       });
+
+      // Sans ça, Leaflet peut garder en mémoire de mauvaises dimensions
+      // calculées au moment précis de la création (ex: juste après un
+      // changement d'onglet, ou sur mobile où la mise en page peut prendre
+      // un cycle de rendu de plus à se stabiliser) — la carte apparaît
+      // alors grisée/mal cadrée. setTimeout(0) laisse le DOM se stabiliser
+      // avant de forcer le recalcul.
+      setTimeout(() => {
+        if (!cancelled && mapRef.current) mapRef.current.invalidateSize();
+      }, 0);
 
       if (fires.length > 0) {
         const bounds = L.latLngBounds(fires.map((f) => [f.latitude, f.longitude]));

@@ -634,7 +634,7 @@
     "view_link": "查看 →",
     "no_ongoing": "目前暂无已发布的进行中请愿活动。",
     "no_closed": "目前暂无已发布的已结束请愿活动。",
-    "error_no_data": "数据不可用"
+    "error_no_data": "暂时无法加载请愿活动——请稍后再试。"
   },
   "charter": {
     "title": "道德宪章",

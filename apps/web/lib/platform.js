@@ -23,3 +23,21 @@ export function useIsNativeApp() {
   }, []);
   return isNative;
 }
+
+// Détecte un écran étroit (navigateur mobile classique, PAS l'app native —
+// voir useIsNativeApp ci-dessus pour ça). Basé sur matchMedia plutôt qu'un
+// simple innerWidth pour se mettre à jour automatiquement en cas de
+// rotation d'écran ou de redimensionnement de fenêtre.
+const MOBILE_BREAKPOINT = "(max-width: 640px)";
+
+export function useIsMobileViewport() {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mql = window.matchMedia(MOBILE_BREAKPOINT);
+    setIsMobile(mql.matches);
+    const handler = (e) => setIsMobile(e.matches);
+    mql.addEventListener("change", handler);
+    return () => mql.removeEventListener("change", handler);
+  }, []);
+  return isMobile;
+}

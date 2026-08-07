@@ -634,7 +634,7 @@
     "view_link": "Vedi →",
     "no_ongoing": "Nessuna petizione in corso pubblicata al momento.",
     "no_closed": "Nessuna petizione conclusa pubblicata al momento.",
-    "error_no_data": "Dati non disponibili"
+    "error_no_data": "Impossibile caricare le petizioni al momento — riprova tra poco."
   },
   "charter": {
     "title": "Carta etica",

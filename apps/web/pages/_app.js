@@ -50,6 +50,7 @@ function MatomoTracking({ router }) {
     <Script id="matomo-tracking" strategy="afterInteractive">
       {`
         var _paq = window._paq = window._paq || [];
+        _paq.push(['disableCookies']);
         _paq.push(['trackPageView']);
         _paq.push(['enableLinkTracking']);
         (function() {

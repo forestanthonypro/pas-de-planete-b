@@ -634,7 +634,7 @@
     "view_link": "Voir →",
     "no_ongoing": "Aucune pétition en cours publiée pour l'instant.",
     "no_closed": "Aucune pétition clôturée publiée pour l'instant.",
-    "error_no_data": "Données indisponibles"
+    "error_no_data": "Impossible de charger les pétitions pour l'instant — réessaie dans un instant."
   },
   "charter": {
     "title": "Charte éthique",

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import ShareButtons from "../../components/ShareButtons";
@@ -7,6 +7,7 @@ import { IconLandmark } from "../../components/icons";
 import { useT } from "../../lib/useT";
 import { localeTag } from "../../lib/dateLocale";
 import ScrollableTable from "../../components/ScrollableTable";
+import Pagination from "../../components/Pagination";
 import { useApiFetch } from "../../lib/useApiFetch";
 
 export default function GroupDetailPage() {
@@ -22,6 +23,10 @@ export default function GroupDetailPage() {
   const group = data?.group ?? null;
   const resultBreakdown = data?.resultBreakdown ?? [];
   const recentScrutins = data?.recentScrutins ?? [];
+  const [scrutinsPage, setScrutinsPage] = useState(1);
+  const SCRUTINS_PAGE_SIZE = 20;
+  const scrutinsTotalPages = Math.max(1, Math.ceil(recentScrutins.length / SCRUTINS_PAGE_SIZE));
+  const pagedScrutins = recentScrutins.slice((scrutinsPage - 1) * SCRUTINS_PAGE_SIZE, scrutinsPage * SCRUTINS_PAGE_SIZE);
 
   const totalScrutins = resultBreakdown.reduce((sum, r) => sum + parseInt(r.count, 10), 0);
 
@@ -108,7 +113,7 @@ export default function GroupDetailPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {recentScrutins.map((s) => (
+                  {pagedScrutins.map((s) => (
                     <tr key={s.numero}>
                       <td style={{ padding: 8, whiteSpace: "nowrap" }}>
                         {s.scrutin_date ? new Date(s.scrutin_date).toLocaleDateString(localeTag(locale)) : "—"}
@@ -128,6 +133,7 @@ export default function GroupDetailPage() {
               </table>
             </ScrollableTable>
           )}
+          <Pagination page={scrutinsPage} totalPages={scrutinsTotalPages} onChange={setScrutinsPage} />
 
           <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginTop: "1rem" }}>
             {t("groupes.detail_source")}{" "}

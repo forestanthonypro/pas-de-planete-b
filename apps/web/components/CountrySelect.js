@@ -31,6 +31,7 @@ export default function CountrySelect({ countries, value, onChange, preferredLan
       label={resolvedLabel}
       placeholder={t("common.country_search_placeholder")}
       noResultsLabel={t("common.no_results")}
+      mobileNative={false}
     />
   );
 }

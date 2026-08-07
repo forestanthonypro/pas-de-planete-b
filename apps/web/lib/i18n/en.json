@@ -634,7 +634,7 @@
     "view_link": "View →",
     "no_ongoing": "No ongoing petitions published yet.",
     "no_closed": "No closed petitions published yet.",
-    "error_no_data": "Data unavailable"
+    "error_no_data": "Couldn't load petitions right now — try again in a moment."
   },
   "charter": {
     "title": "Ethical charter",

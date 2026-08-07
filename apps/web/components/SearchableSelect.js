@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useIsNativeApp } from "../lib/platform";
+import { useIsNativeApp, useIsMobileViewport } from "../lib/platform";
 
 // Retire les accents pour une recherche insensible aux accents.
 function normalize(str) {
@@ -10,11 +10,13 @@ function normalize(str) {
 }
 
 // Sélecteur générique avec deux rendus selon la plateforme :
-// - Web : champ de recherche + liste filtrée, stylé comme le reste du site
-//   (comportement historique de CountrySelect).
-// - App mobile (Capacitor) : <select> HTML natif, pour profiter du picker
-//   système d'Android/iOS plutôt que d'imposer un composant maison qui
-//   détonnerait avec le reste de l'interface native.
+// - Web (grand écran), ou web mobile avec beaucoup d'options nécessitant une
+//   recherche (mobileNative=false, ex: pays) : champ de recherche + liste
+//   filtrée, stylé comme le reste du site.
+// - App mobile (Capacitor), OU navigateur mobile étroit avec peu d'options
+//   ne nécessitant pas de recherche (mobileNative=true, valeur par défaut) :
+//   <select> HTML natif, pour profiter du picker système plutôt que
+//   d'imposer un composant maison peu adapté au tactile.
 //
 // options: [{ value, label }]. allLabel (optionnel) ajoute une option
 // "Tous" en tête de liste, avec value === "".
@@ -26,8 +28,11 @@ export default function SearchableSelect({
   placeholder,
   noResultsLabel = "Aucun résultat",
   allLabel,
+  mobileNative = true,
 }) {
   const isNativeApp = useIsNativeApp();
+  const isMobileViewport = useIsMobileViewport();
+  const useNativeSelect = isNativeApp || (mobileNative && isMobileViewport);
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
   const [highlighted, setHighlighted] = useState(0);
@@ -49,7 +54,7 @@ export default function SearchableSelect({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  if (isNativeApp) {
+  if (useNativeSelect) {
     return (
       <label>
         {label}{" "}
@@ -91,7 +96,7 @@ export default function SearchableSelect({
   }
 
   return (
-    <label style={{ position: "relative", display: "inline-block" }} ref={containerRef}>
+    <label style={{ position: "relative", display: isMobileViewport ? "block" : "inline-block" }} ref={containerRef}>
       {label}{" "}
       <input
         type="text"
@@ -108,7 +113,7 @@ export default function SearchableSelect({
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
         aria-label={label}
-        style={{ padding: "4px 8px", minWidth: 180 }}
+        style={{ padding: isMobileViewport ? "10px 12px" : "4px 8px", minWidth: 180, width: isMobileViewport ? "100%" : undefined, fontSize: isMobileViewport ? 16 : undefined }}
       />
       {open && (
         <ul
@@ -119,7 +124,7 @@ export default function SearchableSelect({
             top: "100%",
             left: 0,
             right: 0,
-            maxHeight: 260,
+            maxHeight: isMobileViewport ? 320 : 260,
             overflowY: "auto",
             background: "var(--color-fond)",
             border: "1px solid var(--color-bordure)",
@@ -136,9 +141,9 @@ export default function SearchableSelect({
               aria-selected={value === ""}
               onMouseDown={() => select("")}
               style={{
-                padding: "6px 10px",
+                padding: isMobileViewport ? "12px 14px" : "6px 10px",
                 cursor: "pointer",
-                fontSize: 14,
+                fontSize: isMobileViewport ? 15 : 14,
                 color: "var(--color-texte)",
                 background: value === "" ? "var(--color-carte)" : "var(--color-fond)",
               }}
@@ -158,9 +163,9 @@ export default function SearchableSelect({
               aria-selected={o.value === value}
               onMouseDown={() => select(o.value)}
               style={{
-                padding: "6px 10px",
+                padding: isMobileViewport ? "12px 14px" : "6px 10px",
                 cursor: "pointer",
-                fontSize: 14,
+                fontSize: isMobileViewport ? 15 : 14,
                 color: "var(--color-texte)",
                 background:
                   i === highlighted

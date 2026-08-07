@@ -8,6 +8,7 @@ import { IconUsers } from "../../components/icons";
 import { useT } from "../../lib/useT";
 import { localeTag } from "../../lib/dateLocale";
 import ScrollableTable from "../../components/ScrollableTable";
+import Pagination from "../../components/Pagination";
 import { useApiFetch } from "../../lib/useApiFetch";
 
 function usePositionLabels(t) {
@@ -27,6 +28,8 @@ export default function DeputyPage() {
   const { acteurUid } = router.query;
   const [positionFilter, setPositionFilter] = useState("");
   const [resultFilter, setResultFilter] = useState("");
+  const [votesPage, setVotesPage] = useState(1);
+  const VOTES_PAGE_SIZE = 20;
   const canvasRef = useRef(null);
   const chartRef = useRef(null);
 
@@ -47,6 +50,13 @@ export default function DeputyPage() {
     if (resultFilter && v.result_code !== resultFilter) return false;
     return true;
   });
+
+  useEffect(() => {
+    setVotesPage(1);
+  }, [positionFilter, resultFilter]);
+
+  const votesTotalPages = Math.max(1, Math.ceil(filteredVotes.length / VOTES_PAGE_SIZE));
+  const pagedVotes = filteredVotes.slice((votesPage - 1) * VOTES_PAGE_SIZE, votesPage * VOTES_PAGE_SIZE);
 
   useEffect(() => {
     if (votes.length === 0) return;
@@ -173,7 +183,7 @@ export default function DeputyPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredVotes.map((v) => (
+                    {pagedVotes.map((v) => (
                       <tr key={v.numero_scrutin}>
                         <td style={{ padding: 8, whiteSpace: "nowrap" }}>
                           {v.scrutin_date ? new Date(v.scrutin_date).toLocaleDateString(localeTag(locale)) : "—"}
@@ -195,6 +205,7 @@ export default function DeputyPage() {
               {filteredVotes.length === 0 && (
                 <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>{t("deputes.no_matching_votes")}</p>
               )}
+              <Pagination page={votesPage} totalPages={votesTotalPages} onChange={setVotesPage} />
             </>
           )}
 
