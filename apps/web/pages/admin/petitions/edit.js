@@ -184,6 +184,6 @@ export default function AdminPetitionEdit() {
   return <AdminAuthGate>{(session) => <AdminPetitionEditInner session={session} />}</AdminAuthGate>;
 }
 
-export async function getServerSideProps() {
+export async function getStaticProps() {
   return { props: {} };
 }

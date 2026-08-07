@@ -151,6 +151,6 @@ export default function ProposerRessourcePaysanne() {
   );
 }
 
-export async function getServerSideProps() {
+export async function getStaticProps() {
   return { props: {} };
 }

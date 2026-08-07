@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { useRouter } from "next/router";
+import { useLocaleContext } from "./LocaleContext";
 import fr from "./i18n/fr.json";
 import en from "./i18n/en.json";
 import es from "./i18n/es.json";
@@ -28,20 +28,15 @@ function interpolate(str, params) {
 // que d'afficher une clé brute ou du vide — une traduction manquante ne doit
 // jamais casser la lecture de la page.
 //
-// useRouter() lève une erreur ("NextRouter was not mounted") quand aucun
-// contexte routeur n'est disponible — c'est le cas pendant la génération de
-// pages spéciales comme la 404 automatique de Next.js. Le try/catch protège
-// contre ce cas précis ; le hook reste appelé exactement une fois à chaque
-// rendu (jamais sauté ni répété), donc ce pattern est sûr.
+// La locale vient de LocaleContext (alimenté par _app.js depuis sa prop
+// "router", jamais depuis le Hook useRouter() directement) — useContext()
+// ne lève jamais d'exception, contrairement à useRouter() dans les pages
+// sans contexte routeur complet (404/500 générées automatiquement). Un
+// try/catch autour d'un Hook viole les Rules of Hooks et peut provoquer des
+// décalages d'hydratation serveur/client (voir KNOWN_ISSUES_build.md) —
+// c'est justement ce que ce fichier faisait avant et qui a été corrigé ici.
 export function useT() {
-  let locale = "fr";
-  try {
-    const router = useRouter();
-    locale = router?.locale || "fr";
-  } catch {
-    // Pas de routeur disponible (ex: page d'erreur générée automatiquement
-    // pendant le build) — on reste sur le français par défaut.
-  }
+  const { locale } = useLocaleContext();
   const dict = DICTIONARIES[locale] || DICTIONARIES.fr;
 
   // Mémoïsée sur "locale" uniquement : sans ça, t() change de référence à

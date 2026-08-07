@@ -180,6 +180,6 @@ export default function EnvironmentalImpactPage() {
   );
 }
 
-export async function getServerSideProps() {
+export async function getStaticProps() {
   return { props: {} };
 }

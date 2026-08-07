@@ -213,6 +213,6 @@ export default function AdminPaysansList() {
   return <AdminAuthGate>{(session) => <AdminPaysansListInner session={session} />}</AdminAuthGate>;
 }
 
-export async function getServerSideProps() {
+export async function getStaticProps() {
   return { props: {} };
 }

@@ -130,6 +130,6 @@ export default function AdminPetitionsList() {
   return <AdminAuthGate>{(session) => <AdminPetitionsListInner session={session} />}</AdminAuthGate>;
 }
 
-export async function getServerSideProps() {
+export async function getStaticProps() {
   return { props: {} };
 }

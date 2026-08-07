@@ -246,6 +246,6 @@ export default function AdminPaysanEdit() {
   return <AdminAuthGate>{(session) => <AdminPaysanEditInner session={session} />}</AdminAuthGate>;
 }
 
-export async function getServerSideProps() {
+export async function getStaticProps() {
   return { props: {} };
 }

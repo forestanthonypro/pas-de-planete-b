@@ -190,6 +190,6 @@ export default function AdminInterviewsList() {
   return <AdminAuthGate>{(session) => <AdminInterviewsListInner session={session} />}</AdminAuthGate>;
 }
 
-export async function getServerSideProps() {
+export async function getStaticProps() {
   return { props: {} };
 }

@@ -248,6 +248,6 @@ export default function AdminLocationEdit() {
   return <AdminAuthGate>{(session) => <AdminLocationEditInner session={session} />}</AdminAuthGate>;
 }
 
-export async function getServerSideProps() {
+export async function getStaticProps() {
   return { props: {} };
 }

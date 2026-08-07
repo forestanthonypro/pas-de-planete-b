@@ -281,6 +281,6 @@ export default function EspecesPage() {
   );
 }
 
-export async function getServerSideProps() {
+export async function getStaticProps() {
   return { props: {} };
 }

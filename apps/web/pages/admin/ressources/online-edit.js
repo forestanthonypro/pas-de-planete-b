@@ -173,6 +173,6 @@ export default function AdminOnlineResourceEdit() {
   return <AdminAuthGate>{(session) => <AdminOnlineResourceEditInner session={session} />}</AdminAuthGate>;
 }
 
-export async function getServerSideProps() {
+export async function getStaticProps() {
   return { props: {} };
 }

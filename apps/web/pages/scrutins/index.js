@@ -267,6 +267,6 @@ export default function ScrutinsPage() {
   );
 }
 
-export async function getServerSideProps() {
+export async function getStaticProps() {
   return { props: {} };
 }

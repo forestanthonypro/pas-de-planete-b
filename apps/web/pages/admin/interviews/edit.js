@@ -311,6 +311,6 @@ export default function AdminInterviewEdit() {
   return <AdminAuthGate>{(session) => <AdminInterviewEditInner session={session} />}</AdminAuthGate>;
 }
 
-export async function getServerSideProps() {
+export async function getStaticProps() {
   return { props: {} };
 }

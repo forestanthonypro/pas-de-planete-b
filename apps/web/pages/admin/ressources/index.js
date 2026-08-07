@@ -273,6 +273,6 @@ export default function AdminRessourcesList() {
   return <AdminAuthGate>{(session) => <AdminRessourcesListInner session={session} />}</AdminAuthGate>;
 }
 
-export async function getServerSideProps() {
+export async function getStaticProps() {
   return { props: {} };
 }

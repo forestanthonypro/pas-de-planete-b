@@ -324,6 +324,6 @@ export default function AdminSettings() {
   return <AdminAuthGate>{(session) => <AdminSettingsInner session={session} />}</AdminAuthGate>;
 }
 
-export async function getServerSideProps() {
+export async function getStaticProps() {
   return { props: {} };
 }

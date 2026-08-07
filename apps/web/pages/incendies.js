@@ -160,6 +160,6 @@ export default function IncendiesPage() {
   );
 }
 
-export async function getServerSideProps() {
+export async function getStaticProps() {
   return { props: {} };
 }

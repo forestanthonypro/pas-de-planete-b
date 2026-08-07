@@ -155,6 +155,6 @@ export default function DeputesPage() {
   );
 }
 
-export async function getServerSideProps() {
+export async function getStaticProps() {
   return { props: {} };
 }

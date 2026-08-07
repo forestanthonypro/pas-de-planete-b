@@ -38,6 +38,6 @@ export default function ConfirmerSuivi() {
   );
 }
 
-export async function getServerSideProps() {
+export async function getStaticProps() {
   return { props: {} };
 }

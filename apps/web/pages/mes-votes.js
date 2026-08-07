@@ -225,6 +225,6 @@ export default function MesVotesPage() {
   );
 }
 
-export async function getServerSideProps() {
+export async function getStaticProps() {
   return { props: {} };
 }

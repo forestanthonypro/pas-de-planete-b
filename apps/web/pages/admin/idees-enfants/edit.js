@@ -149,6 +149,6 @@ export default function AdminFutureIdeaEdit() {
   return <AdminAuthGate>{(session) => <AdminFutureIdeaEditInner session={session} />}</AdminAuthGate>;
 }
 
-export async function getServerSideProps() {
+export async function getStaticProps() {
   return { props: {} };
 }

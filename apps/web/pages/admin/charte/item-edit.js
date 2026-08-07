@@ -151,6 +151,6 @@ export default function AdminCharterItemEdit() {
   return <AdminAuthGate>{(session) => <AdminCharterItemEditInner session={session} />}</AdminAuthGate>;
 }
 
-export async function getServerSideProps() {
+export async function getStaticProps() {
   return { props: {} };
 }

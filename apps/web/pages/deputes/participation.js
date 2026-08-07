@@ -110,6 +110,6 @@ export default function ParticipationPage() {
   );
 }
 
-export async function getServerSideProps() {
+export async function getStaticProps() {
   return { props: {} };
 }

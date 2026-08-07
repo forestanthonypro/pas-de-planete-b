@@ -297,6 +297,6 @@ export default function AdminDebunkEdit() {
   return <AdminAuthGate>{(session) => <AdminDebunkEditInner session={session} />}</AdminAuthGate>;
 }
 
-export async function getServerSideProps() {
+export async function getStaticProps() {
   return { props: {} };
 }

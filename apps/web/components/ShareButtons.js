@@ -1,14 +1,28 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useT } from "../lib/useT";
 
 // Boutons de partage — que des liens standards vers les services de partage
 // (aucune clé API, aucune dépendance JS supplémentaire, cohérent avec
 // l'écoconception du site). "title" doit décrire la page/le graphique
 // affiché, pour que le message partagé ait du sens.
+//
+// L'URL réelle (window.location.href) n'existe pas côté serveur — la lire
+// directement pendant le rendu produirait un décalage d'hydratation (le
+// serveur rendrait des liens vides, le client des liens complets). On part
+// donc d'une valeur vide identique des deux côtés, remplie après le montage
+// via useEffect (jamais pendant le rendu lui-même).
 export default function ShareButtons({ title, url }) {
   const { t } = useT();
   const [copied, setCopied] = useState(false);
-  const shareUrl = url || (typeof window !== "undefined" ? window.location.href : "");
+  const [currentUrl, setCurrentUrl] = useState(url || "");
+
+  useEffect(() => {
+    if (!url && typeof window !== "undefined") {
+      setCurrentUrl(window.location.href);
+    }
+  }, [url]);
+
+  const shareUrl = currentUrl;
   const encodedUrl = encodeURIComponent(shareUrl);
   const encodedTitle = encodeURIComponent(title || "Pas de planète B");
 
