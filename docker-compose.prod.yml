@@ -76,6 +76,43 @@ services:
       - "traefik.http.routers.web.tls.certresolver=le"
       - "traefik.http.routers.web.middlewares=security-headers"
 
+  # --- Matomo (analytics auto-hébergé) ---
+  # Base de données séparée de celle du site : Matomo exige MySQL/MariaDB,
+  # incompatible avec le PostgreSQL/PostGIS déjà utilisé par l'API.
+  matomo-db:
+    image: mariadb:11
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: matomo
+      MYSQL_USER: matomo
+      MYSQL_PASSWORD: ${MATOMO_DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MATOMO_DB_ROOT_PASSWORD}
+    volumes:
+      - matomo-db-data:/var/lib/mysql
+
+  matomo:
+    image: matomo:5-apache
+    restart: unless-stopped
+    environment:
+      MATOMO_DATABASE_HOST: matomo-db
+      MATOMO_DATABASE_ADAPTER: mysql
+      MATOMO_DATABASE_TABLES_PREFIX: matomo_
+      MATOMO_DATABASE_USERNAME: matomo
+      MATOMO_DATABASE_PASSWORD: ${MATOMO_DB_PASSWORD}
+      MATOMO_DATABASE_DBNAME: matomo
+    depends_on:
+      - matomo-db
+    volumes:
+      - matomo-data:/var/www/html
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.matomo.rule=Host(`stats.pasdeplaneteb.com`)"
+      - "traefik.http.routers.matomo.entrypoints=websecure"
+      - "traefik.http.routers.matomo.tls.certresolver=le"
+      - "traefik.http.routers.matomo.middlewares=security-headers"
+
 volumes:
   postgres-data:
   letsencrypt:
+  matomo-db-data:
+  matomo-data:
