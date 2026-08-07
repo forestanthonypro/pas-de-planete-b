@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import Head from "next/head";
+import Script from "next/script";
 import "../styles/globals.css";
 import { SobrietyProvider } from "../lib/SobrietyContext";
 import { ThemeProvider } from "../lib/ThemeContext";
@@ -20,6 +21,46 @@ function DefaultHead() {
       <title>Pas de planète B</title>
       <meta name="description" content={t("home.intro")} />
     </Head>
+  );
+}
+
+// Matomo (analytics auto-hébergé, voir stats.pasdeplaneteb.com) — chargé
+// uniquement en production, pour ne jamais polluer les statistiques avec
+// du trafic de développement/test local. Next.js navigue côté client (SPA)
+// entre les pages : le simple script fourni par Matomo ne suit que le tout
+// premier chargement. Un suivi manuel sur chaque changement de route est
+// donc nécessaire (voir useEffect sur router.events plus bas), sans quoi
+// la quasi-totalité des pages vues ne serait jamais comptabilisée.
+function MatomoTracking({ router }) {
+  useEffect(() => {
+    if (process.env.NODE_ENV !== "production") return;
+    function trackPageView(url) {
+      if (typeof window === "undefined" || !window._paq) return;
+      window._paq.push(["setCustomUrl", url]);
+      window._paq.push(["setDocumentTitle", document.title]);
+      window._paq.push(["trackPageView"]);
+    }
+    router.events.on("routeChangeComplete", trackPageView);
+    return () => router.events.off("routeChangeComplete", trackPageView);
+  }, [router.events]);
+
+  if (process.env.NODE_ENV !== "production") return null;
+
+  return (
+    <Script id="matomo-tracking" strategy="afterInteractive">
+      {`
+        var _paq = window._paq = window._paq || [];
+        _paq.push(['trackPageView']);
+        _paq.push(['enableLinkTracking']);
+        (function() {
+          var u="https://stats.pasdeplaneteb.com/";
+          _paq.push(['setTrackerUrl', u+'matomo.php']);
+          _paq.push(['setSiteId', '1']);
+          var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+          g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+        })();
+      `}
+    </Script>
   );
 }
 
@@ -56,6 +97,7 @@ export default function MyApp({ Component, pageProps, router }) {
     return (
       <LocaleContext.Provider value={localeValue}>
         <DefaultHead />
+        <MatomoTracking router={router} />
         {page}
       </LocaleContext.Provider>
     );
@@ -64,6 +106,7 @@ export default function MyApp({ Component, pageProps, router }) {
   return (
     <LocaleContext.Provider value={localeValue}>
       <DefaultHead />
+      <MatomoTracking router={router} />
       <ThemeProvider>
         <SobrietyProvider>
           <Layout>{page}</Layout>

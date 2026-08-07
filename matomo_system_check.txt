@@ -1,0 +1,126 @@
+&lt;details&gt;
+&lt;summary&gt;Click to view System Check&lt;/summary&gt;
+
+### Mandatory checks
+
+#### Version PHP &gt;= 7.2.5:
+ ✔ 8.4.24
+
+#### PDO extension:
+ ✔ 
+
+#### PDO\MYSQL extension:
+ ✔ 
+
+#### MYSQLI extension:
+ ✔ 
+
+#### Autres extensions requises:
+ ✔ zlib ✔ json ✔ filter ✔ hash ✔ session
+
+#### Fonctions requises:
+ ✔ debug_backtrace ✔ escapeshellarg ✔ eval ✔ hash ✔ gzcompress ✔ gzuncompress ✔ pack
+
+#### Configuration PHP requise (php.ini):
+ ✔ session.auto_start = 0 ✔ max_execution_time = 0 OR = -1 OR &gt;= 30
+
+#### Répertoires avec les droits d'accès en écriture:
+ ✔ $DOC_ROOT/tmp ✔ $DOC_ROOT/tmp/assets ✔ $DOC_ROOT/tmp/cache ✔ $DOC_ROOT/tmp/climulti ✔ $DOC_ROOT/tmp/latest ✔ $DOC_ROOT/tmp/logs ✔ $DOC_ROOT/tmp/logos ✔ $DOC_ROOT/tmp/sessions ✔ $DOC_ROOT/tmp/tcpdf ✔ $DOC_ROOT/tmp/templates_c ✔ $DOC_ROOT/config
+
+
+### Optional checks
+
+#### Intégrité des fichiers:
+ ✔ 
+
+#### Binaire PHP 64 bits:
+ ✔ 
+
+#### État du traqueur:
+ ✔ 
+
+#### Limite mémoire:
+ ✔ 256M
+
+#### Fuseau horaire:
+ ✔ 
+
+#### Ouvrir l'URL:
+ ✔ curl
+
+#### PageSpeed est désactivé:
+ ✔ 
+
+#### GD &gt; 2.x + FreeType (graphics):
+ ✔ 
+
+#### Autres extensions:
+ ✔ json ✔ libxml ✔ dom ✔ SimpleXML ✔ openssl
+
+#### Autres fonctions:
+ ✔ shell_exec ✔ set_time_limit ✔ mail ✔ parse_ini_file ✔ glob ✔ gzopen ✔ md5_file ✔ hash_file
+
+#### Système de fichiers:
+ ✔ 
+
+#### Paramétrer une tâche Cron - Gestion des processus via la ligne de commande:
+ ✔ Ok
+
+#### Connexion SSL forcée:
+ ⚠ Warning: Nous recommandons d'utiliser Matomo uniquement avec des connexions sécurisées SSL. Veuillez cliquer ici afin de continuer l'installation en utilisant SSL.
+
+#### Mettre à jour via HTTPS:
+ ✔ 
+
+#### Traceur JavaScript inscriptible ("/matomo.js"):
+ ✔ 
+
+
+### Informational results
+
+#### Matomo Version:
+ 5.12.0
+
+#### PHP_OS:
+ Linux
+
+#### PHP SAPI:
+ apache2handler
+
+#### PHP Timezone:
+ UTC
+
+#### PHP Time:
+ 1786096405
+
+#### PHP Datetime:
+ 2026-08-07 09:53:25
+
+#### PHP INI max_execution_time:
+ 30
+
+#### PHP INI post_max_size:
+ 8M
+
+#### PHP INI max_input_vars:
+ 1000
+
+#### PHP INI zlib.output_compression:
+ 0
+
+#### Curl Version:
+ 8.14.1, OpenSSL/3.5.6
+
+#### Suhosin Installed:
+ 0
+
+#### Server Info:
+ Apache/2.4.68 (Debian)
+
+#### User Agent:
+ Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:153.0) Gecko/20100101 Firefox/153.0
+
+#### Browser Language:
+ fr,fr-fr,en-us,en
+
+&lt;/details&gt;
