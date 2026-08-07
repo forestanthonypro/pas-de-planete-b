@@ -43,6 +43,17 @@ function ReferenceHint({ metricKey, t, locale }) {
   );
 }
 
+// Vert si le site fait mieux que la médiane EcoIndex (valeur plus basse =
+// page plus légère/simple/moins de requêtes), rouge si moins bien, couleur
+// de texte normale si égal ou si aucune référence n'existe pour ce critère.
+function compareToMedianColor(metricKey, value) {
+  const ref = ECOINDEX_REFERENCE[metricKey];
+  if (!ref || value == null) return "var(--color-texte)";
+  if (value < ref.median) return "#1baf7a";
+  if (value > ref.median) return "#d63e2a";
+  return "var(--color-texte)";
+}
+
 export default function EnvironmentalImpactPage() {
   const { t, locale } = useT();
   const [metrics, setMetrics] = useState(null);
@@ -147,19 +158,19 @@ export default function EnvironmentalImpactPage() {
 
             <div className="pdpb-card">
               <p style={{ fontSize: 12, color: "var(--color-texte-clair)", margin: "0 0 6px" }}>{t("environmentalImpact.card_page_weight")}</p>
-              <p style={{ fontSize: 28, fontWeight: 700, margin: 0 }}>{Math.round(latest.page_weight_kb)} Ko</p>
+              <p style={{ fontSize: 28, fontWeight: 700, margin: 0, color: compareToMedianColor("page_weight_kb", latest.page_weight_kb) }}>{Math.round(latest.page_weight_kb)} Ko</p>
               <ReferenceHint metricKey="page_weight_kb" t={t} locale={locale} />
             </div>
 
             <div className="pdpb-card">
               <p style={{ fontSize: 12, color: "var(--color-texte-clair)", margin: "0 0 6px" }}>{t("environmentalImpact.card_dom_elements")}</p>
-              <p style={{ fontSize: 28, fontWeight: 700, margin: 0 }}>{latest.dom_elements ?? "—"}</p>
+              <p style={{ fontSize: 28, fontWeight: 700, margin: 0, color: compareToMedianColor("dom_elements", latest.dom_elements) }}>{latest.dom_elements ?? "—"}</p>
               <ReferenceHint metricKey="dom_elements" t={t} locale={locale} />
             </div>
 
             <div className="pdpb-card">
               <p style={{ fontSize: 12, color: "var(--color-texte-clair)", margin: "0 0 6px" }}>{t("environmentalImpact.card_requests")}</p>
-              <p style={{ fontSize: 28, fontWeight: 700, margin: 0 }}>{latest.requests_count ?? "—"}</p>
+              <p style={{ fontSize: 28, fontWeight: 700, margin: 0, color: compareToMedianColor("requests_count", latest.requests_count) }}>{latest.requests_count ?? "—"}</p>
               <ReferenceHint metricKey="requests_count" t={t} locale={locale} />
             </div>
 

@@ -1,10 +1,28 @@
 import { useEffect } from "react";
+import Head from "next/head";
 import "../styles/globals.css";
 import "leaflet/dist/leaflet.css";
 import { SobrietyProvider } from "../lib/SobrietyContext";
 import { ThemeProvider } from "../lib/ThemeContext";
 import { LocaleContext } from "../lib/LocaleContext";
+import { useT } from "../lib/useT";
 import Layout from "../components/Layout";
+
+// <title> et meta description par défaut, valables sur tout le site — sans
+// ça, aucune page n'a ni titre ni description (repéré par un audit SEO
+// Lighthouse/PageSpeed externe, score SEO impacté). Réutilise home.intro
+// (déjà traduit dans les 8 langues) plutôt que d'ajouter du texte neuf.
+// Amélioration possible plus tard : un titre spécifique par page plutôt
+// qu'un seul titre générique partout.
+function DefaultHead() {
+  const { t } = useT();
+  return (
+    <Head>
+      <title>Pas de planète B</title>
+      <meta name="description" content={t("home.intro")} />
+    </Head>
+  );
+}
 
 export default function MyApp({ Component, pageProps, router }) {
   useEffect(() => {
@@ -36,11 +54,17 @@ export default function MyApp({ Component, pageProps, router }) {
   };
 
   if (Component.noLayout) {
-    return <LocaleContext.Provider value={localeValue}>{page}</LocaleContext.Provider>;
+    return (
+      <LocaleContext.Provider value={localeValue}>
+        <DefaultHead />
+        {page}
+      </LocaleContext.Provider>
+    );
   }
 
   return (
     <LocaleContext.Provider value={localeValue}>
+      <DefaultHead />
       <ThemeProvider>
         <SobrietyProvider>
           <Layout>{page}</Layout>
