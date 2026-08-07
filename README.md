@@ -114,6 +114,15 @@ La bonne approche : exposer la donnée nécessaire via un contexte React aliment
 
 De la même façon, ne jamais lire `window`/`document`/`navigator` **pendant le rendu** d'un composant (ex: `typeof window !== "undefined" ? window.location.href : ""`) — ça produit un HTML différent entre le serveur (pas de `window`) et le client, donc un décalage d'hydratation. Toujours partir d'une valeur par défaut identique des deux côtés, et ne lire l'API navigateur que dans un `useEffect` (voir `components/ShareButtons.js` pour un exemple).
 
+## Écoconception / performance : conventions à respecter
+
+- **Liens de navigation persistante** (`Layout.js`, page d'accueil) : toujours `<Link prefetch={false}>`. Le préchargement automatique de Next.js est utile pour un site applicatif classique, mais gonfle inutilement le nombre de requêtes pour un site de contenu comme celui-ci (repéré via un audit EcoIndex : +26 requêtes rien que sur la page d'accueil). Les liens contextuels profonds dans le contenu (ex: liens internes d'un article) peuvent garder le prefetch par défaut.
+- **CSS de dépendances tierces** (ex: `leaflet/dist/leaflet.css`) : ne jamais l'importer globalement dans `_app.js` si une seule page en a besoin — ça charge ce CSS sur tout le site. Copier le fichier dans `public/vendor/` (auto-hébergé, jamais de CDN externe — cohérent avec la CSP stricte et l'absence de traceurs) et l'injecter dynamiquement via `document.createElement("link")` au moment précis où le composant qui en a besoin s'affiche (voir `pages/ressources/index.js`).
+- **`browserslist`** dans `apps/web/package.json` : cible des navigateurs modernes pour éviter que Next.js ne transpile/polyfille des fonctionnalités déjà supportées nativement (`Array.prototype.at`, `Object.hasOwn`...). À élargir uniquement si un vrai besoin de support de navigateurs anciens apparaît.
+- **`<title>`/meta description** : définis par défaut dans `_app.js` (`DefaultHead`, réutilise `home.intro`) — absents auparavant sur tout le site, ce qui pénalisait le score SEO Lighthouse. Une page avec un contenu très spécifique peut surcharger ces balises avec son propre `<Head>` (Next.js fusionne, la déclaration la plus spécifique l'emporte).
+
+Mesure régulièrement via [ecoindex.fr](https://www.ecoindex.fr) (poids/complexité/requêtes) et [PageSpeed Insights](https://pagespeed.web.dev) (performance/SEO/accessibilité/bonnes pratiques, avec repérage précis des ressources en cause) — les deux mesurent des choses différentes et peuvent évoluer dans des sens opposés selon le changement fait.
+
 ## Sécurité
 
 - Authentification admin par code TOTP (Google Authenticator/Authy), sessions en base avec expiration
