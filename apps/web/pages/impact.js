@@ -29,6 +29,20 @@ const CAR_KM_PER_KG_CO2 = 5;
 const WATER_BOTTLE_LITERS = 1.5;
 const REFERENCE_MONTHLY_VISITS = 1000;
 
+// Au niveau module (pas à l'intérieur du composant) : sinon une nouvelle
+// fonction composant serait recréée à chaque rendu, ce que React ne peut
+// pas réconcilier efficacement (démontage/remontage complet au lieu d'une
+// simple mise à jour) — voir react-hooks/static-components.
+function ReferenceHint({ metricKey, t, locale }) {
+  const ref = ECOINDEX_REFERENCE[metricKey];
+  if (!ref) return null;
+  return (
+    <p style={{ fontSize: 11, color: "var(--color-texte-clair)", margin: "4px 0 0" }}>
+      {t("environmentalImpact.reference_hint", { median: ref.median.toLocaleString(locale), target: ref.target.toLocaleString(locale) })}
+    </p>
+  );
+}
+
 export default function EnvironmentalImpactPage() {
   const { t, locale } = useT();
   const [metrics, setMetrics] = useState(null);
@@ -104,16 +118,6 @@ export default function EnvironmentalImpactPage() {
   const carKm = monthlyCo2Kg != null ? Math.round(monthlyCo2Kg * CAR_KM_PER_KG_CO2 * 10) / 10 : null;
   const waterBottles = monthlyWaterL != null ? Math.round(monthlyWaterL / WATER_BOTTLE_LITERS) : null;
 
-  function ReferenceHint({ metricKey, value }) {
-    const ref = ECOINDEX_REFERENCE[metricKey];
-    if (!ref) return null;
-    return (
-      <p style={{ fontSize: 11, color: "var(--color-texte-clair)", margin: "4px 0 0" }}>
-        {t("environmentalImpact.reference_hint", { median: ref.median.toLocaleString(locale), target: ref.target.toLocaleString(locale) })}
-      </p>
-    );
-  }
-
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
       <PageHeader Icon={IconLeaf} tint="green" title={t("environmentalImpact.title")}>
@@ -144,19 +148,19 @@ export default function EnvironmentalImpactPage() {
             <div className="pdpb-card">
               <p style={{ fontSize: 12, color: "var(--color-texte-clair)", margin: "0 0 6px" }}>{t("environmentalImpact.card_page_weight")}</p>
               <p style={{ fontSize: 28, fontWeight: 700, margin: 0 }}>{Math.round(latest.page_weight_kb)} Ko</p>
-              <ReferenceHint metricKey="page_weight_kb" />
+              <ReferenceHint metricKey="page_weight_kb" t={t} locale={locale} />
             </div>
 
             <div className="pdpb-card">
               <p style={{ fontSize: 12, color: "var(--color-texte-clair)", margin: "0 0 6px" }}>{t("environmentalImpact.card_dom_elements")}</p>
               <p style={{ fontSize: 28, fontWeight: 700, margin: 0 }}>{latest.dom_elements ?? "—"}</p>
-              <ReferenceHint metricKey="dom_elements" />
+              <ReferenceHint metricKey="dom_elements" t={t} locale={locale} />
             </div>
 
             <div className="pdpb-card">
               <p style={{ fontSize: 12, color: "var(--color-texte-clair)", margin: "0 0 6px" }}>{t("environmentalImpact.card_requests")}</p>
               <p style={{ fontSize: 28, fontWeight: 700, margin: 0 }}>{latest.requests_count ?? "—"}</p>
-              <ReferenceHint metricKey="requests_count" />
+              <ReferenceHint metricKey="requests_count" t={t} locale={locale} />
             </div>
 
             <div className="pdpb-card">
