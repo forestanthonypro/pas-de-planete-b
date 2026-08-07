@@ -11,6 +11,24 @@ const GRADE_COLORS = {
   D: "#f4b400", E: "#e67e22", F: "#d63e2a", G: "#8b0000",
 };
 
+// Valeurs de référence officielles EcoIndex (médiane et cible constatées sur
+// l'ensemble des pages analysées par ecoindex.fr) — pas spécifiques à ce
+// site, ce sont les mêmes repères affichés sur https://www.ecoindex.fr pour
+// n'importe quelle page testée. Sert de point de comparaison sous chaque
+// carte concernée.
+const ECOINDEX_REFERENCE = {
+  page_weight_kb: { median: 2410, target: 1024 }, // Mo -> Ko
+  dom_elements: { median: 693, target: 600 },
+  requests_count: { median: 78, target: 40 },
+};
+
+// 1 kg CO2e ≈ 5 km en voiture, 1,5 L d'eau ≈ 1 bouteille d'eau minérale —
+// équivalences utilisées par ecoindex.fr elle-même pour rendre l'empreinte
+// concrète (voir leur page "Ça veut dire quoi ?").
+const CAR_KM_PER_KG_CO2 = 5;
+const WATER_BOTTLE_LITERS = 1.5;
+const REFERENCE_MONTHLY_VISITS = 1000;
+
 export default function EnvironmentalImpactPage() {
   const { t, locale } = useT();
   const [metrics, setMetrics] = useState(null);
@@ -78,6 +96,24 @@ export default function EnvironmentalImpactPage() {
     ? Math.round((parseFloat(latest.ecoindex_score) - parseFloat(first.ecoindex_score)) * 10) / 10
     : null;
 
+  // Équivalences concrètes (mêmes ratios que ceux affichés par ecoindex.fr) :
+  // pour 1000 visites mensuelles, l'empreinte CO2/eau de cette seule page vue
+  // exprimée en trajet voiture / bouteilles d'eau minérale.
+  const monthlyCo2Kg = latest ? (parseFloat(latest.ghg_co2_g) * REFERENCE_MONTHLY_VISITS) / 1000 : null;
+  const monthlyWaterL = latest ? (parseFloat(latest.water_cl) * REFERENCE_MONTHLY_VISITS) / 100 : null;
+  const carKm = monthlyCo2Kg != null ? Math.round(monthlyCo2Kg * CAR_KM_PER_KG_CO2 * 10) / 10 : null;
+  const waterBottles = monthlyWaterL != null ? Math.round(monthlyWaterL / WATER_BOTTLE_LITERS) : null;
+
+  function ReferenceHint({ metricKey, value }) {
+    const ref = ECOINDEX_REFERENCE[metricKey];
+    if (!ref) return null;
+    return (
+      <p style={{ fontSize: 11, color: "var(--color-texte-clair)", margin: "4px 0 0" }}>
+        {t("environmentalImpact.reference_hint", { median: ref.median.toLocaleString(locale), target: ref.target.toLocaleString(locale) })}
+      </p>
+    );
+  }
+
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
       <PageHeader Icon={IconLeaf} tint="green" title={t("environmentalImpact.title")}>
@@ -108,16 +144,19 @@ export default function EnvironmentalImpactPage() {
             <div className="pdpb-card">
               <p style={{ fontSize: 12, color: "var(--color-texte-clair)", margin: "0 0 6px" }}>{t("environmentalImpact.card_page_weight")}</p>
               <p style={{ fontSize: 28, fontWeight: 700, margin: 0 }}>{Math.round(latest.page_weight_kb)} Ko</p>
+              <ReferenceHint metricKey="page_weight_kb" />
             </div>
 
             <div className="pdpb-card">
               <p style={{ fontSize: 12, color: "var(--color-texte-clair)", margin: "0 0 6px" }}>{t("environmentalImpact.card_dom_elements")}</p>
               <p style={{ fontSize: 28, fontWeight: 700, margin: 0 }}>{latest.dom_elements ?? "—"}</p>
+              <ReferenceHint metricKey="dom_elements" />
             </div>
 
             <div className="pdpb-card">
               <p style={{ fontSize: 12, color: "var(--color-texte-clair)", margin: "0 0 6px" }}>{t("environmentalImpact.card_requests")}</p>
               <p style={{ fontSize: 28, fontWeight: 700, margin: 0 }}>{latest.requests_count ?? "—"}</p>
+              <ReferenceHint metricKey="requests_count" />
             </div>
 
             <div className="pdpb-card">
@@ -135,6 +174,24 @@ export default function EnvironmentalImpactPage() {
               <p style={{ fontSize: 15, fontWeight: 700, margin: 0, color: "#1baf7a" }}>{t("environmentalImpact.card_hosting_value")}</p>
             </div>
           </div>
+
+          <section className="pdpb-card" style={{ marginTop: "1rem" }}>
+            <p style={{ fontSize: 13, fontWeight: 600, margin: "0 0 8px" }}>{t("environmentalImpact.meaning_title")}</p>
+            <p style={{ fontSize: 13, margin: "0 0 8px", color: "var(--color-texte-clair)" }}>
+              {t("environmentalImpact.meaning_grade_explainer")}
+            </p>
+            {carKm !== null && waterBottles !== null && (
+              <p style={{ fontSize: 13, margin: 0, color: "var(--color-texte-clair)" }}>
+                {t("environmentalImpact.meaning_equivalence", {
+                  visits: REFERENCE_MONTHLY_VISITS.toLocaleString(locale),
+                  co2: (monthlyCo2Kg < 1 ? Math.round(monthlyCo2Kg * 1000) + " g" : monthlyCo2Kg.toFixed(1) + " kg"),
+                  water: monthlyWaterL.toFixed(1),
+                  carKm,
+                  bottles: waterBottles,
+                })}
+              </p>
+            )}
+          </section>
 
           {(latest.lighthouse_performance != null) && (
             <div className="pdpb-card" style={{ marginTop: "1rem" }}>

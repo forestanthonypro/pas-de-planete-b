@@ -715,6 +715,7 @@
     "card_page_weight": "Peso della pagina",
     "card_dom_elements": "Elementi DOM",
     "card_requests": "Richieste",
+    "reference_hint": "Mediana: {median} · Obiettivo: {target}",
     "card_hosting": "Hosting",
     "card_hosting_value": "100% energia rinnovabile",
     "card_emissions": "Emissioni",
@@ -730,6 +731,9 @@
     "no_data": "Nessuna misurazione disponibile per ora — la prima avverrà al prossimo deployment in produzione.",
     "methodology_title": "Metodologia",
     "methodology_text": "Misurazioni automatiche a ogni deployment in produzione, tramite EcoIndex (peso pagina, elementi DOM, richieste, emissioni di CO2 e acqua stimate — metodologia GreenIT) e Google Lighthouse (prestazioni, accessibilità, SEO, best practice). Nessun intervento manuale su queste cifre.",
-    "last_measured": "Ultima misurazione: {date}"
+    "last_measured": "Ultima misurazione: {date}",
+    "meaning_title": "Cosa significa?",
+    "meaning_grade_explainer": "Il voto da A a G riflette la performance ambientale della pagina (peso, complessità, numero di richieste) — più è vicino ad A, minore è l'impatto.",
+    "meaning_equivalence": "Per {visits} visite mensili, l'impronta di questa pagina equivale a {co2} di CO2 e {water} L d'acqua — circa {carKm} km in auto e {bottles} bottiglie d'acqua minerale (1,5 L)."
   }
 }

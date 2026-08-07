@@ -715,6 +715,7 @@
     "card_page_weight": "ページ重量",
     "card_dom_elements": "DOM要素数",
     "card_requests": "リクエスト数",
+    "reference_hint": "中央値：{median}　目標：{target}",
     "card_hosting": "ホスティング",
     "card_hosting_value": "100%再生可能エネルギー",
     "card_emissions": "排出量",
@@ -730,6 +731,9 @@
     "no_data": "現時点で利用可能な測定はありません——次回の本番デプロイ時に初回測定が行われます。",
     "methodology_title": "方法論",
     "methodology_text": "本番デプロイのたびに、EcoIndex（ページ重量、DOM要素数、リクエスト数、推定CO2排出量と水使用量——GreenIT手法）とGoogle Lighthouse（パフォーマンス、アクセシビリティ、SEO、ベストプラクティス）による自動測定を実施。これらの数字への手動介入は一切ありません。",
-    "last_measured": "最終測定：{date}"
+    "last_measured": "最終測定：{date}",
+    "meaning_title": "これは何を意味しますか？",
+    "meaning_grade_explainer": "A〜Gの評価はページの環境パフォーマンス（重量、複雑さ、リクエスト数）を反映しています — Aに近いほど影響が少ないことを意味します。",
+    "meaning_equivalence": "月間{visits}回の訪問で、このページのフットプリントはCO2 {co2}、水{water}Lに相当します — 車で約{carKm}km、ミネラルウォーター（1.5L）約{bottles}本分です。"
   }
 }

@@ -715,6 +715,7 @@
     "card_page_weight": "Page weight",
     "card_dom_elements": "DOM elements",
     "card_requests": "Requests",
+    "reference_hint": "Median: {median} · Target: {target}",
     "card_hosting": "Hosting",
     "card_hosting_value": "100% renewable energy",
     "card_emissions": "Emissions",
@@ -730,6 +731,9 @@
     "no_data": "No measurement available yet — the first one will happen at the next production deployment.",
     "methodology_title": "Methodology",
     "methodology_text": "Automatic measurements on every production deployment, via EcoIndex (page weight, DOM elements, requests, estimated CO2 emissions and water use — GreenIT methodology) and Google Lighthouse (performance, accessibility, SEO, best practices). No manual intervention on these figures.",
-    "last_measured": "Last measured: {date}"
+    "last_measured": "Last measured: {date}",
+    "meaning_title": "What does this mean?",
+    "meaning_grade_explainer": "The A to G grade reflects the page's environmental performance (weight, complexity, number of requests) — the closer to A, the lower the impact.",
+    "meaning_equivalence": "For {visits} monthly visits, this page's footprint is {co2} of CO2 and {water} L of water — roughly {carKm} km by car and {bottles} bottles of mineral water (1.5 L)."
   }
 }

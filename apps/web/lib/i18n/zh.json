@@ -715,6 +715,7 @@
     "card_page_weight": "页面大小",
     "card_dom_elements": "DOM元素数",
     "card_requests": "请求数",
+    "reference_hint": "中位数：{median}　目标：{target}",
     "card_hosting": "托管",
     "card_hosting_value": "100%可再生能源",
     "card_emissions": "排放量",
@@ -730,6 +731,9 @@
     "no_data": "目前尚无可用的测量数据——首次测量将在下次生产环境部署时进行。",
     "methodology_title": "方法论",
     "methodology_text": "每次生产环境部署时自动测量，使用EcoIndex（页面大小、DOM元素数、请求数、估算的CO2排放量和用水量——GreenIT方法论）和Google Lighthouse（性能、无障碍性、SEO、最佳实践）。这些数字没有任何人工干预。",
-    "last_measured": "最后测量时间：{date}"
+    "last_measured": "最后测量时间：{date}",
+    "meaning_title": "这意味着什么？",
+    "meaning_grade_explainer": "A到G的评级反映了页面的环境性能（重量、复杂度、请求数量）——越接近A，影响越小。",
+    "meaning_equivalence": "按每月{visits}次访问计算，该页面的足迹相当于{co2}的CO2和{water}升水——大约相当于开车{carKm}公里和{bottles}瓶矿泉水（1.5升装）。"
   }
 }
