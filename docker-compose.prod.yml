@@ -52,14 +52,14 @@ services:
       - "traefik.http.routers.api.rule=Host(`api.pasdeplaneteb.com`)"
       - "traefik.http.routers.api.entrypoints=websecure"
       - "traefik.http.routers.api.tls.certresolver=le"
-      - "traefik.http.routers.api.middlewares=security-headers"
+      - "traefik.http.routers.api.middlewares=api-security-headers"
       # HSTS : demande au navigateur de toujours utiliser HTTPS pour ce
       # domaine pendant 6 mois (15552000s), y compris les sous-domaines —
       # même durée que celle déjà envoyée par Helmet côté API elle-même.
-      - "traefik.http.middlewares.security-headers.headers.stsSeconds=15552000"
-      - "traefik.http.middlewares.security-headers.headers.stsIncludeSubdomains=true"
-      - "traefik.http.middlewares.security-headers.headers.stsPreload=true"
-      - "traefik.http.middlewares.security-headers.headers.forceSTSHeader=true"
+      - "traefik.http.middlewares.api-security-headers.headers.stsSeconds=15552000"
+      - "traefik.http.middlewares.api-security-headers.headers.stsIncludeSubdomains=true"
+      - "traefik.http.middlewares.api-security-headers.headers.stsPreload=true"
+      - "traefik.http.middlewares.api-security-headers.headers.forceSTSHeader=true"
 
   web:
     image: ${REGISTRY}/web:latest
@@ -74,7 +74,18 @@ services:
       - "traefik.http.routers.web.rule=Host(`pasdeplaneteb.com`)"
       - "traefik.http.routers.web.entrypoints=websecure"
       - "traefik.http.routers.web.tls.certresolver=le"
-      - "traefik.http.routers.web.middlewares=security-headers"
+      - "traefik.http.routers.web.middlewares=web-security-headers"
+      # Middleware défini directement sur ce service plutôt que réutilisé
+      # depuis celui de l'API — Traefik ne rendait pas de façon fiable un
+      # middleware défini sur un autre conteneur visible ici ("middleware
+      # security-headers@docker does not exist" en boucle dans les logs,
+      # jamais appliqué en pratique malgré l'absence d'erreur visible côté
+      # utilisateur). Nom différent (web-security-headers) pour éviter toute
+      # confusion avec celui de l'API, identique par ailleurs.
+      - "traefik.http.middlewares.web-security-headers.headers.stsSeconds=15552000"
+      - "traefik.http.middlewares.web-security-headers.headers.stsIncludeSubdomains=true"
+      - "traefik.http.middlewares.web-security-headers.headers.stsPreload=true"
+      - "traefik.http.middlewares.web-security-headers.headers.forceSTSHeader=true"
 
   # --- Matomo (analytics auto-hébergé) ---
   # Base de données séparée de celle du site : Matomo exige MySQL/MariaDB,
@@ -109,7 +120,11 @@ services:
       - "traefik.http.routers.matomo.rule=Host(`stats.pasdeplaneteb.com`)"
       - "traefik.http.routers.matomo.entrypoints=websecure"
       - "traefik.http.routers.matomo.tls.certresolver=le"
-      - "traefik.http.routers.matomo.middlewares=security-headers"
+      - "traefik.http.routers.matomo.middlewares=matomo-security-headers"
+      - "traefik.http.middlewares.matomo-security-headers.headers.stsSeconds=15552000"
+      - "traefik.http.middlewares.matomo-security-headers.headers.stsIncludeSubdomains=true"
+      - "traefik.http.middlewares.matomo-security-headers.headers.stsPreload=true"
+      - "traefik.http.middlewares.matomo-security-headers.headers.forceSTSHeader=true"
 
 volumes:
   postgres-data:
