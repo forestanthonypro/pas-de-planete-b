@@ -81,7 +81,7 @@ function LegalContentEditor({ baseKey, label, href, sessionToken }) {
     fetch(`${API_URL}/api/admin/translate`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${sessionToken}` },
-      body: JSON.stringify({ texts: { content: frenchContent || "" }, targetLangs: [lang] }),
+      body: JSON.stringify({ texts: { content: frenchContent || "" }, targetLangs: [lang], format: "html" }),
     })
       .then((res) => {
         if (!res.ok) return res.json().then((d) => Promise.reject(new Error(d.error || "Erreur")));
@@ -107,7 +107,7 @@ function LegalContentEditor({ baseKey, label, href, sessionToken }) {
     fetch(`${API_URL}/api/admin/translate`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${sessionToken}` },
-      body: JSON.stringify({ texts: { content: frenchContent || "" }, targetLangs: allLangs }),
+      body: JSON.stringify({ texts: { content: frenchContent || "" }, targetLangs: allLangs, format: "html" }),
     })
       .then((res) => {
         if (!res.ok) return res.json().then((d) => Promise.reject(new Error(d.error || "Erreur")));

@@ -2,6 +2,7 @@ import { Router } from "express";
 import { pool } from "../lib/db.js";
 import { errorDetail } from "../lib/errors.js";
 import { requireAdminSession } from "../lib/auth.js";
+import { sanitizeLegalHtml } from "../lib/sanitizeHtml.js";
 
 // Réglages du site (activation de fonctionnalités, contenu des pages
 // légales par langue) — géré depuis /admin/settings.
@@ -92,16 +93,19 @@ router.post("/api/admin/settings/legal-content", requireAdminSession, async (req
     return res.status(400).json({ error: "content doit être une chaîne" });
   }
   try {
+    // Filet de sécurité en plus du nettoyage déjà fait côté client au
+    // collage (SimpleWysiwygEditor.js) : évite qu'un style en ligne ou une
+    // balise indésirable se glisse en base via un appel API direct.
+    const cleanContent = sanitizeLegalHtml(content);
     await pool.query(
       `INSERT INTO site_settings (key, value) VALUES ($1, $2)
        ON CONFLICT (key) DO UPDATE SET value = $2`,
-      [key, content]
+      [key, cleanContent]
     );
     res.json({ status: "ok" });
   } catch (err) {
     res.status(500).json({ error: "Erreur serveur", detail: errorDetail(err) });
   }
 });
-
 
 export default router;
