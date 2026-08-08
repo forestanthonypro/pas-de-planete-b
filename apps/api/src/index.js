@@ -7,6 +7,7 @@ import { globalLimiter } from "./lib/rateLimits.js";
 import authRoutes from "./routes/auth.js";
 import environmentalDataRoutes from "./routes/environmentalData.js";
 import parliamentaryRoutes from "./routes/parliamentary.js";
+import parliamentGenericRoutes from "./routes/parliamentGeneric.js";
 import citizenVotesRoutes from "./routes/citizenVotes.js";
 import newsletterRoutes from "./routes/newsletter.js";
 import settingsRoutes from "./routes/settings.js";
@@ -76,6 +77,7 @@ app.get("/health", async (_req, res) => {
 app.use(authRoutes);
 app.use(environmentalDataRoutes);
 app.use(parliamentaryRoutes);
+app.use(parliamentGenericRoutes);
 app.use(citizenVotesRoutes);
 app.use(newsletterRoutes);
 app.use(settingsRoutes);

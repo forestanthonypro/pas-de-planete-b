@@ -71,7 +71,9 @@
     "card_petitions_label": "Pétitions",
     "card_petitions_desc": "Signe, partage ou propose-en une",
     "card_futureideas_label": "Les enfants d'aujourd'hui et de demain",
-    "card_futureideas_desc": "Soutenez les idées par le vote"
+    "card_futureideas_desc": "Soutenez les idées par le vote",
+    "card_international_label": "International",
+    "card_international_desc": "Parlements étrangers"
   },
   "co2": {
     "title": "Émissions de CO2",
@@ -735,5 +737,17 @@
     "meaning_title": "Ça veut dire quoi ?",
     "meaning_grade_explainer": "La note de A à G reflète la performance environnementale de la page (poids, complexité, nombre de requêtes) — plus elle est proche de A, plus l'impact est faible.",
     "meaning_equivalence": "Pour {visits} visites mensuelles, l'empreinte de cette page représente {co2} de CO2 et {water} L d'eau — soit environ {carKm} km en voiture et {bottles} bouteilles d'eau minérale (1,5 L)."
+  },
+  "international": {
+    "title": "Parlements du monde",
+    "intro": "Les mêmes principes de transparence qu'en France, appliqués aux parlements d'autres pays — à partir de données ouvertes officielles, quand elles existent.",
+    "country_us": "États-Unis",
+    "country_ru": "Russie",
+    "country_jp": "Japon",
+    "country_cn": "Chine",
+    "country_in": "Inde",
+    "unavailable_title": "Pas encore de données pour ces pays",
+    "unavailable_desc": "Nous n'avons pas identifié de source de données ouvertes officielle et exploitable pour ces parlements à ce jour.",
+    "suggest_source_prefix": "Vous connaissez une source officielle exploitable pour l'un de ces pays (ou un autre) ? Écrivez-nous à"
   }
 }

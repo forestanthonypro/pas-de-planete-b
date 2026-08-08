@@ -50,6 +50,7 @@ function useCardGroups(t) {
     { href: "/groupes", Icon: IconLandmark, label: t("home.card_groupes_label"), desc: t("home.card_groupes_desc"), tint: "blue" },
     { href: "/scrutins", Icon: IconScale, label: t("home.card_scrutins_label"), desc: t("home.card_scrutins_desc"), tint: "blue" },
     { href: "/mes-votes", Icon: IconCheck, label: t("home.card_mesvotes_label"), desc: t("home.card_mesvotes_desc"), tint: "blue" },
+    { href: "/international", Icon: IconLandmark, label: t("home.card_international_label"), desc: t("home.card_international_desc"), tint: "blue" },
   ];
   return { environment, democracy };
 }
