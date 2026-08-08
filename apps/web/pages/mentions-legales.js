@@ -27,7 +27,7 @@ export default function MentionsLegales() {
   }, [router.locale]);
 
   return (
-    <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 800, margin: "0 auto" }}>
+    <div style={{ fontFamily: "var(--font-sans)", padding: "2rem", maxWidth: 800, margin: "0 auto" }}>
       <PageHeader Icon={IconScroll} tint="blue" title={t("common.footer_legal")} />
 
       {html === null && <p>{t("common.loading")}</p>}
