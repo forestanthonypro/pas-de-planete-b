@@ -6,6 +6,7 @@ import { ingestDeputies } from "../ingest/deputies.js";
 import { ingestGroups } from "../ingest/an_groups.js";
 import { ingestScrutins } from "../ingest/scrutins.js";
 import { ingestDeputyVotes } from "../ingest/deputy_votes.js";
+import { ingestUsCongress } from "../scripts/ingest-us-congress.js";
 
 const router = Router();
 
@@ -263,6 +264,19 @@ router.post("/api/admin/ingest/scrutins", requireIngestToken, async (_req, res) 
 router.post("/api/admin/ingest/deputy-votes", requireIngestToken, async (_req, res) => {
   try {
     const result = await ingestDeputyVotes(pool);
+    res.json({ status: "ok", ...result });
+  } catch (err) {
+    res.status(500).json({ error: "Échec de l'ingestion", detail: errorDetail(err) });
+  }
+});
+
+// --- Congrès des États-Unis (schéma générique parliament_*) ---
+// Timeout côté appelant à prévoir généreux (voir --max-time dans le
+// workflow GitHub Actions) : l'ingestion fait un appel Congress.gov par
+// vote de la Chambre, ça peut prendre plusieurs minutes.
+router.post("/api/admin/ingest/us-congress", requireIngestToken, async (_req, res) => {
+  try {
+    const result = await ingestUsCongress();
     res.json({ status: "ok", ...result });
   } catch (err) {
     res.status(500).json({ error: "Échec de l'ingestion", detail: errorDetail(err) });

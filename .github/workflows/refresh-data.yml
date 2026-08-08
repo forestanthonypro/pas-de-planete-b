@@ -109,3 +109,15 @@ jobs:
           curl -f -X POST "${{ secrets.API_URL }}/api/admin/ingest/scrutins" \
             -H "x-ingest-token: ${{ secrets.INGEST_TOKEN }}" \
             --max-time 1200
+
+  # --- Congrès des États-Unis (schéma générique parliament_*) ---
+  # Indépendant des jobs France ci-dessus : pays et schéma de données
+  # distincts, pas de dépendance entre les deux.
+  refresh-us-congress:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ré-ingérer les élus et votes du Congrès américain (peut prendre plusieurs minutes)
+        run: |
+          curl -f -X POST "${{ secrets.API_URL }}/api/admin/ingest/us-congress" \
+            -H "x-ingest-token: ${{ secrets.INGEST_TOKEN }}" \
+            --max-time 1200

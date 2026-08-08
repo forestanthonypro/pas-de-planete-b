@@ -16,29 +16,16 @@
 //                                         "link" renvoyé par /api/v2/vote,
 //                                         suffixé de "/export/csv".
 //
-// Usage : node src/scripts/ingest-us-congress.js [--congress=119] [--session=1]
+// Utilisable de deux façons :
+//   1. En script autonome : node src/scripts/ingest-us-congress.js [--congress=119] [--session=1] [--limit-votes=N]
+//   2. Importé et appelé depuis une route API (ingestUsCongress()), pour le
+//      rafraîchissement mensuel programmé — voir routes/parliamentary.js
+//      et .github/workflows/refresh-data.yml.
 
 import { pool } from "../lib/db.js";
 
-const CONGRESS_API_KEY = process.env.CONGRESS_GOV_API_KEY;
 const CONGRESS_API_BASE = "https://api.congress.gov/v3";
 const GOVTRACK_API_BASE = "https://www.govtrack.us/api/v2";
-
-const args = Object.fromEntries(
-  process.argv.slice(2).map((a) => {
-    const [k, v] = a.replace(/^--/, "").split("=");
-    return [k, v ?? true];
-  })
-);
-const CONGRESS = Number(args.congress || 119);
-const SESSION = Number(args.session || 1);
-const SESSION_YEAR = 2025 + (SESSION - 1); // 119e Congrès, session 1 = 2025
-const LIMIT_VOTES = args["limit-votes"] ? Number(args["limit-votes"]) : Infinity;
-
-if (!CONGRESS_API_KEY) {
-  console.error("CONGRESS_GOV_API_KEY manquante dans l'environnement.");
-  process.exit(1);
-}
 
 async function fetchJson(url) {
   const res = await fetch(url);
@@ -84,14 +71,14 @@ async function upsertGroup(partyName) {
 //    champ terms.item[].chamber ("House of Representatives" / "Senate"),
 //    fiable celui-là. Pagination par lots de 250 (max de l'API).
 // ---------------------------------------------------------------------
-async function ingestAllMembers() {
+async function ingestAllMembers(apiKey) {
   let offset = 0;
   const limit = 250;
   let total = Infinity;
   const counts = { lower: 0, upper: 0 };
 
   while (offset < total) {
-    const url = `${CONGRESS_API_BASE}/member?currentMember=true&limit=${limit}&offset=${offset}&api_key=${CONGRESS_API_KEY}`;
+    const url = `${CONGRESS_API_BASE}/member?currentMember=true&limit=${limit}&offset=${offset}&api_key=${apiKey}`;
     const data = await fetchJson(url);
     total = data.pagination?.count ?? data.members.length;
 
@@ -133,25 +120,25 @@ async function ingestAllMembers() {
     }
     offset += limit;
   }
-  console.log(`Membres Chambre : ${counts.lower} — Sénat : ${counts.upper} importés/mis à jour.`);
+  return counts;
 }
 
 // ---------------------------------------------------------------------
 // 3. Votes + positions — Chambre (Congress.gov)
 // ---------------------------------------------------------------------
-async function ingestHouseVotes() {
+async function ingestHouseVotes(apiKey, congress, session, limitVotes) {
   let offset = 0;
   const limit = 250;
   let total = Infinity;
   let voteCount = 0;
 
   while (offset < total) {
-    const listUrl = `${CONGRESS_API_BASE}/house-vote/${CONGRESS}/${SESSION}?limit=${limit}&offset=${offset}&api_key=${CONGRESS_API_KEY}`;
+    const listUrl = `${CONGRESS_API_BASE}/house-vote/${congress}/${session}?limit=${limit}&offset=${offset}&api_key=${apiKey}`;
     const listData = await fetchJson(listUrl);
     total = listData.pagination?.count ?? listData.houseRollCallVotes.length;
 
     for (const v of listData.houseRollCallVotes) {
-      if (voteCount >= LIMIT_VOTES) break;
+      if (voteCount >= limitVotes) break;
       const question = v.legislationNumber
         ? `${v.legislationType} ${v.legislationNumber}`
         : `Vote ${v.rollCallNumber}`;
@@ -177,7 +164,7 @@ async function ingestHouseVotes() {
       const voteId = voteResult.rows[0].id;
 
       // Détail des positions par élu — endpoint séparé, un appel par vote.
-      const detailUrl = `${CONGRESS_API_BASE}/house-vote/${CONGRESS}/${SESSION}/${v.rollCallNumber}/members?limit=500&api_key=${CONGRESS_API_KEY}`;
+      const detailUrl = `${CONGRESS_API_BASE}/house-vote/${congress}/${session}/${v.rollCallNumber}/members?limit=500&api_key=${apiKey}`;
       const detailData = await fetchJson(detailUrl);
       const members = detailData.houseRollCallVoteMemberVotes?.results || detailData.results || [];
 
@@ -210,9 +197,9 @@ async function ingestHouseVotes() {
       voteCount++;
     }
     offset += limit;
-    if (voteCount >= LIMIT_VOTES) break;
+    if (voteCount >= limitVotes) break;
   }
-  console.log(`Votes Chambre : ${voteCount} importés/mis à jour.`);
+  return voteCount;
 }
 
 // ---------------------------------------------------------------------
@@ -273,19 +260,19 @@ function parseCsv(text) {
   });
 }
 
-async function ingestSenateVotes() {
+async function ingestSenateVotes(congress, limitVotes) {
   let offset = 0;
   const limit = 100;
   let total = Infinity;
   let voteCount = 0;
 
   while (offset < total) {
-    const listUrl = `${GOVTRACK_API_BASE}/vote?congress=${CONGRESS}&chamber=senate&limit=${limit}&offset=${offset}`;
+    const listUrl = `${GOVTRACK_API_BASE}/vote?congress=${congress}&chamber=senate&limit=${limit}&offset=${offset}`;
     const listData = await fetchJson(listUrl);
     total = listData.meta?.total_count ?? listData.objects.length;
 
     for (const v of listData.objects) {
-      if (voteCount >= LIMIT_VOTES) break;
+      if (voteCount >= limitVotes) break;
       if (!v.link) continue;
       const numberMatch = v.link.match(/\/s(\d+)$/);
       if (!numberMatch) continue;
@@ -357,24 +344,66 @@ async function ingestSenateVotes() {
       voteCount++;
     }
     offset += limit;
-    if (voteCount >= LIMIT_VOTES) break;
+    if (voteCount >= limitVotes) break;
   }
-  console.log(`Votes Sénat : ${voteCount} importés/mis à jour.`);
+  return voteCount;
 }
 
-async function main() {
-  console.log(`Ingestion Congrès US — ${CONGRESS}e Congrès, session ${SESSION}`);
-  if (LIMIT_VOTES !== Infinity) {
-    console.log(`Mode test : limité à ${LIMIT_VOTES} votes par chambre.`);
+// ---------------------------------------------------------------------
+// Point d'entrée réutilisable — appelé par la route API pour le
+// rafraîchissement mensuel programmé. La clé API est vérifiée ici (pas au
+// chargement du module) pour ne pas faire planter le serveur entier au
+// démarrage si elle manquait — seule cette route échouerait, proprement.
+// ---------------------------------------------------------------------
+export async function ingestUsCongress({ congress = 119, session = 1, limitVotes = Infinity } = {}) {
+  const apiKey = process.env.CONGRESS_GOV_API_KEY;
+  if (!apiKey) {
+    throw new Error("CONGRESS_GOV_API_KEY manquante dans l'environnement.");
   }
-  await ingestAllMembers();
-  await ingestHouseVotes();
-  await ingestSenateVotes();
-  await pool.end();
-  console.log("Terminé.");
+
+  const memberCounts = await ingestAllMembers(apiKey);
+  const houseVoteCount = await ingestHouseVotes(apiKey, congress, session, limitVotes);
+  const senateVoteCount = await ingestSenateVotes(congress, limitVotes);
+
+  return {
+    membersHouse: memberCounts.lower,
+    membersSenate: memberCounts.upper,
+    houseVotes: houseVoteCount,
+    senateVotes: senateVoteCount,
+  };
 }
 
-main().catch((err) => {
-  console.error("Erreur d'ingestion :", err);
-  process.exit(1);
-});
+// ---------------------------------------------------------------------
+// Usage en script autonome (inchangé) : node src/scripts/ingest-us-congress.js
+// ---------------------------------------------------------------------
+if (import.meta.url === `file://${process.argv[1]}`) {
+  const args = Object.fromEntries(
+    process.argv.slice(2).map((a) => {
+      const [k, v] = a.replace(/^--/, "").split("=");
+      return [k, v ?? true];
+    })
+  );
+  const cliCongress = Number(args.congress || 119);
+  const cliSession = Number(args.session || 1);
+  const cliLimitVotes = args["limit-votes"] ? Number(args["limit-votes"]) : Infinity;
+
+  console.log(`Ingestion Congrès US — ${cliCongress}e Congrès, session ${cliSession}`);
+  if (cliLimitVotes !== Infinity) {
+    console.log(`Mode test : limité à ${cliLimitVotes} votes par chambre.`);
+  }
+
+  ingestUsCongress({ congress: cliCongress, session: cliSession, limitVotes: cliLimitVotes })
+    .then((result) => {
+      console.log(
+        `Membres Chambre : ${result.membersHouse} — Sénat : ${result.membersSenate} importés/mis à jour.`
+      );
+      console.log(`Votes Chambre : ${result.houseVotes} importés/mis à jour.`);
+      console.log(`Votes Sénat : ${result.senateVotes} importés/mis à jour.`);
+      console.log("Terminé.");
+    })
+    .catch((err) => {
+      console.error("Erreur d'ingestion :", err);
+      process.exitCode = 1;
+    })
+    .finally(() => pool.end());
+}
