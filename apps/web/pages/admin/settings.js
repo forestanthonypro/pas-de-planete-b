@@ -40,10 +40,19 @@ function LegalContentEditor({ baseKey, label, href, sessionToken }) {
 
   // Le texte français (baseKey, sans suffixe) sert de source pour la
   // traduction automatique, quelle que soit la langue actuellement
-  // affichée à l'écran.
+  // affichée à l'écran. On le duplique dans un état local mis à jour
+  // immédiatement après un enregistrement réussi en français, car
+  // useApiFetch ne charge frenchContent qu'une fois au montage — sans ça,
+  // traduire juste après avoir modifié le français utiliserait encore
+  // l'ancienne version tant que la page n'est pas rechargée.
   const { data: frenchContent } = useApiFetch(`/api/settings/legal-content/${baseKey}`, {
     transform: (data) => (data && data.content) || "",
   });
+  const [latestFrenchContent, setLatestFrenchContent] = useState("");
+
+  useEffect(() => {
+    if (frenchContent !== undefined) setLatestFrenchContent(frenchContent || "");
+  }, [frenchContent]);
 
   useEffect(() => {
     setValue(legalContent || "");
@@ -61,6 +70,7 @@ function LegalContentEditor({ baseKey, label, href, sessionToken }) {
       .then((res) => {
         if (!res.ok) throw new Error();
         setInitialValue(value);
+        if (lang === "fr") setLatestFrenchContent(value);
         setStatus("saved");
         setSaving(false);
       })
@@ -81,7 +91,7 @@ function LegalContentEditor({ baseKey, label, href, sessionToken }) {
     fetch(`${API_URL}/api/admin/translate`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${sessionToken}` },
-      body: JSON.stringify({ texts: { content: frenchContent || "" }, targetLangs: [lang], format: "html" }),
+      body: JSON.stringify({ texts: { content: latestFrenchContent || "" }, targetLangs: [lang], format: "html" }),
     })
       .then((res) => {
         if (!res.ok) return res.json().then((d) => Promise.reject(new Error(d.error || "Erreur")));
@@ -107,7 +117,7 @@ function LegalContentEditor({ baseKey, label, href, sessionToken }) {
     fetch(`${API_URL}/api/admin/translate`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${sessionToken}` },
-      body: JSON.stringify({ texts: { content: frenchContent || "" }, targetLangs: allLangs, format: "html" }),
+      body: JSON.stringify({ texts: { content: latestFrenchContent || "" }, targetLangs: allLangs, format: "html" }),
     })
       .then((res) => {
         if (!res.ok) return res.json().then((d) => Promise.reject(new Error(d.error || "Erreur")));
