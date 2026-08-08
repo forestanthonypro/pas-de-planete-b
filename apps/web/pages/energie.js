@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { detectDefaultCountry } from "../lib/detectCountry";
+import { useCountrySelector } from "../lib/useCountrySelector";
 import { FUEL_COLORS, DEFAULT_FUEL_COLOR, translateFuel } from "../lib/fuelTypes";
 import { useLastUpdated, formatDate } from "../lib/useLastUpdated";
-import { localizedCountryName } from "../lib/countryNames";
 import CountrySelect from "../components/CountrySelect";
 import PageHeader from "../components/PageHeader";
 import { IconBolt } from "../components/icons";
@@ -16,7 +15,7 @@ import { useApiFetch } from "../lib/useApiFetch";
 export default function EnergiePage() {
   const { t, locale } = useT();
   const lastUpdated = useLastUpdated();
-  const [country, setCountry] = useState("FRA");
+  const { countryCode: country, setCountryCode: setCountry, countries, selectedCountryName } = useCountrySelector("/api/power-plants/countries", { locale });
   const [fuelType, setFuelType] = useState("");
   const [view, setView] = useState("map"); // "map" ou "table"
   const [mapError, setMapError] = useState(null);
@@ -33,15 +32,6 @@ export default function EnergiePage() {
   const mixChartRef = useRef(null);
   const generationCanvasRef = useRef(null);
   const generationChartRef = useRef(null);
-
-  useEffect(() => {
-    setCountry(detectDefaultCountry());
-  }, []);
-
-  const { data: countryRows } = useApiFetch("/api/power-plants/countries", {
-    transform: (rows) => (Array.isArray(rows) ? rows.map((r) => r.country_code) : []),
-  });
-  const countries = countryRows ?? [];
 
   const { data: fuelTypeRows } = useApiFetch("/api/power-plants/fuel-types", {
     transform: (rows) => (Array.isArray(rows) ? rows : []),
@@ -74,7 +64,6 @@ export default function EnergiePage() {
     import("../lib/chartSetup").then(({ default: Chart }) => {
       if (cancelled || !mixCanvasRef.current) return;
       if (mixChartRef.current) mixChartRef.current.destroy();
-
       mixChartRef.current = new Chart(mixCanvasRef.current, {
         type: "bar",
         data: {
@@ -118,7 +107,6 @@ export default function EnergiePage() {
     import("../lib/chartSetup").then(({ default: Chart }) => {
       if (cancelled || !generationCanvasRef.current) return;
       if (generationChartRef.current) generationChartRef.current.destroy();
-
       const sources = [
         { key: "coal_twh", label: translateFuel("Coal", locale), color: FUEL_COLORS.Coal },
         { key: "gas_twh", label: translateFuel("Gas", locale), color: FUEL_COLORS.Gas },
@@ -130,7 +118,6 @@ export default function EnergiePage() {
         { key: "biofuel_twh", label: translateFuel("Biomass", locale), color: FUEL_COLORS.Biomass },
         { key: "other_renewable_twh", label: t("energie.other_renewable"), color: DEFAULT_FUEL_COLOR },
       ];
-
       generationChartRef.current = new Chart(generationCanvasRef.current, {
         type: "bar",
         data: {
@@ -173,7 +160,6 @@ export default function EnergiePage() {
 
   useEffect(() => {
     if (view !== "map" || sobriety || !mapContainerRef.current) return;
-
     let cancelled = false;
 
     // Le CSS de Leaflet (et du plugin de clustering) n'est plus chargé
@@ -213,7 +199,6 @@ export default function EnergiePage() {
       })
       .then((L) => {
         if (cancelled || !mapContainerRef.current) return;
-
         if (!mapRef.current) {
           mapRef.current = L.map(mapContainerRef.current).setView([20, 0], 2);
           L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -229,12 +214,10 @@ export default function EnergiePage() {
             maxClusterRadius: 50,
           }).addTo(mapRef.current);
         }
-
         markersLayerRef.current.clearLayers();
         plants.forEach((p) => {
           const color = FUEL_COLORS[p.fuel_type] || DEFAULT_FUEL_COLOR;
           const radius = p.capacity_mw ? Math.max(4, Math.min(20, Math.sqrt(p.capacity_mw))) : 5;
-
           L.circleMarker([p.latitude, p.longitude], {
             radius,
             color,
@@ -247,7 +230,6 @@ export default function EnergiePage() {
             )
             .addTo(markersLayerRef.current);
         });
-
         // Sans ça, Leaflet peut garder en mémoire de mauvaises dimensions
         // calculées au moment précis de la création (ex: juste après un
         // changement d'onglet, ou sur mobile où la mise en page peut
@@ -257,7 +239,6 @@ export default function EnergiePage() {
         setTimeout(() => {
           if (!cancelled && mapRef.current) mapRef.current.invalidateSize();
         }, 0);
-
         if (plants.length > 0) {
           const bounds = L.latLngBounds(plants.map((p) => [p.latitude, p.longitude]));
           mapRef.current.fitBounds(bounds, { padding: [20, 20], maxZoom: 8 });
@@ -267,7 +248,6 @@ export default function EnergiePage() {
         console.error("Échec de l'initialisation de la carte Leaflet :", err);
         setMapError(t("energie.map_init_error", { message: err.message }));
       });
-
     return () => {
       cancelled = true;
       // Détruit vraiment l'instance Leaflet au démontage — sans ça, le mode
@@ -287,15 +267,14 @@ export default function EnergiePage() {
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
       <PageHeader Icon={IconBolt} tint="amber" title={t("energie.title")} />
       <ShareButtons title={t("energie.title")} />
-
       <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem", flexWrap: "wrap" }}>
         <CountrySelect
           countries={countries}
           value={country}
           onChange={setCountry}
-          locale={locale}
+          preferredLang={locale}
+          raised
         />
-
         <label>
           {t("energie.fuel_type_label")}{" "}
           <select value={fuelType} onChange={(e) => setFuelType(e.target.value)}>
@@ -305,7 +284,6 @@ export default function EnergiePage() {
             ))}
           </select>
         </label>
-
         <button onClick={() => setView(view === "map" ? "table" : "map")} disabled={sobriety}>
           {view === "map" ? t("common.view_as_table") : t("common.view_as_chart")}
         </button>
@@ -313,43 +291,38 @@ export default function EnergiePage() {
           <span style={{ fontSize: 12, color: "var(--color-texte-clair)" }}>{t("energie.map_sobriety_disabled")}</span>
         )}
       </div>
-
       {loading && <p>{t("common.loading")}</p>}
       {error && <p role="alert">{t("common.error_prefix")} {error}</p>}
       {!loading && !error && plants.length === 0 && <p>{t("energie.no_plants")}</p>}
-
       <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginBottom: "0.75rem" }}>{t("energie.map_explain")}</p>
-
       <div style={{ display: view === "map" ? "block" : "none" }}>
         <div ref={mapContainerRef} style={{ height: 480, borderRadius: 8 }} />
       </div>
-
       {!loading && !error && view === "table" && (
         <ScrollableTable>
-<table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
-          <caption style={{ textAlign: "left", fontSize: 12, color: "var(--color-texte-clair)", marginBottom: 8 }}>
-            {t("energie.table_caption", { country: localizedCountryName(country, locale), fuelType: fuelType ? `(${fuelType})` : "" })}
-          </caption>
-          <thead>
-            <tr>
-              <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("energie.table_name")}</th>
-              <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("energie.table_type")}</th>
-              <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("energie.table_capacity")}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {plants.map((p, i) => (
-              <tr key={i}>
-                <th scope="row" style={{ textAlign: "left", padding: 8, fontWeight: 400 }}>{p.name}</th>
-                <td style={{ textAlign: "left", padding: 8 }}>{translateFuel(p.fuel_type, locale)}</td>
-                <td style={{ textAlign: "right", padding: 8 }}>{p.capacity_mw ?? "—"}</td>
+          <table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
+            <caption style={{ textAlign: "left", fontSize: 12, color: "var(--color-texte-clair)", marginBottom: 8 }}>
+              {t("energie.table_caption", { country: selectedCountryName, fuelType: fuelType ? `(${fuelType})` : "" })}
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("energie.table_name")}</th>
+                <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("energie.table_type")}</th>
+                <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("energie.table_capacity")}</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-</ScrollableTable>
+            </thead>
+            <tbody>
+              {plants.map((p, i) => (
+                <tr key={i}>
+                  <th scope="row" style={{ textAlign: "left", padding: 8, fontWeight: 400 }}>{p.name}</th>
+                  <td style={{ textAlign: "left", padding: 8 }}>{translateFuel(p.fuel_type, locale)}</td>
+                  <td style={{ textAlign: "right", padding: 8 }}>{p.capacity_mw ?? "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </ScrollableTable>
       )}
-
       {energyMix.length > 0 && (
         <section style={{ marginTop: "2rem" }}>
           <h2>{t("energie.mix_title")}</h2>
@@ -365,7 +338,6 @@ export default function EnergiePage() {
           </div>
         </section>
       )}
-
       {generation.length > 0 && (
         <section style={{ marginTop: "2rem" }}>
           <h2>{t("energie.generation_title")}</h2>
@@ -382,7 +354,6 @@ export default function EnergiePage() {
           </p>
         </section>
       )}
-
       <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginTop: "1rem" }}>
         {t("energie.source")}
         {lastUpdated?.powerPlants?.lastIngested && (

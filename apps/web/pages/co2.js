@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { detectDefaultCountry } from "../lib/detectCountry";
-import { localizedCountryName } from "../lib/countryNames";
+import { useCountrySelector } from "../lib/useCountrySelector";
 import { useLastUpdated, formatDate } from "../lib/useLastUpdated";
 import { useT } from "../lib/useT";
 import { useApiFetch } from "../lib/useApiFetch";
@@ -13,24 +12,12 @@ import ScrollableTable from "../components/ScrollableTable";
 export default function Co2Page() {
   const { t, locale } = useT();
   const lastUpdated = useLastUpdated();
-  const [countryCode, setCountryCode] = useState("FRA");
+  const { countryCode, setCountryCode, countries, selectedCountryName } = useCountrySelector("/api/co2/countries", { locale });
   const [metric, setMetric] = useState("emissions_mt"); // ou "emissions_per_capita"
   const [view, setView] = useState("chart"); // "chart" ou "table"
 
   const canvasRef = useRef(null);
   const chartRef = useRef(null);
-
-  // Devine le pays par défaut une fois côté client (évite un décalage serveur/client).
-  useEffect(() => {
-    setCountryCode(detectDefaultCountry());
-  }, []);
-
-  // Charge la liste des pays une seule fois, pour peupler le filtre — pas
-  // de loading/error suivis ici, un échec silencieux (liste vide) suffit.
-  const { data: countriesData } = useApiFetch("/api/co2/countries", {
-    transform: (rows) => (Array.isArray(rows) ? rows : []),
-  });
-  const countries = countriesData || [];
 
   // Recharge la série à chaque changement de pays.
   const { data: co2Data, loading, error } = useApiFetch(countryCode ? `/api/co2/${countryCode}` : null, {
@@ -98,8 +85,6 @@ export default function Co2Page() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, metric, view, loading, error]);
 
-  const selectedCountryName = localizedCountryName(countryCode, locale);
-
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 800, margin: "0 auto" }}>
       <PageHeader Icon={IconCloud} tint="green" title={`${t("co2.title")} — ${selectedCountryName}`} />
@@ -110,7 +95,7 @@ export default function Co2Page() {
           countries={countries}
           value={countryCode}
           onChange={setCountryCode}
-          locale={locale}
+          preferredLang={locale}
         />
 
         <label>
@@ -142,30 +127,30 @@ export default function Co2Page() {
 
       {!loading && !error && view === "table" && (
         <ScrollableTable>
-<table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
-          <caption style={{ textAlign: "left", fontSize: 12, color: "var(--color-texte-clair)", marginBottom: 8 }}>
-            {t("co2.table_caption", { country: selectedCountryName })}
-          </caption>
-          <thead>
-            <tr>
-              <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("co2.table_year")}</th>
-              <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("co2.table_territorial_mt")}</th>
-              <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("co2.table_territorial_per_capita")}</th>
-              <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("co2.table_consumption_mt")}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.map((d) => (
-              <tr key={d.year}>
-                <th scope="row" style={{ textAlign: "left", padding: 8, fontWeight: 400 }}>{d.year}</th>
-                <td style={{ textAlign: "right", padding: 8 }}>{d.emissions_mt ?? "—"}</td>
-                <td style={{ textAlign: "right", padding: 8 }}>{d.emissions_per_capita ?? "—"}</td>
-                <td style={{ textAlign: "right", padding: 8 }}>{d.consumption_co2 ?? "—"}</td>
+          <table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
+            <caption style={{ textAlign: "left", fontSize: 12, color: "var(--color-texte-clair)", marginBottom: 8 }}>
+              {t("co2.table_caption", { country: selectedCountryName })}
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("co2.table_year")}</th>
+                <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("co2.table_territorial_mt")}</th>
+                <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("co2.table_territorial_per_capita")}</th>
+                <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("co2.table_consumption_mt")}</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-</ScrollableTable>
+            </thead>
+            <tbody>
+              {data.map((d) => (
+                <tr key={d.year}>
+                  <th scope="row" style={{ textAlign: "left", padding: 8, fontWeight: 400 }}>{d.year}</th>
+                  <td style={{ textAlign: "right", padding: 8 }}>{d.emissions_mt ?? "—"}</td>
+                  <td style={{ textAlign: "right", padding: 8 }}>{d.emissions_per_capita ?? "—"}</td>
+                  <td style={{ textAlign: "right", padding: 8 }}>{d.consumption_co2 ?? "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </ScrollableTable>
       )}
 
       <details style={{ marginBottom: "1rem", fontSize: 13, color: "var(--color-texte-clair)" }}>

@@ -1,10 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { detectDefaultCountry } from "../lib/detectCountry";
+import { useCountrySelector } from "../lib/useCountrySelector";
 import { speciesGroupLabel } from "../lib/speciesGroups";
 import { translateTaxonGroup } from "../lib/taxonGroupNames";
 import { formatCommonNames } from "../lib/commonNames";
 import { useLastUpdated, formatDate } from "../lib/useLastUpdated";
-import { localizedCountryName } from "../lib/countryNames";
 import { localeTag } from "../lib/dateLocale";
 import CountrySelect from "../components/CountrySelect";
 import PageHeader from "../components/PageHeader";
@@ -31,20 +30,11 @@ export default function EspecesPage() {
   const { t, locale } = useT();
   const CATEGORY_INFO = useCategoryInfo(t);
   const lastUpdated = useLastUpdated();
-  const [country, setCountry] = useState("FRA");
+  const { countryCode: country, setCountryCode: setCountry, countries, selectedCountryName } = useCountrySelector("/api/co2/countries", { locale });
   const [category, setCategory] = useState("");
   const [group, setGroup] = useState("");
   const threatenedCanvasRef = useRef(null);
   const threatenedChartRef = useRef(null);
-
-  useEffect(() => {
-    setCountry(detectDefaultCountry());
-  }, []);
-
-  const { data: countryRows } = useApiFetch("/api/co2/countries", {
-    transform: (rows) => (Array.isArray(rows) ? rows : []),
-  });
-  const countries = countryRows ?? [];
 
   const { data: categoryRows } = useApiFetch("/api/species/categories", {
     transform: (rows) => (Array.isArray(rows) ? rows : []),
@@ -67,7 +57,6 @@ export default function EspecesPage() {
     import("../lib/chartSetup").then(({ default: Chart }) => {
       if (cancelled || !threatenedCanvasRef.current) return;
       if (threatenedChartRef.current) threatenedChartRef.current.destroy();
-
       const latest = threatenedCounts[threatenedCounts.length - 1];
       threatenedChartRef.current = new Chart(threatenedCanvasRef.current, {
         type: "bar",
@@ -121,24 +110,19 @@ export default function EspecesPage() {
     if (group && !availableGroups.includes(group)) setGroup("");
   }, [availableGroups, group]);
 
-  const selectedCountryName = localizedCountryName(country, locale);
-
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
       <PageHeader Icon={IconPaw} tint="tan" title={`${t("especes.title")} — ${selectedCountryName}`} />
       <ShareButtons title={`${t("especes.title")} — ${selectedCountryName}`} />
-
       <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginBottom: "1rem" }}>{t("especes.intro_p1")}</p>
       <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginBottom: "1rem" }}>{t("especes.intro_p2")}</p>
-
       <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem", flexWrap: "wrap" }}>
         <CountrySelect
           countries={countries}
           value={country}
           onChange={setCountry}
-          locale={locale}
+          preferredLang={locale}
         />
-
         <label>
           {t("especes.group_label")}{" "}
           <select value={group} onChange={(e) => setGroup(e.target.value)}>
@@ -148,7 +132,6 @@ export default function EspecesPage() {
             ))}
           </select>
         </label>
-
         <label>
           {t("especes.category_label")}{" "}
           <select value={category} onChange={(e) => setCategory(e.target.value)}>
@@ -161,11 +144,9 @@ export default function EspecesPage() {
           </select>
         </label>
       </div>
-
       {loading && <p>{t("common.loading")}</p>}
       {error && <p role="alert">{t("common.error_prefix")} {error}</p>}
       {!loading && !error && filteredSpecies.length === 0 && <p>{t("especes.no_species")}</p>}
-
       {!loading && !error && filteredSpecies.length > 0 && (
         <ScrollableTable>
           <table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
@@ -220,7 +201,6 @@ export default function EspecesPage() {
           </table>
         </ScrollableTable>
       )}
-
       <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginTop: "1rem" }}>
         {t("especes.source")}
         {lastUpdated?.species?.lastIngested && (
@@ -228,7 +208,6 @@ export default function EspecesPage() {
         )}
         {t("especes.source_refresh")}
       </p>
-
       <section style={{ marginTop: "2.5rem", borderTop: "1px solid #eee", paddingTop: "1.5rem" }}>
         <h2>{t("especes.official_count_title")}</h2>
         <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>{t("especes.official_count_explain")}</p>
@@ -239,7 +218,6 @@ export default function EspecesPage() {
         ) : (
           <p>{t("especes.no_official_data")}</p>
         )}
-
         {globalShare.length > 0 && (
           <>
             <h3 style={{ fontSize: 15, marginTop: "1.5rem" }}>{t("especes.world_reference_title")}</h3>
@@ -268,7 +246,6 @@ export default function EspecesPage() {
             </ScrollableTable>
           </>
         )}
-
         <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginTop: "1rem" }}>
           {t("especes.world_source")}
           {lastUpdated?.speciesThreatened?.latestYear && (

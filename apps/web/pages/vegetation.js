@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { detectDefaultCountry } from "../lib/detectCountry";
+import { useCountrySelector } from "../lib/useCountrySelector";
 import { useLastUpdated, formatDate } from "../lib/useLastUpdated";
-import { localizedCountryName } from "../lib/countryNames";
 import CountrySelect from "../components/CountrySelect";
 import PageHeader from "../components/PageHeader";
 import { IconTree } from "../components/icons";
@@ -15,20 +14,11 @@ export default function VegetationPage() {
   const { t, locale } = useT();
   const lastUpdated = useLastUpdated();
   const worldBenchmarks = useWorldBenchmarks();
-  const [countryCode, setCountryCode] = useState("FRA");
+  const { countryCode, setCountryCode, countries, selectedCountryName } = useCountrySelector("/api/vegetation/countries", { locale });
   const [view, setView] = useState("chart");
 
   const canvasRef = useRef(null);
   const chartRef = useRef(null);
-
-  useEffect(() => {
-    setCountryCode(detectDefaultCountry());
-  }, []);
-
-  const { data: countryRows } = useApiFetch("/api/vegetation/countries", {
-    transform: (rows) => (Array.isArray(rows) ? rows : []),
-  });
-  const countries = countryRows ?? [];
 
   const { data: vegetationRows, loading, error } = useApiFetch(`/api/vegetation/${countryCode}`, {
     errorMessage: t("vegetation.error_no_data"),
@@ -171,8 +161,6 @@ export default function VegetationPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, view, loading, error, worldBenchmarks]);
 
-  const selectedCountryName = localizedCountryName(countryCode, locale);
-
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 800, margin: "0 auto" }}>
       <PageHeader Icon={IconTree} tint="green" title={`${t("vegetation.title")} — ${selectedCountryName}`} />
@@ -183,7 +171,7 @@ export default function VegetationPage() {
           countries={countries}
           value={countryCode}
           onChange={setCountryCode}
-          locale={locale}
+          preferredLang={locale}
         />
         <button onClick={() => setView(view === "chart" ? "table" : "chart")}>
           {view === "chart" ? t("common.view_as_table") : t("common.view_as_chart")}
@@ -218,38 +206,38 @@ export default function VegetationPage() {
 
       {!loading && !error && view === "table" && (
         <ScrollableTable>
-<table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
-          <caption style={{ textAlign: "left", fontSize: 12, color: "var(--color-texte-clair)", marginBottom: 8 }}>
-            {t("vegetation.table_caption", { country: selectedCountryName })}
-          </caption>
-          <thead>
-            <tr>
-              <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("vegetation.table_year")}</th>
-              <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("vegetation.table_loss")}</th>
-              <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("vegetation.table_forest_area")}</th>
-              <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("vegetation.table_share_lost")}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.map((d) => (
-              <tr key={d.year}>
-                <th scope="row" style={{ textAlign: "left", padding: 8, fontWeight: 400 }}>{d.year}</th>
-                <td style={{ textAlign: "right", padding: 8 }}>
-                  {d.tree_cover_loss_ha ? Math.round(d.tree_cover_loss_ha).toLocaleString("fr-FR") : "—"}
-                </td>
-                <td style={{ textAlign: "right", padding: 8 }}>
-                  {d.forest_area_ha ? Math.round(d.forest_area_ha).toLocaleString("fr-FR") : "—"}
-                </td>
-                <td style={{ textAlign: "right", padding: 8 }}>
-                  {d.forest_area_ha && d.tree_cover_loss_ha
-                    ? ((d.tree_cover_loss_ha / d.forest_area_ha) * 100).toFixed(2) + " %"
-                    : "—"}
-                </td>
+          <table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
+            <caption style={{ textAlign: "left", fontSize: 12, color: "var(--color-texte-clair)", marginBottom: 8 }}>
+              {t("vegetation.table_caption", { country: selectedCountryName })}
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("vegetation.table_year")}</th>
+                <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("vegetation.table_loss")}</th>
+                <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("vegetation.table_forest_area")}</th>
+                <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("vegetation.table_share_lost")}</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-</ScrollableTable>
+            </thead>
+            <tbody>
+              {data.map((d) => (
+                <tr key={d.year}>
+                  <th scope="row" style={{ textAlign: "left", padding: 8, fontWeight: 400 }}>{d.year}</th>
+                  <td style={{ textAlign: "right", padding: 8 }}>
+                    {d.tree_cover_loss_ha ? Math.round(d.tree_cover_loss_ha).toLocaleString("fr-FR") : "—"}
+                  </td>
+                  <td style={{ textAlign: "right", padding: 8 }}>
+                    {d.forest_area_ha ? Math.round(d.forest_area_ha).toLocaleString("fr-FR") : "—"}
+                  </td>
+                  <td style={{ textAlign: "right", padding: 8 }}>
+                    {d.forest_area_ha && d.tree_cover_loss_ha
+                      ? ((d.tree_cover_loss_ha / d.forest_area_ha) * 100).toFixed(2) + " %"
+                      : "—"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </ScrollableTable>
       )}
 
       <details style={{ marginTop: "1rem", fontSize: 13, color: "var(--color-texte-clair)" }}>

@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { detectDefaultCountry } from "../lib/detectCountry";
+import { useCountrySelector } from "../lib/useCountrySelector";
 import { useLastUpdated, formatDate } from "../lib/useLastUpdated";
-import { localizedCountryName } from "../lib/countryNames";
 import CountrySelect from "../components/CountrySelect";
 import PageHeader from "../components/PageHeader";
 import { IconFlame } from "../components/icons";
@@ -16,7 +15,7 @@ export default function IncendiesPage() {
   const { t, locale } = useT();
   const { sobriety } = useSobriety();
   const lastUpdated = useLastUpdated();
-  const [country, setCountry] = useState("FRA");
+  const { countryCode: country, setCountryCode: setCountry, countries, selectedCountryName } = useCountrySelector("/api/co2/countries", { locale });
   const [view, setView] = useState("map");
 
   const mapContainerRef = useRef(null);
@@ -26,15 +25,6 @@ export default function IncendiesPage() {
   useEffect(() => {
     if (sobriety) setView("table");
   }, [sobriety]);
-
-  useEffect(() => {
-    setCountry(detectDefaultCountry());
-  }, []);
-
-  const { data: countryRows } = useApiFetch("/api/co2/countries", {
-    transform: (rows) => (Array.isArray(rows) ? rows : []),
-  });
-  const countries = countryRows ?? [];
 
   const { data: fireRows, loading, error } = useApiFetch(`/api/fires?country=${country}`, {
     errorMessage: t("incendies.error_no_data"),
@@ -112,8 +102,6 @@ export default function IncendiesPage() {
     };
   }, [view, sobriety, fires]);
 
-  const selectedCountryName = localizedCountryName(country, locale);
-
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
       <PageHeader Icon={IconFlame} tint="red" title={`${t("incendies.title")} — ${selectedCountryName}`} />
@@ -132,7 +120,8 @@ export default function IncendiesPage() {
           countries={countries}
           value={country}
           onChange={setCountry}
-          locale={locale}
+          preferredLang={locale}
+          raised
         />
         <button onClick={() => setView(view === "map" ? "table" : "map")} disabled={sobriety}>
           {view === "map" ? t("common.view_as_table") : t("common.view_as_chart")}
@@ -152,30 +141,30 @@ export default function IncendiesPage() {
 
       {!loading && !error && view === "table" && fires.length > 0 && (
         <ScrollableTable>
-<table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
-          <caption style={{ textAlign: "left", fontSize: 12, color: "var(--color-texte-clair)", marginBottom: 8 }}>
-            {t("incendies.table_caption", { country: selectedCountryName })}
-          </caption>
-          <thead>
-            <tr>
-              <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("incendies.table_detected_at")}</th>
-              <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("incendies.table_frp")}</th>
-              <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("incendies.table_confidence")}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {fires.slice(0, 200).map((f, i) => (
-              <tr key={i}>
-                <th scope="row" style={{ textAlign: "left", padding: 8, fontWeight: 400 }}>
-                  {new Date(f.detected_at).toLocaleString("fr-FR")}
-                </th>
-                <td style={{ textAlign: "right", padding: 8 }}>{f.frp ?? "—"}</td>
-                <td style={{ textAlign: "right", padding: 8 }}>{f.confidence ?? "—"}</td>
+          <table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
+            <caption style={{ textAlign: "left", fontSize: 12, color: "var(--color-texte-clair)", marginBottom: 8 }}>
+              {t("incendies.table_caption", { country: selectedCountryName })}
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("incendies.table_detected_at")}</th>
+                <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("incendies.table_frp")}</th>
+                <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("incendies.table_confidence")}</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-</ScrollableTable>
+            </thead>
+            <tbody>
+              {fires.slice(0, 200).map((f, i) => (
+                <tr key={i}>
+                  <th scope="row" style={{ textAlign: "left", padding: 8, fontWeight: 400 }}>
+                    {new Date(f.detected_at).toLocaleString("fr-FR")}
+                  </th>
+                  <td style={{ textAlign: "right", padding: 8 }}>{f.frp ?? "—"}</td>
+                  <td style={{ textAlign: "right", padding: 8 }}>{f.confidence ?? "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </ScrollableTable>
       )}
 
       <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginTop: "1rem" }}>

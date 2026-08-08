@@ -29,6 +29,7 @@ export default function SearchableSelect({
   noResultsLabel = "Aucun résultat",
   allLabel,
   mobileNative = true,
+  dropdownZIndex = 20,
 }) {
   const isNativeApp = useIsNativeApp();
   const isMobileViewport = useIsMobileViewport();
@@ -120,7 +121,7 @@ export default function SearchableSelect({
           role="listbox"
           style={{
             position: "absolute",
-            zIndex: 20,
+            zIndex: dropdownZIndex,
             top: "100%",
             left: 0,
             right: 0,

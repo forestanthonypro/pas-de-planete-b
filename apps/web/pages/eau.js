@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { detectDefaultCountry } from "../lib/detectCountry";
+import { useCountrySelector } from "../lib/useCountrySelector";
 import { useLastUpdated, formatDate } from "../lib/useLastUpdated";
-import { localizedCountryName } from "../lib/countryNames";
 import CountrySelect from "../components/CountrySelect";
 import PageHeader from "../components/PageHeader";
 import { IconDroplet } from "../components/icons";
@@ -15,7 +14,7 @@ export default function EauPage() {
   const { t, locale } = useT();
   const lastUpdated = useLastUpdated();
   const worldBenchmarks = useWorldBenchmarks();
-  const [countryCode, setCountryCode] = useState("FRA");
+  const { countryCode, setCountryCode, countries, selectedCountryName } = useCountrySelector("/api/water/countries", { locale });
   const [view, setView] = useState("chart");
 
   const canvasRef = useRef(null);
@@ -24,15 +23,6 @@ export default function EauPage() {
   const withdrawalChartRef = useRef(null);
   const stressCanvasRef = useRef(null);
   const stressChartRef = useRef(null);
-
-  useEffect(() => {
-    setCountryCode(detectDefaultCountry());
-  }, []);
-
-  const { data: countryRows } = useApiFetch("/api/water/countries", {
-    transform: (rows) => (Array.isArray(rows) ? rows : []),
-  });
-  const countries = countryRows ?? [];
 
   const { data: waterRows, loading, error } = useApiFetch(`/api/water/${countryCode}`, {
     errorMessage: t("eau.error_no_data"),
@@ -180,8 +170,6 @@ export default function EauPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, view, loading, error, worldBenchmarks]);
 
-  const selectedCountryName = localizedCountryName(countryCode, locale);
-
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 800, margin: "0 auto" }}>
       <PageHeader Icon={IconDroplet} tint="blue" title={`${t("eau.title")} — ${selectedCountryName}`} />
@@ -192,7 +180,7 @@ export default function EauPage() {
           countries={countries}
           value={countryCode}
           onChange={setCountryCode}
-          locale={locale}
+          preferredLang={locale}
         />
         <button onClick={() => setView(view === "chart" ? "table" : "chart")}>
           {view === "chart" ? t("common.view_as_table") : t("common.view_as_chart")}
@@ -230,40 +218,40 @@ export default function EauPage() {
 
       {!loading && !error && view === "table" && (
         <ScrollableTable>
-<table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
-          <caption style={{ textAlign: "left", fontSize: 12, color: "var(--color-texte-clair)", marginBottom: 8 }}>
-            {t("eau.table_caption", { country: selectedCountryName })}
-          </caption>
-          <thead>
-            <tr>
-              <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("eau.table_year")}</th>
-              <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("eau.table_available")}</th>
-              <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("eau.table_precipitation")}</th>
-              <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("eau.table_withdrawal")}</th>
-              <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("eau.table_share")}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.map((d) => (
-              <tr key={d.year}>
-                <th scope="row" style={{ textAlign: "left", padding: 8, fontWeight: 400 }}>{d.year}</th>
-                <td style={{ textAlign: "right", padding: 8 }}>
-                  {d.renewable_freshwater_m3_per_capita ? Math.round(d.renewable_freshwater_m3_per_capita).toLocaleString("fr-FR") : "—"}
-                </td>
-                <td style={{ textAlign: "right", padding: 8 }}>
-                  {d.precipitation_mm ? Math.round(d.precipitation_mm).toLocaleString("fr-FR") : "—"}
-                </td>
-                <td style={{ textAlign: "right", padding: 8 }}>
-                  {d.withdrawal_m3 ? (d.withdrawal_m3 / 1e9).toFixed(2) : "—"}
-                </td>
-                <td style={{ textAlign: "right", padding: 8 }}>
-                  {d.withdrawal_share_percent ?? "—"}
-                </td>
+          <table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
+            <caption style={{ textAlign: "left", fontSize: 12, color: "var(--color-texte-clair)", marginBottom: 8 }}>
+              {t("eau.table_caption", { country: selectedCountryName })}
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("eau.table_year")}</th>
+                <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("eau.table_available")}</th>
+                <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("eau.table_precipitation")}</th>
+                <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("eau.table_withdrawal")}</th>
+                <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("eau.table_share")}</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-</ScrollableTable>
+            </thead>
+            <tbody>
+              {data.map((d) => (
+                <tr key={d.year}>
+                  <th scope="row" style={{ textAlign: "left", padding: 8, fontWeight: 400 }}>{d.year}</th>
+                  <td style={{ textAlign: "right", padding: 8 }}>
+                    {d.renewable_freshwater_m3_per_capita ? Math.round(d.renewable_freshwater_m3_per_capita).toLocaleString("fr-FR") : "—"}
+                  </td>
+                  <td style={{ textAlign: "right", padding: 8 }}>
+                    {d.precipitation_mm ? Math.round(d.precipitation_mm).toLocaleString("fr-FR") : "—"}
+                  </td>
+                  <td style={{ textAlign: "right", padding: 8 }}>
+                    {d.withdrawal_m3 ? (d.withdrawal_m3 / 1e9).toFixed(2) : "—"}
+                  </td>
+                  <td style={{ textAlign: "right", padding: 8 }}>
+                    {d.withdrawal_share_percent ?? "—"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </ScrollableTable>
       )}
 
       <details style={{ marginTop: "1rem", fontSize: 13, color: "var(--color-texte-clair)" }}>

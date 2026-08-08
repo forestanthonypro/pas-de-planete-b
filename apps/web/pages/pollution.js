@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { detectDefaultCountry } from "../lib/detectCountry";
-import { localizedCountryName } from "../lib/countryNames";
+import { useCountrySelector } from "../lib/useCountrySelector";
 import { useLastUpdated, formatDate } from "../lib/useLastUpdated";
 import { useWorldBenchmarks } from "../lib/useWorldBenchmarks";
 import CountrySelect from "../components/CountrySelect";
@@ -15,20 +14,10 @@ export default function PollutionPage() {
   const { t, locale } = useT();
   const lastUpdated = useLastUpdated();
   const benchmarks = useWorldBenchmarks();
-  const [countryCode, setCountryCode] = useState("FRA");
+  const { countryCode, setCountryCode, countries, selectedCountryName } = useCountrySelector("/api/pollution/countries", { locale });
   const [view, setView] = useState("chart");
-
   const canvasRef = useRef(null);
   const chartRef = useRef(null);
-
-  useEffect(() => {
-    setCountryCode(detectDefaultCountry());
-  }, []);
-
-  const { data: countryRows } = useApiFetch("/api/pollution/countries", {
-    transform: (rows) => (Array.isArray(rows) ? rows : []),
-  });
-  const countries = countryRows ?? [];
 
   const { data: pollutionRows, loading, error } = useApiFetch(`/api/pollution/${countryCode}`, {
     errorMessage: t("pollution.error_no_data"),
@@ -41,7 +30,6 @@ export default function PollutionPage() {
     import("../lib/chartSetup").then(({ default: Chart }) => {
       if (cancelled || !canvasRef.current) return;
       if (chartRef.current) chartRef.current.destroy();
-
       const datasets = [
         {
           label: t("pollution.chart_pm25"),
@@ -54,7 +42,6 @@ export default function PollutionPage() {
           borderWidth: 2,
         },
       ];
-
       if (benchmarks?.pm25_who_guideline) {
         datasets.push({
           label: t("pollution.chart_who_threshold"),
@@ -77,7 +64,6 @@ export default function PollutionPage() {
           fill: false,
         });
       }
-
       chartRef.current = new Chart(canvasRef.current, {
         type: "line",
         data: { labels: data.map((d) => d.year), datasets },
@@ -95,66 +81,57 @@ export default function PollutionPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, view, loading, error, benchmarks]);
 
-  const selectedCountryName = localizedCountryName(countryCode, locale);
-
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 800, margin: "0 auto" }}>
       <PageHeader Icon={IconSmog} tint="mauve" title={`${t("pollution.title")} — ${selectedCountryName}`} />
       <ShareButtons title={`${t("pollution.title")} — ${selectedCountryName}`} />
-
       <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem", flexWrap: "wrap" }}>
         <CountrySelect
           countries={countries}
           value={countryCode}
           onChange={setCountryCode}
-          locale={locale}
+          preferredLang={locale}
         />
         <button onClick={() => setView(view === "chart" ? "table" : "chart")}>
           {view === "chart" ? t("common.view_as_table") : t("common.view_as_chart")}
         </button>
       </div>
-
       {loading && <p>{t("common.loading")}</p>}
       {error && <p role="alert">{t("common.error_prefix")} {error}</p>}
-
       <h2 style={{ fontSize: 18, marginBottom: "0.25rem" }}>{t("pollution.what_shows_title")}</h2>
       <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginBottom: "0.75rem" }}>{t("pollution.explain_p1")}</p>
-
       {!loading && !error && view === "chart" && (
         <div style={{ position: "relative", height: 340 }}>
           <canvas ref={canvasRef} role="img" aria-label={`${t("pollution.title")} — ${selectedCountryName}`} />
         </div>
       )}
-
       {!loading && !error && view === "table" && (
         <ScrollableTable>
-<table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
-          <caption style={{ textAlign: "left", fontSize: 12, color: "var(--color-texte-clair)", marginBottom: 8 }}>
-            {t("pollution.table_caption", { country: selectedCountryName })}
-          </caption>
-          <thead>
-            <tr>
-              <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("pollution.table_year")}</th>
-              <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("pollution.table_pm25")}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.map((d) => (
-              <tr key={d.year}>
-                <th scope="row" style={{ textAlign: "left", padding: 8, fontWeight: 400 }}>{d.year}</th>
-                <td style={{ textAlign: "right", padding: 8 }}>{d.pm25_ug_m3 ?? "—"}</td>
+          <table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
+            <caption style={{ textAlign: "left", fontSize: 12, color: "var(--color-texte-clair)", marginBottom: 8 }}>
+              {t("pollution.table_caption", { country: selectedCountryName })}
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("pollution.table_year")}</th>
+                <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("pollution.table_pm25")}</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-</ScrollableTable>
+            </thead>
+            <tbody>
+              {data.map((d) => (
+                <tr key={d.year}>
+                  <th scope="row" style={{ textAlign: "left", padding: 8, fontWeight: 400 }}>{d.year}</th>
+                  <td style={{ textAlign: "right", padding: 8 }}>{d.pm25_ug_m3 ?? "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </ScrollableTable>
       )}
-
       <details style={{ marginTop: "1rem", fontSize: 13, color: "var(--color-texte-clair)" }}>
         <summary style={{ cursor: "pointer" }}>{t("pollution.details_summary")}</summary>
         <p style={{ marginTop: 8 }}>{t("pollution.details_p1")}</p>
       </details>
-
       <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginTop: "1rem" }}>
         {t("pollution.source")}
         {lastUpdated?.pollution?.latestYear && (
