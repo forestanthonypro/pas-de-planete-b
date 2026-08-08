@@ -30,6 +30,11 @@ export default function Confidentialite() {
         <>
           <div className="pdpb-legal-content" dangerouslySetInnerHTML={{ __html: html }} />
           <style jsx global>{`
+            .pdpb-legal-content {
+              font-size: 14px;
+              line-height: 1.7;
+              color: var(--color-texte);
+            }
             .pdpb-legal-content section {
               margin-bottom: 1.75rem;
             }
