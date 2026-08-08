@@ -710,7 +710,13 @@
     "source_worldBenchmarks": "Мировые сравнения (биоразнообразие и др.)",
     "source_deputies": "Депутаты (17-й созыв)",
     "source_anGroups": "Политические фракции",
-    "source_scrutins": "Голосования и поимённые бюллетени"
+    "source_scrutins": "Голосования и поимённые бюллетени",
+    "th_frequency": "Частота",
+    "freq_monthly": "Ежемесячно",
+    "freq_6h": "Каждые 6 часов",
+    "freq_manual": "Вручную (пока не автоматизировано)",
+    "source_usCongressMembers": "Члены Конгресса США",
+    "source_usCongressVotes": "Голосования Конгресса США"
   },
   "environmentalImpact": {
     "title": "Экологическое воздействие",

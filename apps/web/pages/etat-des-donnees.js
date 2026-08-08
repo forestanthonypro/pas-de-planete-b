@@ -11,19 +11,21 @@ import { useLastUpdated, formatDate } from "../lib/useLastUpdated";
 // Les labels viennent de t("dataStatus.source_xxx") ; seuls les codes clés
 // et les liens restent en dur ici, le texte affiché est entièrement traduit.
 const SOURCE_KEYS = [
-  { key: "co2", labelKey: "source_co2", source: "Our World in Data", page: "/co2" },
-  { key: "powerPlants", labelKey: "source_powerPlants", source: "Global Power Plant Database", page: "/energie" },
-  { key: "electricity", labelKey: "source_electricity", source: "Ember / Our World in Data", page: "/energie" },
-  { key: "species", labelKey: "source_species", source: "IUCN Red List", page: "/especes" },
-  { key: "speciesThreatened", labelKey: "source_speciesThreatened", source: "IUCN Red List", page: "/especes" },
-  { key: "vegetation", labelKey: "source_vegetation", source: "Global Forest Watch", page: "/vegetation" },
-  { key: "fires", labelKey: "source_fires", source: "NASA FIRMS", page: "/incendies" },
-  { key: "water", labelKey: "source_water", source: "Aqueduct / FAO", page: "/eau" },
-  { key: "pollution", labelKey: "source_pollution", source: "OMS / Our World in Data", page: "/pollution" },
-  { key: "worldBenchmarks", labelKey: "source_worldBenchmarks", source: "Sources agrégées", page: "/especes" },
-  { key: "deputies", labelKey: "source_deputies", source: "CIVIX, Assemblée nationale", page: "/deputes" },
-  { key: "anGroups", labelKey: "source_anGroups", source: "CIVIX, Assemblée nationale", page: "/groupes" },
-  { key: "scrutins", labelKey: "source_scrutins", source: "CIVIX, Assemblée nationale", page: "/scrutins" },
+  { key: "co2", labelKey: "source_co2", source: "Our World in Data", page: "/co2", frequencyKey: "freq_monthly" },
+  { key: "powerPlants", labelKey: "source_powerPlants", source: "Global Power Plant Database", page: "/energie", frequencyKey: "freq_monthly" },
+  { key: "electricity", labelKey: "source_electricity", source: "Ember / Our World in Data", page: "/energie", frequencyKey: "freq_monthly" },
+  { key: "species", labelKey: "source_species", source: "IUCN Red List", page: "/especes", frequencyKey: "freq_monthly" },
+  { key: "speciesThreatened", labelKey: "source_speciesThreatened", source: "IUCN Red List", page: "/especes", frequencyKey: "freq_monthly" },
+  { key: "vegetation", labelKey: "source_vegetation", source: "Global Forest Watch", page: "/vegetation", frequencyKey: "freq_monthly" },
+  { key: "fires", labelKey: "source_fires", source: "NASA FIRMS", page: "/incendies", frequencyKey: "freq_6h" },
+  { key: "water", labelKey: "source_water", source: "Aqueduct / FAO", page: "/eau", frequencyKey: "freq_monthly" },
+  { key: "pollution", labelKey: "source_pollution", source: "OMS / Our World in Data", page: "/pollution", frequencyKey: "freq_monthly" },
+  { key: "worldBenchmarks", labelKey: "source_worldBenchmarks", source: "Sources agrégées", page: "/especes", frequencyKey: "freq_monthly" },
+  { key: "deputies", labelKey: "source_deputies", source: "CIVIX, Assemblée nationale", page: "/deputes", frequencyKey: "freq_monthly" },
+  { key: "anGroups", labelKey: "source_anGroups", source: "CIVIX, Assemblée nationale", page: "/groupes", frequencyKey: "freq_monthly" },
+  { key: "scrutins", labelKey: "source_scrutins", source: "CIVIX, Assemblée nationale", page: "/scrutins", frequencyKey: "freq_monthly" },
+  { key: "usCongressMembers", labelKey: "source_usCongressMembers", source: "Congress.gov", page: "/international/us/elus", frequencyKey: "freq_manual" },
+  { key: "usCongressVotes", labelKey: "source_usCongressVotes", source: "Congress.gov / GovTrack.us", page: "/international/us/scrutins", frequencyKey: "freq_manual" },
 ];
 
 function freshnessColor(lastIngested) {
@@ -54,6 +56,7 @@ export default function EtatDesDonnees() {
                 <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("dataStatus.th_data")}</th>
                 <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("dataStatus.th_source")}</th>
                 <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("dataStatus.th_last_update")}</th>
+                <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("dataStatus.th_frequency")}</th>
                 <th scope="col" style={{ textAlign: "left", padding: 8 }}></th>
               </tr>
             </thead>
@@ -75,6 +78,9 @@ export default function EtatDesDonnees() {
                           {t("dataStatus.data_year", { year: info.latestYear })}
                         </span>
                       )}
+                    </td>
+                    <td style={{ padding: 8, fontSize: 13, color: "var(--color-texte-clair)" }}>
+                      {t(`dataStatus.${s.frequencyKey}`)}
                     </td>
                     <td style={{ padding: 8 }}>
                       <span

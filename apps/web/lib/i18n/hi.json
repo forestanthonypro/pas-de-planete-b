@@ -710,7 +710,13 @@
     "source_worldBenchmarks": "विश्व तुलना (जैव विविधता, आदि)",
     "source_deputies": "सांसद (17वीं विधानसभा)",
     "source_anGroups": "राजनीतिक समूह",
-    "source_scrutins": "मतदान और नामांकित वोट"
+    "source_scrutins": "मतदान और नामांकित वोट",
+    "th_frequency": "आवृत्ति",
+    "freq_monthly": "मासिक",
+    "freq_6h": "हर 6 घंटे में",
+    "freq_manual": "मैनुअल (अभी स्वचालित नहीं)",
+    "source_usCongressMembers": "अमेरिकी कांग्रेस के सदस्य",
+    "source_usCongressVotes": "अमेरिकी कांग्रेस के मतदान"
   },
   "environmentalImpact": {
     "title": "पर्यावरणीय प्रभाव",

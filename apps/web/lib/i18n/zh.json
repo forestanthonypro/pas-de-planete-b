@@ -710,7 +710,13 @@
     "source_worldBenchmarks": "世界比较（生物多样性等）",
     "source_deputies": "议员（第17届）",
     "source_anGroups": "政治党团",
-    "source_scrutins": "投票与记名表决"
+    "source_scrutins": "投票与记名表决",
+    "th_frequency": "更新频率",
+    "freq_monthly": "每月",
+    "freq_6h": "每6小时",
+    "freq_manual": "手动（尚未自动化）",
+    "source_usCongressMembers": "美国国会议员",
+    "source_usCongressVotes": "美国国会投票"
   },
   "environmentalImpact": {
     "title": "环境影响",

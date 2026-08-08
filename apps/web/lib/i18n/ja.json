@@ -710,7 +710,13 @@
     "source_worldBenchmarks": "世界比較（生物多様性など）",
     "source_deputies": "議員（第17期）",
     "source_anGroups": "政治会派",
-    "source_scrutins": "採決と記名投票"
+    "source_scrutins": "採決と記名投票",
+    "th_frequency": "更新頻度",
+    "freq_monthly": "毎月",
+    "freq_6h": "6時間ごと",
+    "freq_manual": "手動（まだ自動化されていません）",
+    "source_usCongressMembers": "米国議会議員",
+    "source_usCongressVotes": "米国議会の採決"
   },
   "environmentalImpact": {
     "title": "環境への影響",

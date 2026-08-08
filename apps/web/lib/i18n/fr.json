@@ -710,7 +710,13 @@
     "source_worldBenchmarks": "Comparatifs mondiaux (biodiversité, etc.)",
     "source_deputies": "Députés (17e législature)",
     "source_anGroups": "Groupes politiques",
-    "source_scrutins": "Scrutins et votes nominatifs"
+    "source_scrutins": "Scrutins et votes nominatifs",
+    "th_frequency": "Fréquence",
+    "freq_monthly": "Mensuelle",
+    "freq_6h": "Toutes les 6h",
+    "freq_manual": "Manuelle (pas encore automatisée)",
+    "source_usCongressMembers": "Élus du Congrès américain",
+    "source_usCongressVotes": "Votes du Congrès américain"
   },
   "environmentalImpact": {
     "title": "Impact environnemental",

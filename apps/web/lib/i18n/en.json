@@ -710,7 +710,13 @@
     "source_worldBenchmarks": "World benchmarks (biodiversity, etc.)",
     "source_deputies": "Deputies (17th legislature)",
     "source_anGroups": "Political groups",
-    "source_scrutins": "Votes and roll-call ballots"
+    "source_scrutins": "Votes and roll-call ballots",
+    "th_frequency": "Frequency",
+    "freq_monthly": "Monthly",
+    "freq_6h": "Every 6h",
+    "freq_manual": "Manual (not yet automated)",
+    "source_usCongressMembers": "US Congress members",
+    "source_usCongressVotes": "US Congress votes"
   },
   "environmentalImpact": {
     "title": "Environmental impact",
