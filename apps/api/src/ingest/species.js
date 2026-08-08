@@ -82,7 +82,8 @@ export async function ingestSpecies(pool) {
       let data;
       try {
         data = await fetchJson(url);
-      } catch {
+      } catch (err) {
+        console.error(`[species] ${iso3}/${category} fetch error:`, err.message);
         continue;
       }
       const facet = data.facets?.[0];
@@ -154,8 +155,9 @@ export async function ingestSpecies(pool) {
           );
           countryLinks += 1;
         }
-      } catch {
+      } catch (err) {
         skipped += 1;
+        console.error(`[species] resolve error for gbifKey ${gbifKey}:`, err.message);
       }
     }
 
