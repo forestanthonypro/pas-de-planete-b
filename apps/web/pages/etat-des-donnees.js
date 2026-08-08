@@ -24,8 +24,8 @@ const SOURCE_KEYS = [
   { key: "deputies", labelKey: "source_deputies", source: "CIVIX, Assemblée nationale", page: "/deputes", frequencyKey: "freq_monthly" },
   { key: "anGroups", labelKey: "source_anGroups", source: "CIVIX, Assemblée nationale", page: "/groupes", frequencyKey: "freq_monthly" },
   { key: "scrutins", labelKey: "source_scrutins", source: "CIVIX, Assemblée nationale", page: "/scrutins", frequencyKey: "freq_monthly" },
-  { key: "usCongressMembers", labelKey: "source_usCongressMembers", source: "Congress.gov", page: "/international/us/elus", frequencyKey: "freq_manual" },
-  { key: "usCongressVotes", labelKey: "source_usCongressVotes", source: "Congress.gov / GovTrack.us", page: "/international/us/scrutins", frequencyKey: "freq_manual" },
+  { key: "usCongressMembers", labelKey: "source_usCongressMembers", source: "Congress.gov", page: "/international/us/elus", frequencyKey: "freq_monthly" },
+  { key: "usCongressVotes", labelKey: "source_usCongressVotes", source: "Congress.gov / GovTrack.us", page: "/international/us/scrutins", frequencyKey: "freq_monthly" },
 ];
 
 function freshnessColor(lastIngested) {
