@@ -8,6 +8,7 @@ import { formatCommonNames } from "../../lib/commonNames";
 import { useLastUpdated, formatDate } from "../../lib/useLastUpdated";
 import { localeTag } from "../../lib/dateLocale";
 import { localizedCountryName } from "../../lib/countryNames";
+import { useCountriesList } from "../../lib/useCountriesList";
 import { useWorldBenchmarks } from "../../lib/useWorldBenchmarks";
 import CountrySelect from "../../components/CountrySelect";
 import { IconLeaf } from "../../components/icons";
@@ -290,11 +291,11 @@ export default function PaysDashboard() {
   const { code } = router.query;
   const { sobriety } = useSobriety();
   const { t, locale } = useT();
+  const countries = useCountriesList("/api/co2/countries");
   const CATEGORY_INFO = useCategoryInfo(t);
   const lastUpdated = useLastUpdated();
   const worldBenchmarks = useWorldBenchmarks();
 
-  const [countries, setCountries] = useState([]);
   const [summary, setSummary] = useState(null);
   const [speciesList, setSpeciesList] = useState([]);
   const [fires, setFires] = useState([]);
@@ -376,10 +377,6 @@ export default function PaysDashboard() {
   }, [router, code]);
 
   useEffect(() => {
-    fetch(`${API_URL}/api/co2/countries`)
-      .then((res) => res.json())
-      .then((rows) => setCountries(Array.isArray(rows) ? rows : []))
-      .catch(() => setCountries([]));
   }, []);
 
   useEffect(() => {

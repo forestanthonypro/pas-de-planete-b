@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { detectDefaultCountry } from "./detectCountry";
 import { localizedCountryName } from "./countryNames";
-import { useApiFetch } from "./useApiFetch";
+import { useCountriesList } from "./useCountriesList";
 
 // Centralise le motif répété sur co2.js, eau.js, energie.js, especes.js,
 // incendies.js, pollution.js, vegetation.js : état du pays sélectionné,
@@ -20,11 +20,7 @@ export function useCountrySelector(countriesEndpoint, { locale, fallback = "FRA"
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const { data: countriesData } = useApiFetch(countriesEndpoint, {
-    transform: (rows) => (Array.isArray(rows) ? rows : []),
-  });
-  const countries = countriesData || [];
-
+  const countries = useCountriesList(countriesEndpoint);
   const selectedCountryName = localizedCountryName(countryCode, locale);
 
   return { countryCode, setCountryCode, countries, selectedCountryName };
