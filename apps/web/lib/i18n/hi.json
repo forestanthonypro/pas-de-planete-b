@@ -71,7 +71,9 @@
     "card_petitions_label": "याचिकाएं",
     "card_petitions_desc": "हस्ताक्षर करें, साझा करें या सुझाएं",
     "card_futureideas_label": "आज और कल के बच्चे",
-    "card_futureideas_desc": "अपने वोट से विचारों का समर्थन करें"
+    "card_futureideas_desc": "अपने वोट से विचारों का समर्थन करें",
+    "card_international_label": "अंतरराष्ट्रीय",
+    "card_international_desc": "विदेशी संसदें"
   },
   "co2": {
     "title": "CO2 उत्सर्जन",
@@ -735,5 +737,32 @@
     "meaning_title": "इसका क्या मतलब है?",
     "meaning_grade_explainer": "A से G तक की रेटिंग पेज के पर्यावरणीय प्रदर्शन (वज़न, जटिलता, अनुरोधों की संख्या) को दर्शाती है — जितना करीब A के, उतना कम प्रभाव।",
     "meaning_equivalence": "प्रति माह {visits} विज़िट के लिए, इस पेज का प्रभाव {co2} CO2 और {water} लीटर पानी के बराबर है — लगभग {carKm} किमी कार यात्रा और {bottles} बोतल मिनरल वाटर (1.5 लीटर) के बराबर।"
+  },
+  "international": {
+    "title": "दुनिया की संसदें",
+    "intro": "फ्रांस जैसे ही पारदर्शिता के सिद्धांत, अन्य देशों की संसदों पर लागू — जब आधिकारिक खुला डेटा उपलब्ध हो।",
+    "country_us": "संयुक्त राज्य अमेरिका",
+    "country_ru": "रूस",
+    "country_jp": "जापान",
+    "country_cn": "चीन",
+    "country_in": "भारत",
+    "unavailable_title": "इन देशों के लिए अभी डेटा उपलब्ध नहीं है",
+    "unavailable_desc": "इन संसदों के लिए हमें अभी तक कोई आधिकारिक और उपयोग योग्य खुला डेटा स्रोत नहीं मिला है।",
+    "suggest_source_prefix": "क्या आप इनमें से किसी देश (या किसी अन्य) के लिए कोई आधिकारिक स्रोत जानते हैं? हमें यहाँ लिखें:",
+    "back_to_countries": "← देशों की सूची पर वापस जाएँ",
+    "error_no_data": "फ़िलहाल डेटा उपलब्ध नहीं है।",
+    "members_intro": "{count} सदस्य सूचीबद्ध।",
+    "search_placeholder": "सदस्य खोजें...",
+    "chamber_label": "सदन",
+    "chamber_lower": "निम्न सदन",
+    "chamber_upper": "उच्च सदन",
+    "chamber_us_house": "प्रतिनिधि सभा",
+    "chamber_us_senate": "सीनेट",
+    "group_label": "पार्टी",
+    "no_members": "कोई सदस्य नहीं मिला।",
+    "table_chamber": "सदन",
+    "table_region": "राज्य / क्षेत्र",
+    "groups_link": "समूह/पार्टियाँ देखें →",
+    "votes_link": "मतदान देखें →"
   }
 }

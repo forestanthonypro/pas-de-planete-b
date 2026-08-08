@@ -71,7 +71,9 @@
     "card_petitions_label": "请愿活动",
     "card_petitions_desc": "签署、分享或推荐一个",
     "card_futureideas_label": "今天与明天的孩子",
-    "card_futureideas_desc": "为你支持的想法投票"
+    "card_futureideas_desc": "为你支持的想法投票",
+    "card_international_label": "国际",
+    "card_international_desc": "外国议会"
   },
   "co2": {
     "title": "二氧化碳排放",
@@ -735,5 +737,32 @@
     "meaning_title": "这意味着什么？",
     "meaning_grade_explainer": "A到G的评级反映了页面的环境性能（重量、复杂度、请求数量）——越接近A，影响越小。",
     "meaning_equivalence": "按每月{visits}次访问计算，该页面的足迹相当于{co2}的CO2和{water}升水——大约相当于开车{carKm}公里和{bottles}瓶矿泉水（1.5升装）。"
+  },
+  "international": {
+    "title": "世界议会",
+    "intro": "与法国相同的透明度原则，应用于其他国家的议会——基于官方开放数据（如果存在）。",
+    "country_us": "美国",
+    "country_ru": "俄罗斯",
+    "country_jp": "日本",
+    "country_cn": "中国",
+    "country_in": "印度",
+    "unavailable_title": "这些国家暂无数据",
+    "unavailable_desc": "目前我们尚未找到这些议会可用的官方开放数据来源。",
+    "suggest_source_prefix": "您了解这些国家（或其他国家）可用的官方数据来源吗？请写信告诉我们：",
+    "back_to_countries": "← 返回国家列表",
+    "error_no_data": "数据暂时不可用。",
+    "members_intro": "已收录 {count} 位议员。",
+    "search_placeholder": "搜索议员...",
+    "chamber_label": "议院",
+    "chamber_lower": "下议院",
+    "chamber_upper": "上议院",
+    "chamber_us_house": "众议院",
+    "chamber_us_senate": "参议院",
+    "group_label": "政党",
+    "no_members": "未找到议员。",
+    "table_chamber": "议院",
+    "table_region": "州 / 地区",
+    "groups_link": "查看党团/政党 →",
+    "votes_link": "查看投票 →"
   }
 }

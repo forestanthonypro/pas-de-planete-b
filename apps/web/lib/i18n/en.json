@@ -71,7 +71,9 @@
     "card_petitions_label": "Petitions",
     "card_petitions_desc": "Sign, share, or suggest one",
     "card_futureideas_label": "Today's and tomorrow's children",
-    "card_futureideas_desc": "Support ideas through voting"
+    "card_futureideas_desc": "Support ideas through voting",
+    "card_international_label": "International",
+    "card_international_desc": "Foreign parliaments"
   },
   "co2": {
     "title": "CO2 emissions",
@@ -735,5 +737,32 @@
     "meaning_title": "What does this mean?",
     "meaning_grade_explainer": "The A to G grade reflects the page's environmental performance (weight, complexity, number of requests) — the closer to A, the lower the impact.",
     "meaning_equivalence": "For {visits} monthly visits, this page's footprint is {co2} of CO2 and {water} L of water — roughly {carKm} km by car and {bottles} bottles of mineral water (1.5 L)."
+  },
+  "international": {
+    "title": "Parliaments of the world",
+    "intro": "The same transparency principles as in France, applied to other countries' parliaments — based on official open data, when it exists.",
+    "country_us": "United States",
+    "country_ru": "Russia",
+    "country_jp": "Japan",
+    "country_cn": "China",
+    "country_in": "India",
+    "unavailable_title": "No data yet for these countries",
+    "unavailable_desc": "We haven't identified an official, usable open data source for these parliaments yet.",
+    "suggest_source_prefix": "Know an official, usable source for one of these countries (or another)? Write to us at",
+    "back_to_countries": "← Back to countries",
+    "error_no_data": "Data not available at the moment.",
+    "members_intro": "{count} members listed.",
+    "search_placeholder": "Search for a member...",
+    "chamber_label": "Chamber",
+    "chamber_lower": "Lower chamber",
+    "chamber_upper": "Upper chamber",
+    "chamber_us_house": "House of Representatives",
+    "chamber_us_senate": "Senate",
+    "group_label": "Party",
+    "no_members": "No members found.",
+    "table_chamber": "Chamber",
+    "table_region": "State / region",
+    "groups_link": "See groups/parties →",
+    "votes_link": "See votes →"
   }
 }

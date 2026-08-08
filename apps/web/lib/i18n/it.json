@@ -71,7 +71,9 @@
     "card_petitions_label": "Petizioni",
     "card_petitions_desc": "Firma, condividi o proponine una",
     "card_futureideas_label": "I bambini di oggi e di domani",
-    "card_futureideas_desc": "Sostieni le idee con il tuo voto"
+    "card_futureideas_desc": "Sostieni le idee con il tuo voto",
+    "card_international_label": "Internazionale",
+    "card_international_desc": "Parlamenti esteri"
   },
   "co2": {
     "title": "Emissioni di CO2",
@@ -735,5 +737,32 @@
     "meaning_title": "Cosa significa?",
     "meaning_grade_explainer": "Il voto da A a G riflette la performance ambientale della pagina (peso, complessità, numero di richieste) — più è vicino ad A, minore è l'impatto.",
     "meaning_equivalence": "Per {visits} visite mensili, l'impronta di questa pagina equivale a {co2} di CO2 e {water} L d'acqua — circa {carKm} km in auto e {bottles} bottiglie d'acqua minerale (1,5 L)."
+  },
+  "international": {
+    "title": "Parlamenti del mondo",
+    "intro": "Gli stessi principi di trasparenza applicati in Francia, estesi ai parlamenti di altri paesi — a partire da dati aperti ufficiali, quando esistono.",
+    "country_us": "Stati Uniti",
+    "country_ru": "Russia",
+    "country_jp": "Giappone",
+    "country_cn": "Cina",
+    "country_in": "India",
+    "unavailable_title": "Nessun dato ancora per questi paesi",
+    "unavailable_desc": "Non abbiamo identificato una fonte di dati aperti ufficiale e utilizzabile per questi parlamenti al momento.",
+    "suggest_source_prefix": "Conosci una fonte ufficiale utilizzabile per uno di questi paesi (o un altro)? Scrivici a",
+    "back_to_countries": "← Torna ai paesi",
+    "error_no_data": "Dati non disponibili al momento.",
+    "members_intro": "{count} membri censiti.",
+    "search_placeholder": "Cerca un membro...",
+    "chamber_label": "Camera",
+    "chamber_lower": "Camera bassa",
+    "chamber_upper": "Camera alta",
+    "chamber_us_house": "Camera dei Rappresentanti",
+    "chamber_us_senate": "Senato",
+    "group_label": "Partito",
+    "no_members": "Nessun membro trovato.",
+    "table_chamber": "Camera",
+    "table_region": "Stato / regione",
+    "groups_link": "Vedi gruppi/partiti →",
+    "votes_link": "Vedi votazioni →"
   }
 }

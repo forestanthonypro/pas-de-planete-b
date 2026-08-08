@@ -748,6 +748,21 @@
     "country_in": "Inde",
     "unavailable_title": "Pas encore de données pour ces pays",
     "unavailable_desc": "Nous n'avons pas identifié de source de données ouvertes officielle et exploitable pour ces parlements à ce jour.",
-    "suggest_source_prefix": "Vous connaissez une source officielle exploitable pour l'un de ces pays (ou un autre) ? Écrivez-nous à"
+    "suggest_source_prefix": "Vous connaissez une source officielle exploitable pour l'un de ces pays (ou un autre) ? Écrivez-nous à",
+    "back_to_countries": "← Retour aux pays",
+    "error_no_data": "Données non disponibles pour le moment.",
+    "members_intro": "{count} élus recensés.",
+    "search_placeholder": "Rechercher un élu...",
+    "chamber_label": "Chambre",
+    "chamber_lower": "Chambre basse",
+    "chamber_upper": "Chambre haute",
+    "chamber_us_house": "Chambre des représentants",
+    "chamber_us_senate": "Sénat",
+    "group_label": "Parti",
+    "no_members": "Aucun élu trouvé.",
+    "table_chamber": "Chambre",
+    "table_region": "État / région",
+    "groups_link": "Voir les groupes/partis →",
+    "votes_link": "Voir les votes →"
   }
 }

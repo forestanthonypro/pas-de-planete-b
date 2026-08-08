@@ -71,7 +71,9 @@
     "card_petitions_label": "署名活動",
     "card_petitions_desc": "署名、共有、または提案する",
     "card_futureideas_label": "今日と未来の子どもたち",
-    "card_futureideas_desc": "投票でアイデアを支援しよう"
+    "card_futureideas_desc": "投票でアイデアを支援しよう",
+    "card_international_label": "国際",
+    "card_international_desc": "海外の議会"
   },
   "co2": {
     "title": "CO2排出量",
@@ -735,5 +737,32 @@
     "meaning_title": "これは何を意味しますか？",
     "meaning_grade_explainer": "A〜Gの評価はページの環境パフォーマンス（重量、複雑さ、リクエスト数）を反映しています — Aに近いほど影響が少ないことを意味します。",
     "meaning_equivalence": "月間{visits}回の訪問で、このページのフットプリントはCO2 {co2}、水{water}Lに相当します — 車で約{carKm}km、ミネラルウォーター（1.5L）約{bottles}本分です。"
+  },
+  "international": {
+    "title": "世界の議会",
+    "intro": "フランスと同じ透明性の原則を、他国の議会にも適用しています — 公式なオープンデータが存在する場合に限ります。",
+    "country_us": "アメリカ合衆国",
+    "country_ru": "ロシア",
+    "country_jp": "日本",
+    "country_cn": "中国",
+    "country_in": "インド",
+    "unavailable_title": "これらの国のデータはまだありません",
+    "unavailable_desc": "現時点で、これらの議会について利用可能な公式オープンデータの情報源は確認できていません。",
+    "suggest_source_prefix": "これらの国（または他の国）について利用可能な公式情報源をご存知ですか？ こちらまでご連絡ください：",
+    "back_to_countries": "← 国の一覧に戻る",
+    "error_no_data": "現在データを利用できません。",
+    "members_intro": "{count}人の議員が登録されています。",
+    "search_placeholder": "議員を検索...",
+    "chamber_label": "議院",
+    "chamber_lower": "下院",
+    "chamber_upper": "上院",
+    "chamber_us_house": "下院（代議院）",
+    "chamber_us_senate": "上院",
+    "group_label": "政党",
+    "no_members": "議員が見つかりません。",
+    "table_chamber": "議院",
+    "table_region": "州 / 地域",
+    "groups_link": "会派・政党を見る →",
+    "votes_link": "採決結果を見る →"
   }
 }

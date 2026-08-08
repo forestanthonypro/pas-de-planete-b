@@ -71,7 +71,9 @@
     "card_petitions_label": "Peticiones",
     "card_petitions_desc": "Firma, comparte o propón una",
     "card_futureideas_label": "Los niños de hoy y de mañana",
-    "card_futureideas_desc": "Apoya las ideas con tu voto"
+    "card_futureideas_desc": "Apoya las ideas con tu voto",
+    "card_international_label": "Internacional",
+    "card_international_desc": "Parlamentos extranjeros"
   },
   "co2": {
     "title": "Emisiones de CO2",
@@ -735,5 +737,32 @@
     "meaning_title": "¿Qué significa esto?",
     "meaning_grade_explainer": "La nota de A a G refleja el rendimiento medioambiental de la página (peso, complejidad, número de solicitudes) — cuanto más cerca de A, menor el impacto.",
     "meaning_equivalence": "Para {visits} visitas mensuales, la huella de esta página equivale a {co2} de CO2 y {water} L de agua — aproximadamente {carKm} km en coche y {bottles} botellas de agua mineral (1,5 L)."
+  },
+  "international": {
+    "title": "Parlamentos del mundo",
+    "intro": "Los mismos principios de transparencia que en Francia, aplicados a los parlamentos de otros países — a partir de datos abiertos oficiales, cuando existen.",
+    "country_us": "Estados Unidos",
+    "country_ru": "Rusia",
+    "country_jp": "Japón",
+    "country_cn": "China",
+    "country_in": "India",
+    "unavailable_title": "Aún sin datos para estos países",
+    "unavailable_desc": "No hemos identificado una fuente de datos abiertos oficial y utilizable para estos parlamentos por el momento.",
+    "suggest_source_prefix": "¿Conoce una fuente oficial utilizable para uno de estos países (u otro)? Escríbanos a",
+    "back_to_countries": "← Volver a los países",
+    "error_no_data": "Datos no disponibles por el momento.",
+    "members_intro": "{count} diputados registrados.",
+    "search_placeholder": "Buscar un diputado...",
+    "chamber_label": "Cámara",
+    "chamber_lower": "Cámara baja",
+    "chamber_upper": "Cámara alta",
+    "chamber_us_house": "Cámara de Representantes",
+    "chamber_us_senate": "Senado",
+    "group_label": "Partido",
+    "no_members": "No se encontraron diputados.",
+    "table_chamber": "Cámara",
+    "table_region": "Estado / región",
+    "groups_link": "Ver grupos/partidos →",
+    "votes_link": "Ver votaciones →"
   }
 }
