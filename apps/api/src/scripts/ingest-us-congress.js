@@ -355,14 +355,24 @@ async function ingestSenateVotes(congress, limitVotes) {
 // chargement du module) pour ne pas faire planter le serveur entier au
 // démarrage si elle manquait — seule cette route échouerait, proprement.
 // ---------------------------------------------------------------------
-export async function ingestUsCongress({ congress = 119, session = 1, limitVotes = Infinity } = {}) {
+export async function ingestUsCongress({ congress = 119, sessions = [1, 2], limitVotes = Infinity } = {}) {
   const apiKey = process.env.CONGRESS_GOV_API_KEY;
   if (!apiKey) {
     throw new Error("CONGRESS_GOV_API_KEY manquante dans l'environnement.");
   }
 
   const memberCounts = await ingestAllMembers(apiKey);
-  const houseVoteCount = await ingestHouseVotes(apiKey, congress, session, limitVotes);
+
+  // Un Congrès couvre toujours deux années civiles (session 1 = première
+  // année du mandat, session 2 = seconde) — se limiter à la session 1
+  // manquait tous les votes de l'année en cours dès que celle-ci
+  // correspondait à la session 2 (bug découvert le 9 août 2026 : plus aucun
+  // vote de la Chambre après le 16 décembre 2025 en production).
+  let houseVoteCount = 0;
+  for (const session of sessions) {
+    houseVoteCount += await ingestHouseVotes(apiKey, congress, session, limitVotes);
+  }
+
   const senateVoteCount = await ingestSenateVotes(congress, limitVotes);
 
   return {
@@ -384,15 +394,15 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     })
   );
   const cliCongress = Number(args.congress || 119);
-  const cliSession = Number(args.session || 1);
+  const cliSessions = args.session ? [Number(args.session)] : [1, 2];
   const cliLimitVotes = args["limit-votes"] ? Number(args["limit-votes"]) : Infinity;
 
-  console.log(`Ingestion Congrès US — ${cliCongress}e Congrès, session ${cliSession}`);
+  console.log(`Ingestion Congrès US — ${cliCongress}e Congrès, session(s) ${cliSessions.join(", ")}`);
   if (cliLimitVotes !== Infinity) {
     console.log(`Mode test : limité à ${cliLimitVotes} votes par chambre.`);
   }
 
-  ingestUsCongress({ congress: cliCongress, session: cliSession, limitVotes: cliLimitVotes })
+  ingestUsCongress({ congress: cliCongress, sessions: cliSessions, limitVotes: cliLimitVotes })
     .then((result) => {
       console.log(
         `Membres Chambre : ${result.membersHouse} — Sénat : ${result.membersSenate} importés/mis à jour.`
