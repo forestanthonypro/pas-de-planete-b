@@ -37,11 +37,27 @@ export default function Confidentialite() {
               font-size: 18px;
               margin-bottom: 0.5rem;
             }
+            .pdpb-legal-content h3 {
+              font-size: 16px;
+              margin: 1rem 0 0.5rem;
+              color: var(--color-texte);
+            }
             .pdpb-legal-content p {
               font-size: 14px;
               line-height: 1.7;
               margin: 0 0 0.75rem;
               color: var(--color-texte);
+            }
+            .pdpb-legal-content ul,
+            .pdpb-legal-content ol {
+              font-size: 14px;
+              line-height: 1.7;
+              margin: 0 0 0.75rem;
+              padding-left: 1.5rem;
+              color: var(--color-texte);
+            }
+            .pdpb-legal-content li {
+              margin-bottom: 0.35rem;
             }
             .pdpb-legal-content a {
               color: var(--color-forest);
