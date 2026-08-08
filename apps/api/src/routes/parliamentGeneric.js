@@ -2,17 +2,6 @@ import { Router } from "express";
 import { pool } from "../lib/db.js";
 import { errorDetail } from "../lib/errors.js";
 
-// Routes génériques pour les parlements étrangers (schéma parliament_*,
-// migration 040) — communes à tous les pays ajoutés après la France
-// (États-Unis en premier, Italie/Espagne prévues ensuite). La France garde
-// ses routes dédiées existantes (deputies, an_groups, scrutins) dans
-// parliamentary.js, volontairement non touchées.
-//
-// country doit correspondre à un country_code déjà présent en base
-// (actuellement : "us"). Pas de liste blanche statique ici : une requête
-// pour un pays sans données renvoie simplement des résultats vides, géré
-// côté frontend par l'affichage du message "pas encore de données".
-
 const router = Router();
 
 router.get("/api/parliament/:country/members", async (req, res) => {
@@ -72,11 +61,17 @@ router.get("/api/parliament/:country/members/:externalId", async (req, res) => {
   }
 });
 
+// Répartition par chambre incluse (lower_count/upper_count) — utile pour
+// les pays bicaméraux (ex. États-Unis), afin d'afficher Chambre/Sénat
+// séparément sous le graphique plutôt qu'un seul total mélangé.
 router.get("/api/parliament/:country/groups", async (req, res) => {
   const { country } = req.params;
   try {
     const result = await pool.query(
-      `SELECT g.id, g.slug, g.name, g.color, COUNT(m.id) AS member_count
+      `SELECT g.id, g.slug, g.name, g.color,
+              COUNT(m.id) AS member_count,
+              COUNT(m.id) FILTER (WHERE m.chamber = 'lower') AS lower_count,
+              COUNT(m.id) FILTER (WHERE m.chamber = 'upper') AS upper_count
        FROM parliament_groups g
        LEFT JOIN parliament_members m ON m.group_id = g.id AND m.in_office = true
        WHERE g.country_code = $1
@@ -113,6 +108,49 @@ router.get("/api/parliament/:country/groups/:slug", async (req, res) => {
   }
 });
 
+// IMPORTANT : ces deux routes (/stats et /search) doivent être déclarées
+// AVANT "/votes/:id" ci-dessous, sinon Express interprète "stats"/"search"
+// comme une valeur du paramètre :id.
+
+router.get("/api/parliament/:country/votes/stats", async (req, res) => {
+  const { country } = req.params;
+  try {
+    const byResult = await pool.query(
+      `SELECT result, COUNT(*) AS count FROM parliament_votes
+       WHERE country_code = $1 GROUP BY result ORDER BY count DESC`,
+      [country]
+    );
+    const total = await pool.query(
+      "SELECT COUNT(*) AS count FROM parliament_votes WHERE country_code = $1",
+      [country]
+    );
+    res.json({ total: parseInt(total.rows[0].count, 10), byResult: byResult.rows });
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
+  }
+});
+
+router.get("/api/parliament/:country/votes/search", async (req, res) => {
+  const { country } = req.params;
+  const q = (req.query.q || "").trim();
+  if (q.length < 3) {
+    return res.status(400).json({ error: "Recherche trop courte (3 caractères minimum)" });
+  }
+  try {
+    const result = await pool.query(
+      `SELECT id, chamber, external_id, question, bill_number, vote_date, result
+       FROM parliament_votes
+       WHERE country_code = $1 AND question ILIKE $2
+       ORDER BY vote_date DESC NULLS LAST
+       LIMIT 100`,
+      [country, `%${q}%`]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
+  }
+});
+
 router.get("/api/parliament/:country/votes", async (req, res) => {
   const { country } = req.params;
   const { chamber } = req.query;
@@ -127,7 +165,7 @@ router.get("/api/parliament/:country/votes", async (req, res) => {
     params.push(limit);
     const result = await pool.query(
       `SELECT id, chamber, external_id, question, bill_number, vote_date, result,
-              yes_count, no_count, abstain_count, not_voting_count
+              yes_count, no_count, abstain_count, not_voting_count, source_url
        FROM parliament_votes
        WHERE country_code = $1 ${chamberClause}
        ORDER BY vote_date DESC NULLS LAST
