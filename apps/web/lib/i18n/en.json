@@ -532,7 +532,8 @@
     "water_no_data": "No water data for this country.",
     "water_source": "AQUASTAT/FAO via World Bank (renewable resources, long-term estimate) and Copernicus ERA5 (actual annual rainfall), via Our World in Data.",
     "water_source_year": " Latest year covered: {year}.",
-    "water_detail_link": "See the detailed chart →"
+    "water_detail_link": "See the detailed chart →",
+    "section_nav_label": "Jump to a section"
   },
   "citizenVote": {
     "question": "How would you have voted?",

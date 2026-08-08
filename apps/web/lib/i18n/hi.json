@@ -532,7 +532,8 @@
     "water_no_data": "इस देश के लिए कोई जल डेटा नहीं है।",
     "water_source": "AQUASTAT/FAO, विश्व बैंक के माध्यम से (नवीकरणीय संसाधन, दीर्घकालिक अनुमान) और Copernicus ERA5 (वास्तविक वार्षिक वर्षा), Our World in Data के माध्यम से।",
     "water_source_year": " कवर किया गया नवीनतम वर्ष: {year}।",
-    "water_detail_link": "विस्तृत ग्राफ़ देखें →"
+    "water_detail_link": "विस्तृत ग्राफ़ देखें →",
+    "section_nav_label": "किसी अनुभाग पर जाएँ"
   },
   "citizenVote": {
     "question": "और आप, आप कैसे मतदान करते?",

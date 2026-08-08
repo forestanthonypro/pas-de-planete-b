@@ -532,7 +532,8 @@
     "water_no_data": "该国无水资源数据。",
     "water_source": "AQUASTAT/联合国粮农组织，经由世界银行（可再生资源，长期估算）及Copernicus ERA5（实际年降水量），经由 Our World in Data。",
     "water_source_year": " 覆盖的最新年份：{year}。",
-    "water_detail_link": "查看详细图表 →"
+    "water_detail_link": "查看详细图表 →",
+    "section_nav_label": "跳转到某个部分"
   },
   "citizenVote": {
     "question": "那么你会怎么投票？",
