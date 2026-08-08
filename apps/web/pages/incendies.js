@@ -100,7 +100,7 @@ export default function IncendiesPage() {
       }
       markersLayerRef.current = null;
     };
-  }, [view, sobriety, fires]);
+  }, [view, sobriety, fires, locale]);
 
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>

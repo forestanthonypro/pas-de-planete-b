@@ -159,7 +159,7 @@ export default function VegetationPage() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data, view, loading, error, worldBenchmarks]);
+  }, [data, view, loading, error, worldBenchmarks, locale]);
 
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 800, margin: "0 auto" }}>

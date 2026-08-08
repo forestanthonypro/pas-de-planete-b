@@ -81,7 +81,7 @@ export default function EauPage() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data, view, loading, error]);
+  }, [data, view, loading, error, locale]);
 
   useEffect(() => {
     if (view !== "chart" || loading || error || data.length === 0) return;
@@ -118,7 +118,7 @@ export default function EauPage() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data, view, loading, error]);
+  }, [data, view, loading, error, locale]);
 
   useEffect(() => {
     if (view !== "chart" || loading || error || data.length === 0) return;
@@ -168,7 +168,7 @@ export default function EauPage() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data, view, loading, error, worldBenchmarks]);
+  }, [data, view, loading, error, worldBenchmarks, locale]);
 
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 800, margin: "0 auto" }}>

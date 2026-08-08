@@ -83,7 +83,7 @@ export default function Co2Page() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data, metric, view, loading, error]);
+  }, [data, metric, view, loading, error, locale]);
 
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 800, margin: "0 auto" }}>

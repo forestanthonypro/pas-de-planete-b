@@ -79,7 +79,7 @@ export default function PollutionPage() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data, view, loading, error, benchmarks]);
+  }, [data, view, loading, error, benchmarks, locale]);
 
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 800, margin: "0 auto" }}>

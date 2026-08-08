@@ -85,7 +85,7 @@ export default function EspecesPage() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [threatenedCounts]);
+  }, [threatenedCounts, locale]);
 
   const speciesParams = new URLSearchParams();
   if (category) speciesParams.set("category", category);
