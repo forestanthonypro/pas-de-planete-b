@@ -31,8 +31,17 @@ function LegalContentEditor({ baseKey, label, href, sessionToken }) {
   const [viewMode, setViewMode] = useState("visual"); // visual | code
 
   const pageKey = lang === "fr" ? baseKey : `${baseKey}_${lang}`;
+  const [translating, setTranslating] = useState(false); // false | "current" | "all"
+  const [translateError, setTranslateError] = useState(null);
 
   const { data: legalContent, loading } = useApiFetch(`/api/settings/legal-content/${pageKey}`, {
+    transform: (data) => (data && data.content) || "",
+  });
+
+  // Le texte français (baseKey, sans suffixe) sert de source pour la
+  // traduction automatique, quelle que soit la langue actuellement
+  // affichée à l'écran.
+  const { data: frenchContent } = useApiFetch(`/api/settings/legal-content/${baseKey}`, {
     transform: (data) => (data && data.content) || "",
   });
 
@@ -62,6 +71,72 @@ function LegalContentEditor({ baseKey, label, href, sessionToken }) {
   }
 
   const hasChanges = value !== initialValue;
+
+  // Traduction automatique (Google Cloud Translation) — pré-remplit
+  // l'éditeur pour relecture, n'enregistre jamais seule.
+  function handleTranslateCurrent() {
+    if (lang === "fr") return;
+    setTranslating("current");
+    setTranslateError(null);
+    fetch(`${API_URL}/api/admin/translate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${sessionToken}` },
+      body: JSON.stringify({ texts: { content: frenchContent || "" }, targetLangs: [lang] }),
+    })
+      .then((res) => {
+        if (!res.ok) return res.json().then((d) => Promise.reject(new Error(d.error || "Erreur")));
+        return res.json();
+      })
+      .then((result) => {
+        setValue(result[lang].content);
+        setTranslating(false);
+      })
+      .catch((err) => {
+        setTranslateError(err.message);
+        setTranslating(false);
+      });
+  }
+
+  // Traduit ET enregistre directement les 7 langues d'un coup, contrairement
+  // au bouton ci-dessus qui ne fait que pré-remplir la langue affichée pour
+  // relecture — mêmes raisons qu'expliquées dans ContentTranslationsEditor.js.
+  function handleTranslateAll() {
+    setTranslating("all");
+    setTranslateError(null);
+    const allLangs = LANGUAGE_TABS.filter((l) => l.code !== "fr").map((l) => l.code);
+    fetch(`${API_URL}/api/admin/translate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${sessionToken}` },
+      body: JSON.stringify({ texts: { content: frenchContent || "" }, targetLangs: allLangs }),
+    })
+      .then((res) => {
+        if (!res.ok) return res.json().then((d) => Promise.reject(new Error(d.error || "Erreur")));
+        return res.json();
+      })
+      .then((result) =>
+        Promise.all(
+          allLangs.map((l) =>
+            fetch(`${API_URL}/api/admin/settings/legal-content`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json", Authorization: `Bearer ${sessionToken}` },
+              body: JSON.stringify({ key: `${baseKey}_${l}`, content: result[l].content }),
+            })
+          )
+        ).then(() => result)
+      )
+      .then((result) => {
+        if (lang !== "fr") {
+          setValue(result[lang].content);
+          setInitialValue(result[lang].content);
+        }
+        setTranslating(false);
+        setStatus("saved");
+      })
+      .catch((err) => {
+        setTranslateError(err.message);
+        setTranslating(false);
+      });
+  }
 
   return (
     <section
@@ -101,6 +176,18 @@ function LegalContentEditor({ baseKey, label, href, sessionToken }) {
           </button>
         ))}
       </div>
+
+      {lang !== "fr" && (
+        <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", marginBottom: 10 }}>
+          <button type="button" onClick={handleTranslateCurrent} disabled={!!translating} style={{ fontSize: 12 }}>
+            {translating === "current" ? "Traduction..." : "Traduire automatiquement cette langue"}
+          </button>
+          <button type="button" onClick={handleTranslateAll} disabled={!!translating} style={{ fontSize: 12 }}>
+            {translating === "all" ? "Traduction des 7 langues..." : "Traduire et enregistrer dans les 7 langues"}
+          </button>
+          {translateError && <span style={{ fontSize: 12, color: "#d63e2a" }}>{translateError}</span>}
+        </div>
+      )}
 
       {!loading && (
         <div style={{ display: "flex", gap: 4, marginBottom: 8 }}>

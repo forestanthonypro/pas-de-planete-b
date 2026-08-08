@@ -19,6 +19,7 @@ import resourcesRoutes from "./routes/resources.js";
 import charterRoutes from "./routes/charter.js";
 import futureIdeasRoutes from "./routes/futureIdeas.js";
 import petitionsRoutes from "./routes/petitions.js";
+import translateRoutes from "./routes/translate.js";
 
 const app = express();
 const port = process.env.API_PORT || 4000;
@@ -87,6 +88,7 @@ app.use(resourcesRoutes);
 app.use(charterRoutes);
 app.use(futureIdeasRoutes);
 app.use(petitionsRoutes);
+app.use(translateRoutes);
 
 app.listen(port, () => {
   console.log(`API Pas de planète B à l'écoute sur le port ${port}`);

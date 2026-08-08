@@ -28,6 +28,8 @@ export default function ContentTranslationsEditor({ contentType, contentId, fiel
   const [initialValues, setInitialValues] = useState({});
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState("idle"); // idle | saved | error
+  const [translating, setTranslating] = useState(false); // false | "current" | "all"
+  const [translateError, setTranslateError] = useState(null);
 
   const { data: forLang, loading } = useApiFetch(
     contentId ? `/api/admin/content-translations/${contentType}/${contentId}` : null,
@@ -52,6 +54,90 @@ export default function ContentTranslationsEditor({ contentType, contentId, fiel
 
   function handleChange(fieldName, value) {
     setValues((prev) => ({ ...prev, [fieldName]: value }));
+  }
+
+  // Traduction automatique (Google Cloud Translation, voir apps/api/src/routes/translate.js).
+  // Pré-remplit le brouillon pour relecture — n'enregistre jamais seule.
+  function handleTranslateCurrent() {
+    setTranslating("current");
+    setTranslateError(null);
+    const texts = {};
+    fields.forEach((f) => {
+      texts[f.name] = baseValues[f.name] || "";
+    });
+    fetch(`${API_URL}/api/admin/translate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${sessionToken}` },
+      body: JSON.stringify({ texts, targetLangs: [lang] }),
+    })
+      .then((res) => {
+        if (!res.ok) return res.json().then((d) => Promise.reject(new Error(d.error || "Erreur")));
+        return res.json();
+      })
+      .then((result) => {
+        setValues((prev) => ({ ...prev, ...result[lang] }));
+        setTranslating(false);
+      })
+      .catch((err) => {
+        setTranslateError(err.message);
+        setTranslating(false);
+      });
+  }
+
+  // Traduit ET enregistre directement les 7 langues d'un coup (contrairement
+  // au bouton ci-dessus, qui ne fait que pré-remplir la langue affichée pour
+  // relecture) — l'architecture actuelle du composant ne garde en mémoire
+  // que la langue sélectionnée à la fois, pas de brouillon multi-langues
+  // possible sans enregistrer au fur et à mesure. Après coup, repasser sur
+  // chaque onglet permet de relire et corriger normalement.
+  function handleTranslateAll() {
+    setTranslating("all");
+    setTranslateError(null);
+    const texts = {};
+    fields.forEach((f) => {
+      texts[f.name] = baseValues[f.name] || "";
+    });
+    const allLangs = LANGUAGE_TABS.map((l) => l.code);
+    fetch(`${API_URL}/api/admin/translate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${sessionToken}` },
+      body: JSON.stringify({ texts, targetLangs: allLangs }),
+    })
+      .then((res) => {
+        if (!res.ok) return res.json().then((d) => Promise.reject(new Error(d.error || "Erreur")));
+        return res.json();
+      })
+      .then((result) =>
+        Promise.all(
+          allLangs.flatMap((l) =>
+            fields.map((f) =>
+              fetch(`${API_URL}/api/admin/content-translations`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json", Authorization: `Bearer ${sessionToken}` },
+                body: JSON.stringify({
+                  contentType,
+                  contentId,
+                  fieldName: f.name,
+                  locale: l,
+                  value: result[l][f.name] || "",
+                }),
+              })
+            )
+          )
+        ).then(() => result)
+      )
+      .then((result) => {
+        // On a déjà le résultat traduit pour la langue actuellement
+        // affichée : pas besoin de recharger depuis le serveur.
+        setValues(result[lang]);
+        setInitialValues(result[lang]);
+        setTranslating(false);
+        setStatus("saved");
+      })
+      .catch((err) => {
+        setTranslateError(err.message);
+        setTranslating(false);
+      });
   }
 
   function handleSave() {
@@ -127,6 +213,16 @@ export default function ContentTranslationsEditor({ contentType, contentId, fiel
             {l.label}
           </button>
         ))}
+      </div>
+
+      <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", marginBottom: 12 }}>
+        <button type="button" onClick={handleTranslateCurrent} disabled={!!translating} style={{ fontSize: 12 }}>
+          {translating === "current" ? "Traduction..." : `Traduire automatiquement (${LANGUAGE_TABS.find((l) => l.code === lang)?.label})`}
+        </button>
+        <button type="button" onClick={handleTranslateAll} disabled={!!translating} style={{ fontSize: 12 }}>
+          {translating === "all" ? "Traduction des 7 langues..." : "Traduire et enregistrer dans les 7 langues"}
+        </button>
+        {translateError && <span style={{ fontSize: 12, color: "#d63e2a" }}>{translateError}</span>}
       </div>
 
       {loading ? (
