@@ -865,6 +865,18 @@ export default function PaysDashboard() {
     if (sobriety || !fireMapContainerRef.current) return;
     let cancelled = false;
     import("leaflet").then((L) => {
+      // Le CSS de Leaflet n'est plus chargé globalement pour toutes les pages
+      // du site (import "leaflet/dist/leaflet.css" dans _app.js retiré) —
+      // seule cette page en a besoin. Injecté ici, une seule fois, uniquement
+      // quand la carte est effectivement affichée.
+      if (!document.getElementById("leaflet-css")) {
+        const link = document.createElement("link");
+        link.id = "leaflet-css";
+        link.rel = "stylesheet";
+        link.href = "/vendor/leaflet.css";
+        document.head.appendChild(link);
+      }
+
       if (cancelled || !fireMapContainerRef.current) return;
 
       if (!fireMapRef.current) {
@@ -898,6 +910,7 @@ export default function PaysDashboard() {
       } else {
         fireMapRef.current.setView([20, 0], 2);
       }
+      setTimeout(() => { if (fireMapRef.current) fireMapRef.current.invalidateSize(); }, 0);
     });
     return () => {
       cancelled = true;
@@ -908,6 +921,18 @@ export default function PaysDashboard() {
     if (sobriety || !compareCode || !compareSummary || !fireMapCompareContainerRef.current) return;
     let cancelled = false;
     import("leaflet").then((L) => {
+      // Le CSS de Leaflet n'est plus chargé globalement pour toutes les pages
+      // du site (import "leaflet/dist/leaflet.css" dans _app.js retiré) —
+      // seule cette page en a besoin. Injecté ici, une seule fois, uniquement
+      // quand la carte est effectivement affichée.
+      if (!document.getElementById("leaflet-css")) {
+        const link = document.createElement("link");
+        link.id = "leaflet-css";
+        link.rel = "stylesheet";
+        link.href = "/vendor/leaflet.css";
+        document.head.appendChild(link);
+      }
+
       if (cancelled || !fireMapCompareContainerRef.current) return;
 
       if (!fireMapCompareRef.current) {
@@ -941,6 +966,7 @@ export default function PaysDashboard() {
       } else {
         fireMapCompareRef.current.setView([20, 0], 2);
       }
+      setTimeout(() => { if (fireMapCompareRef.current) fireMapCompareRef.current.invalidateSize(); }, 0);
     });
     return () => {
       cancelled = true;
