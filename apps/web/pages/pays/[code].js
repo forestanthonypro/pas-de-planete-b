@@ -1062,7 +1062,7 @@ export default function PaysDashboard() {
           <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>{t("pays.world_comparison_p3")}</p>
           <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>{t("pays.world_comparison_p4")}</p>
           <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>{t("pays.world_comparison_p5")}</p>
-                    <div style={{ position: "relative", height: 320 }}>
+                    <div style={{ position: "relative", width: "100%", height: 320 }}>
             <canvas ref={comparisonCanvasRef} role="img" aria-label={`${t("pays.world_comparison_title")} — ${countryName}`} />
           </div>
           {(() => {
@@ -1126,16 +1126,16 @@ export default function PaysDashboard() {
             <p style={{ fontSize: 13, color: "var(--color-texte-clair)", fontWeight: 600 }}>{t("co2.explain_p3")}</p>
             {summary.co2.length > 0 && (
               <div style={{ display: "grid", gridTemplateColumns: compareCode && compareSummary ? "repeat(auto-fit, minmax(320px, 1fr))" : "1fr", gap: "1rem" }}>
-                <div>
+                <div style={{ minWidth: 0 }}>
                   <p style={{ fontSize: 12, color: "var(--color-texte-clair)", fontWeight: 600, marginBottom: 4 }}>{countryName}</p>
-                  <div style={{ position: "relative", height: 220 }}>
+                  <div style={{ position: "relative", width: "100%", height: 220 }}>
                     <canvas ref={co2CanvasRef} role="img" aria-label={`${t("co2.title")} — ${countryName}`} />
                   </div>
                 </div>
                 {compareCode && compareSummary && (
                   <div>
                     <p style={{ fontSize: 12, color: "var(--color-texte-clair)", fontWeight: 600, marginBottom: 4 }}>{localizedCountryName(compareCode, locale)}</p>
-                    <div style={{ position: "relative", height: 220 }}>
+                    <div style={{ position: "relative", width: "100%", height: 220 }}>
                       <canvas ref={co2CompareCanvasRef} role="img" aria-label={`${t("co2.title")} — ${localizedCountryName(compareCode, locale)}`} />
                     </div>
                   </div>
@@ -1161,16 +1161,16 @@ export default function PaysDashboard() {
                 </p>
                 <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>{t("energie.map_explain")}</p>
                 <div style={{ display: "grid", gridTemplateColumns: compareCode && compareSummary ? "repeat(auto-fit, minmax(320px, 1fr))" : "1fr", gap: "1rem" }}>
-                  <div>
+                  <div style={{ minWidth: 0 }}>
                     <p style={{ fontSize: 12, color: "var(--color-texte-clair)", fontWeight: 600, marginBottom: 4 }}>{countryName}</p>
-                    <div style={{ position: "relative", height: Math.max(200, summary.energyMix.length * 34) }}>
+                    <div style={{ position: "relative", width: "100%", height: Math.max(200, summary.energyMix.length * 34) }}>
                       <canvas ref={energyCanvasRef} role="img" aria-label={t("energie.mix_title")} />
                     </div>
                   </div>
                   {compareCode && compareSummary?.energyMix?.length > 0 && (
                     <div>
                       <p style={{ fontSize: 12, color: "var(--color-texte-clair)", fontWeight: 600, marginBottom: 4 }}>{localizedCountryName(compareCode, locale)}</p>
-                      <div style={{ position: "relative", height: Math.max(200, compareSummary.energyMix.length * 34) }}>
+                      <div style={{ position: "relative", width: "100%", height: Math.max(200, compareSummary.energyMix.length * 34) }}>
                         <canvas ref={energyCompareCanvasRef} role="img" aria-label={t("energie.mix_title")} />
                       </div>
                     </div>
@@ -1218,16 +1218,16 @@ export default function PaysDashboard() {
               <>
                 <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginTop: "1rem" }}>{t("energie.generation_explain")}</p>
                 <div style={{ display: "grid", gridTemplateColumns: compareCode && compareSummary ? "repeat(auto-fit, minmax(320px, 1fr))" : "1fr", gap: "1rem" }}>
-                  <div>
+                  <div style={{ minWidth: 0 }}>
                     <p style={{ fontSize: 12, color: "var(--color-texte-clair)", fontWeight: 600, marginBottom: 4 }}>{countryName}</p>
-                    <div style={{ position: "relative", height: 260 }}>
+                    <div style={{ position: "relative", width: "100%", height: 260 }}>
                       <canvas ref={generationCanvasRef} role="img" aria-label={t("energie.generation_title")} />
                     </div>
                   </div>
                   {compareCode && compareSummary && (
                     <div>
                       <p style={{ fontSize: 12, color: "var(--color-texte-clair)", fontWeight: 600, marginBottom: 4 }}>{localizedCountryName(compareCode, locale)}</p>
-                      <div style={{ position: "relative", height: 260 }}>
+                      <div style={{ position: "relative", width: "100%", height: 260 }}>
                         <canvas ref={generationCompareCanvasRef} role="img" aria-label={t("energie.generation_title")} />
                       </div>
                     </div>
@@ -1293,7 +1293,7 @@ export default function PaysDashboard() {
 
               return (
                 <div style={{ display: "grid", gridTemplateColumns: compareCode && compareSummary ? "repeat(auto-fit, minmax(320px, 1fr))" : "1fr", gap: "1rem" }}>
-                  <div>
+                  <div style={{ minWidth: 0 }}>
                     <p style={{ fontSize: 12, color: "var(--color-texte-clair)", fontWeight: 600, marginBottom: 4 }}>{countryName}</p>
                     {renderSpeciesTable(speciesList)}
                   </div>
@@ -1363,7 +1363,7 @@ export default function PaysDashboard() {
           {t("pays.fires_color_legend", { yellow: "🟡", orange: "🟠", red: "🔴" })}
         </p>
         <div style={{ display: "grid", gridTemplateColumns: compareCode && compareSummary ? "repeat(auto-fit, minmax(320px, 1fr))" : "1fr", gap: "1rem" }}>
-          <div>
+          <div style={{ minWidth: 0 }}>
             <p style={{ fontSize: 12, color: "var(--color-texte-clair)", fontWeight: 600, marginBottom: 4 }}>{countryName}</p>
             {sobriety ? (
               <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>
@@ -1371,7 +1371,7 @@ export default function PaysDashboard() {
                 <Link href="/incendies">{t("pays.fires_dedicated_page")}</Link>
               </p>
             ) : (
-              <div ref={fireMapContainerRef} style={{ height: 360, borderRadius: 8 }} />
+              <div ref={fireMapContainerRef} style={{ width: "100%", height: 360, borderRadius: 8 }} />
             )}
           </div>
           {compareCode && compareSummary && (
@@ -1383,7 +1383,7 @@ export default function PaysDashboard() {
               {sobriety ? (
                 <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>{t("pays.fires_sobriety_disabled_short")}</p>
               ) : (
-                <div ref={fireMapCompareContainerRef} style={{ height: 360, borderRadius: 8 }} />
+                <div ref={fireMapCompareContainerRef} style={{ width: "100%", height: 360, borderRadius: 8 }} />
               )}
             </div>
           )}
@@ -1411,16 +1411,16 @@ export default function PaysDashboard() {
             <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>{t("vegetation.explain_p1")}</p>
             <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>{t("vegetation.explain_p2")}</p>
             <div style={{ display: "grid", gridTemplateColumns: compareCode && compareSummary ? "repeat(auto-fit, minmax(320px, 1fr))" : "1fr", gap: "1rem" }}>
-              <div>
+              <div style={{ minWidth: 0 }}>
                 <p style={{ fontSize: 12, color: "var(--color-texte-clair)", fontWeight: 600, marginBottom: 4 }}>{countryName}</p>
-                <div style={{ position: "relative", height: 220 }}>
+                <div style={{ position: "relative", width: "100%", height: 220 }}>
                   <canvas ref={vegetationCanvasRef} role="img" aria-label={`${t("vegetation.title")} — ${countryName}`} />
                 </div>
               </div>
               {compareCode && compareSummary && (
                 <div>
                   <p style={{ fontSize: 12, color: "var(--color-texte-clair)", fontWeight: 600, marginBottom: 4 }}>{localizedCountryName(compareCode, locale)}</p>
-                  <div style={{ position: "relative", height: 220 }}>
+                  <div style={{ position: "relative", width: "100%", height: 220 }}>
                     <canvas ref={vegetationCompareCanvasRef} role="img" aria-label={`${t("vegetation.title")} — ${localizedCountryName(compareCode, locale)}`} />
                   </div>
                 </div>
@@ -1474,16 +1474,16 @@ export default function PaysDashboard() {
         )}
         {summary?.water?.length > 0 && (
           <div style={{ display: "grid", gridTemplateColumns: compareCode && compareSummary ? "repeat(auto-fit, minmax(320px, 1fr))" : "1fr", gap: "1rem" }}>
-            <div>
+            <div style={{ minWidth: 0 }}>
               <p style={{ fontSize: 12, color: "var(--color-texte-clair)", fontWeight: 600, marginBottom: 4 }}>{countryName}</p>
-              <div style={{ position: "relative", height: 260 }}>
+              <div style={{ position: "relative", width: "100%", height: 260 }}>
                 <canvas ref={waterCanvasRef} role="img" aria-label={`${t("eau.title")} — ${countryName}`} />
               </div>
             </div>
             {compareCode && compareSummary && (
               <div>
                 <p style={{ fontSize: 12, color: "var(--color-texte-clair)", fontWeight: 600, marginBottom: 4 }}>{localizedCountryName(compareCode, locale)}</p>
-                <div style={{ position: "relative", height: 260 }}>
+                <div style={{ position: "relative", width: "100%", height: 260 }}>
                   <canvas ref={waterCompareCanvasRef} role="img" aria-label={`${t("eau.title")} — ${localizedCountryName(compareCode, locale)}`} />
                 </div>
               </div>
@@ -1497,16 +1497,16 @@ export default function PaysDashboard() {
             <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginBottom: "0.75rem" }}>{t("eau.explain_p2")}</p>
             <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginBottom: "0.75rem" }}>{t("eau.explain_p3")}</p>
             <div style={{ display: "grid", gridTemplateColumns: compareCode && compareSummary ? "repeat(auto-fit, minmax(320px, 1fr))" : "1fr", gap: "1rem" }}>
-              <div>
+              <div style={{ minWidth: 0 }}>
                 <p style={{ fontSize: 12, color: "var(--color-texte-clair)", fontWeight: 600, marginBottom: 4 }}>{countryName}</p>
-                <div style={{ position: "relative", height: 220 }}>
+                <div style={{ position: "relative", width: "100%", height: 220 }}>
                   <canvas ref={stressCanvasRef} role="img" aria-label={t("eau.chart_stress")} />
                 </div>
               </div>
               {compareCode && compareSummary && (
                 <div>
                   <p style={{ fontSize: 12, color: "var(--color-texte-clair)", fontWeight: 600, marginBottom: 4 }}>{localizedCountryName(compareCode, locale)}</p>
-                  <div style={{ position: "relative", height: 220 }}>
+                  <div style={{ position: "relative", width: "100%", height: 220 }}>
                     <canvas ref={stressCompareCanvasRef} role="img" aria-label={t("eau.chart_stress")} />
                   </div>
                 </div>
