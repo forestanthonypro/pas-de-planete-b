@@ -38,17 +38,16 @@ Document de suivi des chantiers en attente, à garder à jour d'une session à l
 1. **Fiche scrutin US, lien "voir le texte complet"** : renvoie actuellement vers la page de résultats du vote (`source_url`), pas vers le texte du projet de loi lui-même. Voir si Congress.gov/GovTrack exposent un lien direct vers le texte, distinct du lien vers le résultat du vote.
 2. **Chiffre "sur l'ensemble des X scrutins de la législature"** : probablement résolu côté US — le chiffre est dynamique (`stats.total`, vraie valeur en base) et reflétait simplement l'ingestion incomplète d'avant le correctif du bug de session (9 août). À reconfirmer côté US maintenant que l'ingestion est complète, **et à vérifier côté France avec une capture d'écran** (le mécanisme est aussi dynamique là-bas, cause du chiffre faux encore incertaine).
 
-### Bugs mobile — page résumé pays (`/pays/[code]`)
-
-3. **Section biodiversité plante sur mobile.**
-4. **Carte des incendies plante aussi sur mobile** (distinct du bug desktop déjà corrigé le 8 août — celui-ci semble spécifique au mobile).
-
 ### Clarté pédagogique restante — page résumé pays (`/pays/[code]`)
 
-5. **Carte résumé pays sur la page d'accueil** : la description ("voir un résumé", comparaison mondiale et avec un pays) est mal formulée, à clarifier.
-6. **Graphique CO2** : ni la courbe bleue ni l'orange ne sont clairement identifiées/expliquées — clarifier ce que chacune représente.
-7. **Tableau de comparaison mondiale (7 rubriques)** : l'année de référence des données n'est indiquée nulle part.
-8. **Question de méthodologie à trancher/expliquer** : la comparaison ne risque-t-elle pas d'être biaisée par la taille du pays (France, petit pays, vs États-Unis) ? Par exemple pour le CO2/la pollution, un pays avec une population/économie comparable en taille aux USA consommerait-il proportionnellement autant ? À clarifier dans le texte explicatif (indicateurs déjà par habitant pour certains, à vérifier/préciser lesquels le sont et lesquels ne le sont pas).
+3. **Carte résumé pays sur la page d'accueil** : la description ("voir un résumé", comparaison mondiale et avec un pays) est mal formulée, à clarifier.
+4. **Graphique CO2** : ni la courbe bleue ni l'orange ne sont clairement identifiées/expliquées — clarifier ce que chacune représente.
+5. **Tableau de comparaison mondiale (7 rubriques)** : l'année de référence des données n'est indiquée nulle part.
+6. **Question de méthodologie à trancher/expliquer** : la comparaison ne risque-t-elle pas d'être biaisée par la taille du pays (France, petit pays, vs États-Unis) ? Par exemple pour le CO2/la pollution, un pays avec une population/économie comparable en taille aux USA consommerait-il proportionnellement autant ? À clarifier dans le texte explicatif (indicateurs déjà par habitant pour certains, à vérifier/préciser lesquels le sont et lesquels ne le sont pas).
+
+### Technique
+
+7. **Service worker résistant au cache-busting normal** — pendant le débogage du 9 août, un service worker actif a continué à servir d'anciens fichiers JS malgré `docker compose --force-recreate`, vidage de `.next/cache`, fermeture/réouverture d'onglet, et même "Unregister" manuel (il se réenregistre aussitôt). Seule la navigation privée (sans service worker préexistant) contournait le problème de façon fiable. À revoir : la stratégie de cache du service worker (`public/sw.js`) devrait normalement versionner son cache et s'auto-remplacer proprement à chaque nouveau déploiement (`skipWaiting()` + `clients.claim()` + invalidation du cache par version), sans qu'un `Unregister` manuel soit nécessaire ni même suffisant.
 
 ## 💡 Idées en suspens (mentionnées, pas encore engagées)
 
@@ -57,4 +56,4 @@ Document de suivi des chantiers en attente, à garder à jour d'une session à l
 
 ---
 
-*Dernière mise à jour : 9 août 2026 (soir) — voir aussi la date du dernier commit de ce fichier.*
+*Dernière mise à jour : 9 août 2026 (nuit) — voir aussi la date du dernier commit de ce fichier.*
