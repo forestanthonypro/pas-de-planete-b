@@ -77,7 +77,8 @@
     "card_international_label": "国际",
     "card_international_desc": "外国议会",
     "card_france_label": "法国",
-    "card_france_desc": "国民议会"
+    "card_france_desc": "国民议会",
+    "see_my_country_desc": "将您的国家与7项关键指标（二氧化碳、能源、水、森林、受威胁物种等）的世界平均水平进行比较，如果您愿意，还可以与您选择的其他国家进行比较。"
   },
   "co2": {
     "title": "二氧化碳排放",
@@ -535,7 +536,8 @@
     "water_source": "AQUASTAT/联合国粮农组织，经由世界银行（可再生资源，长期估算）及Copernicus ERA5（实际年降水量），经由 Our World in Data。",
     "water_source_year": " 覆盖的最新年份：{year}。",
     "water_detail_link": "查看详细图表 →",
-    "section_nav_label": "跳转到某个部分"
+    "section_nav_label": "跳转到某个部分",
+    "world_comparison_year_note": "每一行都使用该项具体数据可获得的最新年份——根据数据来源不同，各行的年份可能不一致（例如，二氧化碳数据可能比水资源数据更新）。这并非在同一日期拍摄的单一快照。"
   },
   "citizenVote": {
     "question": "那么你会怎么投票？",

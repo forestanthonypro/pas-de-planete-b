@@ -77,7 +77,8 @@
     "card_international_label": "国際",
     "card_international_desc": "海外の議会",
     "card_france_label": "フランス",
-    "card_france_desc": "国民議会"
+    "card_france_desc": "国民議会",
+    "see_my_country_desc": "自国を7つの主要指標（CO2、エネルギー、水、森林、絶滅危惧種など）で世界平均と比較し、お好みで他の国とも比較できます。"
   },
   "co2": {
     "title": "CO2排出量",
@@ -535,7 +536,8 @@
     "water_source": "AQUASTAT/FAO、世界銀行経由（再生可能資源、長期推定）およびCopernicus ERA5（実際の年間降水量）、Our World in Data経由。",
     "water_source_year": " カバーされる最新年：{year}。",
     "water_detail_link": "詳細グラフを見る →",
-    "section_nav_label": "セクションへ移動"
+    "section_nav_label": "セクションへ移動",
+    "world_comparison_year_note": "各行は、その特定のデータについて入手可能な最新の年を使用しています——出典によって、行ごとにこの年が異なる場合があります（例えば、CO2のデータは水のデータより新しいことがあります）。これは単一の日付で撮影された一枚のスナップショットではありません。"
   },
   "citizenVote": {
     "question": "あなたならどう投票しましたか？",

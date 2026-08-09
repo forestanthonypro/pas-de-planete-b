@@ -1071,6 +1071,7 @@ export default function PaysDashboard() {
           <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>{t("pays.world_comparison_p3")}</p>
           <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>{t("pays.world_comparison_p4")}</p>
           <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>{t("pays.world_comparison_p5")}</p>
+          <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>{t("pays.world_comparison_year_note")}</p>
                     <div style={{ position: "relative", width: "100%", height: 320 }}>
             <canvas ref={comparisonCanvasRef} role="img" aria-label={`${t("pays.world_comparison_title")} — ${countryName}`} />
           </div>

@@ -98,6 +98,7 @@ export default function Home() {
             <p style={{ margin: 0 }}>
               <Link href={`/pays/${country}`} prefetch={false} style={{ fontWeight: 600 }}>{t("home.see_my_country")}</Link>
             </p>
+            <p style={{ fontSize: 13, color: "var(--color-texte-clair)", margin: "0.5rem 0 0" }}>{t("home.see_my_country_desc")}</p>
           </div>
         ) : (
           <div
@@ -139,6 +140,7 @@ export default function Home() {
             >
               {t("home.see_my_country")}
             </Link>
+            <p style={{ fontSize: 13, color: "#2b3a2d", margin: "0.75rem 0 0", position: "relative", maxWidth: 460 }}>{t("home.see_my_country_desc")}</p>
           </div>
         )
       )}

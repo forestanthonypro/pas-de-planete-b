@@ -77,7 +77,8 @@
     "card_international_label": "Internacional",
     "card_international_desc": "Parlamentos extranjeros",
     "card_france_label": "Francia",
-    "card_france_desc": "Asamblea Nacional"
+    "card_france_desc": "Asamblea Nacional",
+    "see_my_country_desc": "Compara tu país con la media mundial en 7 indicadores clave (CO2, energía, agua, bosque, especies amenazadas...) y, si quieres, con otro país que elijas."
   },
   "co2": {
     "title": "Emisiones de CO2",
@@ -535,7 +536,8 @@
     "water_source": "AQUASTAT/FAO vía Banco Mundial (recursos renovables, estimación a largo plazo) y Copernicus ERA5 (pluviometría anual real), vía Our World in Data.",
     "water_source_year": " Último año cubierto: {year}.",
     "water_detail_link": "Ver el gráfico detallado →",
-    "section_nav_label": "Ir a una sección"
+    "section_nav_label": "Ir a una sección",
+    "world_comparison_year_note": "Cada línea utiliza el último año disponible para ese dato concreto — estos años pueden diferir de una línea a otra según la fuente (por ejemplo, las cifras de CO2 pueden ser más recientes que las del agua). No se trata de una única foto tomada en una fecha concreta."
   },
   "citizenVote": {
     "question": "¿Y tú, cómo habrías votado?",
