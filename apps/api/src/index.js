@@ -25,6 +25,12 @@ import petitionsRoutes from "./routes/petitions.js";
 import translateRoutes from "./routes/translate.js";
 
 const app = express();
+
+// Traefik est le seul reverse proxy en amont en production (un seul saut) —
+// "1" fait confiance uniquement a ce premier saut pour X-Forwarded-For,
+// necessaire pour qu'express-rate-limit identifie correctement l'IP reelle
+// des visiteurs sans pour autant faire confiance a un en-tete arbitraire.
+app.set("trust proxy", 1);
 const port = process.env.API_PORT || 4000;
 
 // En-têtes de sécurité HTTP standards (X-Content-Type-Options,
