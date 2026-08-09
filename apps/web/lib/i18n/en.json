@@ -818,6 +818,9 @@
     "result_failed": "Failed",
     "result_agreed_to": "Agreed to",
     "result_rejected": "Rejected",
-    "result_elected_speaker": "Speaker election"
+    "result_elected_speaker": "Speaker election",
+    "party_republican": "Republican",
+    "party_democratic": "Democratic",
+    "party_independent": "Independent"
   }
 }

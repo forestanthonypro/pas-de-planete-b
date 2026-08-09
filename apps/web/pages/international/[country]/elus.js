@@ -10,6 +10,7 @@ import { useT } from "../../../lib/useT";
 import ScrollableTable from "../../../components/ScrollableTable";
 import { useApiFetch } from "../../../lib/useApiFetch";
 import { chamberLabelKey } from "../../../lib/parliamentChamberLabels";
+import { translatePartyName } from "../../../lib/partyNameLabels";
 
 const PAGE_SIZE = 30;
 
@@ -37,7 +38,7 @@ export default function InternationalMembersPage() {
     return [...set];
   }, [members]);
   const groupOptions = useMemo(
-    () => groups.map((slug) => ({ value: slug, label: members.find((m) => m.group_slug === slug)?.group_name || slug })),
+    () => groups.map((slug) => ({ value: slug, label: translatePartyName(members.find((m) => m.group_slug === slug)?.group_name, t) || slug })),
     [groups, members]
   );
 
@@ -123,7 +124,7 @@ export default function InternationalMembersPage() {
                     <Link href={`/international/${country}/elus/${m.external_id}`}>{m.full_name}</Link>
                   </th>
                   <td style={{ padding: 8 }}>{t(chamberLabelKey(country, m.chamber))}</td>
-                  <td style={{ padding: 8, color: m.group_color || "var(--color-texte)" }}>{m.group_name || "—"}</td>
+                  <td style={{ padding: 8, color: m.group_color || "var(--color-texte)" }}>{translatePartyName(m.group_name, t) || "—"}</td>
                   <td style={{ padding: 8 }}>{m.state_or_region || "—"}</td>
                 </tr>
               ))}

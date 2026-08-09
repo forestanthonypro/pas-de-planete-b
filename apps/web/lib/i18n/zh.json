@@ -818,6 +818,9 @@
     "result_failed": "未通过",
     "result_agreed_to": "已同意",
     "result_rejected": "被否决",
-    "result_elected_speaker": "议长选举"
+    "result_elected_speaker": "议长选举",
+    "party_republican": "共和党",
+    "party_democratic": "民主党",
+    "party_independent": "无党派"
   }
 }

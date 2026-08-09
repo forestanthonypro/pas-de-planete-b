@@ -818,6 +818,9 @@
     "result_failed": "अस्वीकृत",
     "result_agreed_to": "स्वीकृत",
     "result_rejected": "अस्वीकृत",
-    "result_elected_speaker": "अध्यक्ष चुनाव"
+    "result_elected_speaker": "अध्यक्ष चुनाव",
+    "party_republican": "रिपब्लिकन",
+    "party_democratic": "डेमोक्रेट",
+    "party_independent": "स्वतंत्र"
   }
 }

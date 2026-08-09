@@ -12,6 +12,7 @@ import { useApiFetch } from "../../../../lib/useApiFetch";
 import { getAnonymousId, getConsent, setConsent } from "../../../../lib/anonymousId";
 import { saveParliamentCitizenVote, fetchParliamentCitizenVoteStats } from "../../../../lib/parliamentCitizenVotes";
 import { chamberLabelKey } from "../../../../lib/parliamentChamberLabels";
+import { translatePartyName } from "../../../../lib/partyNameLabels";
 import { translateVoteResult } from "../../../../lib/voteResultLabels";
 
 const POSITIONS = ["yes", "no", "abstain", "not_voting"];
@@ -85,7 +86,7 @@ export default function InternationalVoteDetailPage() {
   }
 
   const groups = [...new Set(positions.map((p) => p.group_slug).filter(Boolean))];
-  const groupNames = Object.fromEntries(positions.map((p) => [p.group_slug, p.group_name]));
+  const groupNames = Object.fromEntries(positions.map((p) => [p.group_slug, translatePartyName(p.group_name, t)]));
   const filteredPositions = positions.filter((p) => {
     if (groupFilter && p.group_slug !== groupFilter) return false;
     if (nameQuery && !normalize(p.full_name).includes(normalize(nameQuery))) return false;
@@ -312,7 +313,7 @@ export default function InternationalVoteDetailPage() {
                         <th scope="row" style={{ textAlign: "left", padding: 8, fontWeight: 400 }}>
                           <Link href={`/international/${country}/elus/${p.external_id}`}>{p.full_name}</Link>
                         </th>
-                        <td style={{ padding: 8, color: p.group_color || "var(--color-texte)" }}>{p.group_name || "—"}</td>
+                        <td style={{ padding: 8, color: p.group_color || "var(--color-texte)" }}>{translatePartyName(p.group_name, t) || "—"}</td>
                         <td style={{ padding: 8, color: POSITION_LABELS[p.position]?.color || "var(--color-texte)", fontWeight: 600 }}>
                           {POSITION_LABELS[p.position]?.label || p.position}
                         </td>

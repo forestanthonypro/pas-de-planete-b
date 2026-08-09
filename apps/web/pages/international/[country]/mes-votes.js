@@ -13,6 +13,7 @@ import PageHeader from "../../../components/PageHeader";
 import { IconCheck } from "../../../components/icons";
 import ScrollableTable from "../../../components/ScrollableTable";
 import { translateVoteResult } from "../../../lib/voteResultLabels";
+import { translatePartyName } from "../../../lib/partyNameLabels";
 
 const POSITION_LABELS = { yes: "international.pos_yes", no: "international.pos_no", abstain: "international.pos_abstain" };
 
@@ -175,7 +176,7 @@ export default function InternationalMesVotesPage() {
                           <tbody>
                             {alignment.groups.map((g) => (
                               <tr key={g.slug}>
-                                <th scope="row" style={{ textAlign: "left", padding: 6, fontWeight: 400 }}>{g.name}</th>
+                                <th scope="row" style={{ textAlign: "left", padding: 6, fontWeight: 400 }}>{translatePartyName(g.name, t)}</th>
                                 <td style={{ textAlign: "right", padding: 6, fontWeight: 600 }}>
                                   {Math.round((g.matches / g.total) * 1000) / 10} %
                                 </td>
@@ -207,7 +208,7 @@ export default function InternationalMesVotesPage() {
                                 <th scope="row" style={{ textAlign: "left", padding: 6, fontWeight: 400 }}>
                                   <Link href={`/international/${country}/elus/${m.external_id}`}>{m.full_name}</Link>
                                 </th>
-                                <td style={{ padding: 6, color: "var(--color-texte-clair)" }}>{m.group_name || "—"}</td>
+                                <td style={{ padding: 6, color: "var(--color-texte-clair)" }}>{translatePartyName(m.group_name, t) || "—"}</td>
                                 <td style={{ textAlign: "right", padding: 6, fontWeight: 600 }}>
                                   {Math.round((m.matches / m.total) * 1000) / 10} %
                                 </td>

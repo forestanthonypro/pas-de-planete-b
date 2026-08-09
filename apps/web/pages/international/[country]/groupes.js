@@ -8,6 +8,7 @@ import { useT } from "../../../lib/useT";
 import ScrollableTable from "../../../components/ScrollableTable";
 import { useApiFetch } from "../../../lib/useApiFetch";
 import { chamberLabelKey } from "../../../lib/parliamentChamberLabels";
+import { translatePartyName } from "../../../lib/partyNameLabels";
 
 export default function InternationalGroupsPage() {
   const { t } = useT();
@@ -39,7 +40,7 @@ export default function InternationalGroupsPage() {
       chartRef.current = new Chart(canvasRef.current, {
         type: "bar",
         data: {
-          labels: sorted.map((g) => g.name),
+          labels: sorted.map((g) => translatePartyName(g.name, t)),
           datasets: isBicameral
             ? [
                 { label: t(chamberLabelKey(country, "lower")), data: sorted.map((g) => g.lower_count), backgroundColor: sorted.map((g) => g.color || "#6c3483") },
@@ -105,7 +106,7 @@ export default function InternationalGroupsPage() {
                   .map((g) => (
                     <tr key={g.slug}>
                       <th scope="row" style={{ textAlign: "left", padding: 8, fontWeight: 400, color: g.color || "var(--color-texte)" }}>
-                        {g.name}
+                        {translatePartyName(g.name, t)}
                       </th>
                       {isBicameral ? (
                         <>

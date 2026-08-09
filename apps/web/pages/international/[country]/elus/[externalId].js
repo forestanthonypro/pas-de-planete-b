@@ -11,6 +11,7 @@ import ScrollableTable from "../../../../components/ScrollableTable";
 import Pagination from "../../../../components/Pagination";
 import { useApiFetch } from "../../../../lib/useApiFetch";
 import { chamberLabelKey } from "../../../../lib/parliamentChamberLabels";
+import { translatePartyName } from "../../../../lib/partyNameLabels";
 
 const POSITION_LABELS = {
   yes: { key: "international.pos_yes", color: "#1baf7a" },
@@ -84,7 +85,7 @@ export default function InternationalMemberDetailPage() {
           <FollowMemberForm country={country} externalId={externalId} memberName={member.full_name} />
 
           <p style={{ color: "var(--color-texte-clair)" }}>
-            {member.group_name && <>{t("deputes.group_label")} : <strong style={{ color: member.group_color }}>{member.group_name}</strong> — </>}
+            {member.group_name && <>{t("deputes.group_label")} : <strong style={{ color: member.group_color }}>{translatePartyName(member.group_name, t)}</strong> — </>}
             {member.state_or_region}
             {" — "}
             {t(chamberLabelKey(country, member.chamber))}

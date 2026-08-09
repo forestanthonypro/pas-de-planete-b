@@ -818,6 +818,9 @@
     "result_failed": "Rejeté",
     "result_agreed_to": "Accepté",
     "result_rejected": "Rejeté",
-    "result_elected_speaker": "Élection du président"
+    "result_elected_speaker": "Élection du président",
+    "party_republican": "Républicain",
+    "party_democratic": "Démocrate",
+    "party_independent": "Indépendant"
   }
 }
