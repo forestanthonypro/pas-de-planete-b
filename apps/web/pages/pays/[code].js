@@ -14,6 +14,7 @@ import CountrySelect from "../../components/CountrySelect";
 import { IconLeaf } from "../../components/icons";
 import ShareButtons from "../../components/ShareButtons";
 import { useSobriety } from "../../lib/SobrietyContext";
+import { useTheme } from "../../lib/ThemeContext";
 import { barEndLabelsPlugin } from "../../lib/barEndLabelsPlugin";
 import { useT } from "../../lib/useT";
 import ScrollableTable from "../../components/ScrollableTable";
@@ -68,7 +69,7 @@ function buildEnergyMixChart(energyMixData, locale, t) {
   };
 }
 
-function buildGenerationChart(generationData, locale, t) {
+function buildGenerationChart(generationData, locale, t, theme) {
   const sources = [
     { key: "coal_twh", label: translateFuel("Coal", locale), color: FUEL_COLORS.Coal },
     { key: "gas_twh", label: translateFuel("Gas", locale), color: FUEL_COLORS.Gas },
@@ -95,7 +96,7 @@ function buildGenerationChart(generationData, locale, t) {
           type: "line",
           label: t("energie.chart_demand"),
           data: generationData.map((d) => d.demand_twh),
-          borderColor: "#000000",
+          borderColor: theme === "dark" ? "#ffffff" : "#000000",
           borderWidth: 2,
           borderDash: [4, 3],
           pointRadius: 0,
@@ -290,6 +291,7 @@ export default function PaysDashboard() {
   const router = useRouter();
   const { code } = router.query;
   const { sobriety } = useSobriety();
+  const { theme } = useTheme();
   const { t, locale } = useT();
   const countries = useCountriesList("/api/co2/countries");
   const CATEGORY_INFO = useCategoryInfo(t);
@@ -569,7 +571,7 @@ export default function PaysDashboard() {
     import("../../lib/chartSetup").then((Chart) => {
       if (cancelled || !generationCanvasRef.current) return;
       if (generationChartRef.current) generationChartRef.current.destroy();
-      generationChartRef.current = new Chart.default(generationCanvasRef.current, buildGenerationChart(summary.electricityGeneration, locale, t));
+      generationChartRef.current = new Chart.default(generationCanvasRef.current, buildGenerationChart(summary.electricityGeneration, locale, t, theme));
     });
     return () => {
       cancelled = true;
@@ -582,7 +584,7 @@ export default function PaysDashboard() {
     import("../../lib/chartSetup").then((Chart) => {
       if (cancelled || !generationCompareCanvasRef.current) return;
       if (generationCompareChartRef.current) generationCompareChartRef.current.destroy();
-      generationCompareChartRef.current = new Chart.default(generationCompareCanvasRef.current, buildGenerationChart(compareSummary.electricityGeneration, locale, t));
+      generationCompareChartRef.current = new Chart.default(generationCompareCanvasRef.current, buildGenerationChart(compareSummary.electricityGeneration, locale, t, theme));
     });
     return () => {
       cancelled = true;
@@ -693,7 +695,8 @@ export default function PaysDashboard() {
         const x = xScale.getPixelForValue(100);
         const ctx = chart.ctx;
         ctx.save();
-        ctx.strokeStyle = "var(--color-texte-clair)";
+        const referenceLineColor = getComputedStyle(document.documentElement).getPropertyValue("--color-texte-clair").trim() || "#647076";
+        ctx.strokeStyle = referenceLineColor;
         ctx.setLineDash([5, 4]);
         ctx.lineWidth = 1.5;
         ctx.beginPath();
@@ -701,7 +704,7 @@ export default function PaysDashboard() {
         ctx.lineTo(x, yScale.bottom);
         ctx.stroke();
         ctx.setLineDash([]);
-        ctx.fillStyle = "var(--color-texte-clair)";
+        ctx.fillStyle = referenceLineColor;
         ctx.font = "11px sans-serif";
         ctx.textAlign = "left";
         ctx.fillText(worldAverageLabel, x + 4, yScale.top + 10);
@@ -768,7 +771,7 @@ export default function PaysDashboard() {
     return () => {
       cancelled = true;
     };
-  }, [summary, worldBenchmarks, code, locale, compareCode, compareSummary, t]);
+  }, [summary, worldBenchmarks, code, locale, compareCode, compareSummary, t, theme]);
 
   useEffect(() => {
     if (!summary || !summary.vegetation || summary.vegetation.length === 0) return;

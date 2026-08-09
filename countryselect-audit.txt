@@ -1,0 +1,156 @@
+﻿
+> apps\web\pages\pays\[code].js:12:import CountrySelect from "../../components/CountrySelect";
+  apps\web\pages\pays\[code].js:13:import { IconLeaf } from "../../components/icons";
+  apps\web\pages\pays\[code].js:14:import ShareButtons from "../../components/ShareButtons";
+  apps\web\pages\pays\[code].js:15:import { useSobriety } from "../../lib/SobrietyContext";
+  apps\web\pages\pays\[code].js:16:import { barEndLabelsPlugin } from "../../lib/barEndLabelsPlugin";
+  apps\web\pages\pays\[code].js:17:import { useT } from "../../lib/useT";
+  apps\web\pages\pays\[code].js:18:import ScrollableTable from "../../components/ScrollableTable";
+  apps\web\pages\pays\[code].js:19:
+  apps\web\pages\pays\[code].js:20:const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+> apps\web\pages\pays\[code].js:995:        <CountrySelect
+  apps\web\pages\pays\[code].js:996:          countries={countries}
+  apps\web\pages\pays\[code].js:997:          value={code || ""}
+  apps\web\pages\pays\[code].js:998:          onChange={(newCode) => router.push(`/pays/${newCode}`)}
+  apps\web\pages\pays\[code].js:999:          preferredLang={locale}
+  apps\web\pages\pays\[code].js:1000:          label={t("pays.change_country")}
+  apps\web\pages\pays\[code].js:1001:        />
+  apps\web\pages\pays\[code].js:1002:      </div>
+  apps\web\pages\pays\[code].js:1003:
+> apps\web\pages\pays\[code].js:1017:              <CountrySelect
+  apps\web\pages\pays\[code].js:1018:                countries={countries.filter((c) => c.country_code !== code)}
+  apps\web\pages\pays\[code].js:1019:                value={compareCode}
+  apps\web\pages\pays\[code].js:1020:                onChange={setCompareCode}
+  apps\web\pages\pays\[code].js:1021:                preferredLang={locale}
+  apps\web\pages\pays\[code].js:1022:                label={t("pays.compare_with")}
+  apps\web\pages\pays\[code].js:1023:              />
+  apps\web\pages\pays\[code].js:1024:            </div>
+  apps\web\pages\pays\[code].js:1025:            {compareCode && (
+> apps\web\pages\co2.js:7:import CountrySelect from "../components/CountrySelect";
+  apps\web\pages\co2.js:8:import PageHeader from "../components/PageHeader";
+  apps\web\pages\co2.js:9:import { IconCloud } from "../components/icons";
+  apps\web\pages\co2.js:10:import ShareButtons from "../components/ShareButtons";
+  apps\web\pages\co2.js:11:import ScrollableTable from "../components/ScrollableTable";
+  apps\web\pages\co2.js:12:
+  apps\web\pages\co2.js:13:export default function Co2Page() {
+  apps\web\pages\co2.js:14:  const { t, locale } = useT();
+  apps\web\pages\co2.js:15:  const lastUpdated = useLastUpdated();
+> apps\web\pages\co2.js:109:        <CountrySelect
+  apps\web\pages\co2.js:110:          countries={countries}
+  apps\web\pages\co2.js:111:          value={countryCode}
+  apps\web\pages\co2.js:112:          onChange={setCountryCode}
+  apps\web\pages\co2.js:113:          locale={locale}
+  apps\web\pages\co2.js:114:        />
+  apps\web\pages\co2.js:115:
+  apps\web\pages\co2.js:116:        <label>
+  apps\web\pages\co2.js:117:          {t("co2.unit_label")}{" "}
+> apps\web\pages\eau.js:5:import CountrySelect from "../components/CountrySelect";
+  apps\web\pages\eau.js:6:import PageHeader from "../components/PageHeader";
+  apps\web\pages\eau.js:7:import { IconDroplet } from "../components/icons";
+  apps\web\pages\eau.js:8:import ShareButtons from "../components/ShareButtons";
+  apps\web\pages\eau.js:9:import { useWorldBenchmarks } from "../lib/useWorldBenchmarks";
+  apps\web\pages\eau.js:10:import { useT } from "../lib/useT";
+  apps\web\pages\eau.js:11:import ScrollableTable from "../components/ScrollableTable";
+  apps\web\pages\eau.js:12:import { useApiFetch } from "../lib/useApiFetch";
+  apps\web\pages\eau.js:13:
+> apps\web\pages\eau.js:191:        <CountrySelect
+  apps\web\pages\eau.js:192:          countries={countries}
+  apps\web\pages\eau.js:193:          value={countryCode}
+  apps\web\pages\eau.js:194:          onChange={setCountryCode}
+  apps\web\pages\eau.js:195:          locale={locale}
+  apps\web\pages\eau.js:196:        />
+  apps\web\pages\eau.js:197:        <button onClick={() => setView(view === "chart" ? "table" : "chart")}>
+  apps\web\pages\eau.js:198:          {view === "chart" ? t("common.view_as_table") : t("common.view_as_chart")}
+  apps\web\pages\eau.js:199:        </button>
+> apps\web\pages\energie.js:6:import CountrySelect from "../components/CountrySelect";
+  apps\web\pages\energie.js:7:import PageHeader from "../components/PageHeader";
+  apps\web\pages\energie.js:8:import { IconBolt } from "../components/icons";
+  apps\web\pages\energie.js:9:import ShareButtons from "../components/ShareButtons";
+  apps\web\pages\energie.js:10:import { useSobriety } from "../lib/SobrietyContext";
+  apps\web\pages\energie.js:11:import { barEndLabelsPlugin } from "../lib/barEndLabelsPlugin";
+  apps\web\pages\energie.js:12:import { useT } from "../lib/useT";
+  apps\web\pages\energie.js:13:import ScrollableTable from "../components/ScrollableTable";
+  apps\web\pages\energie.js:14:import { useApiFetch } from "../lib/useApiFetch";
+> apps\web\pages\energie.js:292:        <CountrySelect
+  apps\web\pages\energie.js:293:          countries={countries}
+  apps\web\pages\energie.js:294:          value={country}
+  apps\web\pages\energie.js:295:          onChange={setCountry}
+  apps\web\pages\energie.js:296:          locale={locale}
+  apps\web\pages\energie.js:297:        />
+  apps\web\pages\energie.js:298:
+  apps\web\pages\energie.js:299:        <label>
+  apps\web\pages\energie.js:300:          {t("energie.fuel_type_label")}{" "}
+> apps\web\pages\especes.js:9:import CountrySelect from "../components/CountrySelect";
+  apps\web\pages\especes.js:10:import PageHeader from "../components/PageHeader";
+  apps\web\pages\especes.js:11:import { IconPaw } from "../components/icons";
+  apps\web\pages\especes.js:12:import ShareButtons from "../components/ShareButtons";
+  apps\web\pages\especes.js:13:import ScrollableTable from "../components/ScrollableTable";
+  apps\web\pages\especes.js:14:import { useT } from "../lib/useT";
+  apps\web\pages\especes.js:15:import { useApiFetch } from "../lib/useApiFetch";
+  apps\web\pages\especes.js:16:
+  apps\web\pages\especes.js:17:function useCategoryInfo(t) {
+> apps\web\pages\especes.js:135:        <CountrySelect
+  apps\web\pages\especes.js:136:          countries={countries}
+  apps\web\pages\especes.js:137:          value={country}
+  apps\web\pages\especes.js:138:          onChange={setCountry}
+  apps\web\pages\especes.js:139:          locale={locale}
+  apps\web\pages\especes.js:140:        />
+  apps\web\pages\especes.js:141:
+  apps\web\pages\especes.js:142:        <label>
+  apps\web\pages\especes.js:143:          {t("especes.group_label")}{" "}
+> apps\web\pages\incendies.js:5:import CountrySelect from "../components/CountrySelect";
+  apps\web\pages\incendies.js:6:import PageHeader from "../components/PageHeader";
+  apps\web\pages\incendies.js:7:import { IconFlame } from "../components/icons";
+  apps\web\pages\incendies.js:8:import ShareButtons from "../components/ShareButtons";
+  apps\web\pages\incendies.js:9:import { useSobriety } from "../lib/SobrietyContext";
+  apps\web\pages\incendies.js:10:import { useT } from "../lib/useT";
+  apps\web\pages\incendies.js:11:import { localeTag } from "../lib/dateLocale";
+  apps\web\pages\incendies.js:12:import ScrollableTable from "../components/ScrollableTable";
+  apps\web\pages\incendies.js:13:import { useApiFetch } from "../lib/useApiFetch";
+> apps\web\pages\incendies.js:131:        <CountrySelect
+  apps\web\pages\incendies.js:132:          countries={countries}
+  apps\web\pages\incendies.js:133:          value={country}
+  apps\web\pages\incendies.js:134:          onChange={setCountry}
+  apps\web\pages\incendies.js:135:          locale={locale}
+  apps\web\pages\incendies.js:136:        />
+  apps\web\pages\incendies.js:137:        <button onClick={() => setView(view === "map" ? "table" : "map")} disabled={sobriety}>
+  apps\web\pages\incendies.js:138:          {view === "map" ? t("common.view_as_table") : t("common.view_as_chart")}
+  apps\web\pages\incendies.js:139:        </button>
+> apps\web\pages\pollution.js:6:import CountrySelect from "../components/CountrySelect";
+  apps\web\pages\pollution.js:7:import PageHeader from "../components/PageHeader";
+  apps\web\pages\pollution.js:8:import { IconSmog } from "../components/icons";
+  apps\web\pages\pollution.js:9:import ShareButtons from "../components/ShareButtons";
+  apps\web\pages\pollution.js:10:import { useT } from "../lib/useT";
+  apps\web\pages\pollution.js:11:import ScrollableTable from "../components/ScrollableTable";
+  apps\web\pages\pollution.js:12:import { useApiFetch } from "../lib/useApiFetch";
+  apps\web\pages\pollution.js:13:
+  apps\web\pages\pollution.js:14:export default function PollutionPage() {
+> apps\web\pages\pollution.js:106:        <CountrySelect
+  apps\web\pages\pollution.js:107:          countries={countries}
+  apps\web\pages\pollution.js:108:          value={countryCode}
+  apps\web\pages\pollution.js:109:          onChange={setCountryCode}
+  apps\web\pages\pollution.js:110:          locale={locale}
+  apps\web\pages\pollution.js:111:        />
+  apps\web\pages\pollution.js:112:        <button onClick={() => setView(view === "chart" ? "table" : "chart")}>
+  apps\web\pages\pollution.js:113:          {view === "chart" ? t("common.view_as_table") : t("common.view_as_chart")}
+  apps\web\pages\pollution.js:114:        </button>
+> apps\web\pages\vegetation.js:5:import CountrySelect from "../components/CountrySelect";
+  apps\web\pages\vegetation.js:6:import PageHeader from "../components/PageHeader";
+  apps\web\pages\vegetation.js:7:import { IconTree } from "../components/icons";
+  apps\web\pages\vegetation.js:8:import ShareButtons from "../components/ShareButtons";
+  apps\web\pages\vegetation.js:9:import { useWorldBenchmarks } from "../lib/useWorldBenchmarks";
+  apps\web\pages\vegetation.js:10:import { useT } from "../lib/useT";
+  apps\web\pages\vegetation.js:11:import ScrollableTable from "../components/ScrollableTable";
+  apps\web\pages\vegetation.js:12:import { useApiFetch } from "../lib/useApiFetch";
+  apps\web\pages\vegetation.js:13:
+> apps\web\pages\vegetation.js:182:        <CountrySelect
+  apps\web\pages\vegetation.js:183:          countries={countries}
+  apps\web\pages\vegetation.js:184:          value={countryCode}
+  apps\web\pages\vegetation.js:185:          onChange={setCountryCode}
+  apps\web\pages\vegetation.js:186:          locale={locale}
+  apps\web\pages\vegetation.js:187:        />
+  apps\web\pages\vegetation.js:188:        <button onClick={() => setView(view === "chart" ? "table" : "chart")}>
+  apps\web\pages\vegetation.js:189:          {view === "chart" ? t("common.view_as_table") : t("common.view_as_chart")}
+  apps\web\pages\vegetation.js:190:        </button>
+
+

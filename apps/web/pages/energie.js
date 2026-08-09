@@ -7,6 +7,7 @@ import PageHeader from "../components/PageHeader";
 import { IconBolt } from "../components/icons";
 import ShareButtons from "../components/ShareButtons";
 import { useSobriety } from "../lib/SobrietyContext";
+import { useTheme } from "../lib/ThemeContext";
 import { barEndLabelsPlugin } from "../lib/barEndLabelsPlugin";
 import { useT } from "../lib/useT";
 import ScrollableTable from "../components/ScrollableTable";
@@ -20,6 +21,7 @@ export default function EnergiePage() {
   const [view, setView] = useState("map"); // "map" ou "table"
   const [mapError, setMapError] = useState(null);
   const { sobriety } = useSobriety();
+  const { theme } = useTheme();
 
   useEffect(() => {
     if (sobriety) setView("table");
@@ -133,7 +135,7 @@ export default function EnergiePage() {
               type: "line",
               label: t("energie.chart_demand"),
               data: generation.map((d) => d.demand_twh),
-              borderColor: "#000000",
+              borderColor: theme === "dark" ? "#ffffff" : "#000000",
               borderWidth: 2,
               borderDash: [4, 3],
               pointRadius: 0,
@@ -156,7 +158,7 @@ export default function EnergiePage() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [generation, locale]);
+  }, [generation, locale, theme]);
 
   useEffect(() => {
     if (view !== "map" || sobriety || !mapContainerRef.current) return;
