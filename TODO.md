@@ -33,6 +33,38 @@ Document de suivi des chantiers en attente, à garder à jour d'une session à l
 2. **Vérifier l'issue de la demande de réexamen Google Safe Browsing** — la page `/admin` avait été flaguée "page trompeuse" ; correctif (`robots.txt` + `noindex`) déployé et réexamen demandé le 8 août. Confirmer que le bandeau "Site dangereux" a bien disparu dans Chrome.
 3. **Suggestion utilisateur affichée sur `/international`** pour les pays sans source de données identifiée (russe, japonais, chinois, hindi actuellement listés) : mécanisme de contact déjà en place, mais aucune source n'a encore été proposée/évaluée pour ces pays.
 
+### Navigation / général
+
+4. **Bouton ou pictogramme "Accueil"** — actuellement pas de retour rapide à la page d'accueil depuis les pages profondes du site.
+5. **Page d'accueil, section Démocratie** : remplacer le libellé "Démocratie (France)" par simplement "Démocratie" (la carte mène désormais au hub France, pas directement aux pages françaises — le "(France)" n'a plus lieu d'être vu le sélecteur de pays disponible séparément).
+
+### International — bugs et textes incorrects
+
+6. **Fiche scrutin US, lien "voir le texte complet"** : renvoie actuellement vers la page de résultats du vote (`source_url`), pas vers le texte du projet de loi lui-même. Voir si Congress.gov/GovTrack exposent un lien direct vers le texte, distinct du lien vers le résultat du vote.
+7. **Texte "sur le site de l'Assemblée nationale"** affiché à tort sur les fiches de scrutin internationales (US notamment) — texte copié depuis la version française sans être adapté au pays.
+8. **Chiffre "sur l'ensemble des 362 scrutins de la législature"** : faux à la fois pour la France et pour les États-Unis (nombre codé en dur, ne reflète pas le vrai total actuel dans aucun des deux cas) — recalculer dynamiquement depuis la base plutôt que d'afficher une valeur figée.
+9. **Traduire les résultats de vote** ("Passed", "Failed", "Agreed to", "Elected Speaker name"...) dans les 8 langues, **y compris en français** — actuellement affichés tels quels en anglais, non traduits nulle part.
+
+### Bugs mobile — page résumé pays (`/pays/[code]`)
+
+10. **Section biodiversité plante sur mobile.**
+11. **Carte des incendies plante aussi sur mobile** (distinct du bug desktop déjà corrigé le 8 août — celui-ci semble spécifique au mobile).
+
+### Clarté pédagogique — page résumé pays (`/pays/[code]`)
+
+Plusieurs textes/explications à reformuler pour être compréhensibles par quelqu'un sans bagage technique :
+
+12. **Carte résumé pays sur la page d'accueil** : la description ("voir un résumé", comparaison mondiale et avec un pays) est mal formulée, à clarifier.
+13. **Phrase "La couleur identifie le pays (voir la légende au-dessus du graphique), rien d'autre — elle ne veut jamais dire bon ou mauvais"** : mal dite, à reformuler.
+14. **"Chaque métrique est ramenée à un indice où 100 = moyenne mondiale"** : préciser que cette explication concerne uniquement le premier graphique (comparaison mondiale), pas les graphiques suivants qui ont chacun leur propre échelle/logique.
+15. **Stress hydrique** : explication trop technique, à simplifier pour un non-initié complet.
+16. **Déforestation, indice "60% de la moyenne mondiale"** : incompréhensible pour un novice tel quel — envisager une comparaison au pays lui-même (évolution dans le temps) plutôt qu'à une moyenne mondiale abstraite, ou en tout cas mieux expliquer pourquoi "60".
+17. **Espèces menacées, "0,66% du total mondial"** : la ligne de référence à 100% (utilisée pour les autres métriques) n'a pas de sens ici et prête à confusion — à clarifier ou retirer cette référence pour cette ligne spécifique.
+18. **Graphique CO2** : ni la courbe bleue ni l'orange ne sont clairement identifiées/expliquées — clarifier ce que chacune représente.
+19. **Tableau de comparaison mondiale (7 rubriques)** : l'année de référence des données n'est indiquée nulle part.
+20. **Question de méthodologie à trancher/expliquer** : la comparaison ne risque-t-elle pas d'être biaisée par la taille du pays (France, petit pays, vs États-Unis) ? Par exemple pour le CO2/la pollution, un pays avec une population/économie comparable en taille aux USA consommerait-il proportionnellement autant ? À clarifier dans le texte explicatif (indicateurs déjà par habitant pour certains, à vérifier/préciser lesquels le sont et lesquels ne le sont pas).
+21. **"Total Mt"** : préciser que "Mt" signifie mégatonnes (million de tonnes) — pas évident pour tout le monde.
+
 ## 💡 Idées en suspens (mentionnées, pas encore engagées)
 
 - Notifications push natives pour l'app mobile (actuellement le suivi de député/élu se fait uniquement par email)
