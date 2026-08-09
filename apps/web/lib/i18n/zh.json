@@ -29,7 +29,9 @@
     "footer_data_status": "数据状态",
     "footer_legal": "法律声明",
     "footer_privacy": "隐私政策",
-    "footer_impact": "环境影响"
+    "footer_impact": "环境影响",
+    "nav_home": "首页",
+    "nav_home_title": "返回网站首页"
   },
   "home": {
     "intro": "通过开放且经过核实的数据，逐国了解气候变化。",

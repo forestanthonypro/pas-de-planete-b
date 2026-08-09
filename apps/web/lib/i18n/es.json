@@ -29,7 +29,9 @@
     "footer_data_status": "Estado de los datos",
     "footer_legal": "Aviso legal",
     "footer_privacy": "Privacidad",
-    "footer_impact": "Impacto ambiental"
+    "footer_impact": "Impacto ambiental",
+    "nav_home": "Inicio",
+    "nav_home_title": "Volver a la página de inicio"
   },
   "home": {
     "intro": "Comprender el cambio climático, país por país, con datos abiertos y verificados.",

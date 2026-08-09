@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import { useSobriety } from "../lib/SobrietyContext";
 import { useTheme } from "../lib/ThemeContext";
 import { useT } from "../lib/useT";
-import { IconLeaf, IconSun, IconMoon, IconScroll } from "./icons";
+import { IconLeaf, IconSun, IconMoon, IconScroll, IconHome } from "./icons";
 import BackgroundScene from "./BackgroundScene";
 import ScrollTopButton from "./ScrollTopButton";
 
@@ -75,6 +75,32 @@ export default function Layout({ children }) {
         <Link href="/" prefetch={false} style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none", color: "var(--color-texte)" }}>
           {!sobriety && <IconLeaf size={22} style={{ color: "var(--color-forest)" }} />}
           <strong style={{ fontSize: 16 }}>Pas de planète B</strong>
+        </Link>
+
+        <Link
+          href="/"
+          prefetch={false}
+          title={t("common.nav_home_title")}
+          aria-label={t("common.nav_home_title")}
+          style={
+            sobriety
+              ? { color: "var(--color-forest)", fontWeight: 600, textDecoration: "underline" }
+              : {
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  background: "var(--color-forest)",
+                  color: "white",
+                  padding: "6px 14px",
+                  borderRadius: 20,
+                  textDecoration: "none",
+                  fontWeight: 600,
+                  fontSize: 13,
+                }
+          }
+        >
+          {!sobriety && <IconHome size={16} />}
+          {t("common.nav_home")}
         </Link>
 
         <nav style={{ display: "flex", gap: sobriety ? "1rem" : "0.5rem", flexWrap: "wrap", fontSize: 14 }}>

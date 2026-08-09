@@ -29,7 +29,9 @@
     "footer_data_status": "Stato dei dati",
     "footer_legal": "Note legali",
     "footer_privacy": "Privacy",
-    "footer_impact": "Impatto ambientale"
+    "footer_impact": "Impatto ambientale",
+    "nav_home": "Home",
+    "nav_home_title": "Torna alla home page"
   },
   "home": {
     "intro": "Comprendere il cambiamento climatico, paese per paese, con dati aperti e verificati.",

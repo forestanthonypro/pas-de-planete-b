@@ -29,7 +29,9 @@
     "footer_data_status": "État des données",
     "footer_legal": "Mentions légales",
     "footer_privacy": "Confidentialité",
-    "footer_impact": "Impact environnemental"
+    "footer_impact": "Impact environnemental",
+    "nav_home": "Accueil",
+    "nav_home_title": "Retour à l'accueil du site"
   },
   "home": {
     "intro": "Comprendre le changement climatique, pays par pays, avec des données ouvertes et sourcées.",

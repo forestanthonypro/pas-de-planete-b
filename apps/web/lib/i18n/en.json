@@ -29,7 +29,9 @@
     "footer_data_status": "Data status",
     "footer_legal": "Legal notice",
     "footer_privacy": "Privacy",
-    "footer_impact": "Environmental impact"
+    "footer_impact": "Environmental impact",
+    "nav_home": "Home",
+    "nav_home_title": "Back to the homepage"
   },
   "home": {
     "intro": "Understanding climate change, country by country, with open and sourced data.",

@@ -29,7 +29,9 @@
     "footer_data_status": "データの状態",
     "footer_legal": "法的表示",
     "footer_privacy": "プライバシー",
-    "footer_impact": "環境への影響"
+    "footer_impact": "環境への影響",
+    "nav_home": "ホーム",
+    "nav_home_title": "サイトのトップページに戻る"
   },
   "home": {
     "intro": "オープンで検証済みのデータをもとに、国ごとに気候変動を理解する。",
