@@ -36,7 +36,7 @@
     "see_my_country": "查看我所在国家的摘要 →",
     "see_all_sections": "查看所有版块",
     "section_environment": "环境",
-    "section_democracy": "民主（法国）",
+    "section_democracy": "民主",
     "section_engage": "参与行动",
     "card_co2_label": "二氧化碳",
     "card_co2_desc": "按国家",
@@ -80,7 +80,7 @@
   "co2": {
     "title": "二氧化碳排放",
     "unit_label": "单位",
-    "unit_total": "总量（百万吨）",
+    "unit_total": "总计（百万吨）",
     "unit_per_capita": "人均（吨）",
     "what_shows_title": "此图表显示什么？",
     "explain_p1": "蓝色曲线是该国境内实际排放的量——工厂、汽车、供暖。橙色虚线曲线（如果存在）则与该国居民购买和消费的所有物品相关，包括在其他地方制造后再进口的物品。",

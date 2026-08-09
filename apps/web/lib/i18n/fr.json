@@ -36,7 +36,7 @@
     "see_my_country": "Voir le résumé pour mon pays →",
     "see_all_sections": "Voir toutes les rubriques",
     "section_environment": "Environnement",
-    "section_democracy": "Démocratie (France)",
+    "section_democracy": "Démocratie",
     "section_engage": "S'engager",
     "card_co2_label": "CO2",
     "card_co2_desc": "Par pays",
@@ -80,7 +80,7 @@
   "co2": {
     "title": "Émissions de CO2",
     "unit_label": "Unité",
-    "unit_total": "Total (Mt)",
+    "unit_total": "Total (mégatonnes)",
     "unit_per_capita": "Par habitant (t)",
     "what_shows_title": "Que montre ce graphique ?",
     "explain_p1": "La courbe bleue, c'est ce qui est physiquement émis sur le sol du pays — usines, voitures, chauffage. La courbe orange en pointillés (quand elle existe), c'est ce qui est lié à tout ce que les gens du pays achètent et consomment, y compris les objets fabriqués ailleurs et importés ensuite.",

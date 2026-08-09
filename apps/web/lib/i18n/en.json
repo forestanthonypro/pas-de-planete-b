@@ -36,7 +36,7 @@
     "see_my_country": "See the summary for my country →",
     "see_all_sections": "See all sections",
     "section_environment": "Environment",
-    "section_democracy": "Democracy (France)",
+    "section_democracy": "Democracy",
     "section_engage": "Get involved",
     "card_co2_label": "CO2",
     "card_co2_desc": "By country",
@@ -80,7 +80,7 @@
   "co2": {
     "title": "CO2 emissions",
     "unit_label": "Unit",
-    "unit_total": "Total (Mt)",
+    "unit_total": "Total (megatonnes)",
     "unit_per_capita": "Per capita (t)",
     "what_shows_title": "What does this chart show?",
     "explain_p1": "The blue curve is what's physically emitted on the country's soil — factories, cars, heating. The dashed orange curve (when available) is what's tied to everything people in the country buy and consume, including goods made elsewhere and imported.",

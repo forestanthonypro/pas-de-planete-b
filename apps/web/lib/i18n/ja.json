@@ -36,7 +36,7 @@
     "see_my_country": "自国の概要を見る →",
     "see_all_sections": "すべてのセクションを見る",
     "section_environment": "環境",
-    "section_democracy": "民主主義（フランス）",
+    "section_democracy": "民主主義",
     "section_engage": "行動する",
     "card_co2_label": "CO2",
     "card_co2_desc": "国別",
@@ -80,7 +80,7 @@
   "co2": {
     "title": "CO2排出量",
     "unit_label": "単位",
-    "unit_total": "合計（百万トン）",
+    "unit_total": "合計（メガトン）",
     "unit_per_capita": "一人当たり（トン）",
     "what_shows_title": "このグラフは何を示していますか？",
     "explain_p1": "青い曲線は、その国の領土内で物理的に排出されているもの——工場、自動車、暖房です。オレンジ色の破線（存在する場合）は、他の場所で製造され後に輸入された物品を含め、その国の人々が購入・消費するすべてに関連するものです。",

@@ -36,7 +36,7 @@
     "see_my_country": "Vedi il riepilogo per il mio paese →",
     "see_all_sections": "Vedi tutte le sezioni",
     "section_environment": "Ambiente",
-    "section_democracy": "Democrazia (Francia)",
+    "section_democracy": "Democrazia",
     "section_engage": "Impegnarsi",
     "card_co2_label": "CO2",
     "card_co2_desc": "Per paese",
@@ -80,7 +80,7 @@
   "co2": {
     "title": "Emissioni di CO2",
     "unit_label": "Unità",
-    "unit_total": "Totale (Mt)",
+    "unit_total": "Totale (megatonnellate)",
     "unit_per_capita": "Pro capite (t)",
     "what_shows_title": "Cosa mostra questo grafico?",
     "explain_p1": "La curva blu è ciò che viene fisicamente emesso sul territorio del paese — fabbriche, auto, riscaldamento. La curva arancione tratteggiata (quando esiste) è ciò che è legato a tutto quello che le persone del paese acquistano e consumano, compresi gli oggetti fabbricati altrove e poi importati.",

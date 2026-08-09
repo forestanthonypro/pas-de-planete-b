@@ -36,7 +36,7 @@
     "see_my_country": "Ver el resumen de mi país →",
     "see_all_sections": "Ver todas las secciones",
     "section_environment": "Medio ambiente",
-    "section_democracy": "Democracia (Francia)",
+    "section_democracy": "Democracia",
     "section_engage": "Involúcrate",
     "card_co2_label": "CO2",
     "card_co2_desc": "Por país",
@@ -80,7 +80,7 @@
   "co2": {
     "title": "Emisiones de CO2",
     "unit_label": "Unidad",
-    "unit_total": "Total (Mt)",
+    "unit_total": "Total (megatoneladas)",
     "unit_per_capita": "Por habitante (t)",
     "what_shows_title": "¿Qué muestra este gráfico?",
     "explain_p1": "La curva azul es lo que se emite físicamente en el territorio del país — fábricas, coches, calefacción. La curva naranja punteada (cuando existe) es lo relacionado con todo lo que la gente del país compra y consume, incluidos los objetos fabricados en otro lugar e importados después.",
