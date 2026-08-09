@@ -812,6 +812,12 @@
     "follow_check_inbox": "{name} का फॉलो कन्फर्म करने के लिए अपना इनबॉक्स देखें।",
     "follow_confirmed": "फॉलो सफलतापूर्वक कन्फर्म हुआ।",
     "follow_unsubscribed": "आपने इस फॉलो से सदस्यता समाप्त कर दी है।",
-    "follow_confirm_error": "अमान्य या समाप्त हो चुका लिंक।"
+    "follow_confirm_error": "अमान्य या समाप्त हो चुका लिंक।",
+    "full_text_link": "मतदान का पूरा पाठ देखें →",
+    "result_passed": "पारित",
+    "result_failed": "अस्वीकृत",
+    "result_agreed_to": "स्वीकृत",
+    "result_rejected": "अस्वीकृत",
+    "result_elected_speaker": "अध्यक्ष चुनाव"
   }
 }

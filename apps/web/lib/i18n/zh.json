@@ -812,6 +812,12 @@
     "follow_check_inbox": "请查看您的邮箱以确认对{name}的关注。",
     "follow_confirmed": "关注已成功确认。",
     "follow_unsubscribed": "您已取消此关注。",
-    "follow_confirm_error": "链接无效或已过期。"
+    "follow_confirm_error": "链接无效或已过期。",
+    "full_text_link": "查看投票全文 →",
+    "result_passed": "通过",
+    "result_failed": "未通过",
+    "result_agreed_to": "已同意",
+    "result_rejected": "被否决",
+    "result_elected_speaker": "议长选举"
   }
 }

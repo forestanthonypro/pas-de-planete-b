@@ -812,6 +812,12 @@
     "follow_check_inbox": "Revisa tu correo para confirmar el seguimiento de {name}.",
     "follow_confirmed": "Seguimiento confirmado con éxito.",
     "follow_unsubscribed": "Te has dado de baja de este seguimiento.",
-    "follow_confirm_error": "Enlace inválido o caducado."
+    "follow_confirm_error": "Enlace inválido o caducado.",
+    "full_text_link": "Ver el texto completo de la votación →",
+    "result_passed": "Aprobado",
+    "result_failed": "Rechazado",
+    "result_agreed_to": "Aceptado",
+    "result_rejected": "Rechazado",
+    "result_elected_speaker": "Elección del presidente"
   }
 }

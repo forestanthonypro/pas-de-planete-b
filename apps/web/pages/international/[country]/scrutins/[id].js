@@ -12,6 +12,7 @@ import { useApiFetch } from "../../../../lib/useApiFetch";
 import { getAnonymousId, getConsent, setConsent } from "../../../../lib/anonymousId";
 import { saveParliamentCitizenVote, fetchParliamentCitizenVoteStats } from "../../../../lib/parliamentCitizenVotes";
 import { chamberLabelKey } from "../../../../lib/parliamentChamberLabels";
+import { translateVoteResult } from "../../../../lib/voteResultLabels";
 
 const POSITIONS = ["yes", "no", "abstain", "not_voting"];
 
@@ -155,7 +156,7 @@ export default function InternationalVoteDetailPage() {
           {vote.source_url && (
             <p style={{ fontSize: 13, marginTop: -8, marginBottom: "0.75rem" }}>
               <a href={vote.source_url} target="_blank" rel="noopener noreferrer">
-                {t("scrutins.full_text_link")}
+                {t("international.full_text_link")}
               </a>
             </p>
           )}
@@ -220,7 +221,7 @@ export default function InternationalVoteDetailPage() {
             {vote.bill_number && <> — {vote.bill_number}</>}
             {revealed && (
               <>
-                {" — "}{t("scrutins.result_prefix")} <strong>{vote.result || "—"}</strong>
+                {" — "}{t("scrutins.result_prefix")} <strong>{translateVoteResult(vote.result, t) || "—"}</strong>
               </>
             )}
           </p>
@@ -230,7 +231,7 @@ export default function InternationalVoteDetailPage() {
           ) : revealed || myVote ? (
             <>
               <p style={{ fontSize: 14 }}>
-                {t("scrutins.assembly_result")} <strong>{vote.result || "—"}</strong> —{" "}
+                {t("scrutins.assembly_result")} <strong>{translateVoteResult(vote.result, t) || "—"}</strong> —{" "}
                 {Object.entries(tally).map(([pos, count]) => `${POSITION_LABELS[pos]?.label || pos} : ${count}`).join(" · ")}
               </p>
               <div style={{ position: "relative", height: Math.max(160, groups.length * 40) }}>

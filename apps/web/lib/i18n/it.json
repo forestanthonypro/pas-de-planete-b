@@ -812,6 +812,12 @@
     "follow_check_inbox": "Controlla la tua casella email per confermare il monitoraggio di {name}.",
     "follow_confirmed": "Monitoraggio confermato con successo.",
     "follow_unsubscribed": "Ti sei disiscritto da questo monitoraggio.",
-    "follow_confirm_error": "Link non valido o scaduto."
+    "follow_confirm_error": "Link non valido o scaduto.",
+    "full_text_link": "Vedi il testo completo della votazione →",
+    "result_passed": "Approvato",
+    "result_failed": "Respinto",
+    "result_agreed_to": "Accettato",
+    "result_rejected": "Respinto",
+    "result_elected_speaker": "Elezione del presidente"
   }
 }

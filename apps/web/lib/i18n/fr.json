@@ -812,6 +812,12 @@
     "follow_check_inbox": "Vérifie ta boîte mail pour confirmer le suivi de {name}.",
     "follow_confirmed": "Suivi confirmé avec succès.",
     "follow_unsubscribed": "Vous êtes désabonné·e de ce suivi.",
-    "follow_confirm_error": "Lien invalide ou expiré."
+    "follow_confirm_error": "Lien invalide ou expiré.",
+    "full_text_link": "Voir le texte complet du scrutin →",
+    "result_passed": "Adopté",
+    "result_failed": "Rejeté",
+    "result_agreed_to": "Accepté",
+    "result_rejected": "Rejeté",
+    "result_elected_speaker": "Élection du président"
   }
 }

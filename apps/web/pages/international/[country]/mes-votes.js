@@ -12,6 +12,7 @@ import { localeTag } from "../../../lib/dateLocale";
 import PageHeader from "../../../components/PageHeader";
 import { IconCheck } from "../../../components/icons";
 import ScrollableTable from "../../../components/ScrollableTable";
+import { translateVoteResult } from "../../../lib/voteResultLabels";
 
 const POSITION_LABELS = { yes: "international.pos_yes", no: "international.pos_no", abstain: "international.pos_abstain" };
 
@@ -140,7 +141,7 @@ export default function InternationalMesVotesPage() {
                         <Link href={`/international/${country}/scrutins/${v.vote_id}`}>{v.question}</Link>
                       </td>
                       <td style={{ padding: 8 }}>{t(POSITION_LABELS[v.position] || v.position)}</td>
-                      <td style={{ padding: 8 }}>{v.result || "—"}</td>
+                      <td style={{ padding: 8 }}>{translateVoteResult(v.result, t) || "—"}</td>
                     </tr>
                   ))}
                 </tbody>

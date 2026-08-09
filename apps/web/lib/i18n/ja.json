@@ -812,6 +812,12 @@
     "follow_check_inbox": "受信箱を確認して、{name}のフォローを確定してください。",
     "follow_confirmed": "フォローが確定しました。",
     "follow_unsubscribed": "このフォローを解除しました。",
-    "follow_confirm_error": "リンクが無効または期限切れです。"
+    "follow_confirm_error": "リンクが無効または期限切れです。",
+    "full_text_link": "採決の全文を見る →",
+    "result_passed": "可決",
+    "result_failed": "否決",
+    "result_agreed_to": "承認",
+    "result_rejected": "否決",
+    "result_elected_speaker": "議長選出"
   }
 }

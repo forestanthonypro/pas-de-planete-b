@@ -10,6 +10,7 @@ import { localeTag } from "../../../lib/dateLocale";
 import ScrollableTable from "../../../components/ScrollableTable";
 import { useApiFetch } from "../../../lib/useApiFetch";
 import { chamberLabelKey } from "../../../lib/parliamentChamberLabels";
+import { translateVoteResult } from "../../../lib/voteResultLabels";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 const PAGE_SIZE = 30;
@@ -100,7 +101,7 @@ export default function InternationalVotesPage() {
       chartRef.current = new Chart(canvasRef.current, {
         type: "doughnut",
         data: {
-          labels: stats.byResult.map((r) => r.result || t("scrutins.not_found")),
+          labels: stats.byResult.map((r) => translateVoteResult(r.result, t) || t("scrutins.not_found")),
           datasets: [
             {
               data: stats.byResult.map((r) => parseInt(r.count, 10)),
@@ -181,7 +182,7 @@ export default function InternationalVotesPage() {
                           <td style={{ padding: 8 }}>
                             <Link href={`/international/${country}/scrutins/${s.id}`}>{s.question}</Link>
                           </td>
-                          <td style={{ padding: 8 }}>{s.result || "—"}</td>
+                          <td style={{ padding: 8 }}>{translateVoteResult(s.result, t) || "—"}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -220,7 +221,7 @@ export default function InternationalVotesPage() {
             <select value={resultFilter} onChange={(e) => setResultFilter(e.target.value)}>
               <option value="">{t("scrutins.all")}</option>
               {results.map((r) => (
-                <option key={r} value={r}>{r}</option>
+                <option key={r} value={r}>{translateVoteResult(r, t)}</option>
               ))}
             </select>
           </label>
@@ -252,7 +253,7 @@ export default function InternationalVotesPage() {
                     <Link href={`/international/${country}/scrutins/${v.id}`}>{v.question}</Link>
                   </td>
                   <td style={{ padding: 8 }}>{t(chamberLabelKey(country, v.chamber))}</td>
-                  <td style={{ padding: 8 }}>{v.result || "—"}</td>
+                  <td style={{ padding: 8 }}>{translateVoteResult(v.result, t) || "—"}</td>
                 </tr>
               ))}
             </tbody>

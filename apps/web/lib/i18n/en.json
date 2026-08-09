@@ -812,6 +812,12 @@
     "follow_check_inbox": "Check your inbox to confirm following {name}.",
     "follow_confirmed": "Follow successfully confirmed.",
     "follow_unsubscribed": "You have unsubscribed from this follow.",
-    "follow_confirm_error": "Invalid or expired link."
+    "follow_confirm_error": "Invalid or expired link.",
+    "full_text_link": "See the full text of the vote →",
+    "result_passed": "Passed",
+    "result_failed": "Failed",
+    "result_agreed_to": "Agreed to",
+    "result_rejected": "Rejected",
+    "result_elected_speaker": "Speaker election"
   }
 }

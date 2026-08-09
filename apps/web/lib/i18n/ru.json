@@ -812,6 +812,12 @@
     "follow_check_inbox": "Проверьте почту, чтобы подтвердить подписку на {name}.",
     "follow_confirmed": "Подписка успешно подтверждена.",
     "follow_unsubscribed": "Вы отписались от этой подписки.",
-    "follow_confirm_error": "Недействительная или истёкшая ссылка."
+    "follow_confirm_error": "Недействительная или истёкшая ссылка.",
+    "full_text_link": "Смотреть полный текст голосования →",
+    "result_passed": "Принято",
+    "result_failed": "Отклонено",
+    "result_agreed_to": "Одобрено",
+    "result_rejected": "Отклонено",
+    "result_elected_speaker": "Избрание спикера"
   }
 }
