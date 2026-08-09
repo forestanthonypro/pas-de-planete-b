@@ -49,6 +49,10 @@ Document de suivi des chantiers en attente, à garder à jour d'une session à l
 
 7. **Service worker résistant au cache-busting normal** — pendant le débogage du 9 août, un service worker actif a continué à servir d'anciens fichiers JS malgré `docker compose --force-recreate`, vidage de `.next/cache`, fermeture/réouverture d'onglet, et même "Unregister" manuel (il se réenregistre aussitôt). Seule la navigation privée (sans service worker préexistant) contournait le problème de façon fiable. À revoir : la stratégie de cache du service worker (`public/sw.js`) devrait normalement versionner son cache et s'auto-remplacer proprement à chaque nouveau déploiement (`skipWaiting()` + `clients.claim()` + invalidation du cache par version), sans qu'un `Unregister` manuel soit nécessaire ni même suffisant.
 
+### SEO / Google Search Console
+
+8. **Vérifier l'amélioration de l'indexation dans quelques semaines** — le 9 août, Search Console signalait : `www.pasdeplaneteb.com` en 404 (corrigé, redirection Traefik ajoutée), pages `?section=...` vues comme doublons sans canonique (corrigé, balise `<link rel="canonical">` ajoutée), et 12 pages "explorées mais non indexées" (sitemap.xml créé et soumis pour accélérer la ré-exploration). Repasser sur le rapport "Indexation des pages" d'ici 2-3 semaines pour confirmer que ces 3 correctifs ont bien fait effet.
+
 ## 💡 Idées en suspens (mentionnées, pas encore engagées)
 
 - Notifications push natives pour l'app mobile (actuellement le suivi de député/élu se fait uniquement par email)
@@ -56,4 +60,4 @@ Document de suivi des chantiers en attente, à garder à jour d'une session à l
 
 ---
 
-*Dernière mise à jour : 9 août 2026 (nuit) — voir aussi la date du dernier commit de ce fichier.*
+*Dernière mise à jour : 9 août 2026 (fin de session) — voir aussi la date du dernier commit de ce fichier.*
