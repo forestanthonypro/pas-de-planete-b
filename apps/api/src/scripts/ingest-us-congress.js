@@ -27,16 +27,42 @@ import { pool } from "../lib/db.js";
 const CONGRESS_API_BASE = "https://api.congress.gov/v3";
 const GOVTRACK_API_BASE = "https://www.govtrack.us/api/v2";
 
+// Reprise automatique sur erreur réseau transitoire (ex. "SocketError:
+// other side closed", rencontré le 9 août 2026 en production sur une
+// ingestion longue) — sans ça, la moindre coupure ponctuelle oblige à tout
+// relancer depuis le début (le script n'a pas de mécanisme de reprise
+// partielle, voir commentaire plus bas).
+async function withRetry(fn, { attempts = 4, baseDelayMs = 2000 } = {}) {
+  let lastErr;
+  for (let i = 0; i < attempts; i++) {
+    try {
+      return await fn();
+    } catch (err) {
+      lastErr = err;
+      if (i < attempts - 1) {
+        const delay = baseDelayMs * 2 ** i;
+        console.error(`  Tentative ${i + 1}/${attempts} échouée (${err.message}), nouvel essai dans ${delay}ms...`);
+        await new Promise((resolve) => setTimeout(resolve, delay));
+      }
+    }
+  }
+  throw lastErr;
+}
+
 async function fetchJson(url) {
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`${res.status} ${res.statusText} — ${url}`);
-  return res.json();
+  return withRetry(async () => {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`${res.status} ${res.statusText} — ${url}`);
+    return res.json();
+  });
 }
 
 async function fetchText(url) {
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`${res.status} ${res.statusText} — ${url}`);
-  return res.text();
+  return withRetry(async () => {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`${res.status} ${res.statusText} — ${url}`);
+    return res.text();
+  });
 }
 
 // ---------------------------------------------------------------------
