@@ -179,7 +179,12 @@ async function ingestHouseVotes(apiKey, congress, session, limitVotes) {
            source_url = $6, updated_at = now()
          RETURNING id`,
         [
-          String(v.rollCallNumber),
+          // Le rollCallNumber recommence à 1 à chaque nouvelle session — sans
+          // le préfixer par la session, un vote de la session 2 écrase celui
+          // de la session 1 partageant le même numéro (bug découvert le 9
+          // août 2026 : les votes de novembre-décembre 2025 disparaissaient
+          // après ingestion de la session 2).
+          `${session}-${v.rollCallNumber}`,
           question,
           v.legislationNumber || null,
           v.startDate ? v.startDate.slice(0, 10) : null,
@@ -188,6 +193,20 @@ async function ingestHouseVotes(apiKey, congress, session, limitVotes) {
         ]
       );
       const voteId = voteResult.rows[0].id;
+
+      // Si ce vote a déjà ses positions individuelles enregistrées (un
+      // passage précédent l'a déjà entièrement traité), on saute l'appel
+      // détaillé — coûteux (un appel API par vote) et inutile de le
+      // refaire à chaque rafraîchissement mensuel pour des scrutins déjà
+      // connus, dont les résultats ne changent jamais rétroactivement.
+      const alreadyDetailed = await pool.query(
+        "SELECT 1 FROM parliament_member_votes WHERE vote_id = $1 LIMIT 1",
+        [voteId]
+      );
+      if (alreadyDetailed.rows.length > 0) {
+        voteCount++;
+        continue;
+      }
 
       // Détail des positions par élu — endpoint séparé, un appel par vote.
       const detailUrl = `${CONGRESS_API_BASE}/house-vote/${congress}/${session}/${v.rollCallNumber}/members?limit=500&api_key=${apiKey}`;
@@ -325,6 +344,18 @@ async function ingestSenateVotes(congress, limitVotes) {
         ]
       );
       const voteId = voteResult.rows[0].id;
+
+      // Même principe que côté Chambre : on saute l'export CSV (un
+      // téléchargement par vote) si ce scrutin est déjà entièrement
+      // détaillé depuis un passage précédent.
+      const alreadyDetailed = await pool.query(
+        "SELECT 1 FROM parliament_member_votes WHERE vote_id = $1 LIMIT 1",
+        [voteId]
+      );
+      if (alreadyDetailed.rows.length > 0) {
+        voteCount++;
+        continue;
+      }
 
       // Positions individuelles — export CSV de la page du vote (l'endpoint
       // JSON vote_voter est actuellement hors service côté GovTrack).
