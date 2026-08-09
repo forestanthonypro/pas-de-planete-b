@@ -91,12 +91,14 @@ function buildGenerationChart(generationData, locale, t, theme) {
           data: generationData.map((d) => d[s.key] || 0),
           backgroundColor: s.color || DEFAULT_FUEL_COLOR,
           stack: "generation",
+          order: 0,
         })),
         {
           type: "line",
           label: t("energie.chart_demand"),
           data: generationData.map((d) => d.demand_twh),
           borderColor: theme === "dark" ? "#ffffff" : "#000000",
+          order: -100,
           borderWidth: 2,
           borderDash: [4, 3],
           pointRadius: 0,
@@ -152,6 +154,7 @@ function buildVegetationChart(vegetationData, worldBenchmarksData, barColor, cum
           data: vegetationData.map((d) => d.tree_cover_loss_ha),
           backgroundColor: barColor,
           yAxisID: "y",
+          order: 0,
         },
         {
           type: "line",
@@ -164,6 +167,7 @@ function buildVegetationChart(vegetationData, worldBenchmarksData, barColor, cum
           yAxisID: "y1",
           tension: 0.3,
           pointRadius: 2,
+              order: -100,
           borderWidth: 2,
         },
         {
@@ -177,6 +181,7 @@ function buildVegetationChart(vegetationData, worldBenchmarksData, barColor, cum
           pointRadius: 0,
           borderWidth: 2,
           borderDash: [2, 2],
+              order: -100,
           fill: true,
         },
         ...(worldBenchmarksData?.forest_loss_share_world
@@ -187,6 +192,7 @@ function buildVegetationChart(vegetationData, worldBenchmarksData, barColor, cum
                 data: vegetationData.map(() => worldBenchmarksData.forest_loss_share_world.value),
                 borderColor: "#95a5a6",
                 borderDash: [4, 4],
+              order: -100,
                 yAxisID: "y1",
                 pointRadius: 0,
                 borderWidth: 1.5,
@@ -576,7 +582,7 @@ export default function PaysDashboard() {
     return () => {
       cancelled = true;
     };
-  }, [summary, locale, t]);
+  }, [summary, locale, t, theme]);
 
   useEffect(() => {
     if (!compareCode || !compareSummary || !compareSummary.electricityGeneration || compareSummary.electricityGeneration.length === 0) return;
@@ -589,7 +595,7 @@ export default function PaysDashboard() {
     return () => {
       cancelled = true;
     };
-  }, [compareCode, compareSummary, locale, t]);
+  }, [compareCode, compareSummary, locale, t, theme]);
 
   useEffect(() => {
     if (!summary || !worldBenchmarks) return;

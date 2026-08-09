@@ -130,6 +130,7 @@ export default function EnergiePage() {
               data: generation.map((d) => d[s.key] || 0),
               backgroundColor: s.color || DEFAULT_FUEL_COLOR,
               stack: "generation",
+              order: 0,
             })),
             {
               type: "line",
@@ -137,6 +138,7 @@ export default function EnergiePage() {
               data: generation.map((d) => d.demand_twh),
               borderColor: theme === "dark" ? "#ffffff" : "#000000",
               borderWidth: 2,
+              order: -100,
               borderDash: [4, 3],
               pointRadius: 0,
               fill: false,

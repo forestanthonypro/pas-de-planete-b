@@ -94,6 +94,7 @@ export default function VegetationPage() {
               label: t("vegetation.chart_loss_ha"),
               data: data.map((d) => d.tree_cover_loss_ha),
               backgroundColor: "#e67e22",
+          order: 0,
               yAxisID: "y",
             },
             {
@@ -108,6 +109,7 @@ export default function VegetationPage() {
               tension: 0.3,
               pointRadius: 2,
               borderWidth: 2,
+              order: -100,
             },
             {
               type: "line",
@@ -120,6 +122,7 @@ export default function VegetationPage() {
               pointRadius: 0,
               borderWidth: 2,
               borderDash: [2, 2],
+              order: -100,
               fill: true,
             },
             ...(worldBenchmarks?.forest_loss_share_world
@@ -130,6 +133,7 @@ export default function VegetationPage() {
                     data: data.map(() => worldBenchmarks.forest_loss_share_world.value),
                     borderColor: "#95a5a6",
                     borderDash: [4, 4],
+              order: -100,
                     yAxisID: "y1",
                     pointRadius: 0,
                     borderWidth: 1.5,
