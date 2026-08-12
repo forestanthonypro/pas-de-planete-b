@@ -98,7 +98,7 @@ export default class MyDocument extends Document {
             dangerouslySetInnerHTML={{
               __html: `
                 (function () {
-                  var MIN_DISPLAY_MS = 1500;
+                  var MIN_DISPLAY_MS = 2000;
                   var start = Date.now();
                   function hideSplash() {
                     var el = document.getElementById("pdpb-splash");
