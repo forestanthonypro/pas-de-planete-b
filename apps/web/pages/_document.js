@@ -30,10 +30,80 @@ export default class MyDocument extends Document {
           <link rel="manifest" href="/manifest.json" />
           <meta name="theme-color" content="#1b5e20" />
           <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+          {/* Écran de chargement personnalisé (feuille animée + nom du
+              site), visible uniquement quand le site tourne en mode
+              application installée (standalone) — jamais lors d'une simple
+              visite dans le navigateur, pour rester cohérent avec l'esprit
+              sobriété du reste du site. Entièrement en CSS pur (pas de JS
+              nécessaire pour l'affichage, seulement pour le masquer une
+              fois la page prête), placé ici pour s'afficher dès le tout
+              premier octet de HTML, avant même l'hydratation React. */}
+          <style>{`
+            #pdpb-splash {
+              display: none;
+            }
+            @media (display-mode: standalone) {
+              #pdpb-splash {
+                display: flex;
+                position: fixed;
+                inset: 0;
+                z-index: 9999;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 18px;
+                background: linear-gradient(160deg, #eaf3de 0%, #d9ecd0 60%, #bfe0c4 100%);
+                transition: opacity 0.5s ease, visibility 0.5s ease;
+              }
+              #pdpb-splash.pdpb-splash-hidden {
+                opacity: 0;
+                visibility: hidden;
+                pointer-events: none;
+              }
+              #pdpb-splash svg {
+                animation: pdpb-splash-breathe 1.8s ease-in-out infinite;
+              }
+              #pdpb-splash span {
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+                font-size: 20px;
+                font-weight: 700;
+                color: #1b5e20;
+                letter-spacing: 0.02em;
+              }
+              @keyframes pdpb-splash-breathe {
+                0%, 100% { transform: scale(1); opacity: 1; }
+                50% { transform: scale(1.08); opacity: 0.85; }
+              }
+            }
+          `}</style>
         </Head>
         <body>
+          <div id="pdpb-splash" aria-hidden="true">
+            <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="#1b5e20" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 20c8 0 16-6 16-16C10 4 4 12 4 20Z" />
+              <path d="M4 20c3-5 6-8 12-11" />
+            </svg>
+            <span>Pas de planète B</span>
+          </div>
           <Main />
           <NextScript />
+          {/* Masque l'écran de chargement une fois la page prête. window.load
+              (pas juste DOMContentLoaded) attend aussi les images/polices,
+              pour éviter un flash de contenu à moitié chargé derrière la
+              transition en fondu. */}
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+                window.addEventListener("load", function () {
+                  var el = document.getElementById("pdpb-splash");
+                  if (el) {
+                    el.classList.add("pdpb-splash-hidden");
+                    setTimeout(function () { el.remove(); }, 600);
+                  }
+                });
+              `,
+            }}
+          />
         </body>
       </Html>
     );
