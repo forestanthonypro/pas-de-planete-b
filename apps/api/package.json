@@ -25,14 +25,14 @@
     "ingest:an-groups": "node src/ingest/an_groups.js"
   },
   "dependencies": {
-    "express": "^4.19.2",
-    "express-rate-limit": "^7.4.0",
-    "helmet": "^7.1.0",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.6.1",
+    "helmet": "^8.3.0",
     "pg": "^8.12.0",
-    "csv-parse": "^5.5.6",
+    "csv-parse": "^7.0.2",
     "cors": "^2.8.5",
     "i18n-iso-countries": "^7.11.2",
-    "adm-zip": "^0.5.16"
+    "adm-zip": "^0.6.0"
   },
   "devDependencies": {
     "eslint": "^9.9.0",
