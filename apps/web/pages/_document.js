@@ -87,20 +87,32 @@ export default class MyDocument extends Document {
           </div>
           <Main />
           <NextScript />
-          {/* Masque l'écran de chargement une fois la page prête. window.load
-              (pas juste DOMContentLoaded) attend aussi les images/polices,
-              pour éviter un flash de contenu à moitié chargé derrière la
-              transition en fondu. */}
+          {/* Masque l'écran de chargement une fois la page prête, mais
+              jamais avant une durée minimale (1,5s) — sur une connexion
+              rapide ou un cache déjà chaud, la page peut être prête en
+              quelques centaines de ms seulement, trop vite pour lire le
+              texte. window.load (pas juste DOMContentLoaded) attend aussi
+              les images/polices, pour éviter un flash de contenu à moitié
+              chargé derrière la transition en fondu. */}
           <script
             dangerouslySetInnerHTML={{
               __html: `
-                window.addEventListener("load", function () {
-                  var el = document.getElementById("pdpb-splash");
-                  if (el) {
-                    el.classList.add("pdpb-splash-hidden");
-                    setTimeout(function () { el.remove(); }, 600);
+                (function () {
+                  var MIN_DISPLAY_MS = 1500;
+                  var start = Date.now();
+                  function hideSplash() {
+                    var el = document.getElementById("pdpb-splash");
+                    if (el) {
+                      el.classList.add("pdpb-splash-hidden");
+                      setTimeout(function () { el.remove(); }, 600);
+                    }
                   }
-                });
+                  window.addEventListener("load", function () {
+                    var elapsed = Date.now() - start;
+                    var remaining = Math.max(0, MIN_DISPLAY_MS - elapsed);
+                    setTimeout(hideSplash, remaining);
+                  });
+                })();
               `,
             }}
           />
