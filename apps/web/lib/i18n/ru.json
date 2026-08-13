@@ -826,6 +826,15 @@
     "party_republican": "Республиканец",
     "party_democratic": "Демократ",
     "party_independent": "Независимый",
-    "country_es": "Испания"
+    "country_es": "Испания",
+    "party_es_pp": "Парламентская группа Народной партии (НП)",
+    "party_es_psoe": "Социалистическая парламентская группа (ИСРП)",
+    "party_es_vox": "Парламентская группа VOX",
+    "party_es_sumar": "Многонациональная парламентская группа Sumar",
+    "party_es_erc": "Республиканская парламентская группа (ERC)",
+    "party_es_junts": "Парламентская группа Junts per Catalunya",
+    "party_es_eaj_pnv": "Баскская парламентская группа (EAJ-PNV)",
+    "party_es_eh_bildu": "Парламентская группа Euskal Herria Bildu",
+    "party_es_mixto": "Смешанная парламентская группа"
   }
 }

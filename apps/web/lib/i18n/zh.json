@@ -826,6 +826,15 @@
     "party_republican": "共和党",
     "party_democratic": "民主党",
     "party_independent": "无党派",
-    "country_es": "西班牙"
+    "country_es": "西班牙",
+    "party_es_pp": "人民党（PP）议会党团",
+    "party_es_psoe": "社会党（PSOE）议会党团",
+    "party_es_vox": "VOX议会党团",
+    "party_es_sumar": "多民族联盟Sumar议会党团",
+    "party_es_erc": "共和左翼（ERC）议会党团",
+    "party_es_junts": "加泰罗尼亚联盟（Junts per Catalunya）议会党团",
+    "party_es_eaj_pnv": "巴斯克党团（EAJ-PNV）",
+    "party_es_eh_bildu": "巴斯克团结党（Euskal Herria Bildu）议会党团",
+    "party_es_mixto": "混合议会党团"
   }
 }

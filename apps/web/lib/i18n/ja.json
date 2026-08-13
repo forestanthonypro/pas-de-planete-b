@@ -826,6 +826,15 @@
     "party_republican": "共和党",
     "party_democratic": "民主党",
     "party_independent": "無所属",
-    "country_es": "スペイン"
+    "country_es": "スペイン",
+    "party_es_pp": "国民党（PP）議員団",
+    "party_es_psoe": "社会労働党（PSOE）議員団",
+    "party_es_vox": "VOX議員団",
+    "party_es_sumar": "多民族スマール議員団",
+    "party_es_erc": "共和左派（ERC）議員団",
+    "party_es_junts": "カタルーニャ連合（Junts per Catalunya）議員団",
+    "party_es_eaj_pnv": "バスク議員団（EAJ-PNV）",
+    "party_es_eh_bildu": "エウスカル・ヘリア・ビルドゥ議員団",
+    "party_es_mixto": "混合議員団"
   }
 }

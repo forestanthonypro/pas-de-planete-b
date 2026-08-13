@@ -826,6 +826,15 @@
     "party_republican": "Repubblicano",
     "party_democratic": "Democratico",
     "party_independent": "Indipendente",
-    "country_es": "Spagna"
+    "country_es": "Spagna",
+    "party_es_pp": "Gruppo parlamentare del Partito Popolare (PP)",
+    "party_es_psoe": "Gruppo parlamentare socialista (PSOE)",
+    "party_es_vox": "Gruppo parlamentare VOX",
+    "party_es_sumar": "Gruppo parlamentare plurinazionale Sumar",
+    "party_es_erc": "Gruppo parlamentare repubblicano (ERC)",
+    "party_es_junts": "Gruppo parlamentare Junts per Catalunya",
+    "party_es_eaj_pnv": "Gruppo parlamentare basco (EAJ-PNV)",
+    "party_es_eh_bildu": "Gruppo parlamentare Euskal Herria Bildu",
+    "party_es_mixto": "Gruppo parlamentare misto"
   }
 }

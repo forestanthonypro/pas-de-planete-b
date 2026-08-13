@@ -826,6 +826,15 @@
     "party_republican": "रिपब्लिकन",
     "party_democratic": "डेमोक्रेट",
     "party_independent": "स्वतंत्र",
-    "country_es": "स्पेन"
+    "country_es": "स्पेन",
+    "party_es_pp": "जनता पार्टी (PP) संसदीय समूह",
+    "party_es_psoe": "समाजवादी (PSOE) संसदीय समूह",
+    "party_es_vox": "VOX संसदीय समूह",
+    "party_es_sumar": "बहु-राष्ट्रीय सूमार संसदीय समूह",
+    "party_es_erc": "रिपब्लिकन (ERC) संसदीय समूह",
+    "party_es_junts": "यूंत्स पर कातालूनया संसदीय समूह",
+    "party_es_eaj_pnv": "बास्क (EAJ-PNV) संसदीय समूह",
+    "party_es_eh_bildu": "एउस्कल हेरिया बिल्दू संसदीय समूह",
+    "party_es_mixto": "मिश्रित संसदीय समूह"
   }
 }
