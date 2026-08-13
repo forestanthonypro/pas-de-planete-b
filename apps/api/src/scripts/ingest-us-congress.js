@@ -255,6 +255,37 @@ async function ingestHouseVotes(apiKey, congress, session, limitVotes) {
 // cette conversion, la comparaison state_or_region ne correspond jamais et
 // aucun sénateur n'est retrouvé (bug découvert le 8 août 2026 : 0 position
 // importée côté Sénat malgré un CSV correctement analysé).
+// Table de correspondance GovTrack -> bioguideId, via le depot public
+// congress-legislators (GitHub, unitedstates/congress-legislators) - permet
+// un rattachement exact des senateurs plutot que par nom+etat (fragile).
+// Recuperee une seule fois par appel a ingestSenateVotes(), pas par vote.
+const LEGISLATORS_CSV_URL = "https://unitedstates.github.io/congress-legislators/legislators-current.csv";
+
+async function fetchGovtrackToBioguideMap() {
+  const map = new Map();
+  try {
+    const text = await fetchText(LEGISLATORS_CSV_URL);
+    const lines = text.trim().split("\n");
+    const header = splitCsvLine(lines[0]).map((h) => h.trim());
+    const govtrackIdx = header.indexOf("govtrack_id");
+    const bioguideIdx = header.indexOf("bioguide_id");
+    if (govtrackIdx === -1 || bioguideIdx === -1) {
+      console.error("  [avertissement] Colonnes govtrack_id/bioguide_id introuvables dans congress-legislators - repli sur nom+etat pour tous les senateurs.");
+      return map;
+    }
+    for (const line of lines.slice(1)) {
+      const values = splitCsvLine(line);
+      const govtrackId = (values[govtrackIdx] || "").trim();
+      const bioguideId = (values[bioguideIdx] || "").trim();
+      if (govtrackId && bioguideId) map.set(govtrackId, bioguideId);
+    }
+    console.log(`  Table de correspondance GovTrack -> bioguideId chargee (${map.size} legislateur(s)).`);
+  } catch (err) {
+    console.error(`  [avertissement] Echec du chargement de la table de correspondance congress-legislators (${err.message}) - repli sur nom+etat pour tous les senateurs.`);
+  }
+  return map;
+}
+
 const STATE_ABBR_TO_NAME = {
   AL: "Alabama", AK: "Alaska", AZ: "Arizona", AR: "Arkansas", CA: "California",
   CO: "Colorado", CT: "Connecticut", DE: "Delaware", FL: "Florida", GA: "Georgia",
@@ -307,6 +338,8 @@ function parseCsv(text) {
 
 async function ingestSenateVotes(congress, limitVotes) {
   let offset = 0;
+  const govtrackToBioguide = await fetchGovtrackToBioguideMap();
+  let loggedGovtrackCsvColumns = false;
   const limit = 100;
   let total = Infinity;
   let voteCount = 0;
@@ -363,25 +396,53 @@ async function ingestSenateVotes(congress, limitVotes) {
       const rows = parseCsv(csvText);
 
       let abstain = 0, notVoting = 0;
+      let rowIndex = 0;
       for (const row of rows) {
-        // Les membres sont identifiés par un ID GovTrack interne ("person"),
-        // pas par le bioguideId de Congress.gov — pas de correspondance
-        // directe et fiable disponible ici. On rattache donc par nom+état,
-        // fragile mais suffisant en pratique (peu d'homonymes au Sénat, 100
-        // sièges). Un futur raffinement possible : importer aussi le
-        // bioguideId via congress-legislators (GitHub) pour un lien exact.
-        const cleanName = (row.name || "").replace(/^Sen\.\s*/, "").replace(/\s*\[.*?\]$/, "").trim();
-        const lastName = cleanName.split(" ").pop();
+        rowIndex++;
+        if (rowIndex === 1 && !loggedGovtrackCsvColumns) {
+          console.log(`  [diagnostic] Colonnes disponibles dans l'export CSV GovTrack : ${Object.keys(row).join(", ")}`);
+          loggedGovtrackCsvColumns = true;
+        }
 
-        const memberResult = await pool.query(
-          `SELECT id FROM parliament_members
-           WHERE country_code = 'us' AND chamber = 'upper'
-             AND state_or_region = $1 AND last_name ILIKE $2
-           LIMIT 1`,
-          [STATE_ABBR_TO_NAME[row.state] || row.state, `%${lastName}%`]
-        );
-        if (memberResult.rows.length === 0) continue;
-        const memberId = memberResult.rows[0].id;
+        // Tentative de correspondance exacte via bioguideId (à partir de
+        // l'identifiant GovTrack numérique du votant, si présent dans cet
+        // export et connu de la table de correspondance congress-legislators).
+        // Sinon, repli sur nom+état (comportement historique, fragile mais
+        // suffisant en pratique — voir plus bas).
+        const govtrackPersonId = row.person || row.person_id || row.id || null;
+        let memberId = null;
+        if (govtrackPersonId && govtrackToBioguide.has(govtrackPersonId)) {
+          const bioguideId = govtrackToBioguide.get(govtrackPersonId);
+          const exactResult = await pool.query(
+            `SELECT id FROM parliament_members WHERE country_code = 'us' AND chamber = 'upper' AND external_id = $1`,
+            [bioguideId]
+          );
+          if (exactResult.rows.length > 0) {
+            memberId = exactResult.rows[0].id;
+          }
+        }
+
+        if (!memberId) {
+          // Repli : rattachement par nom+état. Les membres sont identifiés
+          // par un ID GovTrack interne ("person"), pas directement par le
+          // bioguideId de Congress.gov — sans correspondance exacte via
+          // congress-legislators (colonne absente de cet export précis, ou
+          // législateur non trouvé dans la table de correspondance), on
+          // retombe sur ce rattachement approximatif (peu d'homonymes au
+          // Sénat, 100 sièges, donc suffisant en pratique).
+          const cleanName = (row.name || "").replace(/^Sen\.\s*/, "").replace(/\s*\[.*?\]$/, "").trim();
+          const lastName = cleanName.split(" ").pop();
+
+          const memberResult = await pool.query(
+            `SELECT id FROM parliament_members
+             WHERE country_code = 'us' AND chamber = 'upper'
+               AND state_or_region = $1 AND last_name ILIKE $2
+             LIMIT 1`,
+            [STATE_ABBR_TO_NAME[row.state] || row.state, `%${lastName}%`]
+          );
+          if (memberResult.rows.length === 0) continue;
+          memberId = memberResult.rows[0].id;
+        }
 
         const position = { Yea: "yes", Nay: "no", Present: "abstain", "Not Voting": "not_voting" }[row.vote] || "not_voting";
         if (position === "abstain") abstain++;
