@@ -26,6 +26,14 @@ const SOURCE_KEYS = [
   { key: "scrutins", labelKey: "source_scrutins", source: "CIVIX, Assemblée nationale", page: "/scrutins", frequencyKey: "freq_monthly" },
   { key: "usCongressMembers", labelKey: "source_usCongressMembers", source: "Congress.gov", page: "/international/us/elus", frequencyKey: "freq_monthly" },
   { key: "usCongressVotes", labelKey: "source_usCongressVotes", source: "Congress.gov / GovTrack.us", page: "/international/us/scrutins", frequencyKey: "freq_monthly" },
+  { key: "spainCongressMembers", labelKey: "source_spainCongressMembers", source: "Congreso de los Diputados", page: "/international/es/elus", frequencyKey: "freq_monthly" },
+  { key: "spainCongressVotes", labelKey: "source_spainCongressVotes", source: "Congreso de los Diputados", page: "/international/es/scrutins", frequencyKey: "freq_monthly" },
+  { key: "spainSenateMembers", labelKey: "source_spainSenateMembers", source: "Senado de España", page: "/international/es/elus", frequencyKey: "freq_monthly" },
+  { key: "spainSenateVotes", labelKey: "source_spainSenateVotes", source: "Senado de España", page: "/international/es/scrutins", frequencyKey: "freq_monthly" },
+  { key: "italySenateMembers", labelKey: "source_italySenateMembers", source: "Senato della Repubblica", page: "/international/it/elus", frequencyKey: "freq_monthly" },
+  { key: "italySenateVotes", labelKey: "source_italySenateVotes", source: "Senato della Repubblica", page: "/international/it/scrutins", frequencyKey: "freq_monthly" },
+  { key: "italyCameraMembers", labelKey: "source_italyCameraMembers", source: "Camera dei Deputati", page: "/international/it/elus", frequencyKey: "freq_monthly" },
+  { key: "italyCameraVotes", labelKey: "source_italyCameraVotes", source: "Camera dei Deputati", page: "/international/it/scrutins", frequencyKey: "freq_monthly" },
 ];
 
 function freshnessColor(lastIngested) {

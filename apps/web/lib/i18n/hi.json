@@ -720,7 +720,15 @@
     "freq_6h": "हर 6 घंटे में",
     "freq_manual": "मैनुअल (अभी स्वचालित नहीं)",
     "source_usCongressMembers": "अमेरिकी कांग्रेस के सदस्य",
-    "source_usCongressVotes": "अमेरिकी कांग्रेस के मतदान"
+    "source_usCongressVotes": "अमेरिकी कांग्रेस के मतदान",
+    "source_spainCongressMembers": "स्पेनिश सांसद (कांग्रेसो)",
+    "source_spainCongressVotes": "स्पेनिश कांग्रेसो के मतदान",
+    "source_spainSenateMembers": "स्पेनिश सीनेटर",
+    "source_spainSenateVotes": "स्पेनिश सीनेट के मतदान",
+    "source_italySenateMembers": "इतालवी सीनेटर",
+    "source_italySenateVotes": "इतालवी सीनेट के मतदान",
+    "source_italyCameraMembers": "इतालवी सांसद",
+    "source_italyCameraVotes": "इतालवी चैंबर के मतदान"
   },
   "environmentalImpact": {
     "title": "पर्यावरणीय प्रभाव",

@@ -720,7 +720,15 @@
     "freq_6h": "6時間ごと",
     "freq_manual": "手動（まだ自動化されていません）",
     "source_usCongressMembers": "米国議会議員",
-    "source_usCongressVotes": "米国議会の採決"
+    "source_usCongressVotes": "米国議会の採決",
+    "source_spainCongressMembers": "スペイン下院議員",
+    "source_spainCongressVotes": "スペイン下院の採決",
+    "source_spainSenateMembers": "スペイン上院議員",
+    "source_spainSenateVotes": "スペイン上院の採決",
+    "source_italySenateMembers": "イタリア上院議員",
+    "source_italySenateVotes": "イタリア上院の採決",
+    "source_italyCameraMembers": "イタリア下院議員",
+    "source_italyCameraVotes": "イタリア下院の採決"
   },
   "environmentalImpact": {
     "title": "環境への影響",

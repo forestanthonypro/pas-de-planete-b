@@ -720,7 +720,15 @@
     "freq_6h": "每6小时",
     "freq_manual": "手动（尚未自动化）",
     "source_usCongressMembers": "美国国会议员",
-    "source_usCongressVotes": "美国国会投票"
+    "source_usCongressVotes": "美国国会投票",
+    "source_spainCongressMembers": "西班牙众议院议员",
+    "source_spainCongressVotes": "西班牙众议院表决",
+    "source_spainSenateMembers": "西班牙参议员",
+    "source_spainSenateVotes": "西班牙参议院表决",
+    "source_italySenateMembers": "意大利参议员",
+    "source_italySenateVotes": "意大利参议院表决",
+    "source_italyCameraMembers": "意大利众议院议员",
+    "source_italyCameraVotes": "意大利众议院表决"
   },
   "environmentalImpact": {
     "title": "环境影响",

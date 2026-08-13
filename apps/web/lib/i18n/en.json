@@ -720,7 +720,15 @@
     "freq_6h": "Every 6h",
     "freq_manual": "Manual (not yet automated)",
     "source_usCongressMembers": "US Congress members",
-    "source_usCongressVotes": "US Congress votes"
+    "source_usCongressVotes": "US Congress votes",
+    "source_spainCongressMembers": "Spanish MPs (Congreso)",
+    "source_spainCongressVotes": "Spanish Congreso votes",
+    "source_spainSenateMembers": "Spanish senators",
+    "source_spainSenateVotes": "Spanish Senate votes",
+    "source_italySenateMembers": "Italian senators",
+    "source_italySenateVotes": "Italian Senate votes",
+    "source_italyCameraMembers": "Italian MPs",
+    "source_italyCameraVotes": "Italian Chamber votes"
   },
   "environmentalImpact": {
     "title": "Environmental impact",

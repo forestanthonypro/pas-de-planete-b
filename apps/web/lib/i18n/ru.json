@@ -720,7 +720,15 @@
     "freq_6h": "Каждые 6 часов",
     "freq_manual": "Вручную (пока не автоматизировано)",
     "source_usCongressMembers": "Члены Конгресса США",
-    "source_usCongressVotes": "Голосования Конгресса США"
+    "source_usCongressVotes": "Голосования Конгресса США",
+    "source_spainCongressMembers": "Депутаты Испании (Конгресс)",
+    "source_spainCongressVotes": "Голосования Конгресса Испании",
+    "source_spainSenateMembers": "Сенаторы Испании",
+    "source_spainSenateVotes": "Голосования Сената Испании",
+    "source_italySenateMembers": "Сенаторы Италии",
+    "source_italySenateVotes": "Голосования Сената Италии",
+    "source_italyCameraMembers": "Депутаты Италии",
+    "source_italyCameraVotes": "Голосования Палаты депутатов Италии"
   },
   "environmentalImpact": {
     "title": "Экологическое воздействие",

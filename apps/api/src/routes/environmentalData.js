@@ -297,7 +297,7 @@ router.post("/api/admin/ingest/fires", requireIngestToken, async (_req, res) => 
 // (pas la date des données elles-mêmes, qui peut être plus ancienne selon la source).
 router.get("/api/meta/last-updated", async (_req, res) => {
   try {
-    const [co2, plants, species, fires, vegetation, water, electricity, speciesThreatened, pollution, deputies, anGroups, scrutins, worldBenchmarks, usCongressMembers, usCongressVotes] = await Promise.all([
+    const [co2, plants, species, fires, vegetation, water, electricity, speciesThreatened, pollution, deputies, anGroups, scrutins, worldBenchmarks, usCongressMembers, usCongressVotes, spainCongressMembers, spainCongressVotes, spainSenateMembers, spainSenateVotes, italySenateMembers, italySenateVotes, italyCameraMembers, italyCameraVotes] = await Promise.all([
       pool.query("SELECT MAX(updated_at) AS updated_at, MAX(year) AS latest_year FROM co2_emissions"),
       pool.query("SELECT MAX(updated_at) AS updated_at FROM power_plants"),
       pool.query("SELECT MAX(updated_at) AS updated_at FROM species_status"),
@@ -313,6 +313,14 @@ router.get("/api/meta/last-updated", async (_req, res) => {
       pool.query("SELECT MAX(updated_at) AS updated_at FROM world_benchmarks"),
       pool.query("SELECT MAX(updated_at) AS updated_at, COUNT(*) AS row_count FROM parliament_members WHERE country_code = 'us'"),
       pool.query("SELECT MAX(updated_at) AS updated_at, COUNT(*) AS row_count FROM parliament_votes WHERE country_code = 'us'"),
+      pool.query("SELECT MAX(updated_at) AS updated_at, COUNT(*) AS row_count FROM parliament_members WHERE country_code = 'es' AND chamber = 'lower'"),
+      pool.query("SELECT MAX(updated_at) AS updated_at, COUNT(*) AS row_count FROM parliament_votes WHERE country_code = 'es' AND chamber = 'lower'"),
+      pool.query("SELECT MAX(updated_at) AS updated_at, COUNT(*) AS row_count FROM parliament_members WHERE country_code = 'es' AND chamber = 'upper'"),
+      pool.query("SELECT MAX(updated_at) AS updated_at, COUNT(*) AS row_count FROM parliament_votes WHERE country_code = 'es' AND chamber = 'upper'"),
+      pool.query("SELECT MAX(updated_at) AS updated_at, COUNT(*) AS row_count FROM parliament_members WHERE country_code = 'it' AND chamber = 'upper'"),
+      pool.query("SELECT MAX(updated_at) AS updated_at, COUNT(*) AS row_count FROM parliament_votes WHERE country_code = 'it' AND chamber = 'upper'"),
+      pool.query("SELECT MAX(updated_at) AS updated_at, COUNT(*) AS row_count FROM parliament_members WHERE country_code = 'it' AND chamber = 'lower'"),
+      pool.query("SELECT MAX(updated_at) AS updated_at, COUNT(*) AS row_count FROM parliament_votes WHERE country_code = 'it' AND chamber = 'lower'"),
     ]);
     res.json({
       co2: { lastIngested: co2.rows[0].updated_at, latestYear: co2.rows[0].latest_year },
@@ -330,6 +338,14 @@ router.get("/api/meta/last-updated", async (_req, res) => {
       worldBenchmarks: { lastIngested: worldBenchmarks.rows[0].updated_at },
       usCongressMembers: { lastIngested: usCongressMembers.rows[0].updated_at, rowCount: Number(usCongressMembers.rows[0].row_count) },
       usCongressVotes: { lastIngested: usCongressVotes.rows[0].updated_at, rowCount: Number(usCongressVotes.rows[0].row_count) },
+      spainCongressMembers: { lastIngested: spainCongressMembers.rows[0].updated_at, rowCount: Number(spainCongressMembers.rows[0].row_count) },
+      spainCongressVotes: { lastIngested: spainCongressVotes.rows[0].updated_at, rowCount: Number(spainCongressVotes.rows[0].row_count) },
+      spainSenateMembers: { lastIngested: spainSenateMembers.rows[0].updated_at, rowCount: Number(spainSenateMembers.rows[0].row_count) },
+      spainSenateVotes: { lastIngested: spainSenateVotes.rows[0].updated_at, rowCount: Number(spainSenateVotes.rows[0].row_count) },
+      italySenateMembers: { lastIngested: italySenateMembers.rows[0].updated_at, rowCount: Number(italySenateMembers.rows[0].row_count) },
+      italySenateVotes: { lastIngested: italySenateVotes.rows[0].updated_at, rowCount: Number(italySenateVotes.rows[0].row_count) },
+      italyCameraMembers: { lastIngested: italyCameraMembers.rows[0].updated_at, rowCount: Number(italyCameraMembers.rows[0].row_count) },
+      italyCameraVotes: { lastIngested: italyCameraVotes.rows[0].updated_at, rowCount: Number(italyCameraVotes.rows[0].row_count) },
     });
   } catch (err) {
     res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
