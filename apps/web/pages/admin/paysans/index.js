@@ -75,6 +75,20 @@ function AdminPaysansListInner({ session }) {
       });
   }
 
+  function deleteEntry(entry) {
+    if (!window.confirm("Supprimer définitivement \"" + entry.title + "\" ? Cette action est irréversible.")) return;
+    fetch(API_URL + "/api/admin/paysan-resources/" + entry.slug, {
+      method: "DELETE",
+      headers: { ...(session ? { Authorization: "Bearer " + session.sessionToken } : {}) },
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Échec de la suppression");
+        return res.json();
+      })
+      .then(() => loadAll(session.sessionToken))
+      .catch((err) => setError(err.message));
+  }
+
   function togglePublished(entry) {
     fetch(`${API_URL}/api/admin/paysan-resources/${entry.slug}/publish`, {
       method: "POST",
@@ -193,6 +207,13 @@ function AdminPaysansListInner({ session }) {
                           {e.published ? "Dépublier" : "Publier"}
                         </button>
                         <Link href={`/admin/paysans/edit?slug=${e.slug}`}>Modifier</Link>
+                        <button
+                          type="button"
+                          onClick={() => deleteEntry(e)}
+                          style={{ fontSize: 12, marginLeft: 8, color: "#d63e2a" }}
+                        >
+                          Supprimer
+                        </button>
                       </td>
                     </tr>
                   ))}
