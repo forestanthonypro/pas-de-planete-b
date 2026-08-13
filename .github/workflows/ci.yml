@@ -87,6 +87,15 @@ jobs:
             chmod +x db/migrate.sh
             ./db/migrate.sh docker-compose.prod.yml
             docker image prune -f
+      - name: Vérifier qu'aucune migration n'est en attente
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.PRODUCTION_SSH_HOST }}
+          username: ${{ secrets.PRODUCTION_SSH_USER }}
+          key: ${{ secrets.PRODUCTION_SSH_KEY }}
+          script: |
+            cd ~/pas-de-planete-b
+            ./db/migrate.sh docker-compose.prod.yml --check
 
   environmental-audit:
     needs: deploy-production
