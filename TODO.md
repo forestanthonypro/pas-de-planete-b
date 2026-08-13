@@ -15,10 +15,9 @@ Document de suivi des chantiers en attente, à garder à jour d'une session à l
 ## 🟢 Dette technique / suivi
 
 - **Revérifier l'application mobile (Capacitor)** — plusieurs montées de version importantes ont eu lieu depuis le dernier test (Next.js 16, React 19, Express 5, ESLint 9, refactor complet de l'API + ajout de la fonctionnalité internationale). À valider concrètement sur un vrai appareil/émulateur.
-- **Correspondance des sénateurs américains (GovTrack) fragile** : rattachée par nom + État plutôt que par identifiant fiable (GovTrack utilise un ID interne, pas le `bioguideId` de Congress.gov). ~97% de correspondance en pratique, mais un raffinement futur possible : importer aussi le `bioguideId` via le dépôt GitHub `congress-legislators` pour un lien exact.
+- **Correspondance des sénateurs américains (GovTrack)** : correctif déployé le 10 août (appariement exact par `bioguideId` via la table `congress-legislators`, repli automatique sur nom+état si absent) — **à confirmer à la prochaine ingestion réelle** en lisant le log `[diagnostic] Colonnes disponibles dans l'export CSV GovTrack`, le nom exact de la colonne GovTrack n'a pas pu être vérifié directement (site bloquant l'accès automatisé).
 - **Contrôle automatique des migrations manquantes** : idée soulevée après la découverte de la migration `035_content_translations.sql` jamais appliquée (saut de numérotation `034`→`036` passé inaperçu plusieurs semaines). Un script/étape CI qui compare les fichiers de migration présents avec ceux réellement appliqués en base éviterait qu'un futur saut de numérotation cause un bug silencieux similaire.
-- **Newsletter sans double opt-in RGPD** — contrairement au suivi de député/élu, qui l'a. Non bloquant, le texte de la politique de confidentialité reste honnête sur l'état actuel, mais à corriger pour aligner le comportement réel sur les bonnes pratiques.
-- **Désabonnement newsletter sans jeton de vérification**, pas de révocation globale des sessions admin, `npm audit`/Dependabot à automatiser, comparaison de jeton non "timing-safe" — points de sécurité connus, moyen/bas, non bloquants (voir aussi `README.md`, section Sécurité).
+- Pas de révocation globale des sessions admin, `npm audit`/Dependabot à automatiser, comparaison de jeton non "timing-safe" — points de sécurité connus, moyen/bas, non bloquants (voir aussi `README.md`, section Sécurité).
 
 ## 🆕 Chantiers ouverts
 
