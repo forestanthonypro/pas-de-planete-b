@@ -12,10 +12,6 @@ Document de suivi des chantiers en attente, à garder à jour d'une session à l
 - **Vérification de domaine Brevo** : à retenter dès maintenant, pas besoin d'attendre la fin du transfert — prouvé le 9 août que les modifications DNS fonctionnent déjà normalement malgré le blocage de transfert (testé avec la configuration email OVH, DNS toujours géré par PlanetHoster en attendant).
   - Alternative temporaire pour tester le circuit : une adresse Gmail personnelle comme expéditeur (pas `ik.me`, bloqué par sa politique DMARC).
 
-## 🟡 Dependabot
-
-- **À fermer sans fusionner** (déjà testées, cassent le projet) : ESLint 8.57/9.39 → 10.8.0 (incompatibilité confirmée avec `eslint-config-next`).
-
 ## 🟢 Dette technique / suivi
 
 - **Revérifier l'application mobile (Capacitor)** — plusieurs montées de version importantes ont eu lieu depuis le dernier test (Next.js 16, React 19, Express 5, ESLint 9, refactor complet de l'API + ajout de la fonctionnalité internationale). À valider concrètement sur un vrai appareil/émulateur.
