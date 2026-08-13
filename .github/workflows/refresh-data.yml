@@ -145,3 +145,23 @@ jobs:
           curl -f -X POST "${{ secrets.API_URL }}/api/admin/ingest/italy-senate" \
             -H "x-ingest-token: ${{ secrets.INGEST_TOKEN }}" \
             --max-time 600
+
+  # --- Sénat espagnol (schéma générique parliament_*) ---
+  refresh-spain-senate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ré-ingérer les sénateurs et votes du Sénat espagnol
+        run: |
+          curl -f -X POST "${{ secrets.API_URL }}/api/admin/ingest/spain-senate" \
+            -H "x-ingest-token: ${{ secrets.INGEST_TOKEN }}" \
+            --max-time 600
+
+  # --- Chambre des députés italienne (schéma générique parliament_*) ---
+  refresh-italy-camera:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ré-ingérer les députés et votes de la Chambre italienne
+        run: |
+          curl -f -X POST "${{ secrets.API_URL }}/api/admin/ingest/italy-camera" \
+            -H "x-ingest-token: ${{ secrets.INGEST_TOKEN }}" \
+            --max-time 600
