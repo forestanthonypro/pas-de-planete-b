@@ -10,6 +10,7 @@ import { useT } from "../../lib/useT";
 const AVAILABLE_COUNTRIES = [
   { code: "us", flag: "🇺🇸" },
   { code: "es", flag: "🇪🇸" },
+  { code: "it", flag: "🇮🇹" },
 ];
 
 // Pays sans source connue à ce jour, simplement pour donner un visage aux
