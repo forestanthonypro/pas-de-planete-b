@@ -51,6 +51,20 @@ function AdminPetitionsListInner({ session }) {
       .catch((err) => setError(err.message));
   }
 
+  function deleteEntry(entry) {
+    if (!window.confirm(`Supprimer définitivement la pétition "${entry.title}" ? Cette action est irréversible.`)) return;
+    fetch(`${API_URL}/api/admin/petitions/${entry.slug}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${session.sessionToken}` },
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Échec de la suppression");
+        return res.json();
+      })
+      .then(reload)
+      .catch((err) => setError(err.message));
+  }
+
   function togglePublished(entry) {
     fetch(`${API_URL}/api/admin/petitions/${entry.slug}/publish`, {
       method: "POST",
@@ -110,6 +124,13 @@ function AdminPetitionsListInner({ session }) {
                           {e.published ? "Dépublier" : "Publier"}
                         </button>
                         <Link href={`/admin/petitions/edit?slug=${e.slug}`}>Modifier</Link>
+                        <button
+                          type="button"
+                          onClick={() => deleteEntry(e)}
+                          style={{ fontSize: 12, marginLeft: 8, color: "#d63e2a" }}
+                        >
+                          Supprimer
+                        </button>
                       </td>
                     </tr>
                   ))}
