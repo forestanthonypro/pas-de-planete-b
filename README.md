@@ -128,15 +128,45 @@ const { countryCode, setCountryCode, countries, selectedCountryName } = useCount
 
 ## Fonctionnalité internationale (parlements étrangers)
 
-Depuis le 8 août 2026, le site couvre aussi les parlements d'autres pays (États-Unis en premier), via un schéma générique **séparé** du schéma français existant (`deputies`, `an_groups`, `scrutins`... jamais touchés) :
+Depuis le 8 août 2026, le site couvre aussi les parlements d'autres pays, via un schéma générique **séparé** du schéma français existant (`deputies`, `an_groups`, `scrutins`... jamais touchés). Six chambres sont intégrées à ce jour (13 août 2026) :
+
+| Pays | Chambre | Source | Script d'ingestion |
+|---|---|---|---|
+| États-Unis | Chambre des représentants | Congress.gov | `ingest-us-congress.js` |
+| États-Unis | Sénat | GovTrack.us (Congress.gov n'expose pas ces votes) | `ingest-us-congress.js` |
+| Espagne | Congreso de los Diputados | congreso.es (JSON officiel) | `ingest-spain-congress.js` |
+| Espagne | Sénat | senado.es (XML officiel) | `ingest-spain-senate.js` |
+| Italie | Sénat | `dati.senato.it/sparql` (endpoint SPARQL) | `ingest-italy-senate.js` |
+| Italie | Chambre des députés | `dati.camera.it/sparql` (endpoint SPARQL) | `ingest-italy-camera.js` |
 
 - **Tables** (`db/migrations/040_parliament_generic.sql`, `041_parliament_member_follows_optin.sql`) : `parliament_members`, `parliament_groups`, `parliament_votes`, `parliament_member_votes`, `parliament_citizen_votes`, `parliament_member_follows`, toutes avec une colonne `country_code`.
 - **Routes API génériques** (`routes/parliamentGeneric.js`, `parliamentCitizenVotes.js`, `parliamentMemberFollows.js`) : `/api/parliament/:country/members`, `/groups`, `/votes`, `/votes/:id`, `/votes/search`, `/votes/stats`, plus le vote citoyen et le suivi par email — un seul jeu de routes pour tous les pays.
 - **Pages** (`pages/international/`) : sélecteur de pays, hub par pays (4 cartes : élus/groupes/scrutins/mes votes), listes, fiches détail, vote citoyen, suivi par email.
-- **Ingestion** : spécifique à chaque pays (voir `src/scripts/ingest-us-congress.js` pour les États-Unis — sources : Congress.gov pour les membres et les votes de la Chambre, GovTrack pour les votes du Sénat, Congress.gov ne les exposant pas). Chaque script d'ingestion pays exporte une fonction réutilisable (appelée par une route API protégée pour le rafraîchissement mensuel programmé) tout en restant utilisable en CLI pour les tests.
-- **Ajouter un nouveau pays** (Italie/Espagne notamment, sources déjà identifiées — voir `TODO.md`) : le schéma, les routes et les pages sont déjà génériques, seul un nouveau script d'ingestion est à écrire.
+- **Ingestion** : spécifique à chaque pays (voir le tableau ci-dessus). Chaque script d'ingestion pays exporte une fonction réutilisable (appelée par une route API protégée, `/api/admin/ingest/<pays>`, pour le rafraîchissement mensuel programmé via GitHub Actions) tout en restant utilisable en CLI pour les tests.
+- **Cas particulier — Sénat espagnol** : `senado.es` bloque (403, Akamai) toute requête venant d'une adresse IP de datacenter (VPS **et** GitHub Actions concernés) — l'automatisation mensuelle standard ne fonctionne pas pour cette chambre précise. Voir la section [Maintenance mensuelle](#maintenance-mensuelle) ci-dessous pour la procédure de contournement.
+- **Ajouter un nouveau pays** : le schéma, les routes et les pages sont déjà génériques, seul un nouveau script d'ingestion est à écrire — voir `TODO.md` pour les pistes déjà explorées (russe, japonais, chinois, hindi : aucune source identifiée à ce jour).
 
 Les libellés de chambre (« Chambre des représentants »/« Sénat » pour les États-Unis, génériques « chambre basse »/« chambre haute » sinon) sont centralisés dans `apps/web/lib/parliamentChamberLabels.js` — ne jamais coder en dur `t("international.chamber_lower")` directement dans une page, toujours passer par `chamberLabelKey(country, chamber)`.
+
+## Maintenance mensuelle
+
+La quasi-totalité des sources de données se rafraîchissent automatiquement (GitHub Actions, voir `.github/workflows/refresh-data.yml`). **Une seule exception nécessite une action manuelle chaque mois** :
+
+### Sénat espagnol (`ingest-spain-senate.js`)
+
+`senado.es` bloque les requêtes venant d'adresses IP de datacenter (voir ci-dessus et `TODO.md`). Le script `refresh-spain-senate-prod.ps1` (à la racine du dépôt, PowerShell) automatise tout le reste de la procédure — à lancer une fois par mois depuis un PC avec une connexion résidentielle normale (pas depuis le VPS) :
+
+```powershell
+.\refresh-spain-senate-prod.ps1
+```
+
+Ce script, dans l'ordre : ré-ingère depuis `senado.es` en local (fonctionne, IP résidentielle), exporte uniquement les données du Sénat espagnol (sans toucher aux autres pays/chambres, via des instructions `INSERT ... ON CONFLICT` ciblées), transfère le résultat sur le VPS par `scp`, l'importe en production par `ssh`, puis nettoie les fichiers temporaires — entièrement automatique une fois lancé, sans aucune saisie de mot de passe.
+
+**Prérequis** :
+- Le conteneur API local doit tourner (`docker compose up`).
+- Authentification par clé SSH dédiée (`~/.ssh/pdpb_auto`, sans phrase secrète, créée le 13 août 2026 spécifiquement pour ce script — autorisée dans `~/.ssh/authorized_keys` du VPS aux côtés de la clé de déploiement CI/CD existante). Ne jamais utiliser une clé protégée par une phrase secrète ici : PowerShell n'affiche pas correctement les invites interactives (mot de passe ou phrase secrète), ce qui bloque le script silencieusement sans message d'erreur clair.
+
+Le script d'export ciblé (`apps/api/export-spain-senate.js`, appelé automatiquement par `refresh-spain-senate-prod.ps1`) génère des instructions `INSERT ... ON CONFLICT DO UPDATE` — jamais de `pg_dump` brut sur les tables entières, qui exporterait aussi les données des autres pays/chambres et risquerait de les écraser avec une version locale potentiellement obsolète à l'import.
 
 ## Traduction automatique du contenu admin
 
