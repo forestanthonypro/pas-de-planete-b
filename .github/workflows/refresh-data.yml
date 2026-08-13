@@ -132,3 +132,16 @@ jobs:
           curl -f -X POST "${{ secrets.API_URL }}/api/admin/ingest/spain-congress" \
             -H "x-ingest-token: ${{ secrets.INGEST_TOKEN }}" \
             --max-time 600
+
+  # --- Sénat italien (schéma générique parliament_*) ---
+  # Indépendant des autres jobs : pays et schéma de données distincts.
+  # Chambre des députés (Camera) hors périmètre pour l'instant, voir
+  # TODO.md — dati.camera.it bloque les requêtes automatisées (CAPTCHA).
+  refresh-italy-senate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ré-ingérer les sénateurs et votes du Sénat italien
+        run: |
+          curl -f -X POST "${{ secrets.API_URL }}/api/admin/ingest/italy-senate" \
+            -H "x-ingest-token: ${{ secrets.INGEST_TOKEN }}" \
+            --max-time 600
