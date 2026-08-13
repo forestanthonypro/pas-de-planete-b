@@ -14,6 +14,8 @@ export default [
         Buffer: "readonly",
         URL: "readonly",
         URLSearchParams: "readonly",
+        TextDecoder: "readonly",
+        TextEncoder: "readonly",
         setTimeout: "readonly",
         clearTimeout: "readonly",
         setInterval: "readonly",
