@@ -845,6 +845,23 @@
     "party_it_civici": "Civic Italy – UDC – We Moderates",
     "party_it_iv": "Italia Viva – Reformist House",
     "party_it_misto": "Mixed Group",
-    "party_it_autonomie": "For the Autonomies (SVP-PATT, Campobase)"
+    "party_it_autonomie": "For the Autonomies (SVP-PATT, Campobase)",
+    "party_es_senado_pp": "Popular Party Parliamentary Group (Senate)",
+    "party_es_senado_psoe": "Socialist Parliamentary Group (Senate)",
+    "party_es_senado_erc_bildu": "Left for Independence Group (ERC-EH Bildu)",
+    "party_es_senado_plural": "Plural Parliamentary Group (Junts, Canary Coalition, AHI, BNG)",
+    "party_es_senado_pnv": "Basque Parliamentary Group (EAJ-PNV)",
+    "party_es_senado_confederal": "Confederal Left Group (Más Madrid, Compromís...)",
+    "party_es_senado_mixto": "Mixed Parliamentary Group (Senate)",
+    "party_it_camera_fdi": "Brothers of Italy (FdI)",
+    "party_it_camera_pd": "Democratic Party (PD)",
+    "party_it_camera_lega": "Lega – Salvini Premier",
+    "party_it_camera_fi": "Forza Italia – Berlusconi President – EPP",
+    "party_it_camera_m5s": "Five Star Movement (M5S)",
+    "party_it_camera_avs": "Green and Left Alliance (AVS)",
+    "party_it_camera_azione": "Azione – Renew Europe",
+    "party_it_camera_noimoderati": "We Moderates (Noi con l'Italia, Coraggio Italia, UDC)",
+    "party_it_camera_iv": "Italia Viva – Reformist House",
+    "party_it_camera_misto": "Mixed Group"
   }
 }

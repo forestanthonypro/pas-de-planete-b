@@ -845,6 +845,23 @@
     "party_it_civici": "市民イタリア・UDC・穏健派",
     "party_it_iv": "イタリア・ヴィーヴァ（改革派の家）",
     "party_it_misto": "混合会派",
-    "party_it_autonomie": "自治のために（SVP-PATT、Campobase）"
+    "party_it_autonomie": "自治のために（SVP-PATT、Campobase）",
+    "party_es_senado_pp": "国民党上院議員団",
+    "party_es_senado_psoe": "社会労働党上院議員団",
+    "party_es_senado_erc_bildu": "独立左派議員団（ERC・EHビルドゥ）",
+    "party_es_senado_plural": "多元議員団（Junts、カナリア連合、AHI、BNG）",
+    "party_es_senado_pnv": "バスク上院議員団（EAJ-PNV）",
+    "party_es_senado_confederal": "連合左派議員団（マス・マドリード、コンプロミスなど）",
+    "party_es_senado_mixto": "上院混合議員団",
+    "party_it_camera_fdi": "イタリアの同胞（FdI）",
+    "party_it_camera_pd": "民主党（PD）",
+    "party_it_camera_lega": "レガ・サルヴィーニ首相",
+    "party_it_camera_fi": "フォルツァ・イタリア（ベルルスコーニ大統領・EPP）",
+    "party_it_camera_m5s": "五つ星運動（M5S）",
+    "party_it_camera_avs": "緑と左翼連合（AVS）",
+    "party_it_camera_azione": "アツィオーネ・Renew Europe",
+    "party_it_camera_noimoderati": "穏健派の私たち（Noi con l'Italia、Coraggio Italia、UDC）",
+    "party_it_camera_iv": "イタリア・ヴィーヴァ（改革派の家）",
+    "party_it_camera_misto": "混合議員団"
   }
 }

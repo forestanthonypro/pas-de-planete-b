@@ -845,6 +845,23 @@
     "party_it_civici": "Civici d'Italia-UDC-Noi Moderati (Noi con l'Italia, Coraggio Italia, Italia al Centro)-MAIE-Centro Popolare",
     "party_it_iv": "Italia Viva - Casa Riformista",
     "party_it_misto": "Misto",
-    "party_it_autonomie": "Per le Autonomie (SVP-PATT, Campobase)"
+    "party_it_autonomie": "Per le Autonomie (SVP-PATT, Campobase)",
+    "party_es_senado_pp": "Gruppo Parlamentare Popolare al Senato",
+    "party_es_senado_psoe": "Gruppo Parlamentare Socialista",
+    "party_es_senado_erc_bildu": "Gruppo Parlamentare Sinistra per l'Indipendenza (ERC-EH Bildu)",
+    "party_es_senado_plural": "Gruppo Parlamentare Plurale (Junts, Coalición Canaria, AHI, BNG)",
+    "party_es_senado_pnv": "Gruppo Parlamentare Basco (EAJ-PNV)",
+    "party_es_senado_confederal": "Gruppo Parlamentare Sinistra Confederale (Más Madrid, Compromís...)",
+    "party_es_senado_mixto": "Gruppo Parlamentare Misto (Senato)",
+    "party_it_camera_fdi": "Fratelli d'Italia (FdI)",
+    "party_it_camera_pd": "Partito Democratico (PD)",
+    "party_it_camera_lega": "Lega – Salvini Premier",
+    "party_it_camera_fi": "Forza Italia – Berlusconi Presidente – PPE",
+    "party_it_camera_m5s": "Movimento 5 Stelle (M5S)",
+    "party_it_camera_avs": "Alleanza Verdi e Sinistra (AVS)",
+    "party_it_camera_azione": "Azione – Renew Europe",
+    "party_it_camera_noimoderati": "Noi Moderati (Noi con l'Italia, Coraggio Italia, UDC)",
+    "party_it_camera_iv": "Italia Viva – Casa Riformista",
+    "party_it_camera_misto": "Gruppo Misto"
   }
 }
