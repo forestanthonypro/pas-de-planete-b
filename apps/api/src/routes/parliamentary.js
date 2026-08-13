@@ -8,6 +8,7 @@ import { ingestScrutins } from "../ingest/scrutins.js";
 import { ingestDeputyVotes } from "../ingest/deputy_votes.js";
 import { ingestUsCongress } from "../scripts/ingest-us-congress.js";
 import { ingestSpainCongress } from "../scripts/ingest-spain-congress.js";
+import { ingestItalySenate } from "../scripts/ingest-italy-senate.js";
 
 const router = Router();
 
@@ -287,6 +288,15 @@ router.post("/api/admin/ingest/us-congress", requireIngestToken, async (_req, re
 router.post("/api/admin/ingest/spain-congress", requireIngestToken, async (_req, res) => {
   try {
     const result = await ingestSpainCongress();
+    res.json({ status: "ok", ...result });
+  } catch (err) {
+    res.status(500).json({ error: "Échec de l'ingestion", detail: errorDetail(err) });
+  }
+});
+
+router.post("/api/admin/ingest/italy-senate", requireIngestToken, async (_req, res) => {
+  try {
+    const result = await ingestItalySenate();
     res.json({ status: "ok", ...result });
   } catch (err) {
     res.status(500).json({ error: "Échec de l'ingestion", detail: errorDetail(err) });
