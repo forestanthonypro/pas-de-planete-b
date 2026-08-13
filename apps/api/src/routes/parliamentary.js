@@ -9,6 +9,8 @@ import { ingestDeputyVotes } from "../ingest/deputy_votes.js";
 import { ingestUsCongress } from "../scripts/ingest-us-congress.js";
 import { ingestSpainCongress } from "../scripts/ingest-spain-congress.js";
 import { ingestItalySenate } from "../scripts/ingest-italy-senate.js";
+import { ingestSpainSenate } from "../scripts/ingest-spain-senate.js";
+import { ingestItalyCamera } from "../scripts/ingest-italy-camera.js";
 
 const router = Router();
 
@@ -297,6 +299,24 @@ router.post("/api/admin/ingest/spain-congress", requireIngestToken, async (_req,
 router.post("/api/admin/ingest/italy-senate", requireIngestToken, async (_req, res) => {
   try {
     const result = await ingestItalySenate();
+    res.json({ status: "ok", ...result });
+  } catch (err) {
+    res.status(500).json({ error: "Échec de l'ingestion", detail: errorDetail(err) });
+  }
+});
+
+router.post("/api/admin/ingest/spain-senate", requireIngestToken, async (_req, res) => {
+  try {
+    const result = await ingestSpainSenate();
+    res.json({ status: "ok", ...result });
+  } catch (err) {
+    res.status(500).json({ error: "Échec de l'ingestion", detail: errorDetail(err) });
+  }
+});
+
+router.post("/api/admin/ingest/italy-camera", requireIngestToken, async (_req, res) => {
+  try {
+    const result = await ingestItalyCamera();
     res.json({ status: "ok", ...result });
   } catch (err) {
     res.status(500).json({ error: "Échec de l'ingestion", detail: errorDetail(err) });
