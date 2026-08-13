@@ -21,13 +21,22 @@ Document de suivi des chantiers en attente, à garder à jour d'une session à l
 
 ## 🆕 Chantiers ouverts
 
-1. **Italie / Espagne — parlements étrangers** :
-   - **Italie (Sénat)** : script d'ingestion écrit et **testé avec succès** (`apps/api/src/scripts/ingest-italy-senate.js`) — 244 sénateurs + 20 votes + 2743 positions individuelles ingérés au deuxième essai réel (composition par groupe vérifiée cohérente avec la réalité politique actuelle). `dati.camera.it` (Chambre) reste bloquée par un CAPTCHA (Cloudflare) même côté serveur — confirmé en testant depuis le conteneur API, pas juste une limitation de mes propres outils. En revanche, `dati.senato.it` (Sénat) répond normalement, **et surtout expose un vrai endpoint SPARQL** (`https://dati.senato.it/sparql`, Virtuoso v6 — assez ancien, ne supporte pas `UNION`+`BIND`, d'où 3 requêtes séparées par vote plutôt qu'une seule). Identifiants numériques stables dans les URI (`http://dati.senato.it/senatore/NNN`), appariement fiable comme pour les États-Unis.
-     - **Reste à faire** : route API admin (`/api/admin/ingest/italy-senate`), automatisation mensuelle (GitHub Actions), pages frontend `/international/it/...` (réutilisent déjà les pages génériques existantes), traduction des noms de groupes italiens dans les 8 langues.
-     - **Chambre des députés (Camera)** : toujours hors périmètre — sa page de téléchargement classique est bloquée, mais une source tierce mentionne qu'elle aurait aussi un endpoint SPARQL fonctionnel (non vérifié). À explorer si on veut compléter l'Italie avec les deux chambres.
-   - **Espagne** : script d'ingestion écrit et **testé avec succès** le 10 août (`apps/api/src/scripts/ingest-spain-congress.js`) — 350 députés + 20 votes ingérés au premier essai réel (après correction d'un piège d'URLs relatives vs absolues dans le HTML). Appariement par nom complet exact (fiable, contrairement au Sénat US). Chambre basse uniquement pour l'instant (Congreso de los Diputados), Sénat espagnol hors périmètre.
-     - **Fait le 10 août** : route API admin (`/api/admin/ingest/spain-congress`), automatisation mensuelle (GitHub Actions), Espagne ajoutée aux pays disponibles sur `/international` (pages génériques déjà réutilisables), traduction des 9 groupes parlementaires espagnols dans les 8 langues.
-     - **Limitation connue** : la page d'index des votes n'affiche par défaut que la séance la plus récente — pas de vrai historique complet pour l'instant, la navigation par date/séance n'a pas été explorée.
+1. **Italie / Espagne — parlements étrangers** — bilan de la session du 13 août :
+
+   **✅ Complètement opérationnels (code + production)** :
+   - **Italie, Chambre des députés** (`ingest-italy-camera.js`, via SPARQL `dati.camera.it/sparql`) — 399 députés + 20 votes ingérés en production le 13 août.
+   - **Italie, Sénat** (`ingest-italy-senate.js`, via SPARQL `dati.senato.it/sparql`) — 244 sénateurs + 20 votes ingérés en production le 13 août.
+   - **Espagne, Congreso de los Diputados** (`ingest-spain-congress.js`) — 350 députés + 20 votes ingérés en production le 13 août.
+   - Pour ces trois : route API admin, automatisation mensuelle (GitHub Actions), disponibles sur `/international`, groupes traduits dans les 8 langues — tout fait.
+
+   **🔴 Bloqué en production — Espagne, Sénat** (`ingest-spain-senate.js`) :
+   - Fonctionne parfaitement **en local** (265 sénateurs + 26 votes, testé et confirmé le 13 août).
+   - **Échoue systématiquement depuis le VPS** avec une erreur `403 Forbidden` sur `senado.es` — confirmé qu'il s'agit d'un blocage **Akamai** (CDN/pare-feu du site, en-tête `server-timing: ak_p` et page d'erreur `errors.edgesuite.net`) qui bloque spécifiquement les adresses IP de datacenters/VPS, tout en laissant passer les connexions résidentielles.
+   - **Conséquence importante** : le job `refresh-spain-senate` (GitHub Actions) tourne lui aussi depuis des adresses IP de datacenter (Microsoft Azure) — **il échouera très probablement aussi chaque mois**, pour la même raison. À vérifier au premier déclenchement automatique.
+   - Route API admin et job GitHub Actions déjà en place (code prêt), mais l'ingestion réelle en production reste à trouver une solution : proxy résidentiel, VPN, ou ingestion manuelle périodique depuis une connexion domestique. Pas de solution retenue pour l'instant.
+
+   **Point d'infrastructure découvert en passant** : l'API de production répond sur `https://api.pasdeplaneteb.com`, **pas** sur `https://pasdeplaneteb.com/api/...` (sous-domaine dédié, pas un chemin) — à garder en tête pour toute commande `curl` manuelle future.
+
 2. **Suggestion utilisateur affichée sur `/international`** pour les pays sans source de données identifiée (russe, japonais, chinois, hindi actuellement listés) : mécanisme de contact déjà en place, mais aucune source n'a encore été proposée/évaluée pour ces pays.
 
 ### International — bugs restants
