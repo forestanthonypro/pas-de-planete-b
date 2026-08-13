@@ -121,3 +121,14 @@ jobs:
           curl -f -X POST "${{ secrets.API_URL }}/api/admin/ingest/us-congress" \
             -H "x-ingest-token: ${{ secrets.INGEST_TOKEN }}" \
             --max-time 1200
+
+  # --- Congrès espagnol (schéma générique parliament_*) ---
+  # Indépendant des autres jobs : pays et schéma de données distincts.
+  refresh-spain-congress:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ré-ingérer les députés et votes du Congrès espagnol
+        run: |
+          curl -f -X POST "${{ secrets.API_URL }}/api/admin/ingest/spain-congress" \
+            -H "x-ingest-token: ${{ secrets.INGEST_TOKEN }}" \
+            --max-time 600
