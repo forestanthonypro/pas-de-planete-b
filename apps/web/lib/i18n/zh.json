@@ -836,6 +836,15 @@
     "party_es_eaj_pnv": "巴斯克党团（EAJ-PNV）",
     "party_es_eh_bildu": "巴斯克团结党（Euskal Herria Bildu）议会党团",
     "party_es_mixto": "混合议会党团",
-    "country_it": "意大利"
+    "country_it": "意大利",
+    "party_it_fdi": "意大利兄弟党（FdI）",
+    "party_it_pd": "民主党（PD）",
+    "party_it_lega": "联盟党－撒丁行动党",
+    "party_it_m5s": "五星运动（M5S）",
+    "party_it_fi": "意大利力量党－贝卢斯科尼总统－欧洲人民党",
+    "party_it_civici": "意大利公民－基督教民主联盟－温和派",
+    "party_it_iv": "意大利活力党－改革之家",
+    "party_it_misto": "混合党团",
+    "party_it_autonomie": "自治联盟（SVP-PATT，Campobase）"
   }
 }

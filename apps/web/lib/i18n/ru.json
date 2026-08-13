@@ -836,6 +836,15 @@
     "party_es_eaj_pnv": "Баскская парламентская группа (EAJ-PNV)",
     "party_es_eh_bildu": "Парламентская группа Euskal Herria Bildu",
     "party_es_mixto": "Смешанная парламентская группа",
-    "country_it": "Италия"
+    "country_it": "Италия",
+    "party_it_fdi": "Братья Италии (FdI)",
+    "party_it_pd": "Демократическая партия (ПД)",
+    "party_it_lega": "Лига — Сардинская партия действия",
+    "party_it_m5s": "Движение пяти звёзд (M5S)",
+    "party_it_fi": "Форца Италия — Берлускони президент — ЕНП",
+    "party_it_civici": "Гражданская Италия — СХД — Мы умеренные",
+    "party_it_iv": "Италия жива — реформистский дом",
+    "party_it_misto": "Смешанная группа",
+    "party_it_autonomie": "За автономии (SVP-PATT, Campobase)"
   }
 }

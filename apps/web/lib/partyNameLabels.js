@@ -16,6 +16,15 @@ const PARTY_KEYS = {
   "Grupo Parlamentario Vasco (EAJ-PNV)": "party_es_eaj_pnv",
   "Grupo Parlamentario Euskal Herria Bildu": "party_es_eh_bildu",
   "Grupo Parlamentario Mixto": "party_es_mixto",
+  "Fratelli d'Italia": "party_it_fdi",
+  "Partito Democratico - Italia Democratica e Progressista": "party_it_pd",
+  "Lega Salvini Premier - Partito Sardo d'Azione": "party_it_lega",
+  "MoVimento 5 Stelle": "party_it_m5s",
+  "Forza Italia - Berlusconi Presidente - PPE": "party_it_fi",
+  "Civici d'Italia-UDC-Noi Moderati (Noi con l'Italia, Coraggio Italia, Italia al Centro)-MAIE-Centro Popolare": "party_it_civici",
+  "Italia Viva - Casa Riformista": "party_it_iv",
+  "Misto": "party_it_misto",
+  "Per le Autonomie (SVP-PATT, Campobase)": "party_it_autonomie",
 };
 
 export function translatePartyName(name, t) {

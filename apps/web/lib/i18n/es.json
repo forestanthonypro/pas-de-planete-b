@@ -836,6 +836,15 @@
     "party_es_eaj_pnv": "Grupo Parlamentario Vasco (EAJ-PNV)",
     "party_es_eh_bildu": "Grupo Parlamentario Euskal Herria Bildu",
     "party_es_mixto": "Grupo Parlamentario Mixto",
-    "country_it": "Italia"
+    "country_it": "Italia",
+    "party_it_fdi": "Hermanos de Italia (FdI)",
+    "party_it_pd": "Partido Democrático (PD)",
+    "party_it_lega": "Liga – Partido Sardo de Acción",
+    "party_it_m5s": "Movimiento 5 Estrellas (M5S)",
+    "party_it_fi": "Forza Italia – Berlusconi Presidente – PPE",
+    "party_it_civici": "Cívicos de Italia – UDC – Nosotros Moderados",
+    "party_it_iv": "Italia Viva – Casa Reformista",
+    "party_it_misto": "Grupo Mixto",
+    "party_it_autonomie": "Por las Autonomías (SVP-PATT, Campobase)"
   }
 }

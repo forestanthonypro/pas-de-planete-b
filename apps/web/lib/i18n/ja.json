@@ -836,6 +836,15 @@
     "party_es_eaj_pnv": "バスク議員団（EAJ-PNV）",
     "party_es_eh_bildu": "エウスカル・ヘリア・ビルドゥ議員団",
     "party_es_mixto": "混合議員団",
-    "country_it": "イタリア"
+    "country_it": "イタリア",
+    "party_it_fdi": "イタリアの同胞（FdI）",
+    "party_it_pd": "民主党（PD）",
+    "party_it_lega": "レガ・サルデーニャ行動党",
+    "party_it_m5s": "五つ星運動（M5S）",
+    "party_it_fi": "フォルツァ・イタリア（ベルルスコーニ大統領・EPP）",
+    "party_it_civici": "市民イタリア・UDC・穏健派",
+    "party_it_iv": "イタリア・ヴィーヴァ（改革派の家）",
+    "party_it_misto": "混合会派",
+    "party_it_autonomie": "自治のために（SVP-PATT、Campobase）"
   }
 }

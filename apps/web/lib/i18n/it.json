@@ -836,6 +836,15 @@
     "party_es_eaj_pnv": "Gruppo parlamentare basco (EAJ-PNV)",
     "party_es_eh_bildu": "Gruppo parlamentare Euskal Herria Bildu",
     "party_es_mixto": "Gruppo parlamentare misto",
-    "country_it": "Italia"
+    "country_it": "Italia",
+    "party_it_fdi": "Fratelli d'Italia",
+    "party_it_pd": "Partito Democratico - Italia Democratica e Progressista",
+    "party_it_lega": "Lega Salvini Premier - Partito Sardo d'Azione",
+    "party_it_m5s": "MoVimento 5 Stelle",
+    "party_it_fi": "Forza Italia - Berlusconi Presidente - PPE",
+    "party_it_civici": "Civici d'Italia-UDC-Noi Moderati (Noi con l'Italia, Coraggio Italia, Italia al Centro)-MAIE-Centro Popolare",
+    "party_it_iv": "Italia Viva - Casa Riformista",
+    "party_it_misto": "Misto",
+    "party_it_autonomie": "Per le Autonomie (SVP-PATT, Campobase)"
   }
 }
