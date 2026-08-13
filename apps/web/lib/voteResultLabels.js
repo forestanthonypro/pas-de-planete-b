@@ -11,6 +11,10 @@ const RESULT_KEYS = {
   "Agreed to": "result_agreed_to",
   Rejected: "result_rejected",
   "Elected Speaker Name": "result_elected_speaker",
+  Aprobado: "result_es_approved",
+  Rechazado: "result_es_rejected",
+  Approvato: "result_it_approved",
+  Respinto: "result_it_rejected",
 };
 
 export function translateVoteResult(result, t) {

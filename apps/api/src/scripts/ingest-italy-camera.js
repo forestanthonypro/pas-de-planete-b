@@ -186,7 +186,7 @@ function parseCameraDate(dateStr) {
   return `${dateStr.slice(0, 4)}-${dateStr.slice(4, 6)}-${dateStr.slice(6, 8)}`;
 }
 
-export async function ingestItalyCameraVotes({ limitVotes = 20 } = {}) {
+export async function ingestItalyCameraVotes({ limitVotes = 200 } = {}) {
   const votesQuery = `
 PREFIX ocd: <${OCD_NAMESPACE}>
 PREFIX dc: <http://purl.org/dc/elements/1.1/>
@@ -287,7 +287,7 @@ WHERE {
 // ---------------------------------------------------------------------
 // Point d'entrée réutilisable — même modèle que les autres scripts.
 // ---------------------------------------------------------------------
-export async function ingestItalyCamera({ limitVotes = 20 } = {}) {
+export async function ingestItalyCamera({ limitVotes = 200 } = {}) {
   const memberCount = await ingestItalyCameraMembers();
   const voteCount = await ingestItalyCameraVotes({ limitVotes });
   return { members: memberCount, votes: voteCount };

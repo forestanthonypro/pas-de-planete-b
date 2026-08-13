@@ -870,6 +870,10 @@
     "party_it_camera_azione": "アツィオーネ・Renew Europe",
     "party_it_camera_noimoderati": "穏健派の私たち（Noi con l'Italia、Coraggio Italia、UDC）",
     "party_it_camera_iv": "イタリア・ヴィーヴァ（改革派の家）",
-    "party_it_camera_misto": "混合議員団"
+    "party_it_camera_misto": "混合議員団",
+    "result_es_approved": "可決",
+    "result_es_rejected": "否決",
+    "result_it_approved": "可決",
+    "result_it_rejected": "否決"
   }
 }

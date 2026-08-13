@@ -24,12 +24,27 @@
 //     https://www.senado.es/web/relacionesciudadanos/datosabiertos/catalogodatos/sesionesplenariascd/votacionescd/index.html,
 //     un fichier XML par séance (/legis15/votaciones/ses_NN.xml),
 //     contenant plusieurs votes avec le détail nominal complet.
+//
+// Blocage réseau connu (13 août 2026) : senado.es bloque (403, Akamai)
+// les requêtes venant d'adresses IP de datacenters/VPS, tout en laissant
+// passer les connexions résidentielles. Solution : un relais Cloudflare
+// Worker transparent (voir senado-proxy-worker.js), configuré via la
+// variable d'environnement SENADO_PROXY_BASE (voir .env sur le VPS) —
+// utilisé uniquement pour la récupération des données ; les URLs "source"
+// stockées en base et affichées publiquement restent toujours vers le
+// vrai domaine senado.es.
 
 import { pool } from "../lib/db.js";
 
-const MEMBERS_URL = "https://www.senado.es/web/ficopendataservlet?tipoFich=20";
-const GROUPS_URL = "https://www.senado.es/web/ficopendataservlet?tipoFich=4&legis=15";
-const SESSIONS_INDEX_URL = "https://www.senado.es/web/relacionesciudadanos/datosabiertos/catalogodatos/sesionesplenariascd/votacionescd/index.html";
+// Base de senado.es — configurable via SENADO_PROXY_BASE (voir .env) pour
+// router à travers un relais Cloudflare Worker si besoin (le Sénat
+// espagnol bloque les adresses IP de datacenters/VPS via Akamai, confirmé
+// le 13 août 2026 — voir TODO.md). Repli sur l'accès direct par défaut.
+const SENADO_BASE = process.env.SENADO_PROXY_BASE || "https://www.senado.es";
+
+const MEMBERS_URL = `${SENADO_BASE}/web/ficopendataservlet?tipoFich=20`;
+const GROUPS_URL = `${SENADO_BASE}/web/ficopendataservlet?tipoFich=4&legis=15`;
+const SESSIONS_INDEX_URL = `${SENADO_BASE}/web/relacionesciudadanos/datosabiertos/catalogodatos/sesionesplenariascd/votacionescd/index.html`;
 
 async function withRetry(fn, { attempts = 4, baseDelayMs = 2000 } = {}) {
   let lastErr;
@@ -167,6 +182,10 @@ export async function ingestSpainSenateMembers() {
         fullName,
         groupId,
         circunscripcion || comunidad || null,
+        // Lien affiché aux visiteurs du site (page du sénateur) — reste
+        // volontairement vers le vrai domaine, pas le relais Cloudflare
+        // (qui n'existe que pour contourner le blocage réseau côté
+        // ingestion, pas pour être exposé publiquement).
         "https://www.senado.es/web/composicionorganizacion/senadores/composicionsenado/index.html",
       ]
     );
@@ -206,15 +225,21 @@ const VOTE_POSITION_MAP = {
 async function fetchSessionUrls() {
   const html = await fetchTextUtf8(SESSIONS_INDEX_URL);
   const matches = [...new Set(html.match(/\/legis15\/votaciones\/ses_\d+\.xml/g) || [])];
-  return matches.map((path) => `https://www.senado.es${path}`);
+  // Deux URLs distinctes par séance : celle utilisée pour la récupération
+  // (via le relais éventuel) et celle affichée publiquement comme source
+  // (toujours le vrai domaine senado.es, même si le relais est actif).
+  return matches.map((path) => ({
+    fetchUrl: `${SENADO_BASE}${path}`,
+    publicUrl: `https://www.senado.es${path}`,
+  }));
 }
 
-export async function ingestSpainSenateVotes({ limitSessions = 3 } = {}) {
+export async function ingestSpainSenateVotes({ limitSessions = 15 } = {}) {
   const sessionUrls = (await fetchSessionUrls()).slice(0, limitSessions);
   let voteCount = 0;
 
-  for (const sessionUrl of sessionUrls) {
-    const xml = await fetchXmlAuto(sessionUrl);
+  for (const { fetchUrl, publicUrl } of sessionUrls) {
+    const xml = await fetchXmlAuto(fetchUrl);
     const numSesion = getTag(xml, "num_sesion");
     const votacionBlocks = xml.match(/<votacion>[\s\S]*?<\/votacion>/g) || [];
 
@@ -246,7 +271,7 @@ export async function ingestSpainSenateVotes({ limitSessions = 3 } = {}) {
           Number(afirmativos) || 0,
           Number(negativos) || 0,
           Number(abstenciones) || 0,
-          sessionUrl,
+          publicUrl,
         ]
       );
       const voteId = voteResult.rows[0].id;
@@ -294,7 +319,7 @@ export async function ingestSpainSenateVotes({ limitSessions = 3 } = {}) {
 // ---------------------------------------------------------------------
 // Point d'entrée réutilisable.
 // ---------------------------------------------------------------------
-export async function ingestSpainSenate({ limitSessions = 3 } = {}) {
+export async function ingestSpainSenate({ limitSessions = 15 } = {}) {
   const memberCount = await ingestSpainSenateMembers();
   const voteCount = await ingestSpainSenateVotes({ limitSessions });
   return { members: memberCount, votes: voteCount };

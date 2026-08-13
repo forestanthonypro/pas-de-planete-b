@@ -870,6 +870,10 @@
     "party_it_camera_azione": "行动党－Renew Europe",
     "party_it_camera_noimoderati": "温和派我们党（Noi con l'Italia、Coraggio Italia、UDC）",
     "party_it_camera_iv": "意大利活力党－改革之家",
-    "party_it_camera_misto": "混合党团"
+    "party_it_camera_misto": "混合党团",
+    "result_es_approved": "通过",
+    "result_es_rejected": "否决",
+    "result_it_approved": "通过",
+    "result_it_rejected": "否决"
   }
 }

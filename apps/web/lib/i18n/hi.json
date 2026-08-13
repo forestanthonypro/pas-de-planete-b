@@ -870,6 +870,10 @@
     "party_it_camera_azione": "अज़ियोने – Renew Europe",
     "party_it_camera_noimoderati": "हम उदारवादी (Noi con l'Italia, Coraggio Italia, UDC)",
     "party_it_camera_iv": "इटालिया वीवा – सुधारवादी गृह",
-    "party_it_camera_misto": "मिश्रित समूह"
+    "party_it_camera_misto": "मिश्रित समूह",
+    "result_es_approved": "स्वीकृत",
+    "result_es_rejected": "अस्वीकृत",
+    "result_it_approved": "स्वीकृत",
+    "result_it_rejected": "अस्वीकृत"
   }
 }

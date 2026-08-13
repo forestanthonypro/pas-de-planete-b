@@ -870,6 +870,10 @@
     "party_it_camera_azione": "Adzione — Renew Europe",
     "party_it_camera_noimoderati": "Мы умеренные (Noi con l'Italia, Coraggio Italia, UDC)",
     "party_it_camera_iv": "Италия жива — реформистский дом",
-    "party_it_camera_misto": "Смешанная группа"
+    "party_it_camera_misto": "Смешанная группа",
+    "result_es_approved": "Принято",
+    "result_es_rejected": "Отклонено",
+    "result_it_approved": "Принято",
+    "result_it_rejected": "Отклонено"
   }
 }

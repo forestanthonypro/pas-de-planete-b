@@ -870,6 +870,10 @@
     "party_it_camera_azione": "Azione – Renew Europe",
     "party_it_camera_noimoderati": "Nosotros Moderados (Noi con l'Italia, Coraggio Italia, UDC)",
     "party_it_camera_iv": "Italia Viva – Casa Reformista",
-    "party_it_camera_misto": "Grupo Mixto"
+    "party_it_camera_misto": "Grupo Mixto",
+    "result_es_approved": "Aprobado",
+    "result_es_rejected": "Rechazado",
+    "result_it_approved": "Aprobado",
+    "result_it_rejected": "Rechazado"
   }
 }
