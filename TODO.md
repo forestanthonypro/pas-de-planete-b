@@ -21,7 +21,11 @@ Document de suivi des chantiers en attente, à garder à jour d'une session à l
 
 ## 🆕 Chantiers ouverts
 
-1. **Italie / Espagne — parlements étrangers** : sources de données officielles identifiées (`dati.camera.it` pour l'Italie, `congreso.es/es/datos-abiertos` pour l'Espagne, formats confirmés compatibles avec le schéma générique `parliament_*`), mais ingestion pas commencée — mis de côté volontairement pour se concentrer sur les États-Unis d'abord. Le gros du travail (schéma, routes API génériques, pages, vote citoyen, suivi email) est déjà réutilisable tel quel ; il ne reste que l'ingestion spécifique à chaque pays à écrire.
+1. **Italie / Espagne — parlements étrangers** :
+   - **Italie** : bloquée pour l'instant — `dati.camera.it` et `dati.senato.it` sont tous les deux protégés par un CAPTCHA (Cloudflare), ce qui empêcherait un script d'ingestion automatisé de fonctionner depuis le VPS. Pas de solution trouvée à ce stade ; nécessitera soit une source alternative, soit un contournement non garanti.
+   - **Espagne** : script d'ingestion écrit et **testé avec succès** le 10 août (`apps/api/src/scripts/ingest-spain-congress.js`) — 350 députés + 20 votes ingérés au premier essai réel (après correction d'un piège d'URLs relatives vs absolues dans le HTML). Appariement par nom complet exact (fiable, contrairement au Sénat US). Chambre basse uniquement pour l'instant (Congreso de los Diputados), Sénat espagnol hors périmètre.
+     - **Reste à faire** : route API admin dédiée (`/api/admin/ingest/spain-congress`), automatisation mensuelle (GitHub Actions), pages frontend `/international/es/...` (réutilisent déjà les pages génériques existantes), traduction des noms de partis espagnols dans les 8 langues.
+     - **Limitation connue** : la page d'index des votes n'affiche par défaut que la séance la plus récente — pas de vrai historique complet pour l'instant, la navigation par date/séance n'a pas été explorée.
 2. **Suggestion utilisateur affichée sur `/international`** pour les pays sans source de données identifiée (russe, japonais, chinois, hindi actuellement listés) : mécanisme de contact déjà en place, mais aucune source n'a encore été proposée/évaluée pour ces pays.
 
 ### International — bugs restants
@@ -44,4 +48,4 @@ Document de suivi des chantiers en attente, à garder à jour d'une session à l
 
 ---
 
-*Dernière mise à jour : 9 août 2026 — voir aussi la date du dernier commit de ce fichier.*
+*Dernière mise à jour : 10 août 2026 — voir aussi la date du dernier commit de ce fichier.*
