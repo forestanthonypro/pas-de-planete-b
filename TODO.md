@@ -21,19 +21,25 @@ Document de suivi des chantiers en attente, à garder à jour d'une session à l
 
 ## 🆕 Chantiers ouverts
 
-1. **Italie / Espagne — parlements étrangers** — bilan de la session du 13 août :
+1. **Italie / Espagne — parlements étrangers** — les 6 chambres sont opérationnelles en production, volume de votes augmenté et bug de traduction corrigé (session du 13 août, soir) :
 
-   **✅ Complètement opérationnels (code + production)** :
-   - **Italie, Chambre des députés** (`ingest-italy-camera.js`, via SPARQL `dati.camera.it/sparql`) — 399 députés + 20 votes ingérés en production le 13 août.
-   - **Italie, Sénat** (`ingest-italy-senate.js`, via SPARQL `dati.senato.it/sparql`) — 244 sénateurs + 20 votes ingérés en production le 13 août.
-   - **Espagne, Congreso de los Diputados** (`ingest-spain-congress.js`) — 350 députés + 20 votes ingérés en production le 13 août.
-   - Pour ces trois : route API admin, automatisation mensuelle (GitHub Actions), disponibles sur `/international`, groupes traduits dans les 8 langues — tout fait.
+   **✅ Complètement à jour** :
+   - **Italie, Chambre des députés** (`ingest-italy-camera.js`) — 399 députés + **200 votes** (limite augmentée de 20 à 200, testé : ~6min22s en local, confortable sous la limite CI/CD de 10min).
+   - **Espagne, Sénat** (`ingest-spain-senate.js`) — 265 sénateurs + **161 votes** (15 séances au lieu de 3). Committé et déployé en production via `refresh-spain-senate-prod.ps1`.
+   - **Espagne, Congreso de los Diputados** (`ingest-spain-congress.js`) — 350 députés + 20 votes.
 
-   **🔴 Bloqué en production — Espagne, Sénat** (`ingest-spain-senate.js`) :
-   - Fonctionne parfaitement **en local** (265 sénateurs + 26 votes, testé et confirmé le 13 août).
-   - **Échoue systématiquement depuis le VPS** avec une erreur `403 Forbidden` sur `senado.es` — confirmé qu'il s'agit d'un blocage **Akamai** (CDN/pare-feu du site, en-tête `server-timing: ak_p` et page d'erreur `errors.edgesuite.net`) qui bloque spécifiquement les adresses IP de datacenters/VPS, tout en laissant passer les connexions résidentielles.
-   - **Conséquence importante** : le job `refresh-spain-senate` (GitHub Actions) tourne lui aussi depuis des adresses IP de datacenter (Microsoft Azure) — **il échouera très probablement aussi chaque mois**, pour la même raison. À vérifier au premier déclenchement automatique.
-   - Route API admin et job GitHub Actions déjà en place (code prêt), mais l'ingestion réelle en production reste à trouver une solution : proxy résidentiel, VPN, ou ingestion manuelle périodique depuis une connexion domestique. Pas de solution retenue pour l'instant.
+   **⏳ En attente de re-test — Italie, Sénat** (`ingest-italy-senate.js`) :
+   - Correctifs prêts et committés : limite de votes augmentée à 200, **et** correction d'un bug de casse sur le résultat de vote (`esito` renvoyé en minuscules par SPARQL — "respinto"/"approvato" — alors que la Chambre stocke "Respinto"/"Approvato" avec majuscule ; sans normalisation, la légende du graphique de la page scrutins affichait 4 entrées au lieu de 2, sans traduction). Les 19 votes déjà en production ont été corrigés directement en base (`UPDATE ... SET result = INITCAP(result)`).
+   - **`dati.senato.it/sparql` a temporairement renvoyé des 403 Forbidden** (page d'erreur personnalisée du site, pas une erreur Virtuoso classique) après le volume de requêtes de test envoyées toute la journée — probablement un blocage temporaire auto-résolutif. **À relancer** : `docker compose exec api node src/scripts/ingest-italy-senate.js` en local, une fois le blocage levé (attendre plusieurs heures, voire le lendemain), puis vérifier `SELECT DISTINCT result FROM parliament_votes WHERE country_code='it' AND chamber='upper';` (doit afficher uniquement `Approvato`/`Respinto`), puis committer `ingest-italy-senate.js`.
+
+   **🔴 Limite connue et non résolue — Espagne, Congreso** (nombre de votes) :
+   - Reste à 20 votes (législature courante uniquement), contrairement aux autres chambres. La page `/opendata/votaciones` n'expose ni pagination ni export en masse pour la législature en cours — confirmé par un développeur tiers ayant buté sur le même problème (dépôt GitHub `slopezmenend/civis-api`).
+   - Un sélecteur de législature existe (`_votaciones_legislatura`, valeurs XV à X) mais **fonctionne uniquement côté JavaScript** (appel AJAX déclenché après chargement de page) — testé et confirmé : le paramètre d'URL `?currentLegislatura=XIV` n'a aucun effet sur le HTML brut renvoyé par le serveur (mêmes 20 votes qu'avec XV). Un simple `fetch()` ne peut donc pas l'exploiter.
+   - **Pour aller plus loin, il faudrait un navigateur automatisé** (Puppeteer/Playwright) capable d'exécuter le JavaScript de la page — une brique d'infrastructure nouvelle pour le projet, non mise en place. Décision prise le 13 août : ne pas engager ce chantier pour l'instant, rester à 20 votes pour cette chambre.
+
+   **⚠️ Espagne, Sénat — automatisation mensuelle manuelle requise** (à cause du blocage réseau, indépendant du point ci-dessus) :
+   - `senado.es` bloque (403 Forbidden, Akamai) toute requête venant d'une adresse IP de datacenter — VPS **et** GitHub Actions (Microsoft Azure) sont concernés. Aucune IP de datacenter/cloud testée n'a fonctionné (VPS direct, Cloudflare Workers) — seule une connexion résidentielle passe.
+   - **Solution en place et testée avec succès le 13 août** : script `refresh-spain-senate-prod.ps1` (racine du dépôt), à lancer **une fois par mois** depuis un PC avec une connexion résidentielle normale. Entièrement automatique une fois lancé (authentification par clé SSH dédiée `~/.ssh/pdpb_auto`, sans phrase secrète). Voir `README.md`, section "Maintenance mensuelle", pour la procédure complète.
 
    **Point d'infrastructure découvert en passant** : l'API de production répond sur `https://api.pasdeplaneteb.com`, **pas** sur `https://pasdeplaneteb.com/api/...` (sous-domaine dédié, pas un chemin) — à garder en tête pour toute commande `curl` manuelle future.
 
@@ -59,4 +65,4 @@ Document de suivi des chantiers en attente, à garder à jour d'une session à l
 
 ---
 
-*Dernière mise à jour : 13 août 2026 — voir aussi la date du dernier commit de ce fichier.*
+*Dernière mise à jour : 13 août 2026 (soir) — voir aussi la date du dernier commit de ce fichier.*
