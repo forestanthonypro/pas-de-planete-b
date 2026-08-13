@@ -5,9 +5,11 @@ import { useT } from "../../lib/useT";
 
 // Pays pour lesquels une source de données ouvertes officielle a été
 // identifiée et intégrée (voir schéma parliament_*, migration 040) — à
-// compléter au fil des ingestions (Italie, Espagne prévues ensuite).
+// compléter au fil des ingestions (Italie bloquée par CAPTCHA pour
+// l'instant, voir TODO.md).
 const AVAILABLE_COUNTRIES = [
   { code: "us", flag: "🇺🇸" },
+  { code: "es", flag: "🇪🇸" },
 ];
 
 // Pays sans source connue à ce jour, simplement pour donner un visage aux
@@ -23,14 +25,12 @@ const UNAVAILABLE_COUNTRIES = [
 
 export default function InternationalPage() {
   const { t } = useT();
-
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
       <PageHeader Icon={IconLandmark} tint="blue" title={t("international.title")} />
       <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginBottom: "1.5rem" }}>
         {t("international.intro")}
       </p>
-
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 12, marginBottom: "2rem" }}>
         {AVAILABLE_COUNTRIES.map((c) => (
           <Link
@@ -45,7 +45,6 @@ export default function InternationalPage() {
           </Link>
         ))}
       </div>
-
       <div
         style={{
           background: "var(--color-carte)",

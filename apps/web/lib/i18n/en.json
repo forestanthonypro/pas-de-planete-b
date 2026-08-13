@@ -825,6 +825,7 @@
     "result_elected_speaker": "Speaker election",
     "party_republican": "Republican",
     "party_democratic": "Democratic",
-    "party_independent": "Independent"
+    "party_independent": "Independent",
+    "country_es": "Spain"
   }
 }
