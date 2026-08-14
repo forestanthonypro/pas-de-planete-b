@@ -34,6 +34,7 @@ const SOURCE_KEYS = [
   { key: "italySenateVotes", labelKey: "source_italySenateVotes", source: "Senato della Repubblica", page: "/international/it/scrutins", frequencyKey: "freq_monthly" },
   { key: "italyCameraMembers", labelKey: "source_italyCameraMembers", source: "Camera dei Deputati", page: "/international/it/elus", frequencyKey: "freq_monthly" },
   { key: "italyCameraVotes", labelKey: "source_italyCameraVotes", source: "Camera dei Deputati", page: "/international/it/scrutins", frequencyKey: "freq_monthly" },
+  { key: "temperatures", labelKey: "source_temperatures", source: "Open-Meteo (ERA5/ERA5-Land)", page: "/temperatures", frequencyKey: "freq_manual" },
 ];
 
 function freshnessColor(lastIngested) {

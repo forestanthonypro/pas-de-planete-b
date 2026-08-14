@@ -733,7 +733,8 @@
     "source_italySenateMembers": "Sénateurs italiens",
     "source_italySenateVotes": "Votes du Sénat italien",
     "source_italyCameraMembers": "Députés italiens",
-    "source_italyCameraVotes": "Votes de la Chambre italienne"
+    "source_italyCameraVotes": "Votes de la Chambre italienne",
+    "source_temperatures": "Températures par pays (moyennes, écarts, canicules/vagues de froid)"
   },
   "environmentalImpact": {
     "title": "Impact environnemental",

@@ -733,7 +733,8 @@
     "source_italySenateMembers": "意大利参议员",
     "source_italySenateVotes": "意大利参议院表决",
     "source_italyCameraMembers": "意大利众议院议员",
-    "source_italyCameraVotes": "意大利众议院表决"
+    "source_italyCameraVotes": "意大利众议院表决",
+    "source_temperatures": "各国气温（平均值、偏差、热浪/寒潮）"
   },
   "environmentalImpact": {
     "title": "环境影响",

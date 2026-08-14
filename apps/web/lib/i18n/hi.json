@@ -733,7 +733,8 @@
     "source_italySenateMembers": "इतालवी सीनेटर",
     "source_italySenateVotes": "इतालवी सीनेट के मतदान",
     "source_italyCameraMembers": "इतालवी सांसद",
-    "source_italyCameraVotes": "इतालवी चैंबर के मतदान"
+    "source_italyCameraVotes": "इतालवी चैंबर के मतदान",
+    "source_temperatures": "देश के अनुसार तापमान (औसत, अंतर, गर्मी/ठंड की लहरें)"
   },
   "environmentalImpact": {
     "title": "पर्यावरणीय प्रभाव",

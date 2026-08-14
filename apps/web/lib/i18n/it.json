@@ -733,7 +733,8 @@
     "source_italySenateMembers": "Senatori italiani",
     "source_italySenateVotes": "Votazioni del Senato italiano",
     "source_italyCameraMembers": "Deputati italiani",
-    "source_italyCameraVotes": "Votazioni della Camera italiana"
+    "source_italyCameraVotes": "Votazioni della Camera italiana",
+    "source_temperatures": "Temperature per paese (medie, scarti, ondate di calore/freddo)"
   },
   "environmentalImpact": {
     "title": "Impatto ambientale",
