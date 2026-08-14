@@ -202,7 +202,7 @@ WHERE {
 // 3. Votes — liste des votes récents, puis positions individuelles par
 //    sénateur (favorevole/contrario/astenuto) pour chacun.
 // ---------------------------------------------------------------------
-export async function ingestItalySenateVotes({ limitVotes = 20 } = {}) {
+export async function ingestItalySenateVotes({ limitVotes = 200 } = {}) {
   const votesQuery = `
 PREFIX osr: <http://dati.senato.it/osr/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -245,7 +245,7 @@ LIMIT ${limitVotes}
         externalId,
         v.oggetto || `Votazione n. ${v.numero}`,
         (v.dataSeduta || "").slice(0, 10) || null,
-        v.esito || null,
+        v.esito ? v.esito.charAt(0).toUpperCase() + v.esito.slice(1) : null,
         Number(v.favorevoli) || 0,
         Number(v.contrari) || 0,
         Number(v.astenuti) || 0,
@@ -309,7 +309,7 @@ SELECT ?senatore WHERE {
 // ---------------------------------------------------------------------
 // Point d'entrée réutilisable — même modèle que les scripts US/Espagne.
 // ---------------------------------------------------------------------
-export async function ingestItalySenate({ limitVotes = 20 } = {}) {
+export async function ingestItalySenate({ limitVotes = 200 } = {}) {
   const memberCount = await ingestItalySenateMembers();
   const voteCount = await ingestItalySenateVotes({ limitVotes });
   return { members: memberCount, votes: voteCount };
