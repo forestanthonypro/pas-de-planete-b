@@ -551,7 +551,14 @@
     "temperature_no_data": "Nessun dato di temperatura per questo paese.",
     "temperature_source": "Open-Meteo Historical Weather API (ERA5/ERA5-Land), calcolato a partire dalla capitale del paese.",
     "temperature_source_year": " Ultimo anno coperto: {year}.",
-    "temperature_detail_link": "Vedi il grafico dettagliato →"
+    "temperature_detail_link": "Vedi il grafico dettagliato →",
+    "table_indicator_header": "Indicatore",
+    "table_metric_temperature": "Scarto di temperatura (rif. 1991-2020)",
+    "table_metric_species": "Specie minacciate",
+    "table_metric_pollution": "Inquinamento atmosferico (PM2.5)",
+    "table_species_cell": "{count} (~{share}% del totale mondiale)",
+    "table_pollution_cell": "{value} µg/m³ ({ratio}× soglia OMS)",
+    "table_world_average_note": "Media mondiale (temperatura): {value}"
   },
   "citizenVote": {
     "question": "E tu, come avresti votato?",

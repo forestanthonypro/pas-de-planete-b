@@ -551,7 +551,14 @@
     "temperature_no_data": "No temperature data for this country.",
     "temperature_source": "Open-Meteo Historical Weather API (ERA5/ERA5-Land), computed from the country's capital.",
     "temperature_source_year": " Latest year covered: {year}.",
-    "temperature_detail_link": "See detailed chart →"
+    "temperature_detail_link": "See detailed chart →",
+    "table_indicator_header": "Indicator",
+    "table_metric_temperature": "Temperature deviation (1991-2020 ref.)",
+    "table_metric_species": "Threatened species",
+    "table_metric_pollution": "Air pollution (PM2.5)",
+    "table_species_cell": "{count} (~{share}% of world total)",
+    "table_pollution_cell": "{value} µg/m³ ({ratio}× WHO threshold)",
+    "table_world_average_note": "World average (temperature): {value}"
   },
   "citizenVote": {
     "question": "How would you have voted?",

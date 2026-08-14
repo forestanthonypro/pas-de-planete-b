@@ -551,7 +551,14 @@
     "temperature_no_data": "Нет данных о температуре для этой страны.",
     "temperature_source": "Open-Meteo Historical Weather API (ERA5/ERA5-Land), рассчитано по столице страны.",
     "temperature_source_year": " Последний охваченный год: {year}.",
-    "temperature_detail_link": "Смотреть подробный график →"
+    "temperature_detail_link": "Смотреть подробный график →",
+    "table_indicator_header": "Показатель",
+    "table_metric_temperature": "Отклонение температуры (база 1991-2020)",
+    "table_metric_species": "Виды под угрозой",
+    "table_metric_pollution": "Загрязнение воздуха (PM2.5)",
+    "table_species_cell": "{count} (~{share}% от мирового итога)",
+    "table_pollution_cell": "{value} мкг/м³ ({ratio}× порог ВОЗ)",
+    "table_world_average_note": "Среднемировое значение (температура): {value}"
   },
   "citizenVote": {
     "question": "А как бы проголосовали вы?",

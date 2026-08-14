@@ -551,7 +551,14 @@
     "temperature_no_data": "इस देश के लिए तापमान डेटा उपलब्ध नहीं है।",
     "temperature_source": "Open-Meteo Historical Weather API (ERA5/ERA5-Land), देश की राजधानी के आधार पर गणना की गई।",
     "temperature_source_year": " अंतिम शामिल वर्ष: {year}।",
-    "temperature_detail_link": "विस्तृत ग्राफ देखें →"
+    "temperature_detail_link": "विस्तृत ग्राफ देखें →",
+    "table_indicator_header": "संकेतक",
+    "table_metric_temperature": "तापमान अंतर (1991-2020 संदर्भ)",
+    "table_metric_species": "संकटग्रस्त प्रजातियाँ",
+    "table_metric_pollution": "वायु प्रदूषण (PM2.5)",
+    "table_species_cell": "{count} (विश्व के कुल का ~{share}%)",
+    "table_pollution_cell": "{value} µg/m³ (WHO सीमा का {ratio}×)",
+    "table_world_average_note": "विश्व औसत (तापमान): {value}"
   },
   "citizenVote": {
     "question": "और आप, आप कैसे मतदान करते?",

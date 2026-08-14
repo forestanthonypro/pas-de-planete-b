@@ -551,7 +551,14 @@
     "temperature_no_data": "この国の気温データはありません。",
     "temperature_source": "Open-Meteo Historical Weather API（ERA5/ERA5-Land）、首都のデータをもとに算出。",
     "temperature_source_year": " カバーしている最新年：{year}年。",
-    "temperature_detail_link": "詳細なグラフを見る →"
+    "temperature_detail_link": "詳細なグラフを見る →",
+    "table_indicator_header": "指標",
+    "table_metric_temperature": "気温差（1991〜2020年基準）",
+    "table_metric_species": "絶滅危惧種",
+    "table_metric_pollution": "大気汚染（PM2.5）",
+    "table_species_cell": "{count}種（世界全体の約{share}%）",
+    "table_pollution_cell": "{value} µg/m³（WHO基準の{ratio}倍）",
+    "table_world_average_note": "世界平均（気温）：{value}"
   },
   "citizenVote": {
     "question": "あなたならどう投票しましたか？",

@@ -1220,27 +1220,14 @@ export default function PaysDashboard() {
                   (row) => row.deviation_from_reference_c !== null && row.deviation_from_reference_c !== undefined
                 )
               : null;
-            if (!latestTemp || !worldBenchmarks?.temperature_deviation_world) return null;
+            const compareLatestTemp = compareSummary?.temperatures?.length
+              ? [...compareSummary.temperatures].reverse().find(
+                  (row) => row.deviation_from_reference_c !== null && row.deviation_from_reference_c !== undefined
+                )
+              : null;
+            const format = (v) => (v === null || v === undefined ? null : `${v > 0 ? "+" : ""}${v.toFixed(2)}°C`);
 
-            const countryDev = latestTemp.deviation_from_reference_c;
-            const worldDev = worldBenchmarks.temperature_deviation_world.value;
-            const format = (v) => `${v > 0 ? "+" : ""}${v.toFixed(2)}°C`;
-
-            return (
-              <div style={{ marginTop: "1rem", paddingTop: "1rem", borderTop: "1px solid var(--color-bordure)" }}>
-                <p style={{ fontSize: 13, color: "var(--color-texte-clair)", margin: "0 0 0.5rem" }}>
-                  {t("pays.temperature_comparison_intro")}
-                </p>
-                <p style={{ fontSize: 14, margin: 0 }}>
-                  <strong>{countryName}</strong> : {format(countryDev)}
-                  <span style={{ color: "var(--color-texte-clair)" }}> · </span>
-                  {t("pays.world_average_plain")} : {format(worldDev)}
-                </p>
-              </div>
-            );
-          })()}
-          {(() => {
-            function speciesLine(summaryData, name) {
+            function speciesCell(summaryData) {
               if (!summaryData?.speciesThreatened?.length || !worldBenchmarks?.mammals_threatened_world) return null;
               const latest = summaryData.speciesThreatened[summaryData.speciesThreatened.length - 1];
               const countryTotal = (latest.mammals_threatened || 0) + (latest.birds_threatened || 0) + (latest.fish_threatened || 0);
@@ -1248,34 +1235,58 @@ export default function PaysDashboard() {
                 worldBenchmarks.mammals_threatened_world.value +
                 (worldBenchmarks.birds_threatened_world?.value || 0) +
                 (worldBenchmarks.fish_threatened_world?.value || 0);
-              const share = worldTotal > 0 ? ((countryTotal / worldTotal) * 100).toFixed(2) : null;
-              if (!share) return null;
-              return (
-                <p key={`species-${name}`} style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>
-                  {t("pays.species_share_summary", { name, count: countryTotal, share, worldTotal })}
-                </p>
-              );
+              if (worldTotal <= 0 || countryTotal <= 0) return null;
+              const share = ((countryTotal / worldTotal) * 100).toFixed(2);
+              return t("pays.table_species_cell", { count: countryTotal, share });
             }
 
-            function pollutionLine(summaryData, name) {
+            function pollutionCell(summaryData) {
               if (!worldBenchmarks?.pm25_who_guideline || !summaryData?.pollution?.length) return null;
               const latest = summaryData.pollution[summaryData.pollution.length - 1];
               if (!latest.pm25_ug_m3) return null;
               const ratio = (latest.pm25_ug_m3 / worldBenchmarks.pm25_who_guideline.value).toFixed(1);
-              return (
-                <p key={`pollution-${name}`} style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>
-                  {t("pays.pollution_summary", { name, value: latest.pm25_ug_m3, ratio })}
-                </p>
-              );
+              return t("pays.table_pollution_cell", { value: latest.pm25_ug_m3, ratio });
             }
 
+            const rows = [
+              { label: t("pays.table_metric_temperature"), main: format(latestTemp?.deviation_from_reference_c), compare: format(compareLatestTemp?.deviation_from_reference_c) },
+              { label: t("pays.table_metric_species"), main: speciesCell(summary), compare: speciesCell(compareSummary) },
+              { label: t("pays.table_metric_pollution"), main: pollutionCell(summary), compare: pollutionCell(compareSummary) },
+            ].filter((row) => row.main || row.compare);
+
+            if (rows.length === 0) return null;
+            const showCompareColumn = Boolean(compareCode && compareSummary);
+
             return (
-              <>
-                {speciesLine(summary, countryName)}
-                {compareCode && compareSummary && speciesLine(compareSummary, localizedCountryName(compareCode, locale))}
-                {pollutionLine(summary, countryName)}
-                {compareCode && compareSummary && pollutionLine(compareSummary, localizedCountryName(compareCode, locale))}
-              </>
+              <div style={{ marginTop: "1rem", paddingTop: "1rem", borderTop: "1px solid var(--color-bordure)" }}>
+                <ScrollableTable>
+                  <table style={{ width: "100%", minWidth: showCompareColumn ? 480 : 320, borderCollapse: "collapse" }}>
+                    <thead>
+                      <tr>
+                        <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("pays.table_indicator_header")}</th>
+                        <th scope="col" style={{ textAlign: "left", padding: 8 }}>{countryName}</th>
+                        {showCompareColumn && (
+                          <th scope="col" style={{ textAlign: "left", padding: 8 }}>{localizedCountryName(compareCode, locale)}</th>
+                        )}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {rows.map((row) => (
+                        <tr key={row.label}>
+                          <th scope="row" style={{ textAlign: "left", padding: 8, fontWeight: 400, color: "var(--color-texte-clair)" }}>{row.label}</th>
+                          <td style={{ padding: 8 }}>{row.main ?? "—"}</td>
+                          {showCompareColumn && <td style={{ padding: 8 }}>{row.compare ?? "—"}</td>}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </ScrollableTable>
+                {worldBenchmarks?.temperature_deviation_world && (
+                  <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginTop: 8 }}>
+                    {t("pays.table_world_average_note", { value: format(worldBenchmarks.temperature_deviation_world.value) })}
+                  </p>
+                )}
+              </div>
             );
           })()}
         </section>

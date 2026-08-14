@@ -551,7 +551,14 @@
     "temperature_no_data": "该国暂无气温数据。",
     "temperature_source": "Open-Meteo历史天气API（ERA5/ERA5-Land），基于该国首都数据计算。",
     "temperature_source_year": " 覆盖的最新年份：{year}年。",
-    "temperature_detail_link": "查看详细图表 →"
+    "temperature_detail_link": "查看详细图表 →",
+    "table_indicator_header": "指标",
+    "table_metric_temperature": "气温偏差（1991-2020参考期）",
+    "table_metric_species": "受威胁物种",
+    "table_metric_pollution": "空气污染（PM2.5）",
+    "table_species_cell": "{count}种（约占世界总数的{share}%）",
+    "table_pollution_cell": "{value} µg/m³（WHO标准的{ratio}倍）",
+    "table_world_average_note": "世界平均值（气温）：{value}"
   },
   "citizenVote": {
     "question": "那么你会怎么投票？",
