@@ -30,6 +30,10 @@ Document de suivi des chantiers en attente, à garder à jour d'une session à l
 
 5. **Vérifier l'amélioration de l'indexation Google Search Console dans quelques semaines** — le 9 août, Search Console signalait : `www.pasdeplaneteb.com` en 404 (corrigé), pages `?section=...` vues comme doublons sans canonique (corrigé), et 12 pages "explorées mais non indexées" (sitemap.xml créé et soumis). Repasser sur le rapport "Indexation des pages" d'ici 2-3 semaines pour confirmer que ces 3 correctifs ont bien fait effet.
 
+6. **Lien "voir le texte complet" des scrutins — bilan par chambre (14 août)** :
+   - **✅ Résolu** : États-Unis (Chambre, `ingest-us-congress.js` — vrai lien Congress.gov via `legislationType`+`legislationNumber`), France (`ingest/scrutins.js` — dossier législatif via `dossierRef`, 31% des scrutins, colonne `dossier_legislatif_url`), Italie Chambre (`ingest-italy-camera.js` — acte parlementaire via `ocd:rif_aic`, 45% des votes).
+   - **🔴 Aucune solution trouvée** (limite structurelle des données source, pas un manque d'effort) : Italie Sénat (le chemin existe techniquement — `osr:oggetto` → `osr:relativoA` → DDL — mais la page finale n'a pas de titre lisible affiché, et nécessite 3 sauts SPARQL), Espagne Congreso (JSON du vote sans aucun identifiant structuré de dossier, juste du texte libre), Espagne Sénat (même limite que le Congreso). Pour ces 3 chambres, le lien continue de pointer vers la page/le fichier du vote lui-même (résultats), pas vers le texte voté — pas de piste supplémentaire identifiée à ce stade.
+
 ## 💡 Idées en suspens (mentionnées, pas encore engagées)
 
 - Notifications push natives pour l'app mobile (actuellement le suivi de député/élu se fait uniquement par email)
