@@ -16,13 +16,16 @@ router.get("/api/debunk-categories", async (_req, res) => {
 });
 
 router.get("/api/debunk", async (req, res) => {
-  const { category, locale } = req.query;
+  const { category, featured, locale } = req.query;
   try {
     const params = [];
     let where = "WHERE d.published = true";
     if (category) {
       params.push(category);
       where += ` AND c.slug = $${params.length}`;
+    }
+    if (featured === "true") {
+      where += " AND d.featured_decouverte = true";
     }
     const result = await pool.query(
       `SELECT d.slug, d.myth, d.verdict, d.image_url, d.updated_at,
@@ -71,7 +74,7 @@ router.get("/api/debunk/:slug", async (req, res) => {
 router.get("/api/admin/debunk", requireAdminSession, async (_req, res) => {
   try {
     const result = await pool.query(
-      `SELECT d.slug, d.myth, d.verdict, d.published, d.image_url, d.updated_at, c.name AS category_name
+      `SELECT d.slug, d.myth, d.verdict, d.published, d.featured_decouverte, d.image_url, d.updated_at, c.name AS category_name
        FROM debunk_entries d
        LEFT JOIN debunk_categories c ON c.id = d.category_id
        ORDER BY d.updated_at DESC`
@@ -136,6 +139,39 @@ router.post("/api/admin/debunk/:slug/publish", requireAdminSession, async (req, 
     const result = await pool.query(
       "UPDATE debunk_entries SET published = $1, updated_at = now() WHERE slug = $2 RETURNING slug",
       [published, req.params.slug]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Entrée non trouvée" });
+    }
+    res.json({ status: "ok" });
+  } catch (err) {
+    res.status(500).json({ error: "Échec de la mise à jour", detail: errorDetail(err) });
+  }
+});
+
+// Bascule "mise en avant sur /decouverte" — même patron que /publish
+// ci-dessus, avec en plus une limite dure à 6 entrées sélectionnées
+// simultanément (vérifiée ici, pas en contrainte SQL — voir la migration
+// 044). Décocher est toujours autorisé ; cocher une 7e entrée est refusé
+// avec un message explicite, l'admin doit d'abord en décocher une.
+router.post("/api/admin/debunk/:slug/featured", requireAdminSession, async (req, res) => {
+  const { featured } = req.body || {};
+  if (typeof featured !== "boolean") {
+    return res.status(400).json({ error: "featured doit être true ou false" });
+  }
+  try {
+    if (featured) {
+      const countResult = await pool.query(
+        "SELECT COUNT(*) AS count FROM debunk_entries WHERE featured_decouverte = true AND slug != $1",
+        [req.params.slug]
+      );
+      if (Number(countResult.rows[0].count) >= 6) {
+        return res.status(400).json({ error: "6 entrées déjà sélectionnées — décochez-en une avant d'en cocher une autre" });
+      }
+    }
+    const result = await pool.query(
+      "UPDATE debunk_entries SET featured_decouverte = $1, updated_at = now() WHERE slug = $2 RETURNING slug",
+      [featured, req.params.slug]
     );
     if (result.rows.length === 0) {
       return res.status(404).json({ error: "Entrée non trouvée" });

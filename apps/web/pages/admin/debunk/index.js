@@ -120,6 +120,22 @@ function AdminDebunkListInner({ session }) {
       .catch((err) => setError(err.message));
   }
 
+  const featuredCount = entries.filter((e) => e.featured_decouverte).length;
+
+  function toggleFeatured(entry) {
+    fetch(`${API_URL}/api/admin/debunk/${entry.slug}/featured`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
+      body: JSON.stringify({ featured: !entry.featured_decouverte }),
+    })
+      .then((res) => {
+        if (!res.ok) return res.json().then((body) => { throw new Error(body.error || "Échec de la mise à jour"); });
+        return res.json();
+      })
+      .then(() => loadEntries(session.sessionToken))
+      .catch((err) => setError(err.message));
+  }
+
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 800, margin: "0 auto" }}>
       <p style={{ fontSize: 13, marginBottom: "0.5rem" }}>
@@ -159,6 +175,9 @@ function AdminDebunkListInner({ session }) {
 
           <p style={{ marginBottom: "0.75rem" }}>
             <Link href="/admin/debunk/edit">+ Nouvelle entrée</Link>
+            <span style={{ marginLeft: 12, fontSize: 13, color: "var(--color-texte-clair)" }}>
+              {featuredCount}/6 sélectionnées pour la page découverte
+            </span>
           </p>
           {entries.length === 0 ? (
             <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>Aucune entrée pour l&apos;instant.</p>
@@ -171,6 +190,7 @@ function AdminDebunkListInner({ session }) {
                   <th scope="col" style={{ textAlign: "left", padding: 8 }}>Catégorie</th>
                   <th scope="col" style={{ textAlign: "left", padding: 8 }}>Verdict</th>
                   <th scope="col" style={{ textAlign: "left", padding: 8 }}>Statut</th>
+                  <th scope="col" style={{ textAlign: "center", padding: 8 }}>Découverte</th>
                   <th scope="col" style={{ textAlign: "left", padding: 8 }}></th>
                 </tr>
               </thead>
@@ -186,6 +206,15 @@ function AdminDebunkListInner({ session }) {
                     </td>
                     <td style={{ padding: 8, fontSize: 13, color: e.published ? "#1baf7a" : "var(--color-texte-clair)" }}>
                       {e.published ? "Publié" : "Brouillon"}
+                    </td>
+                    <td style={{ padding: 8, textAlign: "center" }}>
+                      <input
+                        type="checkbox"
+                        checked={e.featured_decouverte}
+                        onChange={() => toggleFeatured(e)}
+                        disabled={!e.featured_decouverte && featuredCount >= 6}
+                        title={!e.featured_decouverte && featuredCount >= 6 ? "6 entrées déjà sélectionnées — décochez-en une d'abord" : ""}
+                      />
                     </td>
                     <td style={{ padding: 8 }}>
                       <button type="button" onClick={() => togglePublished(e)} style={{ fontSize: 12, marginRight: 8 }}>
