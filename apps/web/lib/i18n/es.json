@@ -924,6 +924,7 @@
     "source": "Fuente: Open-Meteo Historical Weather API (ERA5/ERA5-Land), licencia CC BY 4.0",
     "source_latest_year": "— último año cubierto: {year}",
     "source_last_updated": "· última actualización de nuestra base de datos: {date}",
-    "error_no_data": "Datos no disponibles para este país"
+    "error_no_data": "Datos no disponibles para este país",
+    "chart_sobriety_disabled": "Gráficos desactivados en modo sobrio (evita el renderizado gráfico) — ver la tabla a continuación"
   }
 }

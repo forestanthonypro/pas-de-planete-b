@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useCountrySelector } from "../lib/useCountrySelector";
 import { useLastUpdated, formatDate } from "../lib/useLastUpdated";
 import { useT } from "../lib/useT";
@@ -8,7 +8,10 @@ import PageHeader from "../components/PageHeader";
 import { IconThermometer } from "../components/icons";
 import ShareButtons from "../components/ShareButtons";
 import ScrollableTable from "../components/ScrollableTable";
+import Pagination from "../components/Pagination";
 import { useSobriety } from "../lib/SobrietyContext";
+
+const PAGE_SIZE = 20;
 
 // Couleur d'une barre du graphique "warming stripes" à partir de l'écart à
 // la référence — dégradé bleu (plus froid que la référence) -> blanc (proche
@@ -44,6 +47,16 @@ export default function TemperaturesPage() {
     "/api/temperatures/countries",
     { locale }
   );
+  const [view, setView] = useState("chart"); // "chart" ou "table"
+  const [page, setPage] = useState(1);
+
+  useEffect(() => {
+    if (sobriety) setView("table");
+  }, [sobriety]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [countryCode, view]);
 
   const stripesCanvasRef = useRef(null);
   const stripesChartRef = useRef(null);
@@ -62,7 +75,7 @@ export default function TemperaturesPage() {
 
   // Warming stripes.
   useEffect(() => {
-    if (sobriety || loading || error || data.length === 0 || !stripesCanvasRef.current) return;
+    if (view !== "chart" || loading || error || data.length === 0 || !stripesCanvasRef.current) return;
     let cancelled = false;
     import("../lib/chartSetup").then(({ default: Chart }) => {
       if (cancelled || !stripesCanvasRef.current) return;
@@ -111,11 +124,11 @@ export default function TemperaturesPage() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data, loading, error, sobriety, locale]);
+  }, [data, loading, error, view, locale]);
 
   // Vagues de chaleur / de froid.
   useEffect(() => {
-    if (sobriety || loading || error || data.length === 0 || !wavesCanvasRef.current) return;
+    if (view !== "chart" || loading || error || data.length === 0 || !wavesCanvasRef.current) return;
     let cancelled = false;
     import("../lib/chartSetup").then(({ default: Chart }) => {
       if (cancelled || !wavesCanvasRef.current) return;
@@ -153,7 +166,7 @@ export default function TemperaturesPage() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data, loading, error, sobriety, locale]);
+  }, [data, loading, error, view, locale]);
 
   const referencePeriod = data.length > 0 ? data[data.length - 1].reference_period : null;
 
@@ -164,6 +177,14 @@ export default function TemperaturesPage() {
 
       <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem", flexWrap: "wrap" }}>
         <CountrySelect countries={countries} value={countryCode} onChange={setCountryCode} preferredLang={locale} />
+        <button type="button" onClick={() => setView(view === "chart" ? "table" : "chart")} disabled={sobriety}>
+          {view === "chart" ? t("common.view_as_table") : t("common.view_as_chart")}
+        </button>
+        {sobriety && (
+          <span style={{ fontSize: 12, color: "var(--color-texte-clair)", alignSelf: "center" }}>
+            {t("temperatures.chart_sobriety_disabled")}
+          </span>
+        )}
       </div>
 
       {loading && <p>{t("common.loading")}</p>}
@@ -184,7 +205,7 @@ export default function TemperaturesPage() {
         {t("temperatures.explain_point")}
       </p>
 
-      {!loading && !error && !sobriety && data.length > 0 && (
+      {!loading && !error && view === "chart" && data.length > 0 && (
         <>
           <h3 style={{ fontSize: 15, marginBottom: 4 }}>{t("temperatures.chart_stripes_title")}</h3>
           <div style={{ position: "relative", height: 140, marginBottom: "1.5rem" }}>
@@ -206,43 +227,50 @@ export default function TemperaturesPage() {
         </>
       )}
 
-      {!loading && !error && data.length > 0 && (
-        <ScrollableTable>
-          <table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
-            <caption style={{ textAlign: "left", fontSize: 12, color: "var(--color-texte-clair)", marginBottom: 8 }}>
-              {t("temperatures.table_caption", { country: selectedCountryName })}
-            </caption>
-            <thead>
-              <tr>
-                <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("temperatures.table_year")}</th>
-                <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("temperatures.table_avg")}</th>
-                <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("temperatures.table_max")}</th>
-                <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("temperatures.table_min")}</th>
-                <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("temperatures.table_deviation")}</th>
-                <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("temperatures.table_heatwaves")}</th>
-                <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("temperatures.table_coldwaves")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.map((d) => (
-                <tr key={d.year}>
-                  <th scope="row" style={{ textAlign: "left", padding: 8, fontWeight: 400 }}>{d.year}</th>
-                  <td style={{ textAlign: "right", padding: 8 }}>{d.avg_temp_c ?? "—"}</td>
-                  <td style={{ textAlign: "right", padding: 8 }}>{d.max_temp_c ?? "—"}</td>
-                  <td style={{ textAlign: "right", padding: 8 }}>{d.min_temp_c ?? "—"}</td>
-                  <td style={{ textAlign: "right", padding: 8 }}>
-                    {d.deviation_from_reference_c !== null && d.deviation_from_reference_c !== undefined
-                      ? `${d.deviation_from_reference_c > 0 ? "+" : ""}${d.deviation_from_reference_c}`
-                      : "—"}
-                  </td>
-                  <td style={{ textAlign: "right", padding: 8 }}>{d.heatwave_count ?? 0}</td>
-                  <td style={{ textAlign: "right", padding: 8 }}>{d.coldwave_count ?? 0}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </ScrollableTable>
-      )}
+      {!loading && !error && view === "table" && data.length > 0 && (() => {
+        const totalPages = Math.max(1, Math.ceil(data.length / PAGE_SIZE));
+        const pageItems = data.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+        return (
+          <>
+            <ScrollableTable>
+              <table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
+                <caption style={{ textAlign: "left", fontSize: 12, color: "var(--color-texte-clair)", marginBottom: 8 }}>
+                  {t("temperatures.table_caption", { country: selectedCountryName })}
+                </caption>
+                <thead>
+                  <tr>
+                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("temperatures.table_year")}</th>
+                    <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("temperatures.table_avg")}</th>
+                    <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("temperatures.table_max")}</th>
+                    <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("temperatures.table_min")}</th>
+                    <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("temperatures.table_deviation")}</th>
+                    <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("temperatures.table_heatwaves")}</th>
+                    <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("temperatures.table_coldwaves")}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {pageItems.map((d) => (
+                    <tr key={d.year}>
+                      <th scope="row" style={{ textAlign: "left", padding: 8, fontWeight: 400 }}>{d.year}</th>
+                      <td style={{ textAlign: "right", padding: 8 }}>{d.avg_temp_c ?? "—"}</td>
+                      <td style={{ textAlign: "right", padding: 8 }}>{d.max_temp_c ?? "—"}</td>
+                      <td style={{ textAlign: "right", padding: 8 }}>{d.min_temp_c ?? "—"}</td>
+                      <td style={{ textAlign: "right", padding: 8 }}>
+                        {d.deviation_from_reference_c !== null && d.deviation_from_reference_c !== undefined
+                          ? `${d.deviation_from_reference_c > 0 ? "+" : ""}${d.deviation_from_reference_c}`
+                          : "—"}
+                      </td>
+                      <td style={{ textAlign: "right", padding: 8 }}>{d.heatwave_count ?? 0}</td>
+                      <td style={{ textAlign: "right", padding: 8 }}>{d.coldwave_count ?? 0}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </ScrollableTable>
+            <Pagination page={page} totalPages={totalPages} onChange={setPage} />
+          </>
+        );
+      })()}
 
       <details style={{ marginBottom: "1rem", fontSize: 13, color: "var(--color-texte-clair)" }}>
         <summary style={{ cursor: "pointer" }}>{t("temperatures.details_summary")}</summary>
