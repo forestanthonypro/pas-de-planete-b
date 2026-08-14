@@ -31,7 +31,8 @@
     "footer_privacy": "Privacy",
     "footer_impact": "Environmental impact",
     "nav_home": "Home",
-    "nav_home_title": "Back to the homepage"
+    "nav_home_title": "Back to the homepage",
+    "nav_country_summary": "My country's environmental summary + comparison"
   },
   "home": {
     "intro": "Understanding climate change, country by country, with open and sourced data.",
@@ -78,7 +79,9 @@
     "card_international_desc": "Foreign parliaments",
     "card_france_label": "France",
     "card_france_desc": "National Assembly",
-    "see_my_country_desc": "Compare your country to the world average on 7 key indicators (CO2, energy, water, forest, threatened species...), and if you'd like, to another country of your choice."
+    "see_my_country_desc": "Compare your country to the world average on 7 key indicators (CO2, energy, water, forest, threatened species...), and if you'd like, to another country of your choice.",
+    "hero_desc_v2": "The \"My country's environmental summary + comparison\" menu lets you compare your country to the world average on 7 key indicators (CO2, energy, water, forests, endangered species...), and if you wish, to another country of your choice.",
+    "hero_punchline": "No Planet B. The future is ours to write. Now."
   },
   "co2": {
     "title": "CO2 emissions",

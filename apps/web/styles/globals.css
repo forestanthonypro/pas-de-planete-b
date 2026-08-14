@@ -3,6 +3,7 @@
    pages sans dupliquer les couleurs en dur partout. */
 :root {
   --color-forest: #1b5e20;
+  --color-hero-bg: #1b5e20;
   --color-sauge: #2e7d32;
   --color-ocean: #0b3c5d;
   --color-bleu-clair: #2f6fae;
@@ -39,6 +40,7 @@
    attribut sur <html> (voir ThemeContext.js). */
 [data-theme="dark"] {
   --color-forest: #4caf50;
+  --color-hero-bg: #14201a;
   --color-sauge: #66bb6a;
   --color-ocean: #4a90c2;
   --color-bleu-clair: #7fb0e0;
@@ -96,6 +98,14 @@ a {
 :root:not([data-sobriety]) .pdpb-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 10px rgba(27, 31, 35, 0.08);
+}
+
+.pdpb-hero-icon {
+  transition: transform var(--transition-speed) ease;
+}
+[data-sobriety="off"] .pdpb-hero-icon:hover,
+:root:not([data-sobriety]) .pdpb-hero-icon:hover {
+  transform: translateY(-2px);
 }
 
 /* Bandeau d'accueil : léger dégradé en CSS pur (aucune image), aplati en

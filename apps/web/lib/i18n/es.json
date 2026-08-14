@@ -31,7 +31,8 @@
     "footer_privacy": "Privacidad",
     "footer_impact": "Impacto ambiental",
     "nav_home": "Inicio",
-    "nav_home_title": "Volver a la página de inicio"
+    "nav_home_title": "Volver a la página de inicio",
+    "nav_country_summary": "Resumen ambiental de mi país + comparativa"
   },
   "home": {
     "intro": "Comprender el cambio climático, país por país, con datos abiertos y verificados.",
@@ -78,7 +79,9 @@
     "card_international_desc": "Parlamentos extranjeros",
     "card_france_label": "Francia",
     "card_france_desc": "Asamblea Nacional",
-    "see_my_country_desc": "Compara tu país con la media mundial en 7 indicadores clave (CO2, energía, agua, bosque, especies amenazadas...) y, si quieres, con otro país que elijas."
+    "see_my_country_desc": "Compara tu país con la media mundial en 7 indicadores clave (CO2, energía, agua, bosque, especies amenazadas...) y, si quieres, con otro país que elijas.",
+    "hero_desc_v2": "El menú «Resumen ambiental de mi país + comparativa» te permite comparar tu país con la media mundial en 7 indicadores clave (CO2, energía, agua, bosques, especies amenazadas...) y, si lo deseas, con otro país de tu elección.",
+    "hero_punchline": "No hay planeta B. El futuro es nuestro para escribirlo. Ahora."
   },
   "co2": {
     "title": "Emisiones de CO2",

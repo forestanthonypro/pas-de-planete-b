@@ -1,5 +1,7 @@
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { detectDefaultCountry } from "../lib/detectCountry";
 import { useSobriety } from "../lib/SobrietyContext";
 import { useTheme } from "../lib/ThemeContext";
 import { useT } from "../lib/useT";
@@ -53,6 +55,11 @@ export default function Layout({ children }) {
   const { sobriety, setSobriety } = useSobriety();
   const { theme, setTheme } = useTheme();
   const { t } = useT();
+  const [countrySummary, setCountrySummary] = useState("FRA");
+
+  useEffect(() => {
+    setCountrySummary(detectDefaultCountry());
+  }, []);
 
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
@@ -103,9 +110,34 @@ export default function Layout({ children }) {
           {t("common.nav_home")}
         </Link>
 
+        <Link
+          href={`/pays/${countrySummary}`}
+          prefetch={false}
+          title={t("common.nav_country_summary")}
+          aria-label={t("common.nav_country_summary")}
+          style={
+            sobriety
+              ? { color: "var(--color-forest)", fontWeight: 600, textDecoration: "underline" }
+              : {
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  background: "var(--color-forest)",
+                  color: "white",
+                  padding: "6px 14px",
+                  borderRadius: 20,
+                  textDecoration: "none",
+                  fontWeight: 600,
+                  fontSize: 13,
+                }
+          }
+        >
+          {!sobriety && <IconLeaf size={16} />}
+          {t("common.nav_country_summary")}
+        </Link>
+
         <nav style={{ display: "flex", gap: sobriety ? "1rem" : "0.5rem", flexWrap: "wrap", fontSize: 14 }}>
           {[
-            { href: "/?section=environnement", label: t("common.nav_environment") },
             { href: "/?section=democratie", label: t("common.nav_democracy") },
             { href: "/?section=sengager", label: t("common.nav_engage") },
             { href: "/mes-votes", label: t("common.nav_myvotes") },

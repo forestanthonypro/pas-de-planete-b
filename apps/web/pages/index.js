@@ -107,40 +107,66 @@ export default function Home() {
               borderRadius: 16,
               padding: "2rem 1.75rem",
               overflow: "hidden",
-              background: "linear-gradient(180deg, #bfe0f5 0%, #d9ecd0 55%, #8fc793 100%)",
+              background: "var(--color-hero-bg)",
             }}
           >
-            <div
-              style={{
-                position: "absolute",
-                top: -40,
-                right: -30,
-                width: 150,
-                height: 150,
-                borderRadius: "50%",
-                background: "radial-gradient(circle, rgba(255,246,214,0.9) 0%, rgba(255,246,214,0) 70%)",
-              }}
-            />
-            <p style={{ fontSize: 15, color: "#1b2b1d", margin: "0 0 1.25rem", maxWidth: 460, position: "relative" }}>
+            
+            
+            
+            <p style={{ fontSize: 16, color: "white", margin: "0 0 1.25rem", position: "relative" }}>
               {t("home.intro")}
             </p>
-            <Link
-              href={`/pays/${country}`}
-              prefetch={false}
+            <div
               style={{
                 position: "relative",
-                display: "inline-block",
-                background: "#1b5e20",
-                color: "white",
-                padding: "10px 22px",
-                borderRadius: 24,
-                fontWeight: 600,
-                textDecoration: "none",
+                display: "flex",
+                justifyContent: "space-between",
+                flexWrap: "wrap",
+                width: "100%",
+                gap: "0.75rem",
+                marginBottom: "1.25rem",
               }}
             >
-              {t("home.see_my_country")}
-            </Link>
-            <p style={{ fontSize: 13, color: "#2b3a2d", margin: "0.75rem 0 0", position: "relative", maxWidth: 460 }}>{t("home.see_my_country_desc")}</p>
+              {environment.map((item) => {
+                const colors = TINTS[item.tint] || TINTS.green;
+                return (
+                  <Link
+                    key={item.href}
+                    className="pdpb-hero-icon"
+                    href={item.href}
+                    prefetch={false}
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      gap: 6,
+                      textDecoration: "none",
+                      color: "white",
+                      width: 70,
+                    }}
+                  >
+                    <span
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        width: 48,
+                        height: 48,
+                        borderRadius: "50%",
+                        background: colors.bg,
+                      }}
+                    >
+                      <item.Icon size={22} style={{ color: colors.color }} />
+                    </span>
+                    <span style={{ fontSize: 12, fontWeight: 600, textAlign: "center" }}>{item.label}</span>
+                  </Link>
+                );
+              })}
+            </div>
+            <div style={{ height: 1, background: "rgba(255,255,255,0.3)", position: "relative", margin: "0 0 1.25rem" }} />
+            
+            <p style={{ fontSize: 14, color: "rgba(255,255,255,0.9)", margin: "0.75rem 0 0", position: "relative" }}>{t("home.hero_desc_v2")}</p>
+            <p style={{ fontSize: 16, fontWeight: 700, color: "white", margin: "1.25rem 0 0", position: "relative", textAlign: "center" }}>{t("home.hero_punchline")}</p>
           </div>
         )
       )}
@@ -155,17 +181,6 @@ export default function Home() {
         <p style={{ fontSize: 13, marginBottom: "1rem" }}>
           <Link href="/" prefetch={false}>← {t("home.see_all_sections")}</Link>
         </p>
-      )}
-
-      {showEnvironment && (
-        <>
-          <h2 style={{ fontSize: 18, margin: "1.5rem 0 0.75rem" }}>{t("home.section_environment")}</h2>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 12 }}>
-            {environment.map((c) => (
-              <Card key={c.href} {...c} />
-            ))}
-          </div>
-        </>
       )}
 
       {showDemocratie && (
