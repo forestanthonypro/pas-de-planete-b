@@ -336,7 +336,7 @@ export default function DecouvertePage() {
         </div>
 
         <Link
-          href="#objections"
+          href="#explication"
           style={{
             display: "inline-block",
             background: "var(--color-forest)",
@@ -353,7 +353,7 @@ export default function DecouvertePage() {
       </section>
 
       {/* --- Section 1bis : C'est quoi le changement climatique ? --- */}
-      <section style={{ padding: "1rem 0 2rem" }}>
+      <section id="explication" style={{ padding: "1rem 0 2rem" }}>
         <h2 style={{ fontSize: 20, marginBottom: 12 }}>{t("decouverte.explain_title")}</h2>
         <p style={{ fontSize: 14, color: "var(--color-texte)", lineHeight: 1.7, marginBottom: 10 }}>{t("decouverte.explain_p1")}</p>
         <p style={{ fontSize: 14, color: "var(--color-texte)", lineHeight: 1.7, marginBottom: 10 }}>{t("decouverte.explain_p2")}</p>
