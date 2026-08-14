@@ -29,6 +29,15 @@ const CHUNK_SIZE = 1000;
 function get(obj, path) {
   return path.split(".").reduce((acc, key) => (acc && acc[key] !== undefined ? acc[key] : undefined), obj);
 }
+
+// Lien vers le dossier legislatif (texte de loi vote), quand disponible
+// dans les donnees source (~31% des scrutins - les votes sur un texte
+// complet, pas sur un article/amendement isole).
+function dossierLegislatifUrl(scrutin) {
+  const ref = get(scrutin, "objet.dossierLegislatif.dossierRef");
+  if (!ref) return null;
+  return `https://www.assemblee-nationale.fr/dyn/${LEGISLATURE}/dossiers/${ref}`;
+}
 function parseIntOrNull(v) {
   if (v === null || v === undefined || v === "") return null;
   const n = parseInt(v, 10);
@@ -97,6 +106,7 @@ export async function ingestScrutins(pool) {
     get(scrutin, "sort.libelle") || null,
     scrutin.titre || null,
     get(scrutin, "objet.libelle") || null,
+    dossierLegislatifUrl(scrutin),
     SOURCE_LABEL,
   ]);
 
@@ -108,14 +118,14 @@ export async function ingestScrutins(pool) {
       const values = [];
       const placeholders = batch
         .map((row, i) => {
-          const base = i * 12;
+          const base = i * 13;
           values.push(...row);
-          return `(${Array.from({ length: 12 }, (_, j) => `$${base + j + 1}`).join(", ")})`;
+          return `(${Array.from({ length: 13 }, (_, j) => `$${base + j + 1}`).join(", ")})`;
         })
         .join(", ");
       await client.query(
         `INSERT INTO scrutins (legislature, numero, scrutin_uid, scrutin_date, type_vote_code,
-                                type_vote_label, majority_type, result_code, result_label, title, objet, source)
+                                type_vote_label, majority_type, result_code, result_label, title, objet, dossier_legislatif_url, source)
          VALUES ${placeholders}
          ON CONFLICT (legislature, numero)
          DO UPDATE SET
@@ -128,6 +138,7 @@ export async function ingestScrutins(pool) {
            result_label = EXCLUDED.result_label,
            title = EXCLUDED.title,
            objet = EXCLUDED.objet,
+           dossier_legislatif_url = EXCLUDED.dossier_legislatif_url,
            updated_at = now()`,
         values
       );

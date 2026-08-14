@@ -123,7 +123,7 @@ export default function ScrutinPage() {
         <>
           <PageHeader Icon={IconScale} tint="blue" title={scrutin.title || scrutin.objet || `Scrutin n°${scrutin.numero}`} />
           <p style={{ fontSize: 13, marginTop: -8, marginBottom: "0.75rem" }}>
-            <a href={`https://www.assemblee-nationale.fr/dyn/${legislature}/scrutins/${scrutin.numero}`} target="_blank" rel="noopener noreferrer">
+            <a href={scrutin.dossier_legislatif_url || `https://www.assemblee-nationale.fr/dyn/${legislature}/scrutins/${scrutin.numero}`} target="_blank" rel="noopener noreferrer">
               {t("scrutins.full_text_link")}
             </a>
           </p>
