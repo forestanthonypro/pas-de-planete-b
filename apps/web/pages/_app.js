@@ -14,12 +14,19 @@ import Layout from "../components/Layout";
 // (déjà traduit dans les 8 langues) plutôt que d'ajouter du texte neuf.
 // Amélioration possible plus tard : un titre spécifique par page plutôt
 // qu'un seul titre générique partout.
-function DefaultHead() {
+function DefaultHead({ router }) {
   const { t } = useT();
+  // Les pages filtrées par section (/?section=democratie, etc.) sont vues
+  // par Google comme des doublons de l'accueil sans indication claire — la
+  // canonique règle ça en pointant systématiquement vers l'URL sans
+  // paramètres de requête (repéré via Search Console le 9 août 2026).
+  const canonicalPath = router?.asPath?.split("?")[0]?.split("#")[0] || "/";
+  const canonicalUrl = `https://pasdeplaneteb.com${canonicalPath}`;
   return (
     <Head>
       <title>Pas de planète B</title>
       <meta name="description" content={t("home.intro")} />
+      <link rel="canonical" href={canonicalUrl} />
     </Head>
   );
 }
@@ -97,7 +104,7 @@ export default function MyApp({ Component, pageProps, router }) {
   if (Component.noLayout) {
     return (
       <LocaleContext.Provider value={localeValue}>
-        <DefaultHead />
+        <DefaultHead router={router} />
         <MatomoTracking router={router} />
         {page}
       </LocaleContext.Provider>
@@ -106,7 +113,7 @@ export default function MyApp({ Component, pageProps, router }) {
 
   return (
     <LocaleContext.Provider value={localeValue}>
-      <DefaultHead />
+      <DefaultHead router={router} />
       <MatomoTracking router={router} />
       <ThemeProvider>
         <SobrietyProvider>

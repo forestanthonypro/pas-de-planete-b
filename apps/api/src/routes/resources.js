@@ -179,6 +179,15 @@ router.post("/api/admin/resource-locations/:slug/publish", requireAdminSession, 
   }
 });
 
+router.delete("/api/admin/resource-locations/:slug", requireAdminSession, async (req, res) => {
+  try {
+    await pool.query("DELETE FROM resource_locations WHERE slug = $1", [req.params.slug]);
+    res.json({ status: "ok" });
+  } catch (err) {
+    res.status(500).json({ error: "Échec de la suppression", detail: errorDetail(err) });
+  }
+});
+
 // Ressources non physiques (trocs, plateformes d'échange...).
 router.get("/api/resource-online", async (req, res) => {
   const { category, locale } = req.query;
@@ -266,6 +275,15 @@ router.post("/api/admin/resource-online/:slug/publish", requireAdminSession, asy
     res.json({ status: "ok" });
   } catch (err) {
     res.status(500).json({ error: "Échec de la mise à jour", detail: errorDetail(err) });
+  }
+});
+
+router.delete("/api/admin/resource-online/:slug", requireAdminSession, async (req, res) => {
+  try {
+    await pool.query("DELETE FROM resource_online WHERE slug = $1", [req.params.slug]);
+    res.json({ status: "ok" });
+  } catch (err) {
+    res.status(500).json({ error: "Échec de la suppression", detail: errorDetail(err) });
   }
 });
 

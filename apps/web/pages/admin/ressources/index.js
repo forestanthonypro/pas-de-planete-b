@@ -76,6 +76,20 @@ function AdminRessourcesListInner({ session }) {
       });
   }
 
+  function deleteLocation(entry) {
+    if (!window.confirm("Supprimer définitivement le lieu \"" + entry.name + "\" ? Cette action est irréversible.")) return;
+    fetch(API_URL + "/api/admin/resource-locations/" + entry.slug, {
+      method: "DELETE",
+      headers: { ...(session ? { Authorization: "Bearer " + session.sessionToken } : {}) },
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Échec de la suppression");
+        return res.json();
+      })
+      .then(() => loadAll(session.sessionToken))
+      .catch((err) => setError(err.message));
+  }
+
   function toggleLocationPublished(entry) {
     fetch(`${API_URL}/api/admin/resource-locations/${entry.slug}/publish`, {
       method: "POST",
@@ -84,6 +98,20 @@ function AdminRessourcesListInner({ session }) {
     })
       .then((res) => {
         if (!res.ok) throw new Error("Échec de la mise à jour");
+        return res.json();
+      })
+      .then(() => loadAll(session.sessionToken))
+      .catch((err) => setError(err.message));
+  }
+
+  function deleteOnline(entry) {
+    if (!window.confirm("Supprimer définitivement \"" + entry.title + "\" ? Cette action est irréversible.")) return;
+    fetch(API_URL + "/api/admin/resource-online/" + entry.slug, {
+      method: "DELETE",
+      headers: { ...(session ? { Authorization: "Bearer " + session.sessionToken } : {}) },
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Échec de la suppression");
         return res.json();
       })
       .then(() => loadAll(session.sessionToken))
@@ -208,6 +236,13 @@ function AdminRessourcesListInner({ session }) {
                             {l.published ? "Dépublier" : "Publier"}
                           </button>
                           <Link href={`/admin/ressources/location-edit?slug=${l.slug}`}>Modifier</Link>
+                          <button
+                            type="button"
+                            onClick={() => deleteLocation(l)}
+                            style={{ fontSize: 12, marginLeft: 8, color: "#d63e2a" }}
+                          >
+                            Supprimer
+                          </button>
                         </td>
                       </tr>
                     ))}
@@ -252,6 +287,13 @@ function AdminRessourcesListInner({ session }) {
                             {o.published ? "Dépublier" : "Publier"}
                           </button>
                           <Link href={`/admin/ressources/online-edit?slug=${o.slug}`}>Modifier</Link>
+                          <button
+                            type="button"
+                            onClick={() => deleteOnline(o)}
+                            style={{ fontSize: 12, marginLeft: 8, color: "#d63e2a" }}
+                          >
+                            Supprimer
+                          </button>
                         </td>
                       </tr>
                     ))}
