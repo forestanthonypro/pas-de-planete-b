@@ -933,6 +933,22 @@
     "hero_cta": "2 मिनट में समझें",
     "objections_title": "शायद आपसे कहा गया हो...",
     "objections_intro": "यह देखने के लिए किसी दावे पर क्लिक करें कि डेटा वास्तव में क्या कहता है।",
-    "objections_see_sources": "स्रोत देखें"
+    "objections_see_sources": "स्रोत देखें",
+    "comparisons_title": "दो देश, सात वास्तविकताएँ",
+    "comparisons_intro": "दो देश चुनें और उन्हें विषय के अनुसार तुलना करें।",
+    "theme_co2": "प्रति व्यक्ति CO2",
+    "theme_energie": "प्रति व्यक्ति बिजली",
+    "theme_eau": "प्रति व्यक्ति निकाला गया पानी",
+    "theme_vegetation": "उस वर्ष खोया गया जंगल",
+    "theme_especes": "संकटग्रस्त प्रजातियाँ",
+    "theme_pollution": "वायु प्रदूषण (PM2.5)",
+    "theme_temperatures": "संदर्भ से तापमान का अंतर",
+    "theme_co2_note": "{more}, {less} से प्रति व्यक्ति {ratio} गुना अधिक CO2 उत्सर्जित करता है।",
+    "theme_energie_note": "{more}, {less} से प्रति व्यक्ति {ratio} गुना अधिक बिजली खपत करता है।",
+    "theme_eau_note": "{more}, {less} से प्रति व्यक्ति {ratio} गुना अधिक पानी निकालता है।",
+    "theme_vegetation_note": "{more} अनुपात में {less} से {ratio} गुना तेज़ी से जंगल खो रहा है।",
+    "theme_especes_note": "{more} में {less} से {ratio} गुना अधिक संकटग्रस्त प्रजातियाँ हैं।",
+    "theme_pollution_note": "{more} की हवा में {less} से {ratio} गुना अधिक सूक्ष्म कण हैं।",
+    "especes_caveat": "समृद्ध प्राकृतिक जैव विविधता वाले देश में लगभग हमेशा संरक्षित करने के लिए अधिक प्रजातियाँ होती हैं — एक बहुत बड़े देश की तुलना एक छोटे देश से करना हमेशा उचित नहीं होता।"
   }
 }

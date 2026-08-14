@@ -933,6 +933,22 @@
     "hero_cta": "2分で理解する",
     "objections_title": "こう聞いたことはありませんか？",
     "objections_intro": "主張をクリックすると、データが実際に示していることがわかります。",
-    "objections_see_sources": "出典を見る"
+    "objections_see_sources": "出典を見る",
+    "comparisons_title": "2つの国、7つの現実",
+    "comparisons_intro": "2つの国を選んで、テーマごとに比較してみましょう。",
+    "theme_co2": "一人当たりCO2排出量",
+    "theme_energie": "一人当たり電力消費量",
+    "theme_eau": "一人当たり取水量",
+    "theme_vegetation": "その年に失われた森林",
+    "theme_especes": "絶滅危惧種",
+    "theme_pollution": "大気汚染（PM2.5）",
+    "theme_temperatures": "基準期間からの気温差",
+    "theme_co2_note": "{more}は{less}より一人当たりCO2排出量が{ratio}倍多い。",
+    "theme_energie_note": "{more}は{less}より一人当たり電力消費量が{ratio}倍多い。",
+    "theme_eau_note": "{more}は{less}より一人当たり取水量が{ratio}倍多い。",
+    "theme_vegetation_note": "{more}は{less}より森林減少の速度が比率で{ratio}倍速い。",
+    "theme_especes_note": "{more}は{less}より絶滅危惧種が{ratio}倍多い。",
+    "theme_pollution_note": "{more}の大気は{less}より微小粒子状物質が{ratio}倍多い。",
+    "especes_caveat": "自然の生物多様性が豊かな国は、ほぼ常に保護すべき種が多くなります — 非常に大きな国と小さな国を比較するのは必ずしも公平ではありません。"
   }
 }

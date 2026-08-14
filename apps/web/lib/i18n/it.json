@@ -933,6 +933,22 @@
     "hero_cta": "Capire in 2 minuti",
     "objections_title": "Forse le hanno già detto...",
     "objections_intro": "Clicca su un'affermazione per vedere cosa dicono davvero i dati.",
-    "objections_see_sources": "Vedi la fonte"
+    "objections_see_sources": "Vedi la fonte",
+    "comparisons_title": "Due paesi, sette realtà",
+    "comparisons_intro": "Scegli due paesi e confrontali, tema per tema.",
+    "theme_co2": "CO2 pro capite",
+    "theme_energie": "Elettricità pro capite",
+    "theme_eau": "Acqua prelevata pro capite",
+    "theme_vegetation": "Foresta persa quell'anno",
+    "theme_especes": "Specie minacciate",
+    "theme_pollution": "Inquinamento atmosferico (PM2.5)",
+    "theme_temperatures": "Scarto di temperatura rispetto al riferimento",
+    "theme_co2_note": "{more} emette {ratio} volte più CO2 pro capite di {less}.",
+    "theme_energie_note": "{more} consuma {ratio} volte più elettricità pro capite di {less}.",
+    "theme_eau_note": "{more} preleva {ratio} volte più acqua pro capite di {less}.",
+    "theme_vegetation_note": "{more} perde la foresta {ratio} volte più velocemente di {less}, in proporzione.",
+    "theme_especes_note": "{more} conta {ratio} volte più specie minacciate di {less}.",
+    "theme_pollution_note": "L'aria a {more} contiene {ratio} volte più particelle fini che a {less}.",
+    "especes_caveat": "Un paese con una grande biodiversità naturale avrà quasi sempre più specie da proteggere — confrontare un paese molto grande con uno piccolo non è sempre equo."
   }
 }

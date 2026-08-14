@@ -933,6 +933,22 @@
     "hero_cta": "Understand in 2 minutes",
     "objections_title": "You may have heard...",
     "objections_intro": "Click a claim to see what the data actually says.",
-    "objections_see_sources": "See the source"
+    "objections_see_sources": "See the source",
+    "comparisons_title": "Two countries, seven realities",
+    "comparisons_intro": "Pick two countries and compare them, theme by theme.",
+    "theme_co2": "CO2 per capita",
+    "theme_energie": "Electricity per capita",
+    "theme_eau": "Water withdrawn per capita",
+    "theme_vegetation": "Forest lost that year",
+    "theme_especes": "Threatened species",
+    "theme_pollution": "Air pollution (PM2.5)",
+    "theme_temperatures": "Temperature deviation from reference",
+    "theme_co2_note": "{more} emits {ratio} times more CO2 per capita than {less}.",
+    "theme_energie_note": "{more} consumes {ratio} times more electricity per capita than {less}.",
+    "theme_eau_note": "{more} withdraws {ratio} times more water per capita than {less}.",
+    "theme_vegetation_note": "{more} loses forest {ratio} times faster than {less}, proportionally.",
+    "theme_especes_note": "{more} has {ratio} times more threatened species than {less}.",
+    "theme_pollution_note": "Air in {more} has {ratio} times more fine particles than in {less}.",
+    "especes_caveat": "A country with rich natural biodiversity will almost always have more species to protect — comparing a very large country to a small one isn't always fair."
   }
 }

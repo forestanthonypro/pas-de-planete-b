@@ -933,6 +933,22 @@
     "hero_cta": "2分钟看懂",
     "objections_title": "您可能听说过...",
     "objections_intro": "点击一个说法，看看数据实际怎么说。",
-    "objections_see_sources": "查看来源"
+    "objections_see_sources": "查看来源",
+    "comparisons_title": "两国对比，七个维度",
+    "comparisons_intro": "选择两个国家，按主题逐一比较。",
+    "theme_co2": "人均CO2排放",
+    "theme_energie": "人均用电量",
+    "theme_eau": "人均取水量",
+    "theme_vegetation": "当年损失的森林",
+    "theme_especes": "受威胁物种",
+    "theme_pollution": "空气污染（PM2.5）",
+    "theme_temperatures": "与参考期的气温偏差",
+    "theme_co2_note": "{more}的人均CO2排放量是{less}的{ratio}倍。",
+    "theme_energie_note": "{more}的人均用电量是{less}的{ratio}倍。",
+    "theme_eau_note": "{more}的人均取水量是{less}的{ratio}倍。",
+    "theme_vegetation_note": "按比例计算，{more}森林流失速度是{less}的{ratio}倍。",
+    "theme_especes_note": "{more}的受威胁物种数量是{less}的{ratio}倍。",
+    "theme_pollution_note": "{more}空气中的细颗粒物是{less}的{ratio}倍。",
+    "especes_caveat": "自然生物多样性丰富的国家几乎总是有更多物种需要保护——将一个非常大的国家与一个小国相比并不总是公平的。"
   }
 }

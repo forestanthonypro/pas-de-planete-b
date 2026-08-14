@@ -1,8 +1,13 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useT } from "../lib/useT";
 import { useWorldBenchmarks } from "../lib/useWorldBenchmarks";
 import { useApiFetch } from "../lib/useApiFetch";
+import { useCountriesList } from "../lib/useCountriesList";
+import { localizedCountryName } from "../lib/countryNames";
+import { detectDefaultCountry } from "../lib/detectCountry";
+import CountrySelect from "../components/CountrySelect";
+import { IconCloud, IconBolt, IconDroplet, IconTree, IconPaw, IconSmog, IconThermometer } from "../components/icons";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 const VERDICT_COLORS = { faux: "#d63e2a", trompeur: "#f4b400", confirme: "#1baf7a" };
@@ -89,7 +94,143 @@ function ObjectionCard({ entry, locale, t }) {
   );
 }
 
-// Page "mode découverte" — parcours en une seule page, pensé pour un public
+// --- Section 3 : calcul des 7 métriques à partir de /api/country-summary ---
+// Chaque fonction renvoie une valeur numérique ou null si la donnée manque
+// pour ce pays — la carte correspondante se masque simplement dans ce cas.
+
+function latestValid(rows, field) {
+  if (!rows) return null;
+  for (let i = rows.length - 1; i >= 0; i--) {
+    if (rows[i][field] !== null && rows[i][field] !== undefined) return rows[i];
+  }
+  return null;
+}
+
+function computeCo2(s) {
+  return latestValid(s.co2, "emissions_per_capita")?.emissions_per_capita ?? null;
+}
+function computeEnergie(s) {
+  return latestValid(s.electricityGeneration, "demand_per_capita_kwh")?.demand_per_capita_kwh ?? null;
+}
+function computeEau(s) {
+  const w = latestValid(s.water, "withdrawal_m3");
+  const popRow = latestValid(s.co2, "population");
+  if (!w || !popRow?.population) return null;
+  return w.withdrawal_m3 / popRow.population;
+}
+function computeVegetation(s) {
+  const rows = (s.vegetation || []).filter((r) => r.tree_cover_loss_ha != null && r.forest_area_ha);
+  if (rows.length === 0) return null;
+  const last = rows[rows.length - 1];
+  return (last.tree_cover_loss_ha / last.forest_area_ha) * 100;
+}
+function computeEspeces(s) {
+  const last = s.speciesThreatened?.[s.speciesThreatened.length - 1];
+  if (!last) return null;
+  const total = (last.mammals_threatened || 0) + (last.birds_threatened || 0) + (last.fish_threatened || 0);
+  return total > 0 ? total : null;
+}
+function computePollution(s) {
+  return latestValid(s.pollution, "pm25_ug_m3")?.pm25_ug_m3 ?? null;
+}
+function computeTemperature(s) {
+  return latestValid(s.temperatures, "deviation_from_reference_c")?.deviation_from_reference_c ?? null;
+}
+
+const THEMES = [
+  { key: "co2", Icon: IconCloud, tint: "#378ADD", compute: computeCo2, unit: "t", decimals: 1 },
+  { key: "energie", Icon: IconBolt, tint: "#EF9F27", compute: computeEnergie, unit: "kWh", decimals: 0 },
+  { key: "eau", Icon: IconDroplet, tint: "#378ADD", compute: computeEau, unit: "m³", decimals: 0 },
+  { key: "vegetation", Icon: IconTree, tint: "#639922", compute: computeVegetation, unit: "%", decimals: 2 },
+  { key: "especes", Icon: IconPaw, tint: "#D85A30", compute: computeEspeces, unit: "", decimals: 0 },
+  { key: "pollution", Icon: IconSmog, tint: "#D85A30", compute: computePollution, unit: "µg/m³", decimals: 1 },
+  { key: "temperatures", Icon: IconThermometer, tint: "#D85A30", compute: computeTemperature, unit: "°C", decimals: 2, isDeviation: true },
+];
+
+function formatValue(value, decimals) {
+  return value.toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+}
+
+function ComparisonCard({ theme, nameA, nameB, valueA, valueB, t }) {
+  if (valueA === null && valueB === null) return null;
+
+  if (theme.isDeviation) {
+    return (
+      <div style={{ background: "var(--color-carte)", borderRadius: 12, padding: "1rem 1.25rem", marginBottom: 12 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+          <theme.Icon size={16} style={{ color: theme.tint }} />
+          <span style={{ fontSize: 12, color: "var(--color-texte-clair)" }}>{t(`decouverte.theme_${theme.key}`)}</span>
+        </div>
+        <div style={{ display: "flex", gap: 24 }}>
+          <div>
+            <div style={{ fontSize: 12, color: "var(--color-texte-clair)" }}>{nameA}</div>
+            <div style={{ fontSize: 22, fontWeight: 500 }}>
+              {valueA !== null ? `${valueA > 0 ? "+" : ""}${formatValue(valueA, theme.decimals)}${theme.unit}` : "—"}
+            </div>
+          </div>
+          {nameB && (
+            <div>
+              <div style={{ fontSize: 12, color: "var(--color-texte-clair)" }}>{nameB}</div>
+              <div style={{ fontSize: 22, fontWeight: 500 }}>
+                {valueB !== null ? `${valueB > 0 ? "+" : ""}${formatValue(valueB, theme.decimals)}${theme.unit}` : "—"}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  const max = Math.max(valueA || 0, valueB || 0) || 1;
+  const ratio = valueA && valueB ? (Math.max(valueA, valueB) / Math.min(valueA, valueB)).toFixed(1) : null;
+  const higherName = valueA >= valueB ? nameA : nameB;
+  const lowerName = valueA >= valueB ? nameB : nameA;
+
+  return (
+    <div style={{ background: "var(--color-carte)", borderRadius: 12, padding: "1rem 1.25rem", marginBottom: 12 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+        <theme.Icon size={16} style={{ color: theme.tint }} />
+        <span style={{ fontSize: 12, color: "var(--color-texte-clair)" }}>{t(`decouverte.theme_${theme.key}`)}</span>
+      </div>
+
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+        <span style={{ fontSize: 12, color: "var(--color-texte-clair)", width: 90, flexShrink: 0 }}>{nameA}</span>
+        <div style={{ flex: 1, background: "var(--color-fond)", borderRadius: 4, height: 18 }}>
+          {valueA !== null && (
+            <div style={{ width: `${(valueA / max) * 100}%`, height: "100%", background: "#378ADD", borderRadius: 4 }} />
+          )}
+        </div>
+        <span style={{ fontSize: 12, width: 65, textAlign: "right", flexShrink: 0 }}>
+          {valueA !== null ? `${formatValue(valueA, theme.decimals)} ${theme.unit}` : "—"}
+        </span>
+      </div>
+      {nameB && (
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+          <span style={{ fontSize: 12, color: "var(--color-texte-clair)", width: 90, flexShrink: 0 }}>{nameB}</span>
+          <div style={{ flex: 1, background: "var(--color-fond)", borderRadius: 4, height: 18 }}>
+            {valueB !== null && (
+              <div style={{ width: `${(valueB / max) * 100}%`, height: "100%", background: "#D85A30", borderRadius: 4 }} />
+            )}
+          </div>
+          <span style={{ fontSize: 12, width: 65, textAlign: "right", flexShrink: 0 }}>
+            {valueB !== null ? `${formatValue(valueB, theme.decimals)} ${theme.unit}` : "—"}
+          </span>
+        </div>
+      )}
+
+      {ratio && ratio !== "1.0" && (
+        <p style={{ fontSize: 13, color: "var(--color-texte)", margin: "4px 0 0" }}>
+          {t(`decouverte.theme_${theme.key}_note`, { more: higherName, less: lowerName, ratio })}
+        </p>
+      )}
+      {theme.key === "especes" && (
+        <p style={{ fontSize: 12, color: "var(--color-texte-clair)", margin: "6px 0 0" }}>{t("decouverte.especes_caveat")}</p>
+      )}
+    </div>
+  );
+}
+
+
 // novice/sceptique plutôt que pour quelqu'un déjà sensibilisé au climat.
 // Voir TODO.md, point 7, pour le contexte de ce chantier.
 //
@@ -103,6 +244,17 @@ export default function DecouvertePage() {
     deps: [locale],
   });
   const deviation = worldBenchmarks?.temperature_deviation_world?.value;
+
+  const countries = useCountriesList("/api/co2/countries");
+  const [countryA, setCountryA] = useState("FRA");
+  const [countryB, setCountryB] = useState("USA");
+  useEffect(() => {
+    setCountryA(detectDefaultCountry());
+  }, []);
+  const { data: summaryA } = useApiFetch(`/api/country-summary/${countryA}`, { deps: [countryA] });
+  const { data: summaryB } = useApiFetch(countryB ? `/api/country-summary/${countryB}` : null, { deps: [countryB] });
+  const nameA = localizedCountryName(countryA, locale);
+  const nameB = countryB ? localizedCountryName(countryB, locale) : null;
 
   return (
     <div style={{ maxWidth: 700, margin: "0 auto", padding: "1.5rem" }}>
@@ -168,7 +320,31 @@ export default function DecouvertePage() {
           ))}
         </section>
       )}
-      {/* --- Section 3 : Comparaisons par thème (à venir) --- */}
+      {/* --- Section 3 : Comparaisons par thème --- */}
+      <section id="comparaisons" style={{ padding: "2rem 0" }}>
+        <h2 style={{ fontSize: 20, marginBottom: 4 }}>{t("decouverte.comparisons_title")}</h2>
+        <p style={{ fontSize: 14, color: "var(--color-texte-clair)", marginBottom: "1rem" }}>
+          {t("decouverte.comparisons_intro")}
+        </p>
+
+        <div style={{ display: "flex", gap: "1rem", marginBottom: "1.5rem", flexWrap: "wrap" }}>
+          <CountrySelect countries={countries} value={countryA} onChange={setCountryA} preferredLang={locale} />
+          <CountrySelect countries={countries} value={countryB} onChange={setCountryB} preferredLang={locale} />
+        </div>
+
+        {summaryA &&
+          THEMES.map((theme) => (
+            <ComparisonCard
+              key={theme.key}
+              theme={theme}
+              nameA={nameA}
+              nameB={nameB}
+              valueA={theme.compute(summaryA)}
+              valueB={summaryB ? theme.compute(summaryB) : null}
+              t={t}
+            />
+          ))}
+      </section>
       {/* --- Section 4 : Et maintenant ? (à venir) --- */}
     </div>
   );

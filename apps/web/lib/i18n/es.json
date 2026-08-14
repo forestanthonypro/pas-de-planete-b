@@ -933,6 +933,22 @@
     "hero_cta": "Entenderlo en 2 minutos",
     "objections_title": "Puede que le hayan dicho...",
     "objections_intro": "Haga clic en una afirmación para ver lo que realmente dicen los datos.",
-    "objections_see_sources": "Ver la fuente"
+    "objections_see_sources": "Ver la fuente",
+    "comparisons_title": "Dos países, siete realidades",
+    "comparisons_intro": "Elija dos países y compárelos, tema por tema.",
+    "theme_co2": "CO2 por habitante",
+    "theme_energie": "Electricidad por habitante",
+    "theme_eau": "Agua extraída por habitante",
+    "theme_vegetation": "Bosque perdido ese año",
+    "theme_especes": "Especies amenazadas",
+    "theme_pollution": "Contaminación del aire (PM2.5)",
+    "theme_temperatures": "Desviación de temperatura respecto a la referencia",
+    "theme_co2_note": "{more} emite {ratio} veces más CO2 por habitante que {less}.",
+    "theme_energie_note": "{more} consume {ratio} veces más electricidad por habitante que {less}.",
+    "theme_eau_note": "{more} extrae {ratio} veces más agua por habitante que {less}.",
+    "theme_vegetation_note": "{more} pierde bosque {ratio} veces más rápido que {less}, proporcionalmente.",
+    "theme_especes_note": "{more} tiene {ratio} veces más especies amenazadas que {less}.",
+    "theme_pollution_note": "El aire en {more} tiene {ratio} veces más partículas finas que en {less}.",
+    "especes_caveat": "Un país con una gran biodiversidad natural casi siempre tendrá más especies que proteger — comparar un país muy grande con uno pequeño no siempre es justo."
   }
 }
