@@ -963,6 +963,17 @@
     "action_level_hard": "Changement important",
     "action_closing": "La transition écologique, ce n'est pas seulement ce qu'on abandonne. C'est aussi le monde qu'on peut construire.",
     "action_more_link": "Voir plus d'idées, par thème",
-    "action_more_intro": "Envie d'aller plus loin ?"
+    "action_more_intro": "Envie d'aller plus loin ?",
+    "explain_title": "C'est quoi, le changement climatique ?",
+    "explain_p1": "Le Soleil réchauffe la Terre. Une partie de cette chaleur repart ensuite vers l'espace. Les gaz à effet de serre présents dans l'atmosphère en retiennent une partie — un peu comme les vitres d'une serre.",
+    "explain_p2": "Plus il y a de ces gaz (CO2, méthane...), plus il fait chaud sur Terre. C'est ce qu'on appelle l'effet de serre.",
+    "explain_nuance": "L'effet de serre est indispensable à la vie sur Terre. Le problème n'est pas son existence : c'est que les activités humaines le renforcent très rapidement, en quelques décennies plutôt qu'en millénaires.",
+    "theme_source_title": "Voir la source et le détail complet",
+    "gains_title": "Ce qu'on y gagne",
+    "gains_intro": "La transition écologique, ce n'est pas seulement ce qu'on abandonne.",
+    "gains_1": "Moins de pollution de l'air, donc moins de problèmes respiratoires",
+    "gains_2": "Des logements mieux isolés, plus confortables et moins coûteux à chauffer",
+    "gains_3": "Moins de dépendance aux importations d'énergie",
+    "gains_4": "Des villes plus végétalisées, plus agréables à vivre"
   }
 }

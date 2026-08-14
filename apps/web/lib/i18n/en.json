@@ -963,6 +963,17 @@
     "action_level_hard": "A bigger change",
     "action_closing": "The ecological transition isn't just what we give up. It's also the world we can build.",
     "action_more_link": "See more ideas, by theme",
-    "action_more_intro": "Want to go further?"
+    "action_more_intro": "Want to go further?",
+    "explain_title": "What is climate change?",
+    "explain_p1": "The Sun warms the Earth. Some of that heat then escapes back into space. Greenhouse gases in the atmosphere trap part of it — a bit like the glass of a greenhouse.",
+    "explain_p2": "The more of these gases there are (CO2, methane...), the warmer the Earth gets. That's the greenhouse effect.",
+    "explain_nuance": "The greenhouse effect is essential to life on Earth. The problem isn't that it exists — it's that human activity is strengthening it very fast, over decades rather than millennia.",
+    "theme_source_title": "See the source and full detail",
+    "gains_title": "What we gain",
+    "gains_intro": "The ecological transition isn't just about what we give up.",
+    "gains_1": "Less air pollution, so fewer respiratory problems",
+    "gains_2": "Better-insulated homes, more comfortable and cheaper to heat",
+    "gains_3": "Less dependence on energy imports",
+    "gains_4": "Greener cities, more pleasant to live in"
   }
 }

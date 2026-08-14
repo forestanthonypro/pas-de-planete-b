@@ -138,13 +138,13 @@ function computeTemperature(s) {
 }
 
 const THEMES = [
-  { key: "co2", Icon: IconCloud, tint: "#378ADD", compute: computeCo2, unit: "t", decimals: 1 },
-  { key: "energie", Icon: IconBolt, tint: "#EF9F27", compute: computeEnergie, unit: "kWh", decimals: 0 },
-  { key: "eau", Icon: IconDroplet, tint: "#378ADD", compute: computeEau, unit: "m³", decimals: 0 },
-  { key: "vegetation", Icon: IconTree, tint: "#639922", compute: computeVegetation, unit: "%", decimals: 2 },
-  { key: "especes", Icon: IconPaw, tint: "#D85A30", compute: computeEspeces, unit: "", decimals: 0 },
-  { key: "pollution", Icon: IconSmog, tint: "#D85A30", compute: computePollution, unit: "µg/m³", decimals: 1 },
-  { key: "temperatures", Icon: IconThermometer, tint: "#D85A30", compute: computeTemperature, unit: "°C", decimals: 2, isDeviation: true },
+  { key: "co2", Icon: IconCloud, tint: "#378ADD", compute: computeCo2, unit: "t", decimals: 1, page: "/co2" },
+  { key: "energie", Icon: IconBolt, tint: "#EF9F27", compute: computeEnergie, unit: "kWh", decimals: 0, page: "/energie" },
+  { key: "eau", Icon: IconDroplet, tint: "#378ADD", compute: computeEau, unit: "m³", decimals: 0, page: "/eau" },
+  { key: "vegetation", Icon: IconTree, tint: "#639922", compute: computeVegetation, unit: "%", decimals: 2, page: "/vegetation" },
+  { key: "especes", Icon: IconPaw, tint: "#D85A30", compute: computeEspeces, unit: "", decimals: 0, page: "/especes" },
+  { key: "pollution", Icon: IconSmog, tint: "#D85A30", compute: computePollution, unit: "µg/m³", decimals: 1, page: "/pollution" },
+  { key: "temperatures", Icon: IconThermometer, tint: "#D85A30", compute: computeTemperature, unit: "°C", decimals: 2, isDeviation: true, page: "/temperatures" },
 ];
 
 function formatValue(value, decimals) {
@@ -160,6 +160,9 @@ function ComparisonCard({ theme, nameA, nameB, valueA, valueB, t }) {
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
           <theme.Icon size={16} style={{ color: theme.tint }} />
           <span style={{ fontSize: 12, color: "var(--color-texte-clair)" }}>{t(`decouverte.theme_${theme.key}`)}</span>
+          <Link href={theme.page} style={{ fontSize: 11, color: "var(--color-texte-clair)", textDecoration: "none" }} title={t("decouverte.theme_source_title")}>
+            ⓘ
+          </Link>
         </div>
         <div style={{ display: "flex", gap: 24 }}>
           <div>
@@ -191,6 +194,9 @@ function ComparisonCard({ theme, nameA, nameB, valueA, valueB, t }) {
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
         <theme.Icon size={16} style={{ color: theme.tint }} />
         <span style={{ fontSize: 12, color: "var(--color-texte-clair)" }}>{t(`decouverte.theme_${theme.key}`)}</span>
+        <Link href={theme.page} style={{ fontSize: 11, color: "var(--color-texte-clair)", textDecoration: "none" }} title={t("decouverte.theme_source_title")}>
+          ⓘ
+        </Link>
       </div>
 
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
@@ -346,6 +352,16 @@ export default function DecouvertePage() {
         </Link>
       </section>
 
+      {/* --- Section 1bis : C'est quoi le changement climatique ? --- */}
+      <section style={{ padding: "1rem 0 2rem" }}>
+        <h2 style={{ fontSize: 20, marginBottom: 12 }}>{t("decouverte.explain_title")}</h2>
+        <p style={{ fontSize: 14, color: "var(--color-texte)", lineHeight: 1.7, marginBottom: 10 }}>{t("decouverte.explain_p1")}</p>
+        <p style={{ fontSize: 14, color: "var(--color-texte)", lineHeight: 1.7, marginBottom: 10 }}>{t("decouverte.explain_p2")}</p>
+        <div style={{ background: "var(--color-carte)", borderRadius: 12, padding: "1rem 1.25rem" }}>
+          <p style={{ fontSize: 14, fontWeight: 600, color: "var(--color-texte)", margin: 0 }}>{t("decouverte.explain_nuance")}</p>
+        </div>
+      </section>
+
       {/* --- Section 2 : Objections --- */}
       {objections && objections.length > 0 && (
         <section id="objections" style={{ padding: "2rem 0" }}>
@@ -385,6 +401,15 @@ export default function DecouvertePage() {
       </section>
       {/* --- Section 4 : Et maintenant ? --- */}
       <section style={{ padding: "2rem 0 3rem" }}>
+        <h2 style={{ fontSize: 18, marginBottom: 4 }}>{t("decouverte.gains_title")}</h2>
+        <p style={{ fontSize: 14, color: "var(--color-texte-clair)", marginBottom: 10 }}>{t("decouverte.gains_intro")}</p>
+        <ul style={{ fontSize: 14, color: "var(--color-texte)", lineHeight: 1.9, paddingLeft: 20, marginBottom: "1.5rem" }}>
+          <li>{t("decouverte.gains_1")}</li>
+          <li>{t("decouverte.gains_2")}</li>
+          <li>{t("decouverte.gains_3")}</li>
+          <li>{t("decouverte.gains_4")}</li>
+        </ul>
+
         <p style={{ fontSize: 17, fontWeight: 500, color: "var(--color-texte)", margin: "0 0 4px" }}>
           {t("decouverte.action_title")}
         </p>

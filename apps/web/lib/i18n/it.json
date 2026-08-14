@@ -963,6 +963,17 @@
     "action_level_hard": "Cambiamento importante",
     "action_closing": "La transizione ecologica non è solo ciò a cui rinunciamo. È anche il mondo che possiamo costruire.",
     "action_more_link": "Vedi altre idee, per tema",
-    "action_more_intro": "Vuoi andare oltre?"
+    "action_more_intro": "Vuoi andare oltre?",
+    "explain_title": "Cos'è il cambiamento climatico?",
+    "explain_p1": "Il Sole riscalda la Terra. Parte di questo calore torna poi verso lo spazio. I gas serra presenti nell'atmosfera ne trattengono una parte — un po' come i vetri di una serra.",
+    "explain_p2": "Più ci sono questi gas (CO2, metano...), più fa caldo sulla Terra. È questo l'effetto serra.",
+    "explain_nuance": "L'effetto serra è indispensabile alla vita sulla Terra. Il problema non è la sua esistenza: è che le attività umane lo stanno rafforzando molto rapidamente, in pochi decenni anziché millenni.",
+    "theme_source_title": "Vedi la fonte e il dettaglio completo",
+    "gains_title": "Cosa ci guadagniamo",
+    "gains_intro": "La transizione ecologica non è solo ciò a cui rinunciamo.",
+    "gains_1": "Meno inquinamento atmosferico, quindi meno problemi respiratori",
+    "gains_2": "Case meglio isolate, più confortevoli e meno costose da riscaldare",
+    "gains_3": "Minore dipendenza dalle importazioni di energia",
+    "gains_4": "Città più verdi, più piacevoli da vivere"
   }
 }

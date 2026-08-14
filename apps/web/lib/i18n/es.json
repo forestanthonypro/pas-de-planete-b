@@ -963,6 +963,17 @@
     "action_level_hard": "Cambio importante",
     "action_closing": "La transición ecológica no es solo lo que dejamos de hacer. Es también el mundo que podemos construir.",
     "action_more_link": "Ver más ideas, por tema",
-    "action_more_intro": "¿Quiere ir más allá?"
+    "action_more_intro": "¿Quiere ir más allá?",
+    "explain_title": "¿Qué es el cambio climático?",
+    "explain_p1": "El Sol calienta la Tierra. Parte de ese calor vuelve luego al espacio. Los gases de efecto invernadero de la atmósfera retienen una parte — un poco como el cristal de un invernadero.",
+    "explain_p2": "Cuantos más gases de este tipo hay (CO2, metano...), más calor hace en la Tierra. Es lo que se llama efecto invernadero.",
+    "explain_nuance": "El efecto invernadero es indispensable para la vida en la Tierra. El problema no es que exista: es que las actividades humanas lo están intensificando muy rápido, en décadas en lugar de milenios.",
+    "theme_source_title": "Ver la fuente y el detalle completo",
+    "gains_title": "Lo que ganamos",
+    "gains_intro": "La transición ecológica no es solo lo que dejamos de hacer.",
+    "gains_1": "Menos contaminación del aire, por tanto menos problemas respiratorios",
+    "gains_2": "Viviendas mejor aisladas, más confortables y más baratas de calentar",
+    "gains_3": "Menos dependencia de las importaciones de energía",
+    "gains_4": "Ciudades más verdes, más agradables para vivir"
   }
 }
