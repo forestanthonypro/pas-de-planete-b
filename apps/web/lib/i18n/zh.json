@@ -949,6 +949,19 @@
     "theme_vegetation_note": "按比例计算，{more}森林流失速度是{less}的{ratio}倍。",
     "theme_especes_note": "{more}的受威胁物种数量是{less}的{ratio}倍。",
     "theme_pollution_note": "{more}空气中的细颗粒物是{less}的{ratio}倍。",
-    "especes_caveat": "自然生物多样性丰富的国家几乎总是有更多物种需要保护——将一个非常大的国家与一个小国相比并不总是公平的。"
+    "especes_caveat": "自然生物多样性丰富的国家几乎总是有更多物种需要保护——将一个非常大的国家与一个小国相比并不总是公平的。",
+    "action_title": "您不需要做到完美。",
+    "action_subtitle": "从您力所能及的事情开始。",
+    "action_spot_myths": "留意身边的常见误解",
+    "action_share_page": "与他人分享此页面",
+    "action_less_car": "每周减少一次开车出行",
+    "action_less_meat": "每周少吃一次红肉",
+    "action_insulate": "改善住所保温",
+    "action_heating": "重新考虑供暖方式",
+    "action_level_easy": "简单——几分钟即可",
+    "action_level_medium": "需要一些调整",
+    "action_level_hard": "较大的改变",
+    "action_closing": "生态转型不仅仅是我们要放弃的东西，也是我们能够共同建设的世界。",
+    "action_more_link": "按主题查看更多建议"
   }
 }

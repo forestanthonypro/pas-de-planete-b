@@ -949,6 +949,19 @@
     "theme_vegetation_note": "{more} perd sa forêt {ratio} fois plus vite que {less}, en proportion.",
     "theme_especes_note": "{more} compte {ratio} fois plus d'espèces menacées que {less}.",
     "theme_pollution_note": "L'air à {more} contient {ratio} fois plus de particules fines qu'à {less}.",
-    "especes_caveat": "Un pays avec une grande biodiversité naturelle aura presque toujours plus d'espèces à protéger — comparer un très grand pays à un petit n'est pas toujours équitable."
+    "especes_caveat": "Un pays avec une grande biodiversité naturelle aura presque toujours plus d'espèces à protéger — comparer un très grand pays à un petit n'est pas toujours équitable.",
+    "action_title": "Vous n'avez pas besoin d'être parfait.",
+    "action_subtitle": "Commencez par ce qui est possible pour vous.",
+    "action_spot_myths": "Repérer les idées reçues autour de vous",
+    "action_share_page": "Partager cette page avec quelqu'un",
+    "action_less_car": "Réduire un trajet en voiture par semaine",
+    "action_less_meat": "Manger moins de viande rouge une fois par semaine",
+    "action_insulate": "Mieux isoler son logement",
+    "action_heating": "Revoir son mode de chauffage",
+    "action_level_easy": "Facile — quelques minutes",
+    "action_level_medium": "Demande un ajustement",
+    "action_level_hard": "Changement important",
+    "action_closing": "La transition écologique, ce n'est pas seulement ce qu'on abandonne. C'est aussi le monde qu'on peut construire.",
+    "action_more_link": "Voir plus d'idées, par thème"
   }
 }

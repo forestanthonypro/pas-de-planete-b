@@ -236,6 +236,16 @@ function ComparisonCard({ theme, nameA, nameB, valueA, valueB, t }) {
 //
 // Construite section par section (voir les commentaires ci-dessous) plutôt
 // que d'un bloc — chaque section est testée et livrée séparément.
+const ACTIONS = [
+  { key: "spot_myths", level: "easy" },
+  { key: "share_page", level: "easy" },
+  { key: "less_car", level: "medium" },
+  { key: "less_meat", level: "medium" },
+  { key: "insulate", level: "hard" },
+  { key: "heating", level: "hard" },
+];
+const LEVEL_COLORS = { easy: "#639922", medium: "#EF9F27", hard: "#D85A30" };
+
 export default function DecouvertePage() {
   const { t, locale } = useT();
   const worldBenchmarks = useWorldBenchmarks();
@@ -345,7 +355,46 @@ export default function DecouvertePage() {
             />
           ))}
       </section>
-      {/* --- Section 4 : Et maintenant ? (à venir) --- */}
+      {/* --- Section 4 : Et maintenant ? --- */}
+      <section style={{ padding: "2rem 0 3rem" }}>
+        <p style={{ fontSize: 17, fontWeight: 500, color: "var(--color-texte)", margin: "0 0 4px" }}>
+          {t("decouverte.action_title")}
+        </p>
+        <p style={{ fontSize: 14, color: "var(--color-texte-clair)", marginBottom: "1.25rem" }}>
+          {t("decouverte.action_subtitle")}
+        </p>
+
+        {ACTIONS.map((action) => (
+          <div
+            key={action.key}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              background: "var(--color-carte)",
+              borderRadius: 8,
+              padding: "10px 14px",
+              marginBottom: 8,
+            }}
+          >
+            <span style={{ width: 8, height: 8, borderRadius: "50%", background: LEVEL_COLORS[action.level], flexShrink: 0 }} />
+            <div style={{ flex: 1 }}>
+              <p style={{ fontSize: 13, color: "var(--color-texte)", margin: 0 }}>{t(`decouverte.action_${action.key}`)}</p>
+              <p style={{ fontSize: 12, color: "var(--color-texte-clair)", margin: 0 }}>{t(`decouverte.action_level_${action.level}`)}</p>
+            </div>
+          </div>
+        ))}
+
+        <div style={{ background: "var(--color-carte-verte, #eaf3de)", borderRadius: 12, padding: "1rem 1.25rem", marginTop: "1.25rem" }}>
+          <p style={{ fontSize: 14, color: "var(--color-texte)", margin: 0 }}>{t("decouverte.action_closing")}</p>
+        </div>
+
+        <p style={{ fontSize: 13, marginTop: "1.25rem" }}>
+          <Link href="/paysans" style={{ color: "var(--color-forest)", fontWeight: 600 }}>
+            {t("decouverte.action_more_link")} →
+          </Link>
+        </p>
+      </section>
     </div>
   );
 }

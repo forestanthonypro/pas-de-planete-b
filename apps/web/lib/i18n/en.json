@@ -949,6 +949,19 @@
     "theme_vegetation_note": "{more} loses forest {ratio} times faster than {less}, proportionally.",
     "theme_especes_note": "{more} has {ratio} times more threatened species than {less}.",
     "theme_pollution_note": "Air in {more} has {ratio} times more fine particles than in {less}.",
-    "especes_caveat": "A country with rich natural biodiversity will almost always have more species to protect — comparing a very large country to a small one isn't always fair."
+    "especes_caveat": "A country with rich natural biodiversity will almost always have more species to protect — comparing a very large country to a small one isn't always fair.",
+    "action_title": "You don't need to be perfect.",
+    "action_subtitle": "Start with what's possible for you.",
+    "action_spot_myths": "Spot common myths around you",
+    "action_share_page": "Share this page with someone",
+    "action_less_car": "Cut one car trip a week",
+    "action_less_meat": "Eat less red meat once a week",
+    "action_insulate": "Better insulate your home",
+    "action_heating": "Rethink your heating system",
+    "action_level_easy": "Easy — a few minutes",
+    "action_level_medium": "Takes some adjustment",
+    "action_level_hard": "A bigger change",
+    "action_closing": "The ecological transition isn't just what we give up. It's also the world we can build.",
+    "action_more_link": "See more ideas, by theme"
   }
 }
