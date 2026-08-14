@@ -7,7 +7,7 @@ import { useCountriesList } from "../lib/useCountriesList";
 import { localizedCountryName } from "../lib/countryNames";
 import { detectDefaultCountry } from "../lib/detectCountry";
 import CountrySelect from "../components/CountrySelect";
-import { IconCloud, IconBolt, IconDroplet, IconTree, IconPaw, IconSmog, IconThermometer } from "../components/icons";
+import { IconCloud, IconBolt, IconDroplet, IconTree, IconPaw, IconSmog, IconThermometer, IconSearch, IconPlay, IconLandmark, IconScroll, IconCheck } from "../components/icons";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 const VERDICT_COLORS = { faux: "#d63e2a", trompeur: "#f4b400", confirme: "#1baf7a" };
@@ -246,6 +246,34 @@ const ACTIONS = [
 ];
 const LEVEL_COLORS = { easy: "#639922", medium: "#EF9F27", hard: "#D85A30" };
 
+const ENGAGER_TINTS = {
+  teal: { bg: "#dcf2ee", color: "#0f6e56" },
+  mauve: { bg: "#ece5f2", color: "#5c3d7a" },
+  green: { bg: "#eaf3de", color: "#1b5e20" },
+  blue: { bg: "#e3eef7", color: "#0b3c5d" },
+};
+const ENGAGER_CARDS = [
+  { href: "/debunk", Icon: IconSearch, labelKey: "home.card_debunk_label", descKey: "home.card_debunk_desc", tint: "teal" },
+  { href: "/interviews", Icon: IconPlay, labelKey: "home.card_interviews_label", descKey: "home.card_interviews_desc", tint: "mauve" },
+  { href: "/paysans", Icon: IconTree, labelKey: "home.card_paysans_label", descKey: "home.card_paysans_desc", tint: "green" },
+  { href: "/ressources", Icon: IconLandmark, labelKey: "home.card_ressources_label", descKey: "home.card_ressources_desc", tint: "blue" },
+  { href: "/petitions", Icon: IconScroll, labelKey: "home.card_petitions_label", descKey: "home.card_petitions_desc", tint: "mauve" },
+  { href: "/idees-enfants", Icon: IconCheck, labelKey: "home.card_futureideas_label", descKey: "home.card_futureideas_desc", tint: "blue" },
+];
+
+function EngagerCard({ href, Icon, label, desc, tint }) {
+  const colors = ENGAGER_TINTS[tint] || ENGAGER_TINTS.green;
+  return (
+    <Link href={href} prefetch={false} style={{ display: "block", textDecoration: "none", color: "var(--color-texte)", background: "var(--color-carte)", border: "1px solid var(--color-bordure)", borderRadius: "var(--radius)", padding: "1rem" }}>
+      <div style={{ width: 36, height: 36, borderRadius: 10, background: colors.bg, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 8 }}>
+        <Icon size={18} style={{ color: colors.color }} />
+      </div>
+      <p style={{ fontSize: 14, fontWeight: 600, margin: "0 0 2px" }}>{label}</p>
+      <p style={{ fontSize: 12, color: "var(--color-texte-clair)", margin: 0 }}>{desc}</p>
+    </Link>
+  );
+}
+
 export default function DecouvertePage() {
   const { t, locale } = useT();
   const worldBenchmarks = useWorldBenchmarks();
@@ -389,11 +417,14 @@ export default function DecouvertePage() {
           <p style={{ fontSize: 14, color: "var(--color-texte)", margin: 0 }}>{t("decouverte.action_closing")}</p>
         </div>
 
-        <p style={{ fontSize: 13, marginTop: "1.25rem" }}>
-          <Link href="/paysans" style={{ color: "var(--color-forest)", fontWeight: 600 }}>
-            {t("decouverte.action_more_link")} →
-          </Link>
+        <p style={{ fontSize: 14, color: "var(--color-texte)", marginTop: "1.5rem", marginBottom: "0.75rem" }}>
+          {t("decouverte.action_more_intro")}
         </p>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 12 }}>
+          {ENGAGER_CARDS.map((card) => (
+            <EngagerCard key={card.href} href={card.href} Icon={card.Icon} label={t(card.labelKey)} desc={t(card.descKey)} tint={card.tint} />
+          ))}
+        </div>
       </section>
     </div>
   );

@@ -962,6 +962,7 @@
     "action_level_medium": "Requiere un ajuste",
     "action_level_hard": "Cambio importante",
     "action_closing": "La transición ecológica no es solo lo que dejamos de hacer. Es también el mundo que podemos construir.",
-    "action_more_link": "Ver más ideas, por tema"
+    "action_more_link": "Ver más ideas, por tema",
+    "action_more_intro": "¿Quiere ir más allá?"
   }
 }

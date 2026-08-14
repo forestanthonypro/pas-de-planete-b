@@ -962,6 +962,7 @@
     "action_level_medium": "Demande un ajustement",
     "action_level_hard": "Changement important",
     "action_closing": "La transition écologique, ce n'est pas seulement ce qu'on abandonne. C'est aussi le monde qu'on peut construire.",
-    "action_more_link": "Voir plus d'idées, par thème"
+    "action_more_link": "Voir plus d'idées, par thème",
+    "action_more_intro": "Envie d'aller plus loin ?"
   }
 }

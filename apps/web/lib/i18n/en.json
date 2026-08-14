@@ -962,6 +962,7 @@
     "action_level_medium": "Takes some adjustment",
     "action_level_hard": "A bigger change",
     "action_closing": "The ecological transition isn't just what we give up. It's also the world we can build.",
-    "action_more_link": "See more ideas, by theme"
+    "action_more_link": "See more ideas, by theme",
+    "action_more_intro": "Want to go further?"
   }
 }
