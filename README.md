@@ -150,7 +150,17 @@ Les libellés de chambre (« Chambre des représentants »/« Sénat » pour les
 
 ## Maintenance mensuelle
 
-La quasi-totalité des sources de données se rafraîchissent automatiquement (GitHub Actions, voir `.github/workflows/refresh-data.yml`). **Une seule exception nécessite une action manuelle chaque mois** :
+La quasi-totalité des sources de données se rafraîchissent automatiquement (GitHub Actions, voir `.github/workflows/refresh-data.yml`). **Deux exceptions nécessitent une action manuelle chaque mois** :
+
+### Sénat italien (`ingest-italy-senate.js`)
+
+`dati.senato.it` bloque lui aussi les requêtes venant d'adresses IP de datacenter — confirmé le 14 août 2026 (Amazon CloudFront, `server: AmazonS3`/`via: cloudfront.net` dans les en-têtes de la réponse 403 ; CDN différent de l'Akamai utilisé par `senado.es`, mais même type de blocage structurel). Même solution, même modèle de script :
+
+```powershell
+.\refresh-italy-senate-prod.ps1
+```
+
+Prérequis identiques au Sénat espagnol ci-dessous (conteneur API local actif, clé SSH `~/.ssh/pdpb_auto`) — voir `apps/api/export-italy-senate.js` pour le script d'export ciblé (les groupes du Sénat italien n'ayant pas de préfixe de slug distinctif contrairement à l'Espagne, ils sont ciblés via une jointure avec les membres plutôt que par motif de texte).
 
 ### Sénat espagnol (`ingest-spain-senate.js`)
 
