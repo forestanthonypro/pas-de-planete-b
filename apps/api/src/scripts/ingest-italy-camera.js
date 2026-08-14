@@ -190,7 +190,7 @@ export async function ingestItalyCameraVotes({ limitVotes = 200 } = {}) {
   const votesQuery = `
 PREFIX ocd: <${OCD_NAMESPACE}>
 PREFIX dc: <http://purl.org/dc/elements/1.1/>
-SELECT DISTINCT ?votazione ?title ?favorevoli ?contrari ?astenuti ?data
+SELECT DISTINCT ?votazione ?title ?favorevoli ?contrari ?astenuti ?data ?aic
 WHERE {
   ?votazione a ocd:votazione;
     ocd:rif_leg <${CURRENT_LEGISLATURE_URI}>.
@@ -199,6 +199,7 @@ WHERE {
   OPTIONAL { ?votazione ocd:contrari ?contrari. }
   OPTIONAL { ?votazione ocd:astenuti ?astenuti. }
   OPTIONAL { ?votazione dc:date ?data. }
+  OPTIONAL { ?votazione ocd:rif_aic ?aic. }
 }
 ORDER BY DESC(?data)
 LIMIT ${limitVotes}
@@ -232,7 +233,7 @@ LIMIT ${limitVotes}
         favorevoli,
         contrari,
         astenuti,
-        v.votazione,
+        v.aic || v.votazione,
       ]
     );
     const voteId = voteResult.rows[0].id;
