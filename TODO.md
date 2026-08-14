@@ -25,7 +25,7 @@ Document de suivi des chantiers en attente, à garder à jour d'une session à l
 
    **✅ Complètement à jour** :
    - **Italie, Chambre des députés** (`ingest-italy-camera.js`) — 399 députés + **200 votes** (limite augmentée de 20 à 200, testé : ~6min22s en local, confortable sous la limite CI/CD de 10min).
-   - **Italie, Sénat** (`ingest-italy-senate.js`) — 244 sénateurs + **200 votes**. Correctif de casse confirmé en production (`SELECT DISTINCT result` n'affiche plus que `Approvato`/`Respinto`, en majuscule) — le `dati.senato.it/sparql` s'est bien débloqué de lui-même (confirmé le 14 août, moins de 24h après le blocage constaté). 32/200 votes ont un résultat `NULL` (~16%) : légitime, certains votes procéduraux n'ont pas de champ `esito` renseigné côté Sénat lui-même, pas un bug de notre ingestion.
+   - **Italie, Sénat** (`ingest-italy-senate.js`) — 244 sénateurs + **200 votes**, confirmé en local **et en production** (14 août). Correctif de casse confirmé des deux côtés (`SELECT DISTINCT result` n'affiche plus que `Approvato`/`Respinto`, en majuscule). 32/200 votes ont un résultat `NULL` (~16%) : légitime, certains votes procéduraux n'ont pas de champ `esito` renseigné côté Sénat lui-même, pas un bug de notre ingestion.
    - **Espagne, Sénat** (`ingest-spain-senate.js`) — 265 sénateurs + **161 votes** (15 séances au lieu de 3). Committé et déployé en production via `refresh-spain-senate-prod.ps1`.
    - **Espagne, Congreso de los Diputados** (`ingest-spain-congress.js`) — 350 députés + 20 votes.
 
