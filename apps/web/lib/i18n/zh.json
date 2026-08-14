@@ -79,8 +79,8 @@
     "card_international_desc": "外国议会",
     "card_france_label": "法国",
     "card_france_desc": "国民议会",
-    "see_my_country_desc": "将您的国家与7项关键指标（二氧化碳、能源、水、森林、受威胁物种等）的世界平均水平进行比较，如果您愿意，还可以与您选择的其他国家进行比较。",
-    "hero_desc_v2": "「我的国家环境摘要 + 对比」菜单可让您将自己的国家与全球7项关键指标（二氧化碳、能源、水资源、森林、濒危物种等）的平均水平进行比较，如果您愿意，还可以与您选择的其他国家进行比较。",
+    "see_my_country_desc": "将您的国家与8项关键指标（二氧化碳、能源、水、森林、受威胁物种等）的世界平均水平进行比较，如果您愿意，还可以与您选择的其他国家进行比较。",
+    "hero_desc_v2": "「我的国家环境摘要 + 对比」菜单可让您将自己的国家与全球8项关键指标（二氧化碳、能源、水资源、森林、濒危物种等）的平均水平进行比较，如果您愿意，还可以与您选择的其他国家进行比较。",
     "hero_punchline": "没有第二个地球。未来由我们书写。就是现在。",
     "card_temperatures_label": "气温",
     "card_temperatures_desc": "变暖，热浪"
@@ -543,7 +543,15 @@
     "water_detail_link": "查看详细图表 →",
     "section_nav_label": "跳转到某个部分",
     "world_comparison_year_note": "每一行都使用该项具体数据可获得的最新年份——根据数据来源不同，各行的年份可能不一致（例如，二氧化碳数据可能比水资源数据更新）。这并非在同一日期拍摄的单一快照。",
-    "temperature_comparison_intro": "与1991-2020参考期的气温偏差——不受该国自然气候影响的变暖信号（与平均气温不同，热带国家并不比北方国家\"更差\"）："
+    "temperature_comparison_intro": "与1991-2020参考期的气温偏差——不受该国自然气候影响的变暖信号（与平均气温不同，热带国家并不比北方国家\"更差\"）：",
+    "temperature_latest_prefix": "最新数据（{year}年）：",
+    "temperature_avg": "平均气温{value}°C",
+    "temperature_deviation_suffix": " ——与1991-2020参考期偏差{value}°C",
+    "temperature_waves_suffix": " ——热浪{heat}次，寒潮{cold}次",
+    "temperature_no_data": "该国暂无气温数据。",
+    "temperature_source": "Open-Meteo历史天气API（ERA5/ERA5-Land），基于该国首都数据计算。",
+    "temperature_source_year": " 覆盖的最新年份：{year}年。",
+    "temperature_detail_link": "查看详细图表 →"
   },
   "citizenVote": {
     "question": "那么你会怎么投票？",

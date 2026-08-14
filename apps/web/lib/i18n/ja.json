@@ -79,8 +79,8 @@
     "card_international_desc": "海外の議会",
     "card_france_label": "フランス",
     "card_france_desc": "国民議会",
-    "see_my_country_desc": "自国を7つの主要指標（CO2、エネルギー、水、森林、絶滅危惧種など）で世界平均と比較し、お好みで他の国とも比較できます。",
-    "hero_desc_v2": "「自国の環境サマリー + 比較」メニューでは、7つの主要指標（CO2、エネルギー、水、森林、絶滅危惧種など）で自国を世界平均と比較でき、ご希望であれば他の国とも比較できます。",
+    "see_my_country_desc": "自国を8つの主要指標（CO2、エネルギー、水、森林、絶滅危惧種など）で世界平均と比較し、お好みで他の国とも比較できます。",
+    "hero_desc_v2": "「自国の環境サマリー + 比較」メニューでは、8つの主要指標（CO2、エネルギー、水、森林、絶滅危惧種など）で自国を世界平均と比較でき、ご希望であれば他の国とも比較できます。",
     "hero_punchline": "地球はひとつしかない。未来は私たちが書くもの。今こそ。",
     "card_temperatures_label": "気温",
     "card_temperatures_desc": "温暖化、熱波"
@@ -543,7 +543,15 @@
     "water_detail_link": "詳細グラフを見る →",
     "section_nav_label": "セクションへ移動",
     "world_comparison_year_note": "各行は、その特定のデータについて入手可能な最新の年を使用しています——出典によって、行ごとにこの年が異なる場合があります（例えば、CO2のデータは水のデータより新しいことがあります）。これは単一の日付で撮影された一枚のスナップショットではありません。",
-    "temperature_comparison_intro": "1991〜2020年基準期間からの気温差 — その国本来の気候に左右されない温暖化シグナル（平均気温とは異なり、熱帯の国が北方の国より「悪い」わけではありません）："
+    "temperature_comparison_intro": "1991〜2020年基準期間からの気温差 — その国本来の気候に左右されない温暖化シグナル（平均気温とは異なり、熱帯の国が北方の国より「悪い」わけではありません）：",
+    "temperature_latest_prefix": "最新データ（{year}年）：",
+    "temperature_avg": "平均気温{value}°C",
+    "temperature_deviation_suffix": " — 1991〜2020年基準期間との差 {value}°C",
+    "temperature_waves_suffix": " — 熱波{heat}回、寒波{cold}回",
+    "temperature_no_data": "この国の気温データはありません。",
+    "temperature_source": "Open-Meteo Historical Weather API（ERA5/ERA5-Land）、首都のデータをもとに算出。",
+    "temperature_source_year": " カバーしている最新年：{year}年。",
+    "temperature_detail_link": "詳細なグラフを見る →"
   },
   "citizenVote": {
     "question": "あなたならどう投票しましたか？",

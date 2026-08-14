@@ -79,8 +79,8 @@
     "card_international_desc": "Parlamentos extranjeros",
     "card_france_label": "Francia",
     "card_france_desc": "Asamblea Nacional",
-    "see_my_country_desc": "Compara tu país con la media mundial en 7 indicadores clave (CO2, energía, agua, bosque, especies amenazadas...) y, si quieres, con otro país que elijas.",
-    "hero_desc_v2": "El menú «Resumen ambiental de mi país + comparativa» te permite comparar tu país con la media mundial en 7 indicadores clave (CO2, energía, agua, bosques, especies amenazadas...) y, si lo deseas, con otro país de tu elección.",
+    "see_my_country_desc": "Compara tu país con la media mundial en 8 indicadores clave (CO2, energía, agua, bosque, especies amenazadas...) y, si quieres, con otro país que elijas.",
+    "hero_desc_v2": "El menú «Resumen ambiental de mi país + comparativa» te permite comparar tu país con la media mundial en 8 indicadores clave (CO2, energía, agua, bosques, especies amenazadas...) y, si lo deseas, con otro país de tu elección.",
     "hero_punchline": "No hay planeta B. El futuro es nuestro para escribirlo. Ahora.",
     "card_temperatures_label": "Temperaturas",
     "card_temperatures_desc": "Calentamiento, olas de calor"
@@ -543,7 +543,15 @@
     "water_detail_link": "Ver el gráfico detallado →",
     "section_nav_label": "Ir a una sección",
     "world_comparison_year_note": "Cada línea utiliza el último año disponible para ese dato concreto — estos años pueden diferir de una línea a otra según la fuente (por ejemplo, las cifras de CO2 pueden ser más recientes que las del agua). No se trata de una única foto tomada en una fecha concreta.",
-    "temperature_comparison_intro": "Desviación de temperatura respecto a la referencia 1991-2020 — la señal de calentamiento, independiente del clima natural del país (a diferencia de la temperatura media, un país tropical no es \"peor\" que uno nórdico):"
+    "temperature_comparison_intro": "Desviación de temperatura respecto a la referencia 1991-2020 — la señal de calentamiento, independiente del clima natural del país (a diferencia de la temperatura media, un país tropical no es \"peor\" que uno nórdico):",
+    "temperature_latest_prefix": "Último dato disponible ({year}):",
+    "temperature_avg": "{value}°C de temperatura media",
+    "temperature_deviation_suffix": " — desviación de {value}°C respecto a la referencia 1991-2020",
+    "temperature_waves_suffix": " — {heat} ola(s) de calor, {cold} ola(s) de frío",
+    "temperature_no_data": "No hay datos de temperatura para este país.",
+    "temperature_source": "Open-Meteo Historical Weather API (ERA5/ERA5-Land), calculado a partir de la capital del país.",
+    "temperature_source_year": " Último año cubierto: {year}.",
+    "temperature_detail_link": "Ver el gráfico detallado →"
   },
   "citizenVote": {
     "question": "¿Y tú, cómo habrías votado?",

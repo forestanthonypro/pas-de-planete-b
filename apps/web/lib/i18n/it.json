@@ -79,8 +79,8 @@
     "card_international_desc": "Parlamenti esteri",
     "card_france_label": "Francia",
     "card_france_desc": "Assemblea Nazionale",
-    "see_my_country_desc": "Confronta il tuo paese con la media mondiale su 7 indicatori chiave (CO2, energia, acqua, foresta, specie minacciate...) e, se vuoi, con un altro paese a tua scelta.",
-    "hero_desc_v2": "Il menu «Sintesi ambientale del mio paese + confronto» ti permette di confrontare il tuo paese con la media mondiale su 7 indicatori chiave (CO2, energia, acqua, foreste, specie minacciate...) e, se lo desideri, con un altro paese a tua scelta.",
+    "see_my_country_desc": "Confronta il tuo paese con la media mondiale su 8 indicatori chiave (CO2, energia, acqua, foresta, specie minacciate...) e, se vuoi, con un altro paese a tua scelta.",
+    "hero_desc_v2": "Il menu «Sintesi ambientale del mio paese + confronto» ti permette di confrontare il tuo paese con la media mondiale su 8 indicatori chiave (CO2, energia, acqua, foreste, specie minacciate...) e, se lo desideri, con un altro paese a tua scelta.",
     "hero_punchline": "Non c'è un pianeta B. Il futuro è nostro da scrivere. Adesso.",
     "card_temperatures_label": "Temperature",
     "card_temperatures_desc": "Riscaldamento, ondate di calore"
@@ -543,7 +543,15 @@
     "water_detail_link": "Vedi il grafico dettagliato →",
     "section_nav_label": "Vai a una sezione",
     "world_comparison_year_note": "Ogni riga utilizza l'ultimo anno disponibile per quel dato specifico — questi anni possono differire da una riga all'altra a seconda della fonte (ad esempio, i dati sulla CO2 possono essere più recenti di quelli sull'acqua). Non è un'unica istantanea scattata in una data precisa.",
-    "temperature_comparison_intro": "Scarto di temperatura rispetto al riferimento 1991-2020 — il segnale di riscaldamento, indipendente dal clima naturale del paese (a differenza della temperatura media, un paese tropicale non è \"peggiore\" di uno nordico):"
+    "temperature_comparison_intro": "Scarto di temperatura rispetto al riferimento 1991-2020 — il segnale di riscaldamento, indipendente dal clima naturale del paese (a differenza della temperatura media, un paese tropicale non è \"peggiore\" di uno nordico):",
+    "temperature_latest_prefix": "Ultimo dato disponibile ({year}):",
+    "temperature_avg": "{value}°C di temperatura media",
+    "temperature_deviation_suffix": " — scarto di {value}°C rispetto al riferimento 1991-2020",
+    "temperature_waves_suffix": " — {heat} ondata/e di calore, {cold} ondata/e di freddo",
+    "temperature_no_data": "Nessun dato di temperatura per questo paese.",
+    "temperature_source": "Open-Meteo Historical Weather API (ERA5/ERA5-Land), calcolato a partire dalla capitale del paese.",
+    "temperature_source_year": " Ultimo anno coperto: {year}.",
+    "temperature_detail_link": "Vedi il grafico dettagliato →"
   },
   "citizenVote": {
     "question": "E tu, come avresti votato?",

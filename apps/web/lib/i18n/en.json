@@ -79,8 +79,8 @@
     "card_international_desc": "Foreign parliaments",
     "card_france_label": "France",
     "card_france_desc": "National Assembly",
-    "see_my_country_desc": "Compare your country to the world average on 7 key indicators (CO2, energy, water, forest, threatened species...), and if you'd like, to another country of your choice.",
-    "hero_desc_v2": "The \"My country's environmental summary + comparison\" menu lets you compare your country to the world average on 7 key indicators (CO2, energy, water, forests, endangered species...), and if you wish, to another country of your choice.",
+    "see_my_country_desc": "Compare your country to the world average on 8 key indicators (CO2, energy, water, forest, threatened species...), and if you'd like, to another country of your choice.",
+    "hero_desc_v2": "The \"My country's environmental summary + comparison\" menu lets you compare your country to the world average on 8 key indicators (CO2, energy, water, forests, endangered species...), and if you wish, to another country of your choice.",
     "hero_punchline": "No Planet B. The future is ours to write. Now.",
     "card_temperatures_label": "Temperatures",
     "card_temperatures_desc": "Warming, heatwaves"
@@ -543,7 +543,15 @@
     "water_detail_link": "See the detailed chart →",
     "section_nav_label": "Jump to a section",
     "world_comparison_year_note": "Each row uses the latest available year for that specific piece of data — these years can differ from one row to another depending on the source (for example, CO2 figures may be more recent than water figures). This isn't a single snapshot taken on one date.",
-    "temperature_comparison_intro": "Temperature deviation from the 1991-2020 reference — the warming signal, independent of the country's natural climate (unlike average temperature, a tropical country isn't \"worse\" than a northern one):"
+    "temperature_comparison_intro": "Temperature deviation from the 1991-2020 reference — the warming signal, independent of the country's natural climate (unlike average temperature, a tropical country isn't \"worse\" than a northern one):",
+    "temperature_latest_prefix": "Latest available data ({year}):",
+    "temperature_avg": "{value}°C average temperature",
+    "temperature_deviation_suffix": " — {value}°C deviation from the 1991-2020 reference",
+    "temperature_waves_suffix": " — {heat} heatwave(s), {cold} cold wave(s)",
+    "temperature_no_data": "No temperature data for this country.",
+    "temperature_source": "Open-Meteo Historical Weather API (ERA5/ERA5-Land), computed from the country's capital.",
+    "temperature_source_year": " Latest year covered: {year}.",
+    "temperature_detail_link": "See detailed chart →"
   },
   "citizenVote": {
     "question": "How would you have voted?",

@@ -293,6 +293,72 @@ function buildStressChart(waterData, worldBenchmarksData, mainColor, t) {
   };
 }
 
+// Écart à la référence 1991-2020 dans le temps, avec la valeur mondiale
+// (une seule valeur disponible, voir world_benchmarks) tracée en ligne
+// pointillée constante — même patron que buildStressChart ci-dessus.
+function buildTemperatureChart(temperaturesData, worldBenchmarksData, mainColor, t) {
+  const datasets = [
+    {
+      label: t("temperatures.chart_stripes_title"),
+      data: temperaturesData.map((d) => d.deviation_from_reference_c),
+      borderColor: mainColor,
+      backgroundColor: "rgba(15,110,86,0.1)",
+      fill: true,
+      tension: 0.3,
+      pointRadius: 0,
+      borderWidth: 2,
+    },
+  ];
+  if (worldBenchmarksData?.temperature_deviation_world) {
+    datasets.push({
+      label: t("pays.world_average_plain"),
+      data: temperaturesData.map(() => worldBenchmarksData.temperature_deviation_world.value),
+      borderColor: "#95a5a6",
+      borderDash: [4, 4],
+      pointRadius: 0,
+      borderWidth: 1.5,
+      fill: false,
+    });
+  }
+  return {
+    type: "line",
+    data: { labels: temperaturesData.map((d) => d.year), datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: true } },
+      scales: { y: { title: { display: true, text: "°C" } } },
+    },
+  };
+}
+
+function buildTemperatureWavesChart(temperaturesData, t) {
+  return {
+    type: "bar",
+    data: {
+      labels: temperaturesData.map((d) => d.year),
+      datasets: [
+        {
+          label: t("temperatures.chart_label_heatwaves"),
+          data: temperaturesData.map((d) => d.heatwave_count ?? 0),
+          backgroundColor: "#c0392b",
+        },
+        {
+          label: t("temperatures.chart_label_coldwaves"),
+          data: temperaturesData.map((d) => d.coldwave_count ?? 0),
+          backgroundColor: "#2a6fa8",
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: true } },
+      scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
+    },
+  };
+}
+
 export default function PaysDashboard() {
   const router = useRouter();
   const { code } = router.query;
@@ -374,6 +440,14 @@ export default function PaysDashboard() {
   const stressChartRef = useRef(null);
   const stressCompareCanvasRef = useRef(null);
   const stressCompareChartRef = useRef(null);
+  const temperatureCanvasRef = useRef(null);
+  const temperatureChartRef = useRef(null);
+  const temperatureCompareCanvasRef = useRef(null);
+  const temperatureCompareChartRef = useRef(null);
+  const temperatureWavesCanvasRef = useRef(null);
+  const temperatureWavesChartRef = useRef(null);
+  const temperatureWavesCompareCanvasRef = useRef(null);
+  const temperatureWavesCompareChartRef = useRef(null);
 
   useEffect(() => {
   }, []);
@@ -868,6 +942,70 @@ export default function PaysDashboard() {
   }, [compareCode, compareSummary, worldBenchmarks, t]);
 
   useEffect(() => {
+    if (!summary || !summary.temperatures || summary.temperatures.length === 0) return;
+    let cancelled = false;
+    import("../../lib/chartSetup").then((Chart) => {
+      if (cancelled || !temperatureCanvasRef.current) return;
+      if (temperatureChartRef.current) temperatureChartRef.current.destroy();
+      temperatureChartRef.current = new Chart.default(
+        temperatureCanvasRef.current,
+        buildTemperatureChart(summary.temperatures, worldBenchmarks, "#0f6e56", t)
+      );
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [summary, worldBenchmarks, t]);
+
+  useEffect(() => {
+    if (!compareCode || !compareSummary || !compareSummary.temperatures || compareSummary.temperatures.length === 0) return;
+    let cancelled = false;
+    import("../../lib/chartSetup").then((Chart) => {
+      if (cancelled || !temperatureCompareCanvasRef.current) return;
+      if (temperatureCompareChartRef.current) temperatureCompareChartRef.current.destroy();
+      temperatureCompareChartRef.current = new Chart.default(
+        temperatureCompareCanvasRef.current,
+        buildTemperatureChart(compareSummary.temperatures, worldBenchmarks, "#6c3483", t)
+      );
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [compareCode, compareSummary, worldBenchmarks, t]);
+
+  useEffect(() => {
+    if (!summary || !summary.temperatures || summary.temperatures.length === 0) return;
+    let cancelled = false;
+    import("../../lib/chartSetup").then((Chart) => {
+      if (cancelled || !temperatureWavesCanvasRef.current) return;
+      if (temperatureWavesChartRef.current) temperatureWavesChartRef.current.destroy();
+      temperatureWavesChartRef.current = new Chart.default(
+        temperatureWavesCanvasRef.current,
+        buildTemperatureWavesChart(summary.temperatures, t)
+      );
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [summary, t]);
+
+  useEffect(() => {
+    if (!compareCode || !compareSummary || !compareSummary.temperatures || compareSummary.temperatures.length === 0) return;
+    let cancelled = false;
+    import("../../lib/chartSetup").then((Chart) => {
+      if (cancelled || !temperatureWavesCompareCanvasRef.current) return;
+      if (temperatureWavesCompareChartRef.current) temperatureWavesCompareChartRef.current.destroy();
+      temperatureWavesCompareChartRef.current = new Chart.default(
+        temperatureWavesCompareCanvasRef.current,
+        buildTemperatureWavesChart(compareSummary.temperatures, t)
+      );
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [compareCode, compareSummary, t]);
+
+  useEffect(() => {
     if (sobriety || !fireMapContainerRef.current) return;
     let cancelled = false;
     import("leaflet").then((L) => {
@@ -1041,6 +1179,7 @@ export default function PaysDashboard() {
             ["incendies", t("pays.fires_title")],
             ["vegetation", t("vegetation.title")],
             ["eau", t("eau.title")],
+            ["temperatures", t("temperatures.title")],
           ].map(([anchorId, anchorLabel]) => (
             <a
               key={anchorId}
@@ -1555,6 +1694,81 @@ export default function PaysDashboard() {
             <>{t("pays.water_source_year", { year: lastUpdated.water.latestYear })}</>
           )}
           {" "}<Link href="/eau">{t("pays.water_detail_link")}</Link>
+        </p>
+      </section>
+
+      <section style={{ marginTop: "2rem" }}>
+        <h2 id="temperatures">{t("temperatures.title")}</h2>
+        {summary?.temperatures?.length > 0 ? (
+          <p>
+            {t("pays.temperature_latest_prefix", { year: summary.temperatures[summary.temperatures.length - 1].year })}{" "}
+            {summary.temperatures[summary.temperatures.length - 1].avg_temp_c !== null && (
+              <>{t("pays.temperature_avg", { value: summary.temperatures[summary.temperatures.length - 1].avg_temp_c.toFixed(1) })}</>
+            )}
+            {summary.temperatures[summary.temperatures.length - 1].deviation_from_reference_c !== null && (
+              <>
+                {t("pays.temperature_deviation_suffix", {
+                  value: (() => {
+                    const d = summary.temperatures[summary.temperatures.length - 1].deviation_from_reference_c;
+                    return `${d > 0 ? "+" : ""}${d.toFixed(2)}`;
+                  })(),
+                })}
+              </>
+            )}
+            {t("pays.temperature_waves_suffix", {
+              heat: summary.temperatures[summary.temperatures.length - 1].heatwave_count ?? 0,
+              cold: summary.temperatures[summary.temperatures.length - 1].coldwave_count ?? 0,
+            })}
+            .
+          </p>
+        ) : (
+          <p>{t("pays.temperature_no_data")}</p>
+        )}
+        {summary?.temperatures?.length > 0 && (
+          <div style={{ display: "grid", gridTemplateColumns: compareCode && compareSummary ? "repeat(auto-fit, minmax(320px, 1fr))" : "1fr", gap: "1rem" }}>
+            <div style={{ minWidth: 0 }}>
+              <p style={{ fontSize: 12, color: "var(--color-texte-clair)", fontWeight: 600, marginBottom: 4 }}>{countryName}</p>
+              <div style={{ position: "relative", width: "100%", height: 260 }}>
+                <canvas ref={temperatureCanvasRef} role="img" aria-label={`${t("temperatures.title")} — ${countryName}`} />
+              </div>
+            </div>
+            {compareCode && compareSummary && (
+              <div>
+                <p style={{ fontSize: 12, color: "var(--color-texte-clair)", fontWeight: 600, marginBottom: 4 }}>{localizedCountryName(compareCode, locale)}</p>
+                <div style={{ position: "relative", width: "100%", height: 260 }}>
+                  <canvas ref={temperatureCompareCanvasRef} role="img" aria-label={`${t("temperatures.title")} — ${localizedCountryName(compareCode, locale)}`} />
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+        {summary?.temperatures?.length > 0 && (
+          <>
+            <h3 style={{ fontSize: 15, marginTop: "1.5rem", marginBottom: "0.25rem" }}>{t("temperatures.chart_waves_title")}</h3>
+            <div style={{ display: "grid", gridTemplateColumns: compareCode && compareSummary ? "repeat(auto-fit, minmax(320px, 1fr))" : "1fr", gap: "1rem" }}>
+              <div style={{ minWidth: 0 }}>
+                <p style={{ fontSize: 12, color: "var(--color-texte-clair)", fontWeight: 600, marginBottom: 4 }}>{countryName}</p>
+                <div style={{ position: "relative", width: "100%", height: 220 }}>
+                  <canvas ref={temperatureWavesCanvasRef} role="img" aria-label={t("temperatures.chart_waves_title")} />
+                </div>
+              </div>
+              {compareCode && compareSummary && (
+                <div>
+                  <p style={{ fontSize: 12, color: "var(--color-texte-clair)", fontWeight: 600, marginBottom: 4 }}>{localizedCountryName(compareCode, locale)}</p>
+                  <div style={{ position: "relative", width: "100%", height: 220 }}>
+                    <canvas ref={temperatureWavesCompareCanvasRef} role="img" aria-label={t("temperatures.chart_waves_title")} />
+                  </div>
+                </div>
+              )}
+            </div>
+          </>
+        )}
+        <p style={{ fontSize: 12, color: "var(--color-texte-clair)" }}>
+          {t("pays.temperature_source")}
+          {lastUpdated?.temperatures?.latestYear && (
+            <>{t("pays.temperature_source_year", { year: lastUpdated.temperatures.latestYear })}</>
+          )}
+          {" "}<Link href="/temperatures">{t("pays.temperature_detail_link")}</Link>
         </p>
       </section>
     </div>
