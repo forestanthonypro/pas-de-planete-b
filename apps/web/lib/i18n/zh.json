@@ -930,6 +930,9 @@
   "decouverte": {
     "hero_label": "自1991-2020年以来的全球平均变暖幅度",
     "hero_question": "看起来很小。那为什么会是个问题？",
-    "hero_cta": "2分钟看懂"
+    "hero_cta": "2分钟看懂",
+    "objections_title": "您可能听说过...",
+    "objections_intro": "点击一个说法，看看数据实际怎么说。",
+    "objections_see_sources": "查看来源"
   }
 }

@@ -930,6 +930,9 @@
   "decouverte": {
     "hero_label": "average warming worldwide since 1991-2020",
     "hero_question": "That sounds small. So why is it a problem?",
-    "hero_cta": "Understand in 2 minutes"
+    "hero_cta": "Understand in 2 minutes",
+    "objections_title": "You may have heard...",
+    "objections_intro": "Click a claim to see what the data actually says.",
+    "objections_see_sources": "See the source"
   }
 }

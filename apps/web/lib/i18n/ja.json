@@ -930,6 +930,9 @@
   "decouverte": {
     "hero_label": "1991〜2020年基準からの世界平均の温暖化",
     "hero_question": "小さく見えます。では、なぜ問題なのでしょう？",
-    "hero_cta": "2分で理解する"
+    "hero_cta": "2分で理解する",
+    "objections_title": "こう聞いたことはありませんか？",
+    "objections_intro": "主張をクリックすると、データが実際に示していることがわかります。",
+    "objections_see_sources": "出典を見る"
   }
 }

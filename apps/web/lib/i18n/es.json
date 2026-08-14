@@ -930,6 +930,9 @@
   "decouverte": {
     "hero_label": "de calentamiento medio en el mundo desde 1991-2020",
     "hero_question": "Parece poco. Entonces, ¿por qué es un problema?",
-    "hero_cta": "Entenderlo en 2 minutos"
+    "hero_cta": "Entenderlo en 2 minutos",
+    "objections_title": "Puede que le hayan dicho...",
+    "objections_intro": "Haga clic en una afirmación para ver lo que realmente dicen los datos.",
+    "objections_see_sources": "Ver la fuente"
   }
 }
