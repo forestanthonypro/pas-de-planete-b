@@ -152,6 +152,28 @@ async function ingestAllMembers(apiKey) {
 // ---------------------------------------------------------------------
 // 3. Votes + positions — Chambre (Congress.gov)
 // ---------------------------------------------------------------------
+// Correspondance code de type de loi (tel que renvoye par l'API
+// Congress.gov, sans points) -> segment d'URL utilise par congress.gov
+// pour la page du texte de la loi.
+const BILL_TYPE_SLUGS = {
+  HR: "house-bill",
+  S: "senate-bill",
+  HRES: "house-resolution",
+  SRES: "senate-resolution",
+  HJRES: "house-joint-resolution",
+  SJRES: "senate-joint-resolution",
+  HCONRES: "house-concurrent-resolution",
+  SCONRES: "senate-concurrent-resolution",
+};
+
+function billTextUrl(congress, legislationType, legislationNumber) {
+  if (!legislationType || !legislationNumber) return null;
+  const key = legislationType.replace(/[^A-Za-z]/g, "").toUpperCase();
+  const slug = BILL_TYPE_SLUGS[key];
+  if (!slug) return null;
+  return `https://www.congress.gov/bill/${congress}th-congress/${slug}/${legislationNumber}`;
+}
+
 async function ingestHouseVotes(apiKey, congress, session, limitVotes) {
   let offset = 0;
   const limit = 250;
@@ -189,7 +211,7 @@ async function ingestHouseVotes(apiKey, congress, session, limitVotes) {
           v.legislationNumber || null,
           v.startDate ? v.startDate.slice(0, 10) : null,
           v.result || null,
-          v.sourceDataURL || null,
+          billTextUrl(congress, v.legislationType, v.legislationNumber) || v.sourceDataURL || null,
         ]
       );
       const voteId = voteResult.rows[0].id;
