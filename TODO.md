@@ -11,6 +11,7 @@ Document de suivi des chantiers en attente, à garder à jour d'une session à l
   - **À faire début octobre 2026** : vérifier que le nouveau registrar prend bien le relais avec les mêmes enregistrements, confirmer la continuité de service.
 - **Vérification de domaine Brevo** : à retenter dès maintenant, pas besoin d'attendre la fin du transfert — prouvé le 9 août que les modifications DNS fonctionnent déjà normalement malgré le blocage de transfert (testé avec la configuration email OVH, DNS toujours géré par PlanetHoster en attendant).
   - Alternative temporaire pour tester le circuit : une adresse Gmail personnelle comme expéditeur (pas `ik.me`, bloqué par sa politique DMARC).
+- **Backfill historique des températures (1950-2025) en cours sur le VPS** : lancé le 14 août, cadencé automatiquement pour respecter le quota Open-Meteo (~10-21h de traitement actif au total selon la profondeur retenue). Rien à faire, juste laisser tourner — voir `apps/api/src/ingest/temperatures.js` pour le détail du cadencement. Le repère mondial (`world_benchmarks`, clé `temperature_deviation_world`) peut être rafraîchi à tout moment sans attendre la fin via `POST /api/admin/ingest/temperature-benchmark` (calcul interne, pas d'appel Open-Meteo).
 
 ## 🟢 Dette technique / suivi
 
@@ -34,6 +35,11 @@ Document de suivi des chantiers en attente, à garder à jour d'une session à l
    - **✅ Résolu** : États-Unis (Chambre, `ingest-us-congress.js` — vrai lien Congress.gov via `legislationType`+`legislationNumber`), France (`ingest/scrutins.js` — dossier législatif via `dossierRef`, 31% des scrutins, colonne `dossier_legislatif_url`), Italie Chambre (`ingest-italy-camera.js` — acte parlementaire via `ocd:rif_aic`, 45% des votes).
    - **🔴 Aucune solution trouvée** (limite structurelle des données source, pas un manque d'effort) : Italie Sénat (le chemin existe techniquement — `osr:oggetto` → `osr:relativoA` → DDL — mais la page finale n'a pas de titre lisible affiché, et nécessite 3 sauts SPARQL), Espagne Congreso (JSON du vote sans aucun identifiant structuré de dossier, juste du texte libre), Espagne Sénat (même limite que le Congreso). Pour ces 3 chambres, le lien continue de pointer vers la page/le fichier du vote lui-même (résultats), pas vers le texte voté — pas de piste supplémentaire identifiée à ce stade.
 
+7. **Nouvelle page Températures (14 août) — suites à donner une fois le backfill terminé** :
+   - **Automatiser le rafraîchissement mensuel** (`refresh-data.yml`) : volontairement pas encore fait — tant que le backfill initial (1950-2025, tous pays) n'est pas fini, un déclenchement automatique tenterait de tout refaire et dépasserait largement le timeout d'une Action GitHub. Une fois le backfill terminé, les runs suivants ne récupèrent qu'une seule année par pays (léger, rapide) — sûr à automatiser à ce moment-là.
+   - **Repasser `/etat-des-donnees` de `freq_manual` à `freq_monthly`** pour la source Températures, en cohérence avec l'automatisation ci-dessus une fois en place.
+   - **Efficacité pédagogique à retravailler** : la page actuelle (warming stripes + canicules/vagues de froid + tableau + détails méthodologiques) est plus proche d'un outil d'exploration pour public déjà convaincu/curieux que d'un outil pensé pour convaincre un novice sceptique rapidement — nécessite de choisir un pays avant de rien voir, plusieurs graphiques à la fois, indice "100 = moyenne mondiale" pas forcément intuitif. Pistes évoquées non engagées : warming stripes mondial affiché par défaut avant tout choix de pays, phrase d'accroche courte au-dessus du graphique, mode "vue simplifiée" masquant les détails techniques par défaut. Décision à prendre sur si convaincre les sceptiques est vraiment l'objectif prioritaire de cette page précise (vs. rigueur/transparence, l'autre axe déjà bien servi).
+
 ## 💡 Idées en suspens (mentionnées, pas encore engagées)
 
 - Notifications push natives pour l'app mobile (actuellement le suivi de député/élu se fait uniquement par email)
@@ -41,4 +47,4 @@ Document de suivi des chantiers en attente, à garder à jour d'une session à l
 
 ---
 
-*Dernière mise à jour : 14 août 2026 — voir aussi la date du dernier commit de ce fichier.*
+*Dernière mise à jour : 14 août 2026 (ajout du chantier Températures) — voir aussi la date du dernier commit de ce fichier.*
