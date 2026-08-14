@@ -81,7 +81,9 @@
     "card_france_desc": "国民议会",
     "see_my_country_desc": "将您的国家与7项关键指标（二氧化碳、能源、水、森林、受威胁物种等）的世界平均水平进行比较，如果您愿意，还可以与您选择的其他国家进行比较。",
     "hero_desc_v2": "「我的国家环境摘要 + 对比」菜单可让您将自己的国家与全球7项关键指标（二氧化碳、能源、水资源、森林、濒危物种等）的平均水平进行比较，如果您愿意，还可以与您选择的其他国家进行比较。",
-    "hero_punchline": "没有第二个地球。未来由我们书写。就是现在。"
+    "hero_punchline": "没有第二个地球。未来由我们书写。就是现在。",
+    "card_temperatures_label": "气温",
+    "card_temperatures_desc": "变暖，热浪"
   },
   "co2": {
     "title": "二氧化碳排放",
@@ -878,5 +880,33 @@
     "result_es_rejected": "否决",
     "result_it_approved": "通过",
     "result_it_rejected": "否决"
+  },
+  "temperatures": {
+    "title": "气温",
+    "what_shows_title": "这些图表显示了什么？",
+    "explain_stripes": "第一张图中的每一条柱代表一年：颜色表示该年平均气温与{period}参考期平均值的差异——红色代表比参考期更热，蓝色代表更冷。这就是所谓的“变暖条纹图”（warming stripes），一种无需阅读数字即可直观呈现气候变暖的方式。",
+    "explain_waves": "第二张图按照世界气象组织（WMO）的定义，统计每年的热浪和寒潮次数：连续至少5天，气温偏离当时季节常值超过5°C。",
+    "explain_point": "这些数据仅基于每个国家的一个地点（其首都）计算得出——面积较大的国家各地区气候可能差异很大，单一地点无法完全代表整个国家。",
+    "chart_stripes_title": "与1991-2020参考期的偏差",
+    "chart_waves_title": "每年热浪与寒潮次数",
+    "chart_label_heatwaves": "热浪",
+    "chart_label_coldwaves": "寒潮",
+    "tooltip_no_deviation": "偏差数据不可用",
+    "table_caption": "{country}逐年气温数据",
+    "table_year": "年份",
+    "table_avg": "平均值（°C）",
+    "table_max": "最高值（°C）",
+    "table_min": "最低值（°C）",
+    "table_deviation": "与参考期偏差（°C）",
+    "table_heatwaves": "热浪",
+    "table_coldwaves": "寒潮",
+    "details_summary": "方法说明",
+    "details_p1": "数据来自Open-Meteo（历史天气API），该服务结合多套再分析数据集（ERA5，自1940年起；ERA5-Land，自1950年起），利用气象站、卫星、探空气球等真实观测数据重建全球历史气温。每个国家仅查询一个地理坐标点：其首都。",
+    "details_p2": "热浪（或寒潮）的判定标准为：连续至少5天，最高（或最低）气温超过（或低于）当地季节常值5°C以上——依据世界气象组织的定义。当地季节常值按参考期内逐日计算，并以前后各7天为窗口进行平滑处理。",
+    "details_p3": "参考期（1991-2020年）是世界气象组织当前采用的气候常值基准期，既用于第一张图所示的偏差，也用于热浪/寒潮的判定阈值。",
+    "source": "数据来源：Open-Meteo历史天气API（ERA5/ERA5-Land），CC BY 4.0许可协议",
+    "source_latest_year": "——覆盖的最新年份：{year}",
+    "source_last_updated": "· 我们数据库的最近更新时间：{date}",
+    "error_no_data": "该国家暂无数据"
   }
 }

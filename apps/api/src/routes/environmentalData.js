@@ -12,6 +12,7 @@ import { ingestElectricity } from "../ingest/electricity.js";
 import { ingestSpeciesThreatened } from "../ingest/species_threatened.js";
 import { ingestPollution } from "../ingest/pollution.js";
 import { ingestWorldBenchmarks } from "../ingest/world_benchmarks.js";
+import { ingestTemperatures } from "../ingest/temperatures.js";
 
 const router = Router();
 
@@ -297,7 +298,7 @@ router.post("/api/admin/ingest/fires", requireIngestToken, async (_req, res) => 
 // (pas la date des données elles-mêmes, qui peut être plus ancienne selon la source).
 router.get("/api/meta/last-updated", async (_req, res) => {
   try {
-    const [co2, plants, species, fires, vegetation, water, electricity, speciesThreatened, pollution, deputies, anGroups, scrutins, worldBenchmarks, usCongressMembers, usCongressVotes, spainCongressMembers, spainCongressVotes, spainSenateMembers, spainSenateVotes, italySenateMembers, italySenateVotes, italyCameraMembers, italyCameraVotes] = await Promise.all([
+    const [co2, plants, species, fires, vegetation, water, electricity, speciesThreatened, pollution, deputies, anGroups, scrutins, worldBenchmarks, temperatures, usCongressMembers, usCongressVotes, spainCongressMembers, spainCongressVotes, spainSenateMembers, spainSenateVotes, italySenateMembers, italySenateVotes, italyCameraMembers, italyCameraVotes] = await Promise.all([
       pool.query("SELECT MAX(updated_at) AS updated_at, MAX(year) AS latest_year FROM co2_emissions"),
       pool.query("SELECT MAX(updated_at) AS updated_at FROM power_plants"),
       pool.query("SELECT MAX(updated_at) AS updated_at FROM species_status"),
@@ -311,6 +312,7 @@ router.get("/api/meta/last-updated", async (_req, res) => {
       pool.query("SELECT MAX(updated_at) AS updated_at FROM an_groups"),
       pool.query("SELECT MAX(updated_at) AS updated_at, COUNT(*) AS row_count FROM scrutins"),
       pool.query("SELECT MAX(updated_at) AS updated_at FROM world_benchmarks"),
+      pool.query("SELECT MAX(updated_at) AS updated_at, MAX(year) AS latest_year, COUNT(DISTINCT country_code) AS country_count FROM country_temperatures"),
       pool.query("SELECT MAX(updated_at) AS updated_at, COUNT(*) AS row_count FROM parliament_members WHERE country_code = 'us'"),
       pool.query("SELECT MAX(updated_at) AS updated_at, COUNT(*) AS row_count FROM parliament_votes WHERE country_code = 'us'"),
       pool.query("SELECT MAX(updated_at) AS updated_at, COUNT(*) AS row_count FROM parliament_members WHERE country_code = 'es' AND chamber = 'lower'"),
@@ -336,6 +338,11 @@ router.get("/api/meta/last-updated", async (_req, res) => {
       anGroups: { lastIngested: anGroups.rows[0].updated_at },
       scrutins: { lastIngested: scrutins.rows[0].updated_at, rowCount: Number(scrutins.rows[0].row_count) },
       worldBenchmarks: { lastIngested: worldBenchmarks.rows[0].updated_at },
+      temperatures: {
+        lastIngested: temperatures.rows[0].updated_at,
+        latestYear: temperatures.rows[0].latest_year,
+        countryCount: Number(temperatures.rows[0].country_count),
+      },
       usCongressMembers: { lastIngested: usCongressMembers.rows[0].updated_at, rowCount: Number(usCongressMembers.rows[0].row_count) },
       usCongressVotes: { lastIngested: usCongressVotes.rows[0].updated_at, rowCount: Number(usCongressVotes.rows[0].row_count) },
       spainCongressMembers: { lastIngested: spainCongressMembers.rows[0].updated_at, rowCount: Number(spainCongressMembers.rows[0].row_count) },
@@ -601,6 +608,51 @@ router.post("/api/admin/ingest/pollution", requireIngestToken, async (_req, res)
   try {
     const { inserted, skipped } = await ingestPollution(pool);
     res.json({ status: "ok", inserted, skipped });
+  } catch (err) {
+    res.status(500).json({ error: "Échec de l'ingestion", detail: errorDetail(err) });
+  }
+});
+
+// --- Températures : moyennes, écart à la référence, canicules/vagues de froid ---
+// Un point (capitale) par pays, voir ingest/temperatures.js pour le détail
+// du calcul. La liste de pays disponibles est déjà l'intersection avec le
+// CO2 (voir ingest/temperatures.js), donc /api/temperatures/countries n'a
+// pas besoin de filtre supplémentaire ici.
+
+router.get("/api/temperatures/countries", async (_req, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT DISTINCT country_code, country_name FROM country_temperatures ORDER BY country_name"
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
+  }
+});
+
+router.get("/api/temperatures/:country", async (req, res) => {
+  const { country } = req.params;
+  try {
+    const result = await pool.query(
+      `SELECT year, avg_temp_c::float, max_temp_c::float, min_temp_c::float,
+              deviation_from_reference_c::float,
+              heatwave_count, coldwave_count, reference_period
+       FROM country_temperatures
+       WHERE country_code = $1
+       ORDER BY year`,
+      [country.toUpperCase()]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
+  }
+});
+
+router.post("/api/admin/ingest/temperatures", requireIngestToken, async (_req, res) => {
+  try {
+    const { inserted, countriesProcessed, countriesFailed, skippedNoCapital, sampleErrors } =
+      await ingestTemperatures(pool);
+    res.json({ status: "ok", inserted, countriesProcessed, countriesFailed, skippedNoCapital, sampleErrors });
   } catch (err) {
     res.status(500).json({ error: "Échec de l'ingestion", detail: errorDetail(err) });
   }

@@ -81,7 +81,9 @@
     "card_france_desc": "Assemblea Nazionale",
     "see_my_country_desc": "Confronta il tuo paese con la media mondiale su 7 indicatori chiave (CO2, energia, acqua, foresta, specie minacciate...) e, se vuoi, con un altro paese a tua scelta.",
     "hero_desc_v2": "Il menu «Sintesi ambientale del mio paese + confronto» ti permette di confrontare il tuo paese con la media mondiale su 7 indicatori chiave (CO2, energia, acqua, foreste, specie minacciate...) e, se lo desideri, con un altro paese a tua scelta.",
-    "hero_punchline": "Non c'è un pianeta B. Il futuro è nostro da scrivere. Adesso."
+    "hero_punchline": "Non c'è un pianeta B. Il futuro è nostro da scrivere. Adesso.",
+    "card_temperatures_label": "Temperature",
+    "card_temperatures_desc": "Riscaldamento, ondate di calore"
   },
   "co2": {
     "title": "Emissioni di CO2",
@@ -878,5 +880,33 @@
     "result_es_rejected": "Respinto",
     "result_it_approved": "Approvato",
     "result_it_rejected": "Respinto"
+  },
+  "temperatures": {
+    "title": "Temperature",
+    "what_shows_title": "Cosa mostrano questi grafici?",
+    "explain_stripes": "Ogni barra del primo grafico rappresenta un anno: il suo colore indica lo scarto tra la temperatura media di quell'anno e la media di riferimento {period} — rosso per più caldo del riferimento, blu per più freddo. È il cosiddetto «warming stripes», un modo per visualizzare il riscaldamento senza nemmeno leggere i numeri.",
+    "explain_waves": "Il secondo grafico conta le ondate di calore e le ondate di freddo per anno, secondo la definizione dell'Organizzazione Meteorologica Mondiale (OMM): almeno 5 giorni consecutivi in cui la temperatura si discosta di oltre 5°C dalla norma stagionale del periodo.",
+    "explain_point": "Questi dati sono calcolati a partire da un unico punto per paese (la sua capitale) — un grande paese può avere climi molto diversi da una regione all'altra, che questo unico punto non può rappresentare del tutto.",
+    "chart_stripes_title": "Scarto rispetto al riferimento 1991-2020",
+    "chart_waves_title": "Ondate di calore e di freddo per anno",
+    "chart_label_heatwaves": "Ondate di calore",
+    "chart_label_coldwaves": "Ondate di freddo",
+    "tooltip_no_deviation": "Scarto non disponibile",
+    "table_caption": "Temperature per {country}, per anno",
+    "table_year": "Anno",
+    "table_avg": "Media (°C)",
+    "table_max": "Massima (°C)",
+    "table_min": "Minima (°C)",
+    "table_deviation": "Scarto rispetto al riferimento (°C)",
+    "table_heatwaves": "Ondate di calore",
+    "table_coldwaves": "Ondate di freddo",
+    "details_summary": "Dettagli metodologici",
+    "details_p1": "I dati provengono da Open-Meteo (Historical Weather API), che combina diversi set di rianalisi (ERA5 dal 1940, ERA5-Land dal 1950) per ricostruire le temperature passate in tutto il mondo a partire da osservazioni reali — stazioni meteo, satelliti, radiosondaggi. Viene interrogato un solo punto geografico per paese: la sua capitale.",
+    "details_p2": "Un'ondata di calore (risp. di freddo) viene conteggiata quando la temperatura massima (risp. minima) supera (risp. scende sotto) la norma stagionale locale di oltre 5°C per almeno 5 giorni consecutivi — definizione OMM. La norma stagionale locale è calcolata giorno per giorno sul periodo di riferimento, smussata su una finestra di ±7 giorni.",
+    "details_p3": "Il periodo di riferimento (1991-2020) è la norma climatologica attualmente in vigore presso l'OMM, usata sia per lo scarto mostrato nel primo grafico sia per le soglie di ondata di calore/freddo.",
+    "source": "Fonte: Open-Meteo Historical Weather API (ERA5/ERA5-Land), licenza CC BY 4.0",
+    "source_latest_year": "— ultimo anno coperto: {year}",
+    "source_last_updated": "· ultimo aggiornamento del nostro database: {date}",
+    "error_no_data": "Dati non disponibili per questo paese"
   }
 }

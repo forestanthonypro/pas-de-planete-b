@@ -12,6 +12,7 @@ import {
   IconTree,
   IconPaw,
   IconFlame,
+  IconThermometer,
   IconSmog,
   IconUsers,
   IconLandmark,
@@ -44,6 +45,7 @@ function useCardGroups(t) {
     { href: "/especes", Icon: IconPaw, label: t("home.card_especes_label"), desc: t("home.card_especes_desc"), tint: "tan" },
     { href: "/incendies", Icon: IconFlame, label: t("home.card_incendies_label"), desc: t("home.card_incendies_desc"), tint: "red" },
     { href: "/pollution", Icon: IconSmog, label: t("home.card_pollution_label"), desc: t("home.card_pollution_desc"), tint: "mauve" },
+    { href: "/temperatures", Icon: IconThermometer, label: t("home.card_temperatures_label"), desc: t("home.card_temperatures_desc"), tint: "teal" },
   ];
   const democracy = [
   { href: "/france", Icon: IconLandmark, label: t("home.card_france_label"), desc: t("home.card_france_desc"), tint: "blue" },

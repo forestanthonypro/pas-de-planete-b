@@ -81,7 +81,9 @@
     "card_france_desc": "National Assembly",
     "see_my_country_desc": "Compare your country to the world average on 7 key indicators (CO2, energy, water, forest, threatened species...), and if you'd like, to another country of your choice.",
     "hero_desc_v2": "The \"My country's environmental summary + comparison\" menu lets you compare your country to the world average on 7 key indicators (CO2, energy, water, forests, endangered species...), and if you wish, to another country of your choice.",
-    "hero_punchline": "No Planet B. The future is ours to write. Now."
+    "hero_punchline": "No Planet B. The future is ours to write. Now.",
+    "card_temperatures_label": "Temperatures",
+    "card_temperatures_desc": "Warming, heatwaves"
   },
   "co2": {
     "title": "CO2 emissions",
@@ -878,5 +880,33 @@
     "result_es_rejected": "Rejected",
     "result_it_approved": "Approved",
     "result_it_rejected": "Rejected"
+  },
+  "temperatures": {
+    "title": "Temperatures",
+    "what_shows_title": "What do these charts show?",
+    "explain_stripes": "Each bar in the first chart represents one year: its colour shows how that year's average temperature compares to the {period} reference average — red for warmer than the reference, blue for colder. This is known as a \"warming stripes\" chart, a way to visualise warming without even reading the numbers.",
+    "explain_waves": "The second chart counts heatwaves and cold waves per year, using the World Meteorological Organization (WMO) definition: at least 5 consecutive days where the temperature departs from the seasonal normal of the time by more than 5°C.",
+    "explain_point": "This data is calculated from a single point per country (its capital) — a large country can have very different climates from one region to another, which this single point cannot fully represent.",
+    "chart_stripes_title": "Deviation from the 1991-2020 reference",
+    "chart_waves_title": "Heatwaves and cold waves per year",
+    "chart_label_heatwaves": "Heatwaves",
+    "chart_label_coldwaves": "Cold waves",
+    "tooltip_no_deviation": "Deviation unavailable",
+    "table_caption": "Temperatures for {country}, by year",
+    "table_year": "Year",
+    "table_avg": "Average (°C)",
+    "table_max": "Maximum (°C)",
+    "table_min": "Minimum (°C)",
+    "table_deviation": "Deviation from reference (°C)",
+    "table_heatwaves": "Heatwaves",
+    "table_coldwaves": "Cold waves",
+    "details_summary": "Methodology details",
+    "details_p1": "Data comes from Open-Meteo (Historical Weather API), which combines several reanalysis datasets (ERA5 since 1940, ERA5-Land since 1950) to reconstruct past temperatures worldwide from real observations — weather stations, satellites, radiosondes. A single geographic point is queried per country: its capital.",
+    "details_p2": "A heatwave (resp. cold wave) is counted when the maximum (resp. minimum) temperature exceeds (resp. drops below) the local seasonal normal by more than 5°C for at least 5 consecutive days — WMO definition. The local seasonal normal is calculated day by day over the reference period, smoothed over a ±7-day window.",
+    "details_p3": "The reference period (1991-2020) is the climatological normal currently used by the WMO, used both for the deviation shown in the first chart and for the heatwave/cold wave thresholds.",
+    "source": "Source: Open-Meteo Historical Weather API (ERA5/ERA5-Land), CC BY 4.0 licence",
+    "source_latest_year": "— latest year covered: {year}",
+    "source_last_updated": "· our database was last updated: {date}",
+    "error_no_data": "Data unavailable for this country"
   }
 }

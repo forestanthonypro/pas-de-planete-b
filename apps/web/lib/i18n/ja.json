@@ -81,7 +81,9 @@
     "card_france_desc": "国民議会",
     "see_my_country_desc": "自国を7つの主要指標（CO2、エネルギー、水、森林、絶滅危惧種など）で世界平均と比較し、お好みで他の国とも比較できます。",
     "hero_desc_v2": "「自国の環境サマリー + 比較」メニューでは、7つの主要指標（CO2、エネルギー、水、森林、絶滅危惧種など）で自国を世界平均と比較でき、ご希望であれば他の国とも比較できます。",
-    "hero_punchline": "地球はひとつしかない。未来は私たちが書くもの。今こそ。"
+    "hero_punchline": "地球はひとつしかない。未来は私たちが書くもの。今こそ。",
+    "card_temperatures_label": "気温",
+    "card_temperatures_desc": "温暖化、熱波"
   },
   "co2": {
     "title": "CO2排出量",
@@ -878,5 +880,33 @@
     "result_es_rejected": "否決",
     "result_it_approved": "可決",
     "result_it_rejected": "否決"
+  },
+  "temperatures": {
+    "title": "気温",
+    "what_shows_title": "このグラフは何を示していますか？",
+    "explain_stripes": "最初のグラフの各バーは1年を表しています。色はその年の平均気温と基準期間{period}の平均との差を示します — 赤は基準より暖かく、青は基準より寒いことを意味します。これは「ウォーミングストライプス」と呼ばれ、数値を読まなくても温暖化を視覚的に理解できる表現方法です。",
+    "explain_waves": "2つ目のグラフは、世界気象機関（WMO）の定義に基づき、年ごとの熱波と寒波の発生回数を示しています：その時期の季節平年値から5°C以上の差が5日以上連続した場合を1回としています。",
+    "explain_point": "このデータは国ごとに1地点（首都）のみを基に計算されています — 国土が広い国では地域によって気候が大きく異なることがあり、この1地点だけでは国全体を完全には代表できません。",
+    "chart_stripes_title": "1991〜2020年基準期間との差",
+    "chart_waves_title": "年ごとの熱波・寒波の発生回数",
+    "chart_label_heatwaves": "熱波",
+    "chart_label_coldwaves": "寒波",
+    "tooltip_no_deviation": "差のデータなし",
+    "table_caption": "{country}の年別気温",
+    "table_year": "年",
+    "table_avg": "平均（°C）",
+    "table_max": "最高（°C）",
+    "table_min": "最低（°C）",
+    "table_deviation": "基準期間との差（°C）",
+    "table_heatwaves": "熱波",
+    "table_coldwaves": "寒波",
+    "details_summary": "計算方法の詳細",
+    "details_p1": "データはOpen-Meteo（Historical Weather API）から取得しています。これは複数の再解析データセット（1940年以降のERA5、1950年以降のERA5-Land）を組み合わせ、気象観測所・衛星・ラジオゾンデなどの実測データから過去の気温を世界規模で再現するものです。国ごとに問い合わせる地点は首都1か所のみです。",
+    "details_p2": "熱波（寒波）は、最高（最低）気温がその地域の季節平年値を5°C以上上回る（下回る）状態が5日以上連続した場合にカウントされます — WMOの定義に基づきます。季節平年値は基準期間について日ごとに算出し、前後±7日の幅で平滑化しています。",
+    "details_p3": "基準期間（1991〜2020年）はWMOが現在採用している気候平年値であり、最初のグラフに表示される差と、熱波・寒波の判定基準の両方に使用しています。",
+    "source": "出典：Open-Meteo Historical Weather API（ERA5/ERA5-Land）、CC BY 4.0ライセンス",
+    "source_latest_year": "— カバーしている最新年：{year}",
+    "source_last_updated": "・当サイトのデータベース最終更新：{date}",
+    "error_no_data": "この国のデータはありません"
   }
 }

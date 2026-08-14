@@ -186,3 +186,14 @@ export function IconScroll(props) {
     </Svg>
   );
 }
+
+export function IconThermometer(props) {
+  return (
+    <Svg {...props}>
+      <path d="M12 14.5V5a2 2 0 1 0-4 0v9.5a4 4 0 1 0 4 0Z" />
+      <path d="M12 9h-3" />
+      <path d="M12 12h-3" />
+      <circle cx="10" cy="17" r="1.3" fill="currentColor" stroke="none" />
+    </Svg>
+  );
+}

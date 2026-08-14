@@ -81,7 +81,9 @@
     "card_france_desc": "Assemblée nationale",
     "see_my_country_desc": "Comparez votre pays à la moyenne mondiale sur 7 indicateurs clés (CO2, énergie, eau, forêt, espèces menacées...), et si vous le souhaitez, à un autre pays de votre choix.",
     "hero_desc_v2": "Le menu « Synthèse environnement de mon pays + comparatif » vous permet de comparer votre pays à la moyenne mondiale sur 7 indicateurs clés (CO2, énergie, eau, forêt, espèces menacées...), et si vous le souhaitez, à un autre pays de votre choix.",
-    "hero_punchline": "Pas de planète B. Le futur, c'est à nous de l'écrire. Maintenant."
+    "hero_punchline": "Pas de planète B. Le futur, c'est à nous de l'écrire. Maintenant.",
+    "card_temperatures_label": "Températures",
+    "card_temperatures_desc": "Réchauffement, canicules"
   },
   "co2": {
     "title": "Émissions de CO2",
@@ -878,5 +880,33 @@
     "result_es_rejected": "Rejeté",
     "result_it_approved": "Adopté",
     "result_it_rejected": "Rejeté"
+  },
+  "temperatures": {
+    "title": "Températures",
+    "what_shows_title": "Que montrent ces graphiques ?",
+    "explain_stripes": "Chaque barre du premier graphique représente une année : sa couleur indique l'écart entre la température moyenne de cette année-là et la moyenne de référence {period} — rouge pour plus chaud que la référence, bleu pour plus froid. C'est ce qu'on appelle un « warming stripes », une façon de visualiser le réchauffement sans même avoir besoin de lire les chiffres.",
+    "explain_waves": "Le second graphique compte les vagues de chaleur et les vagues de froid par année, selon la définition de l'Organisation Météorologique Mondiale (OMM) : au moins 5 jours consécutifs où la température s'écarte de plus de 5°C de la normale saisonnière de l'époque.",
+    "explain_point": "Ces données sont calculées à partir d'un seul point par pays (sa capitale) — un grand pays peut avoir un climat très différent d'une région à l'autre, que ce point unique ne peut pas représenter entièrement.",
+    "chart_stripes_title": "Écart à la référence 1991-2020",
+    "chart_waves_title": "Vagues de chaleur et de froid par an",
+    "chart_label_heatwaves": "Vagues de chaleur",
+    "chart_label_coldwaves": "Vagues de froid",
+    "tooltip_no_deviation": "Écart non disponible",
+    "table_caption": "Températures pour {country}, par année",
+    "table_year": "Année",
+    "table_avg": "Moyenne (°C)",
+    "table_max": "Maximale (°C)",
+    "table_min": "Minimale (°C)",
+    "table_deviation": "Écart à la référence (°C)",
+    "table_heatwaves": "Vagues de chaleur",
+    "table_coldwaves": "Vagues de froid",
+    "details_summary": "Le détail méthodologique",
+    "details_p1": "Les données viennent d'Open-Meteo (Historical Weather API), qui combine plusieurs jeux de réanalyse (ERA5 depuis 1940, ERA5-Land depuis 1950) pour reconstituer les températures passées partout dans le monde à partir d'observations réelles — stations, satellites, radiosondages. Un seul point géographique est interrogé par pays : sa capitale.",
+    "details_p2": "Une vague de chaleur (resp. de froid) est comptée quand la température maximale (resp. minimale) dépasse (resp. descend sous) la normale saisonnière locale de plus de 5°C pendant au moins 5 jours consécutifs — définition de l'OMM. La normale saisonnière locale est calculée jour par jour sur la période de référence, lissée sur une fenêtre de ±7 jours.",
+    "details_p3": "La période de référence (1991-2020) est la normale climatologique actuellement en vigueur à l'OMM, utilisée à la fois pour l'écart affiché sur le premier graphique et pour les seuils de vague de chaleur/froid.",
+    "source": "Source : Open-Meteo Historical Weather API (ERA5/ERA5-Land), licence CC BY 4.0",
+    "source_latest_year": "— dernière année couverte : {year}",
+    "source_last_updated": "· dernière mise à jour de notre base : {date}",
+    "error_no_data": "Données indisponibles pour ce pays"
   }
 }

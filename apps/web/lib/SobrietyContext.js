@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
-const SobrietyContext = createContext({ sobriety: false, setSobriety: () => {} });
+const SobrietyContext = createContext({ sobriety: false, setSobriety: () => {}, hydrated: false });
 
 const STORAGE_KEY = "pdpb-sobriety";
 
@@ -25,13 +25,6 @@ export function SobrietyProvider({ children }) {
       // localStorage indisponible (navigation privée stricte) — on reste
       // sur la valeur par défaut, sans planter.
     }
-    // Choix volontaire malgré la règle react-hooks/set-state-in-effect :
-    // ce useEffect ne synchronise pas avec un système externe au sens où la
-    // règle l'entend, il ajuste l'état une seule fois après le montage pour
-    // rester compatible avec le rendu serveur (qui ne peut jamais connaître
-    // localStorage/matchMedia). Passer par un initialiseur paresseux dans
-    // useState réintroduirait précisément le décalage serveur/client qu'on
-    // évite ici — le HTML serveur doit rester figé sur la valeur par défaut.
     setSobrietyState(initial);
     setHydrated(true);
   }, []);
@@ -51,12 +44,23 @@ export function SobrietyProvider({ children }) {
   }
 
   return (
-    <SobrietyContext.Provider value={{ sobriety, setSobriety }}>
+    <SobrietyContext.Provider value={{ sobriety, setSobriety, hydrated }}>
       {children}
     </SobrietyContext.Provider>
   );
 }
 
+// Masque la vraie valeur de "sobriety" tant que l'hydratation n'est pas
+// terminée (hydrated === false) : tous les composants qui consomment ce
+// Hook reçoivent systématiquement `false` pendant le rendu serveur ET le
+// tout premier rendu client (avant que les effets ne s'exécutent) — les
+// deux sont donc garantis identiques, quelle que soit la vraie préférence
+// mémorisée en local. Ce n'est qu'une fois l'hydratation confirmée terminée
+// que la vraie valeur (issue de localStorage) est exposée. Corrige à la
+// source les erreurs d'hydratation "Recoverable Error" qui pouvaient
+// survenir sur n'importe quelle page bifurquant significativement son rendu
+// selon le mode sobriété (ex: la carte d'accueil, PageHeader).
 export function useSobriety() {
-  return useContext(SobrietyContext);
+  const { sobriety, setSobriety, hydrated } = useContext(SobrietyContext);
+  return { sobriety: hydrated ? sobriety : false, setSobriety, hydrated };
 }

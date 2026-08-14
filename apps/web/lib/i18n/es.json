@@ -81,7 +81,9 @@
     "card_france_desc": "Asamblea Nacional",
     "see_my_country_desc": "Compara tu país con la media mundial en 7 indicadores clave (CO2, energía, agua, bosque, especies amenazadas...) y, si quieres, con otro país que elijas.",
     "hero_desc_v2": "El menú «Resumen ambiental de mi país + comparativa» te permite comparar tu país con la media mundial en 7 indicadores clave (CO2, energía, agua, bosques, especies amenazadas...) y, si lo deseas, con otro país de tu elección.",
-    "hero_punchline": "No hay planeta B. El futuro es nuestro para escribirlo. Ahora."
+    "hero_punchline": "No hay planeta B. El futuro es nuestro para escribirlo. Ahora.",
+    "card_temperatures_label": "Temperaturas",
+    "card_temperatures_desc": "Calentamiento, olas de calor"
   },
   "co2": {
     "title": "Emisiones de CO2",
@@ -878,5 +880,33 @@
     "result_es_rejected": "Rechazado",
     "result_it_approved": "Aprobado",
     "result_it_rejected": "Rechazado"
+  },
+  "temperatures": {
+    "title": "Temperaturas",
+    "what_shows_title": "¿Qué muestran estos gráficos?",
+    "explain_stripes": "Cada barra del primer gráfico representa un año: su color indica la diferencia entre la temperatura media de ese año y la media de referencia {period} — rojo para más cálido que la referencia, azul para más frío. Es lo que se conoce como «warming stripes», una forma de visualizar el calentamiento sin necesidad de leer cifras.",
+    "explain_waves": "El segundo gráfico cuenta las olas de calor y las olas de frío por año, según la definición de la Organización Meteorológica Mundial (OMM): al menos 5 días consecutivos en los que la temperatura se desvía más de 5°C de la normal estacional de la época.",
+    "explain_point": "Estos datos se calculan a partir de un único punto por país (su capital) — un país grande puede tener climas muy distintos según la región, que este punto único no puede representar por completo.",
+    "chart_stripes_title": "Desviación respecto a la referencia 1991-2020",
+    "chart_waves_title": "Olas de calor y de frío por año",
+    "chart_label_heatwaves": "Olas de calor",
+    "chart_label_coldwaves": "Olas de frío",
+    "tooltip_no_deviation": "Desviación no disponible",
+    "table_caption": "Temperaturas de {country}, por año",
+    "table_year": "Año",
+    "table_avg": "Media (°C)",
+    "table_max": "Máxima (°C)",
+    "table_min": "Mínima (°C)",
+    "table_deviation": "Desviación respecto a la referencia (°C)",
+    "table_heatwaves": "Olas de calor",
+    "table_coldwaves": "Olas de frío",
+    "details_summary": "Detalle metodológico",
+    "details_p1": "Los datos proceden de Open-Meteo (Historical Weather API), que combina varios conjuntos de reanálisis (ERA5 desde 1940, ERA5-Land desde 1950) para reconstruir las temperaturas pasadas en todo el mundo a partir de observaciones reales — estaciones meteorológicas, satélites, radiosondeos. Se consulta un único punto geográfico por país: su capital.",
+    "details_p2": "Se cuenta una ola de calor (resp. de frío) cuando la temperatura máxima (resp. mínima) supera (resp. desciende por debajo de) la normal estacional local en más de 5°C durante al menos 5 días consecutivos — definición de la OMM. La normal estacional local se calcula día a día sobre el periodo de referencia, suavizada con una ventana de ±7 días.",
+    "details_p3": "El periodo de referencia (1991-2020) es la normal climatológica actualmente vigente en la OMM, utilizada tanto para la desviación mostrada en el primer gráfico como para los umbrales de ola de calor/frío.",
+    "source": "Fuente: Open-Meteo Historical Weather API (ERA5/ERA5-Land), licencia CC BY 4.0",
+    "source_latest_year": "— último año cubierto: {year}",
+    "source_last_updated": "· última actualización de nuestra base de datos: {date}",
+    "error_no_data": "Datos no disponibles para este país"
   }
 }
