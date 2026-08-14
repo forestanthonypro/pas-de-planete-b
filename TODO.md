@@ -25,12 +25,9 @@ Document de suivi des chantiers en attente, à garder à jour d'une session à l
 
    **✅ Complètement à jour** :
    - **Italie, Chambre des députés** (`ingest-italy-camera.js`) — 399 députés + **200 votes** (limite augmentée de 20 à 200, testé : ~6min22s en local, confortable sous la limite CI/CD de 10min).
+   - **Italie, Sénat** (`ingest-italy-senate.js`) — 244 sénateurs + **200 votes**. Correctif de casse confirmé en production (`SELECT DISTINCT result` n'affiche plus que `Approvato`/`Respinto`, en majuscule) — le `dati.senato.it/sparql` s'est bien débloqué de lui-même (confirmé le 14 août, moins de 24h après le blocage constaté). 32/200 votes ont un résultat `NULL` (~16%) : légitime, certains votes procéduraux n'ont pas de champ `esito` renseigné côté Sénat lui-même, pas un bug de notre ingestion.
    - **Espagne, Sénat** (`ingest-spain-senate.js`) — 265 sénateurs + **161 votes** (15 séances au lieu de 3). Committé et déployé en production via `refresh-spain-senate-prod.ps1`.
    - **Espagne, Congreso de los Diputados** (`ingest-spain-congress.js`) — 350 députés + 20 votes.
-
-   **⏳ En attente de re-test — Italie, Sénat** (`ingest-italy-senate.js`) :
-   - Correctifs prêts et committés : limite de votes augmentée à 200, **et** correction d'un bug de casse sur le résultat de vote (`esito` renvoyé en minuscules par SPARQL — "respinto"/"approvato" — alors que la Chambre stocke "Respinto"/"Approvato" avec majuscule ; sans normalisation, la légende du graphique de la page scrutins affichait 4 entrées au lieu de 2, sans traduction). Les 19 votes déjà en production ont été corrigés directement en base (`UPDATE ... SET result = INITCAP(result)`).
-   - **`dati.senato.it/sparql` a temporairement renvoyé des 403 Forbidden** (page d'erreur personnalisée du site, pas une erreur Virtuoso classique) après le volume de requêtes de test envoyées toute la journée — probablement un blocage temporaire auto-résolutif. **À relancer** : `docker compose exec api node src/scripts/ingest-italy-senate.js` en local, une fois le blocage levé (attendre plusieurs heures, voire le lendemain), puis vérifier `SELECT DISTINCT result FROM parliament_votes WHERE country_code='it' AND chamber='upper';` (doit afficher uniquement `Approvato`/`Respinto`), puis committer `ingest-italy-senate.js`.
 
    **🔴 Limite connue et non résolue — Espagne, Congreso** (nombre de votes) :
    - Reste à 20 votes (législature courante uniquement), contrairement aux autres chambres. La page `/opendata/votaciones` n'expose ni pagination ni export en masse pour la législature en cours — confirmé par un développeur tiers ayant buté sur le même problème (dépôt GitHub `slopezmenend/civis-api`).
