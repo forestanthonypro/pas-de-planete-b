@@ -1076,6 +1076,31 @@ export default function PaysDashboard() {
             <canvas ref={comparisonCanvasRef} role="img" aria-label={`${t("pays.world_comparison_title")} — ${countryName}`} />
           </div>
           {(() => {
+            const latestTemp = summary?.temperatures?.length
+              ? [...summary.temperatures].reverse().find(
+                  (row) => row.deviation_from_reference_c !== null && row.deviation_from_reference_c !== undefined
+                )
+              : null;
+            if (!latestTemp || !worldBenchmarks?.temperature_deviation_world) return null;
+
+            const countryDev = latestTemp.deviation_from_reference_c;
+            const worldDev = worldBenchmarks.temperature_deviation_world.value;
+            const format = (v) => `${v > 0 ? "+" : ""}${v.toFixed(2)}°C`;
+
+            return (
+              <div style={{ marginTop: "1rem", paddingTop: "1rem", borderTop: "1px solid var(--color-bordure)" }}>
+                <p style={{ fontSize: 13, color: "var(--color-texte-clair)", margin: "0 0 0.5rem" }}>
+                  {t("pays.temperature_comparison_intro")}
+                </p>
+                <p style={{ fontSize: 14, margin: 0 }}>
+                  <strong>{countryName}</strong> : {format(countryDev)}
+                  <span style={{ color: "var(--color-texte-clair)" }}> · </span>
+                  {t("pays.world_average_plain")} : {format(worldDev)}
+                </p>
+              </div>
+            );
+          })()}
+          {(() => {
             function speciesLine(summaryData, name) {
               if (!summaryData?.speciesThreatened?.length || !worldBenchmarks?.mammals_threatened_world) return null;
               const latest = summaryData.speciesThreatened[summaryData.speciesThreatened.length - 1];

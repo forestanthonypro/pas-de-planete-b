@@ -542,7 +542,8 @@
     "water_source_year": " Latest year covered: {year}.",
     "water_detail_link": "See the detailed chart →",
     "section_nav_label": "Jump to a section",
-    "world_comparison_year_note": "Each row uses the latest available year for that specific piece of data — these years can differ from one row to another depending on the source (for example, CO2 figures may be more recent than water figures). This isn't a single snapshot taken on one date."
+    "world_comparison_year_note": "Each row uses the latest available year for that specific piece of data — these years can differ from one row to another depending on the source (for example, CO2 figures may be more recent than water figures). This isn't a single snapshot taken on one date.",
+    "temperature_comparison_intro": "Temperature deviation from the 1991-2020 reference — the warming signal, independent of the country's natural climate (unlike average temperature, a tropical country isn't \"worse\" than a northern one):"
   },
   "citizenVote": {
     "question": "How would you have voted?",

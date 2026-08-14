@@ -542,7 +542,8 @@
     "water_source_year": " Dernière année couverte : {year}.",
     "water_detail_link": "Voir le graphique détaillé →",
     "section_nav_label": "Aller à une section",
-    "world_comparison_year_note": "Chaque ligne utilise la dernière année disponible pour cette donnée précise — ces années peuvent différer d'une ligne à l'autre selon la source (par exemple, les chiffres CO2 peuvent être plus récents que ceux sur l'eau). Ce n'est pas une seule photo prise à une date unique."
+    "world_comparison_year_note": "Chaque ligne utilise la dernière année disponible pour cette donnée précise — ces années peuvent différer d'une ligne à l'autre selon la source (par exemple, les chiffres CO2 peuvent être plus récents que ceux sur l'eau). Ce n'est pas une seule photo prise à une date unique.",
+    "temperature_comparison_intro": "Écart de température par rapport à la référence 1991-2020 — le signal de réchauffement, indépendant du climat naturel du pays (contrairement à la température moyenne, un pays tropical n'est pas \"pire\" qu'un pays nordique) :"
   },
   "citizenVote": {
     "question": "Et vous, comment auriez-vous voté ?",

@@ -149,6 +149,39 @@ export async function ingestWorldBenchmarks(pool) {
   return { set };
 }
 
+// Repère mondial pour l'écart de température à la référence — pas de CSV
+// externe ici, contrairement aux autres repères de ce fichier : calculé en
+// interne à partir des pays déjà ingérés dans country_temperatures (voir
+// ingest/temperatures.js). Recalculé automatiquement à chaque ingestion de
+// températures (voir la route /api/admin/ingest/temperatures), donc reste à
+// jour au fil du backfill même si celui-ci n'est pas encore complet pour
+// tous les pays au moment du calcul.
+export async function ingestTemperatureBenchmark(pool) {
+  const yearResult = await pool.query("SELECT MAX(year) AS latest_year FROM country_temperatures");
+  const latestYear = yearResult.rows[0]?.latest_year;
+  if (!latestYear) return { set: false };
+
+  const avgResult = await pool.query(
+    `SELECT AVG(deviation_from_reference_c) AS avg_deviation, COUNT(*) AS country_count
+     FROM country_temperatures
+     WHERE year = $1 AND deviation_from_reference_c IS NOT NULL`,
+    [latestYear]
+  );
+  const avgDeviation = avgResult.rows[0]?.avg_deviation;
+  if (avgDeviation === null || avgDeviation === undefined) return { set: false };
+
+  const countryCount = Number(avgResult.rows[0].country_count);
+  const set = await upsertBenchmark(
+    pool,
+    "temperature_deviation_world",
+    parseFloat(avgDeviation),
+    "°C",
+    latestYear,
+    `Calculé à partir des ${countryCount} pays déjà couverts par ce site (Open-Meteo)`
+  );
+  return { set, countryCount, year: latestYear };
+}
+
 if (import.meta.url === `file://${process.argv[1]}`) {
   const { default: pg } = await import("pg");
   const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });

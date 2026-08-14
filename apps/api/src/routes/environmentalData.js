@@ -11,7 +11,7 @@ import { ingestWater } from "../ingest/water.js";
 import { ingestElectricity } from "../ingest/electricity.js";
 import { ingestSpeciesThreatened } from "../ingest/species_threatened.js";
 import { ingestPollution } from "../ingest/pollution.js";
-import { ingestWorldBenchmarks } from "../ingest/world_benchmarks.js";
+import { ingestWorldBenchmarks, ingestTemperatureBenchmark } from "../ingest/world_benchmarks.js";
 import { ingestTemperatures } from "../ingest/temperatures.js";
 
 const router = Router();
@@ -190,7 +190,7 @@ router.post("/api/admin/ingest/species", requireIngestToken, async (_req, res) =
 router.get("/api/country-summary/:country", async (req, res) => {
   const country = req.params.country.toUpperCase();
   try {
-    const [co2Result, plantsResult, speciesResult, firesResult, vegetationResult, waterResult, electricityGenerationResult, speciesThreatenedResult, pollutionResult] = await Promise.all([
+    const [co2Result, plantsResult, speciesResult, firesResult, vegetationResult, waterResult, electricityGenerationResult, speciesThreatenedResult, pollutionResult, temperaturesResult] = await Promise.all([
       pool.query(
         `SELECT year, emissions_mt, emissions_per_capita, consumption_co2, consumption_co2_per_capita, population
          FROM co2_emissions WHERE country_code = $1 ORDER BY year`,
@@ -240,6 +240,11 @@ router.get("/api/country-summary/:country", async (req, res) => {
         `SELECT year, pm25_ug_m3 FROM pollution_data WHERE country_code = $1 ORDER BY year`,
         [country]
       ),
+      pool.query(
+        `SELECT year, avg_temp_c::float, deviation_from_reference_c::float, heatwave_count, coldwave_count
+         FROM country_temperatures WHERE country_code = $1 ORDER BY year`,
+        [country]
+      ),
     ]);
 
     res.json({
@@ -253,6 +258,7 @@ router.get("/api/country-summary/:country", async (req, res) => {
       electricityGeneration: electricityGenerationResult.rows,
       speciesThreatened: speciesThreatenedResult.rows,
       pollution: pollutionResult.rows,
+      temperatures: temperaturesResult.rows,
     });
   } catch (err) {
     res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
@@ -652,7 +658,22 @@ router.post("/api/admin/ingest/temperatures", requireIngestToken, async (_req, r
   try {
     const { inserted, countriesProcessed, countriesFailed, skippedNoCapital, sampleErrors } =
       await ingestTemperatures(pool);
+    await ingestTemperatureBenchmark(pool);
     res.json({ status: "ok", inserted, countriesProcessed, countriesFailed, skippedNoCapital, sampleErrors });
+  } catch (err) {
+    res.status(500).json({ error: "Échec de l'ingestion", detail: errorDetail(err) });
+  }
+});
+
+// Route dédiée légère : ne fait que recalculer le repère mondial de
+// température à partir des données déjà en base (pas d'appel Open-Meteo) —
+// utile pour rafraîchir ce repère à la demande pendant qu'un backfill
+// complet est encore en cours en arrière-plan (voir ingest/temperatures.js),
+// sans attendre sa fin ni relancer l'ingestion complète.
+router.post("/api/admin/ingest/temperature-benchmark", requireIngestToken, async (_req, res) => {
+  try {
+    const result = await ingestTemperatureBenchmark(pool);
+    res.json({ status: "ok", ...result });
   } catch (err) {
     res.status(500).json({ error: "Échec de l'ingestion", detail: errorDetail(err) });
   }
