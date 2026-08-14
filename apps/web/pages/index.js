@@ -1,7 +1,5 @@
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { detectDefaultCountry } from "../lib/detectCountry";
 import ActionCTA from "../components/ActionCTA";
 import { useSobriety } from "../lib/SobrietyContext";
 import { useT } from "../lib/useT";
@@ -71,15 +69,10 @@ function Card({ href, Icon, label, desc, tint }) {
 }
 
 export default function Home() {
-  const [country, setCountry] = useState("FRA");
   const { t } = useT();
   const router = useRouter();
   const { sobriety } = useSobriety();
   const { environment, democracy } = useCardGroups(t);
-
-  useEffect(() => {
-    setCountry(detectDefaultCountry());
-  }, []);
 
   // Filtrage par section : /?section=environnement|democratie|sengager —
   // ne montre que la section demandée, avec un lien pour revenir à la vue
@@ -97,10 +90,7 @@ export default function Home() {
             <p style={{ fontSize: 14, color: "var(--color-texte-clair)", margin: "0 0 1rem" }}>
               {t("home.intro")}
             </p>
-            <p style={{ margin: 0 }}>
-              <Link href={`/pays/${country}`} prefetch={false} style={{ fontWeight: 600 }}>{t("home.see_my_country")}</Link>
-            </p>
-            <p style={{ fontSize: 13, color: "var(--color-texte-clair)", margin: "0.5rem 0 0" }}>{t("home.see_my_country_desc")}</p>
+            <p style={{ fontSize: 13, color: "var(--color-texte-clair)", margin: 0 }}>{t("home.see_my_country_desc")}</p>
           </div>
         ) : (
           <div
@@ -115,7 +105,7 @@ export default function Home() {
             
             
             
-            <p style={{ fontSize: 16, color: "white", margin: "0 0 1.25rem", position: "relative" }}>
+            <p style={{ fontSize: 16, color: "white", margin: "0 0 1.25rem", position: "relative", textAlign: "center" }}>
               {t("home.intro")}
             </p>
             <div
