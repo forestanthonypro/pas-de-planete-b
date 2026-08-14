@@ -926,5 +926,10 @@
     "source_last_updated": "· ultimo aggiornamento del nostro database: {date}",
     "error_no_data": "Dati non disponibili per questo paese",
     "chart_sobriety_disabled": "Grafici disattivati in modalità sobria (evita il rendering grafico) — vedi la tabella sotto"
+  },
+  "decouverte": {
+    "hero_label": "di riscaldamento medio nel mondo dal 1991-2020",
+    "hero_question": "Sembra poco. Allora perché è un problema?",
+    "hero_cta": "Capire in 2 minuti"
   }
 }

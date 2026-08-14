@@ -926,5 +926,10 @@
     "source_last_updated": "・当サイトのデータベース最終更新：{date}",
     "error_no_data": "この国のデータはありません",
     "chart_sobriety_disabled": "省エネモードではグラフを無効化しています（描画負荷を回避）— 下の表をご覧ください"
+  },
+  "decouverte": {
+    "hero_label": "1991〜2020年基準からの世界平均の温暖化",
+    "hero_question": "小さく見えます。では、なぜ問題なのでしょう？",
+    "hero_cta": "2分で理解する"
   }
 }

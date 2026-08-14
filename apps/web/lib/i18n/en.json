@@ -926,5 +926,10 @@
     "source_last_updated": "· our database was last updated: {date}",
     "error_no_data": "Data unavailable for this country",
     "chart_sobriety_disabled": "Charts disabled in low-data mode (avoids graphics rendering) — see the table below"
+  },
+  "decouverte": {
+    "hero_label": "average warming worldwide since 1991-2020",
+    "hero_question": "That sounds small. So why is it a problem?",
+    "hero_cta": "Understand in 2 minutes"
   }
 }

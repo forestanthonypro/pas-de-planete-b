@@ -926,5 +926,10 @@
     "source_last_updated": "· 我们数据库的最近更新时间：{date}",
     "error_no_data": "该国家暂无数据",
     "chart_sobriety_disabled": "精简模式下已禁用图表（避免图形渲染）——请查看下方表格"
+  },
+  "decouverte": {
+    "hero_label": "自1991-2020年以来的全球平均变暖幅度",
+    "hero_question": "看起来很小。那为什么会是个问题？",
+    "hero_cta": "2分钟看懂"
   }
 }

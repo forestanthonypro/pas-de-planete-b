@@ -926,5 +926,10 @@
     "source_last_updated": "· última actualización de nuestra base de datos: {date}",
     "error_no_data": "Datos no disponibles para este país",
     "chart_sobriety_disabled": "Gráficos desactivados en modo sobrio (evita el renderizado gráfico) — ver la tabla a continuación"
+  },
+  "decouverte": {
+    "hero_label": "de calentamiento medio en el mundo desde 1991-2020",
+    "hero_question": "Parece poco. Entonces, ¿por qué es un problema?",
+    "hero_cta": "Entenderlo en 2 minutos"
   }
 }
