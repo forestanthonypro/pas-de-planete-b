@@ -34,7 +34,7 @@ function ObjectionCard({ entry, locale, t }) {
   }
 
   return (
-    <div style={{ marginBottom: 8 }}>
+    <>
       <button
         type="button"
         onClick={toggle}
@@ -45,6 +45,7 @@ function ObjectionCard({ entry, locale, t }) {
           border: "1px solid var(--color-bordure)",
           borderRadius: 12,
           padding: "1rem 1.25rem",
+          marginBottom: 8,
           cursor: "pointer",
           display: "flex",
           justifyContent: "space-between",
@@ -57,7 +58,7 @@ function ObjectionCard({ entry, locale, t }) {
       </button>
 
       {expanded && (
-        <div style={{ background: "var(--color-fond)", borderRadius: 12, padding: "1rem 1.25rem", marginTop: 4 }}>
+        <div style={{ background: "var(--color-fond)", borderRadius: 12, padding: "1rem 1.25rem", marginTop: 4, marginBottom: 8 }}>
           {loadingDetail && <p style={{ fontSize: 13 }}>{t("common.loading")}</p>}
           {detail?.entry && (
             <>
@@ -89,7 +90,7 @@ function ObjectionCard({ entry, locale, t }) {
           )}
         </div>
       )}
-    </div>
+    </>
   );
 }
 
@@ -272,9 +273,10 @@ function EngagerCard({ href, Icon, label, desc, tint }) {
   const colors = ENGAGER_TINTS[tint] || ENGAGER_TINTS.green;
   return (
     <Link href={href} prefetch={false} style={{ display: "block", textDecoration: "none", color: "var(--color-texte)", background: "var(--color-carte)", border: "1px solid var(--color-bordure)", borderRadius: "var(--radius)", padding: "1rem" }}>
-      <div style={{ width: 36, height: 36, borderRadius: 10, background: colors.bg, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 8 }}>
-        <Icon size={18} style={{ color: colors.color }} />
-      </div>
+      <Icon
+        size={18}
+        style={{ display: "block", boxSizing: "border-box", padding: 9, borderRadius: 10, background: colors.bg, color: colors.color, marginBottom: 8 }}
+      />
       <p style={{ fontSize: 14, fontWeight: 600, margin: "0 0 2px" }}>{label}</p>
       <p style={{ fontSize: 12, color: "var(--color-texte-clair)", margin: 0 }}>{desc}</p>
     </Link>
