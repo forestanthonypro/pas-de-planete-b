@@ -977,6 +977,10 @@
     "gains_1": "Less air pollution, so fewer respiratory problems",
     "gains_2": "Better-insulated homes, more comfortable and cheaper to heat",
     "gains_3": "Less dependence on energy imports",
-    "gains_4": "Greener cities, more pleasant to live in"
+    "gains_4": "Greener cities, more pleasant to live in",
+    "explain_example1_title": "The car in the sun",
+    "explain_example1_text": "A closed car left in the sun, even in winter, becomes stifling within minutes — light passes through the windows, heats the interior, and that heat struggles to escape. This is exactly the greenhouse effect mechanism, at the scale of an entire planet.",
+    "explain_example2_title": "Venus, Mars, Earth: proof from the planets",
+    "explain_example2_text": "Venus has an atmosphere that's 96% CO2 and a surface temperature of about 464°C — hotter than Mercury, despite being much farther from the Sun. Mars, with a very thin atmosphere, is freezing cold. Same amount of sunlight reaching the surface, radically different result depending on atmospheric thickness and CO2 content."
   }
 }

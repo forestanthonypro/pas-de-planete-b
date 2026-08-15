@@ -977,6 +977,10 @@
     "gains_1": "Moins de pollution de l'air, donc moins de problèmes respiratoires",
     "gains_2": "Des logements mieux isolés, plus confortables et moins coûteux à chauffer",
     "gains_3": "Moins de dépendance aux importations d'énergie",
-    "gains_4": "Des villes plus végétalisées, plus agréables à vivre"
+    "gains_4": "Des villes plus végétalisées, plus agréables à vivre",
+    "explain_example1_title": "La voiture au soleil",
+    "explain_example1_text": "Une voiture fermée en plein soleil, même en hiver, devient étouffante en quelques minutes — la lumière traverse les vitres, chauffe l'intérieur, et cette chaleur a du mal à ressortir. C'est exactement le mécanisme de l'effet de serre, à l'échelle d'une planète entière.",
+    "explain_example2_title": "Vénus, Mars, Terre : la preuve par les planètes",
+    "explain_example2_text": "Vénus a une atmosphère composée à 96% de CO2 et une température de surface d'environ 464°C — plus chaude que Mercure, pourtant bien plus proche du Soleil. Mars, avec une atmosphère très fine, est glaciale. Même quantité de soleil reçue à la surface, résultat radicalement différent selon l'épaisseur de l'atmosphère et sa teneur en CO2."
   }
 }

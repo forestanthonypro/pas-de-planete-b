@@ -977,6 +977,10 @@
     "gains_1": "Meno inquinamento atmosferico, quindi meno problemi respiratori",
     "gains_2": "Case meglio isolate, più confortevoli e meno costose da riscaldare",
     "gains_3": "Minore dipendenza dalle importazioni di energia",
-    "gains_4": "Città più verdi, più piacevoli da vivere"
+    "gains_4": "Città più verdi, più piacevoli da vivere",
+    "explain_example1_title": "L'auto al sole",
+    "explain_example1_text": "Un'auto chiusa al sole, anche in inverno, diventa soffocante in pochi minuti — la luce attraversa i vetri, riscalda l'interno, e questo calore fa fatica a uscire. È esattamente il meccanismo dell'effetto serra, su scala di un intero pianeta.",
+    "explain_example2_title": "Venere, Marte, Terra: la prova dei pianeti",
+    "explain_example2_text": "Venere ha un'atmosfera composta al 96% da CO2 e una temperatura superficiale di circa 464°C — più calda di Mercurio, pur essendo molto più distante dal Sole. Marte, con un'atmosfera molto sottile, è gelido. Stessa quantità di luce solare ricevuta in superficie, risultato radicalmente diverso a seconda dello spessore dell'atmosfera e del suo contenuto di CO2."
   }
 }

@@ -356,7 +356,18 @@ export default function DecouvertePage() {
       <section id="explication" style={{ padding: "1rem 0 2rem" }}>
         <h2 style={{ fontSize: 20, marginBottom: 12 }}>{t("decouverte.explain_title")}</h2>
         <p style={{ fontSize: 14, color: "var(--color-texte)", lineHeight: 1.7, marginBottom: 10 }}>{t("decouverte.explain_p1")}</p>
-        <p style={{ fontSize: 14, color: "var(--color-texte)", lineHeight: 1.7, marginBottom: 10 }}>{t("decouverte.explain_p2")}</p>
+        <p style={{ fontSize: 14, color: "var(--color-texte)", lineHeight: 1.7, marginBottom: 16 }}>{t("decouverte.explain_p2")}</p>
+
+        <div style={{ background: "var(--color-carte)", borderRadius: 12, padding: "1rem 1.25rem", marginBottom: 12 }}>
+          <p style={{ fontSize: 14, fontWeight: 600, color: "var(--color-texte)", margin: "0 0 6px" }}>{t("decouverte.explain_example1_title")}</p>
+          <p style={{ fontSize: 14, color: "var(--color-texte)", lineHeight: 1.7, margin: 0 }}>{t("decouverte.explain_example1_text")}</p>
+        </div>
+
+        <div style={{ background: "var(--color-carte)", borderRadius: 12, padding: "1rem 1.25rem", marginBottom: 16 }}>
+          <p style={{ fontSize: 14, fontWeight: 600, color: "var(--color-texte)", margin: "0 0 6px" }}>{t("decouverte.explain_example2_title")}</p>
+          <p style={{ fontSize: 14, color: "var(--color-texte)", lineHeight: 1.7, margin: 0 }}>{t("decouverte.explain_example2_text")}</p>
+        </div>
+
         <div style={{ background: "var(--color-carte)", borderRadius: 12, padding: "1rem 1.25rem" }}>
           <p style={{ fontSize: 14, fontWeight: 600, color: "var(--color-texte)", margin: 0 }}>{t("decouverte.explain_nuance")}</p>
         </div>
