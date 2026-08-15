@@ -32,7 +32,9 @@
     "footer_impact": "環境への影響",
     "nav_home": "ホーム",
     "nav_home_title": "サイトのトップページに戻る",
-    "nav_country_summary": "自国の環境サマリー + 比較"
+    "nav_country_summary": "自国の環境サマリー + 比較",
+    "mode_switch_to_expert": "エキスパートモード",
+    "mode_switch_to_discovery": "はじめてモード"
   },
   "home": {
     "intro": "オープンで検証済みのデータをもとに、国ごとに気候変動を理解する。",

@@ -1,7 +1,9 @@
+import { useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import ActionCTA from "../components/ActionCTA";
 import { useSobriety } from "../lib/SobrietyContext";
+import { useDiscoveryMode } from "../lib/DiscoveryModeContext";
 import { useT } from "../lib/useT";
 import {
   IconCloud,
@@ -72,12 +74,26 @@ export default function Home() {
   const { t } = useT();
   const router = useRouter();
   const { sobriety } = useSobriety();
+  const { isDiscovery } = useDiscoveryMode();
   const { environment, democracy } = useCardGroups(t);
 
   // Filtrage par section : /?section=environnement|democratie|sengager —
   // ne montre que la section demandée, avec un lien pour revenir à la vue
   // complète. Sans paramètre, l'accueil affiche tout comme avant.
   const section = typeof router.query.section === "string" ? router.query.section : null;
+
+  // Mode découverte par défaut pour un premier visiteur (voir
+  // DiscoveryModeContext.js) : redirige vers /decouverte uniquement sur
+  // l'accueil "nue" (pas de section demandée) — un clic depuis l'en-tête
+  // vers une section précise (ex. /?section=democratie) doit continuer à
+  // afficher cette section, pas rebondir vers /decouverte.
+  useEffect(() => {
+    if (isDiscovery && !section) {
+      router.replace("/decouverte");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isDiscovery, section]);
+
   const showEnvironment = !section || section === "environnement";
   const showDemocratie = !section || section === "democratie";
   const showEngager = !section || section === "sengager";

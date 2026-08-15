@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { detectDefaultCountry } from "../lib/detectCountry";
 import { useSobriety } from "../lib/SobrietyContext";
+import { useDiscoveryMode } from "../lib/DiscoveryModeContext";
 import { useTheme } from "../lib/ThemeContext";
 import { useT } from "../lib/useT";
 import { IconLeaf, IconSun, IconMoon, IconScroll, IconHome } from "./icons";
@@ -53,6 +54,7 @@ function LanguageSwitcher() {
 
 export default function Layout({ children }) {
   const { sobriety, setSobriety } = useSobriety();
+  const { isDiscovery, setIsDiscovery } = useDiscoveryMode();
   const { theme, setTheme } = useTheme();
   const { t } = useT();
   const [countrySummary, setCountrySummary] = useState("FRA");
@@ -214,6 +216,25 @@ export default function Layout({ children }) {
           >
             {theme === "dark" ? <IconMoon size={16} /> : <IconSun size={16} />}
           </button>
+
+          <Link
+            href={isDiscovery ? "/" : "/decouverte"}
+            prefetch={false}
+            onClick={() => setIsDiscovery(!isDiscovery)}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              fontSize: 13,
+              background: "var(--color-carte)",
+              border: "1px solid var(--color-bordure)",
+              borderRadius: "var(--radius)",
+              padding: "6px 10px",
+              color: "var(--color-texte)",
+              textDecoration: "none",
+            }}
+          >
+            {isDiscovery ? t("common.mode_switch_to_expert") : t("common.mode_switch_to_discovery")}
+          </Link>
 
           <label
             style={{

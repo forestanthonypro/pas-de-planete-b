@@ -32,7 +32,9 @@
     "footer_impact": "Impacto ambiental",
     "nav_home": "Inicio",
     "nav_home_title": "Volver a la página de inicio",
-    "nav_country_summary": "Resumen ambiental de mi país + comparativa"
+    "nav_country_summary": "Resumen ambiental de mi país + comparativa",
+    "mode_switch_to_expert": "Modo experto",
+    "mode_switch_to_discovery": "Modo descubrimiento"
   },
   "home": {
     "intro": "Comprender el cambio climático, país por país, con datos abiertos y verificados.",

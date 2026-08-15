@@ -32,7 +32,9 @@
     "footer_impact": "环境影响",
     "nav_home": "首页",
     "nav_home_title": "返回网站首页",
-    "nav_country_summary": "我的国家环境摘要 + 对比"
+    "nav_country_summary": "我的国家环境摘要 + 对比",
+    "mode_switch_to_expert": "专家模式",
+    "mode_switch_to_discovery": "入门模式"
   },
   "home": {
     "intro": "通过开放且经过核实的数据，逐国了解气候变化。",

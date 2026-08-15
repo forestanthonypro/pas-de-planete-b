@@ -32,7 +32,9 @@
     "footer_impact": "Environmental impact",
     "nav_home": "Home",
     "nav_home_title": "Back to the homepage",
-    "nav_country_summary": "My country's environmental summary + comparison"
+    "nav_country_summary": "My country's environmental summary + comparison",
+    "mode_switch_to_expert": "Expert mode",
+    "mode_switch_to_discovery": "Discovery mode"
   },
   "home": {
     "intro": "Understanding climate change, country by country, with open and sourced data.",

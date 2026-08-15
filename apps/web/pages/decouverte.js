@@ -203,7 +203,7 @@ function ComparisonCard({ theme, nameA, nameB, valueA, valueB, t }) {
         <span style={{ fontSize: 12, color: "var(--color-texte-clair)", width: 90, flexShrink: 0 }}>{nameA}</span>
         <div style={{ flex: 1, background: "var(--color-fond)", borderRadius: 4, height: 18 }}>
           {valueA !== null && (
-            <div style={{ width: `${(valueA / max) * 100}%`, height: "100%", background: "#378ADD", borderRadius: 4 }} />
+            <div style={{ width: `${(valueA / max) * 100}%`, height: "100%", background: "#1b5e20", borderRadius: 4 }} />
           )}
         </div>
         <span style={{ fontSize: 12, width: 65, textAlign: "right", flexShrink: 0 }}>
@@ -215,7 +215,7 @@ function ComparisonCard({ theme, nameA, nameB, valueA, valueB, t }) {
           <span style={{ fontSize: 12, color: "var(--color-texte-clair)", width: 90, flexShrink: 0 }}>{nameB}</span>
           <div style={{ flex: 1, background: "var(--color-fond)", borderRadius: 4, height: 18 }}>
             {valueB !== null && (
-              <div style={{ width: `${(valueB / max) * 100}%`, height: "100%", background: "#D85A30", borderRadius: 4 }} />
+              <div style={{ width: `${(valueB / max) * 100}%`, height: "100%", background: "#639922", borderRadius: 4 }} />
             )}
           </div>
           <span style={{ fontSize: 12, width: 65, textAlign: "right", flexShrink: 0 }}>

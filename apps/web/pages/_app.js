@@ -3,6 +3,7 @@ import Head from "next/head";
 import Script from "next/script";
 import "../styles/globals.css";
 import { SobrietyProvider } from "../lib/SobrietyContext";
+import { DiscoveryModeProvider } from "../lib/DiscoveryModeContext";
 import { ThemeProvider } from "../lib/ThemeContext";
 import { LocaleContext } from "../lib/LocaleContext";
 import { useT } from "../lib/useT";
@@ -117,7 +118,9 @@ export default function MyApp({ Component, pageProps, router }) {
       <MatomoTracking router={router} />
       <ThemeProvider>
         <SobrietyProvider>
-          <Layout>{page}</Layout>
+          <DiscoveryModeProvider>
+            <Layout>{page}</Layout>
+          </DiscoveryModeProvider>
         </SobrietyProvider>
       </ThemeProvider>
     </LocaleContext.Provider>
