@@ -34,7 +34,8 @@
     "nav_home_title": "Volver a la página de inicio",
     "nav_country_summary": "Resumen ambiental de mi país + comparativa",
     "mode_switch_to_expert": "Modo experto",
-    "mode_switch_to_discovery": "Modo descubrimiento"
+    "mode_switch_to_discovery": "Modo descubrimiento",
+    "mode_switch_aria": "Cambiar entre el modo descubrimiento y el modo experto"
   },
   "home": {
     "intro": "Comprender el cambio climático, país por país, con datos abiertos y verificados.",

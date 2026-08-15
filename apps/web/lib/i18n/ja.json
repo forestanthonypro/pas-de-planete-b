@@ -34,7 +34,8 @@
     "nav_home_title": "サイトのトップページに戻る",
     "nav_country_summary": "自国の環境サマリー + 比較",
     "mode_switch_to_expert": "エキスパートモード",
-    "mode_switch_to_discovery": "はじめてモード"
+    "mode_switch_to_discovery": "はじめてモード",
+    "mode_switch_aria": "はじめてモードとエキスパートモードを切り替える"
   },
   "home": {
     "intro": "オープンで検証済みのデータをもとに、国ごとに気候変動を理解する。",

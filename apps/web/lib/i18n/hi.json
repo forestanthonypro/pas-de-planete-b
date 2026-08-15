@@ -34,7 +34,8 @@
     "nav_home_title": "साइट के होमपेज पर वापस जाएँ",
     "nav_country_summary": "मेरे देश का पर्यावरण सारांश + तुलना",
     "mode_switch_to_expert": "विशेषज्ञ मोड",
-    "mode_switch_to_discovery": "परिचय मोड"
+    "mode_switch_to_discovery": "परिचय मोड",
+    "mode_switch_aria": "परिचय मोड और विशेषज्ञ मोड के बीच स्विच करें"
   },
   "home": {
     "intro": "खुले और सत्यापित डेटा के साथ, देश दर देश जलवायु परिवर्तन को समझना।",

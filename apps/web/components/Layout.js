@@ -6,7 +6,7 @@ import { useSobriety } from "../lib/SobrietyContext";
 import { useDiscoveryMode } from "../lib/DiscoveryModeContext";
 import { useTheme } from "../lib/ThemeContext";
 import { useT } from "../lib/useT";
-import { IconLeaf, IconSun, IconMoon, IconScroll, IconHome } from "./icons";
+import { IconLeaf, IconSun, IconMoon, IconScroll, IconHome, IconBulb } from "./icons";
 import BackgroundScene from "./BackgroundScene";
 import ScrollTopButton from "./ScrollTopButton";
 
@@ -112,6 +112,59 @@ export default function Layout({ children }) {
           {t("common.nav_home")}
         </Link>
 
+        <div
+          role="group"
+          aria-label={t("common.mode_switch_aria")}
+          style={{ display: "flex", borderRadius: 20, overflow: "hidden", border: "1px solid #ba7517" }}
+        >
+          <Link
+            href="/decouverte"
+            prefetch={false}
+            onClick={() => setIsDiscovery(true)}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 7,
+              padding: "6px 14px",
+              fontSize: 13,
+              fontWeight: 600,
+              textDecoration: "none",
+              background: isDiscovery ? "var(--color-forest)" : "#faeeda",
+              color: isDiscovery ? "white" : "#633806",
+            }}
+          >
+            <span
+              style={{
+                width: 9,
+                height: 9,
+                borderRadius: "50%",
+                flexShrink: 0,
+                background: isDiscovery ? "#c0dd97" : "#ba7517",
+              }}
+            />
+            {t("common.mode_switch_to_discovery")}
+          </Link>
+          <Link
+            href="/"
+            prefetch={false}
+            onClick={() => setIsDiscovery(false)}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 7,
+              padding: "6px 14px",
+              fontSize: 13,
+              fontWeight: 600,
+              textDecoration: "none",
+              background: !isDiscovery ? "var(--color-forest)" : "#faeeda",
+              color: !isDiscovery ? "white" : "#633806",
+            }}
+          >
+            <IconBulb size={14} />
+            {t("common.mode_switch_to_expert")}
+          </Link>
+        </div>
+
         <Link
           href={`/pays/${countrySummary}`}
           prefetch={false}
@@ -216,25 +269,6 @@ export default function Layout({ children }) {
           >
             {theme === "dark" ? <IconMoon size={16} /> : <IconSun size={16} />}
           </button>
-
-          <Link
-            href={isDiscovery ? "/" : "/decouverte"}
-            prefetch={false}
-            onClick={() => setIsDiscovery(!isDiscovery)}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              fontSize: 13,
-              background: "var(--color-carte)",
-              border: "1px solid var(--color-bordure)",
-              borderRadius: "var(--radius)",
-              padding: "6px 10px",
-              color: "var(--color-texte)",
-              textDecoration: "none",
-            }}
-          >
-            {isDiscovery ? t("common.mode_switch_to_expert") : t("common.mode_switch_to_discovery")}
-          </Link>
 
           <label
             style={{
