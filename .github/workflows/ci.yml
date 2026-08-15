@@ -118,7 +118,8 @@ jobs:
           import asyncio, json
           from ecoindex.scraper import EcoindexScraper
 
-          result = asyncio.run(EcoindexScraper(url="${{ vars.PRODUCTION_URL || 'https://pasdeplaneteb.com' }}").get_page_analysis())
+          scraper = EcoindexScraper(url="${{ vars.PRODUCTION_URL || 'https://pasdeplaneteb.com' }}")
+          result = asyncio.run(scraper.get_page_analysis())
           print(json.dumps({
               "grade": result.grade,
               "score": float(result.score),
@@ -128,8 +129,31 @@ jobs:
               "ges": float(result.ges),
               "water": float(result.water),
           }))
+
+          # Diagnostic temporaire (chantier EcoIndex A->C du 15 août 2026) : le
+          # détail requête par requête, pour identifier précisément ce qui
+          # compose les ~84 requêtes mesurées — pas visible autrement. Écrit
+          # dans un fichier séparé (pas dans ecoindex-result.json ci-dessus,
+          # dont le format JSON strict est repris tel quel par jq plus loin
+          # dans ce workflow). À retirer une fois le diagnostic terminé.
+          all_requests = asyncio.run(scraper.get_all_requests())
+          by_category = asyncio.run(scraper.get_requests_by_category())
+          with open("ecoindex-requests-debug.json", "w") as f:
+              json.dump({
+                  "by_category": by_category.model_dump(),
+                  "all_requests": [r.model_dump() for r in all_requests],
+              }, f, indent=2)
           PYEOF
           cat ecoindex-result.json
+          echo "--- Détail des requêtes (diagnostic) ---"
+          cat ecoindex-requests-debug.json
+
+      - name: Publier le détail des requêtes en artefact (diagnostic temporaire)
+        uses: actions/upload-artifact@v4
+        with:
+          name: ecoindex-requests-debug
+          path: ecoindex-requests-debug.json
+          retention-days: 7
 
       - uses: actions/setup-node@v7
         with:
