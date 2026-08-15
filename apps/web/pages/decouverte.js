@@ -94,47 +94,37 @@ function ObjectionCard({ entry, locale, t }) {
   );
 }
 
-// --- Section 3 : calcul des 7 métriques à partir de /api/country-summary ---
-// Chaque fonction renvoie une valeur numérique ou null si la donnée manque
-// pour ce pays — la carte correspondante se masque simplement dans ce cas.
-
-function latestValid(rows, field) {
-  if (!rows) return null;
-  for (let i = rows.length - 1; i >= 0; i--) {
-    if (rows[i][field] !== null && rows[i][field] !== undefined) return rows[i];
-  }
-  return null;
-}
+// --- Section 3 : calcul des 7 métriques à partir de
+// /api/country-summary-latest — version allégée (une valeur par thème, pas
+// l'historique complet) créée spécifiquement pour cette page, voir
+// environmentalData.js. Chaque fonction renvoie une valeur numérique ou
+// null si la donnée manque pour ce pays — la carte correspondante se
+// masque simplement dans ce cas.
 
 function computeCo2(s) {
-  return latestValid(s.co2, "emissions_per_capita")?.emissions_per_capita ?? null;
+  return s.co2?.emissions_per_capita ?? null;
 }
 function computeEnergie(s) {
-  return latestValid(s.electricityGeneration, "demand_per_capita_kwh")?.demand_per_capita_kwh ?? null;
+  return s.electricity?.demand_per_capita_kwh ?? null;
 }
 function computeEau(s) {
-  const w = latestValid(s.water, "withdrawal_m3");
-  const popRow = latestValid(s.co2, "population");
-  if (!w || !popRow?.population) return null;
-  return w.withdrawal_m3 / popRow.population;
+  if (!s.water?.withdrawal_m3 || !s.co2?.population) return null;
+  return s.water.withdrawal_m3 / s.co2.population;
 }
 function computeVegetation(s) {
-  const rows = (s.vegetation || []).filter((r) => r.tree_cover_loss_ha != null && r.forest_area_ha);
-  if (rows.length === 0) return null;
-  const last = rows[rows.length - 1];
-  return (last.tree_cover_loss_ha / last.forest_area_ha) * 100;
+  if (!s.vegetation?.tree_cover_loss_ha || !s.vegetation?.forest_area_ha) return null;
+  return (s.vegetation.tree_cover_loss_ha / s.vegetation.forest_area_ha) * 100;
 }
 function computeEspeces(s) {
-  const last = s.speciesThreatened?.[s.speciesThreatened.length - 1];
-  if (!last) return null;
-  const total = (last.mammals_threatened || 0) + (last.birds_threatened || 0) + (last.fish_threatened || 0);
+  if (!s.speciesThreatened) return null;
+  const total = (s.speciesThreatened.mammals_threatened || 0) + (s.speciesThreatened.birds_threatened || 0) + (s.speciesThreatened.fish_threatened || 0);
   return total > 0 ? total : null;
 }
 function computePollution(s) {
-  return latestValid(s.pollution, "pm25_ug_m3")?.pm25_ug_m3 ?? null;
+  return s.pollution?.pm25_ug_m3 ?? null;
 }
 function computeTemperature(s) {
-  return latestValid(s.temperatures, "deviation_from_reference_c")?.deviation_from_reference_c ?? null;
+  return s.temperatures?.deviation_from_reference_c ?? null;
 }
 
 const THEMES = [
@@ -313,6 +303,10 @@ function RankingQuiz({ t }) {
     if (next.length === RANKING_ITEMS.length) setRevealed(true);
   }
 
+  function unpick(key) {
+    setUserOrder((prev) => prev.filter((k) => k !== key));
+  }
+
   function reset() {
     setUserOrder([]);
     setRevealed(false);
@@ -359,10 +353,29 @@ function RankingQuiz({ t }) {
               {userOrder.map((key, i) => {
                 const item = RANKING_ITEMS.find((r) => r.key === key);
                 return (
-                  <div key={key} style={{ display: "flex", alignItems: "center", gap: 10, padding: "6px 14px", fontSize: 13, color: "var(--color-texte-clair)" }}>
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => unpick(key)}
+                    title={t("decouverte.ranking_undo_hint")}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 10,
+                      padding: "6px 14px",
+                      fontSize: 13,
+                      color: "var(--color-texte-clair)",
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      width: "100%",
+                      textAlign: "left",
+                    }}
+                  >
                     <span style={{ fontWeight: 600 }}>{i + 1}</span>
                     {t(`decouverte.ranking_item_${item.key}`)}
-                  </div>
+                    <span style={{ marginLeft: "auto", fontSize: 12 }}>✕</span>
+                  </button>
                 );
               })}
             </>
@@ -430,8 +443,8 @@ export default function DecouvertePage() {
   useEffect(() => {
     setCountryA(detectDefaultCountry());
   }, []);
-  const { data: summaryA } = useApiFetch(`/api/country-summary/${countryA}`, { deps: [countryA] });
-  const { data: summaryB } = useApiFetch(countryB ? `/api/country-summary/${countryB}` : null, { deps: [countryB] });
+  const { data: summaryA } = useApiFetch(`/api/country-summary-latest/${countryA}`, { deps: [countryA] });
+  const { data: summaryB } = useApiFetch(countryB ? `/api/country-summary-latest/${countryB}` : null, { deps: [countryB] });
   const nameA = localizedCountryName(countryA, locale);
   const nameB = countryB ? localizedCountryName(countryB, locale) : null;
 

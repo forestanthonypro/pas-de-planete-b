@@ -705,4 +705,76 @@ router.post("/api/admin/ingest/world-benchmarks", requireIngestToken, async (_re
 
 
 
+// Version allégée de /api/country-summary/:country — une seule ligne (la
+// plus récente) par thème, au lieu de l'historique complet année par
+// année. Créée spécifiquement pour /decouverte (page d'accueil par défaut
+// pour un premier visiteur, voir DiscoveryModeContext.js) qui n'affiche
+// qu'un chiffre par thème et n'a jamais besoin de l'historique complet —
+// contrairement à /pays/[code].js qui, lui, continue d'utiliser la route
+// complète pour ses graphiques. Réduit fortement le poids de page (et donc
+// l'EcoIndex/Lighthouse mesurés en CI sur l'URL racine, qui redirige
+// désormais vers /decouverte pour un premier visiteur).
+router.get("/api/country-summary-latest/:country", async (req, res) => {
+  const country = req.params.country.toUpperCase();
+  try {
+    const [co2Result, waterResult, electricityResult, vegetationResult, speciesThreatenedResult, pollutionResult, temperaturesResult] = await Promise.all([
+      pool.query(
+        `SELECT emissions_per_capita::float, population::float
+         FROM co2_emissions WHERE country_code = $1 AND emissions_per_capita IS NOT NULL
+         ORDER BY year DESC LIMIT 1`,
+        [country]
+      ),
+      pool.query(
+        `SELECT withdrawal_m3::float
+         FROM water_data WHERE country_code = $1 AND withdrawal_m3 IS NOT NULL
+         ORDER BY year DESC LIMIT 1`,
+        [country]
+      ),
+      pool.query(
+        `SELECT demand_per_capita_kwh::float
+         FROM electricity_generation WHERE country_code = $1 AND demand_per_capita_kwh IS NOT NULL
+         ORDER BY year DESC LIMIT 1`,
+        [country]
+      ),
+      pool.query(
+        `SELECT tree_cover_loss_ha::float, forest_area_ha::float
+         FROM vegetation_loss WHERE country_code = $1 AND tree_cover_loss_ha IS NOT NULL AND forest_area_ha IS NOT NULL
+         ORDER BY year DESC LIMIT 1`,
+        [country]
+      ),
+      pool.query(
+        `SELECT mammals_threatened, birds_threatened, fish_threatened
+         FROM species_threatened_counts WHERE country_code = $1
+         ORDER BY year DESC LIMIT 1`,
+        [country]
+      ),
+      pool.query(
+        `SELECT pm25_ug_m3::float
+         FROM pollution_data WHERE country_code = $1 AND pm25_ug_m3 IS NOT NULL
+         ORDER BY year DESC LIMIT 1`,
+        [country]
+      ),
+      pool.query(
+        `SELECT deviation_from_reference_c::float
+         FROM country_temperatures WHERE country_code = $1 AND deviation_from_reference_c IS NOT NULL
+         ORDER BY year DESC LIMIT 1`,
+        [country]
+      ),
+    ]);
+
+    res.json({
+      country,
+      co2: co2Result.rows[0] || null,
+      water: waterResult.rows[0] || null,
+      electricity: electricityResult.rows[0] || null,
+      vegetation: vegetationResult.rows[0] || null,
+      speciesThreatened: speciesThreatenedResult.rows[0] || null,
+      pollution: pollutionResult.rows[0] || null,
+      temperatures: temperaturesResult.rows[0] || null,
+    });
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
+  }
+});
+
 export default router;
