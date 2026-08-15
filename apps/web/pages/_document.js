@@ -30,6 +30,11 @@ export default class MyDocument extends Document {
           <link rel="manifest" href="/manifest.json" />
           <meta name="theme-color" content="#1b5e20" />
           <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+          {/* Sans lien explicite, les navigateurs demandent /favicon.ico par
+              convention — inexistant ici, donc une 404 systématique sur
+              chaque page. On réutilise l'icône PWA déjà présente plutôt que
+              d'ajouter un nouveau fichier .ico. */}
+          <link rel="icon" href="/icons/icon-192.png" type="image/png" />
           {/* Écran de chargement personnalisé (feuille animée + nom du
               site), visible uniquement quand le site tourne en mode
               application installée (standalone) — jamais lors d'une simple
