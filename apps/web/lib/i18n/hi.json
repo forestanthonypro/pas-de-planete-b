@@ -933,7 +933,7 @@
   "decouverte": {
     "hero_label": "1991-2020 के बाद से दुनिया भर में औसत वार्मिंग",
     "hero_question": "यह कम लगता है। तो फिर यह समस्या क्यों है?",
-    "hero_cta": "2 मिनट में समझें",
+    "hero_cta": "4 मिनट में समझें",
     "objections_title": "शायद आपसे कहा गया हो...",
     "objections_intro": "यह देखने के लिए किसी दावे पर क्लिक करें कि डेटा वास्तव में क्या कहता है।",
     "objections_see_sources": "स्रोत देखें",
@@ -998,6 +998,7 @@
     "ranking_source_voiture": "स्रोत: ADEME (Base Empreinte, औसत वाहन बेड़ा)।",
     "ranking_source_boeuf": "स्रोत: ADEME (Base Empreinte)।",
     "ranking_source_streaming": "स्रोत: IEA, Netflix (DIMPACT), ADEME Base Empreinte — अध्ययन सटीक आंकड़े पर बहुत भिन्न हैं, लेकिन सभी इस बात पर सहमत हैं: यह किसी उड़ान या मांस भोजन से सैकड़ों गुना कम है।",
-    "ranking_reset": "फिर से शुरू करें"
+    "ranking_reset": "फिर से शुरू करें",
+    "hero_video_title": "व्याख्यात्मक वीडियो: 4 मिनट में जलवायु परिवर्तन"
   }
 }

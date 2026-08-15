@@ -933,7 +933,7 @@
   "decouverte": {
     "hero_label": "average warming worldwide since 1991-2020",
     "hero_question": "That sounds small. So why is it a problem?",
-    "hero_cta": "Understand in 2 minutes",
+    "hero_cta": "Understand in 4 minutes",
     "objections_title": "You may have heard...",
     "objections_intro": "Click a claim to see what the data actually says.",
     "objections_see_sources": "See the source",
@@ -998,6 +998,7 @@
     "ranking_source_voiture": "Source: ADEME (Base Empreinte, average vehicle fleet).",
     "ranking_source_boeuf": "Source: ADEME (Base Empreinte).",
     "ranking_source_streaming": "Source: IEA, Netflix (DIMPACT), ADEME Base Empreinte — studies vary widely on the exact figure, but all agree: it's hundreds of times less than a flight or a meat meal.",
-    "ranking_reset": "Start over"
+    "ranking_reset": "Start over",
+    "hero_video_title": "Explainer video: climate change in 4 minutes"
   }
 }

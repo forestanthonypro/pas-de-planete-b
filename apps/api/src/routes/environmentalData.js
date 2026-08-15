@@ -796,7 +796,7 @@ router.get("/api/decouverte-bootstrap", async (req, res) => {
   const locale = req.query.locale;
 
   try {
-    const [worldBenchmarksResult, debunkResult, summaryA, summaryB] = await Promise.all([
+    const [worldBenchmarksResult, debunkResult, videoResult, summaryA, summaryB] = await Promise.all([
       pool.query("SELECT metric_key, value, unit, year FROM world_benchmarks"),
       pool.query(
         `SELECT d.slug, d.myth, d.verdict, d.image_url, d.updated_at,
@@ -806,6 +806,7 @@ router.get("/api/decouverte-bootstrap", async (req, res) => {
          WHERE d.published = true AND d.featured_decouverte = true
          ORDER BY d.updated_at DESC`
       ),
+      pool.query("SELECT value FROM site_settings WHERE key = 'decouverte_video_url'"),
       fetchLatestCountrySummary(countryA),
       countryB ? fetchLatestCountrySummary(countryB) : Promise.resolve(null),
     ]);
@@ -815,8 +816,9 @@ router.get("/api/decouverte-bootstrap", async (req, res) => {
       worldBenchmarks[row.metric_key] = { value: parseFloat(row.value), unit: row.unit, year: row.year };
     }
     const objections = await mergeTranslations(debunkResult.rows, "debunk", locale);
+    const videoUrl = videoResult.rows[0]?.value || "";
 
-    res.json({ worldBenchmarks, objections, summaryA, summaryB });
+    res.json({ worldBenchmarks, objections, videoUrl, summaryA, summaryB });
   } catch (err) {
     res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }

@@ -276,6 +276,10 @@ function LegalContentEditor({ baseKey, label, href, sessionToken }) {
 
 function AdminSettingsInner({ session }) {
   const [newsletterEnabled, setNewsletterEnabled] = useState(null);
+  const [videoUrl, setVideoUrl] = useState("");
+  const [videoUrlInitial, setVideoUrlInitial] = useState("");
+  const [videoUrlSaving, setVideoUrlSaving] = useState(false);
+  const [videoUrlStatus, setVideoUrlStatus] = useState("idle"); // idle | saved | error
   const [revoking, setRevoking] = useState(false);
   const [revokeConfirming, setRevokeConfirming] = useState(false);
   const [revokeStatus, setRevokeStatus] = useState("idle"); // idle | done
@@ -285,10 +289,18 @@ function AdminSettingsInner({ session }) {
   const { data: settingsData, loading, error: fetchError } = useApiFetch("/api/admin/settings", {
     headers: { Authorization: `Bearer ${session.sessionToken}` },
   });
+  const { data: videoUrlData } = useApiFetch("/api/settings/decouverte-video-url");
 
   useEffect(() => {
     if (settingsData) setNewsletterEnabled(settingsData.newsletter_enabled === "true");
   }, [settingsData]);
+
+  useEffect(() => {
+    if (videoUrlData?.url !== undefined) {
+      setVideoUrl(videoUrlData.url);
+      setVideoUrlInitial(videoUrlData.url);
+    }
+  }, [videoUrlData]);
 
   useEffect(() => {
     if (fetchError) setError(fetchError);
@@ -345,6 +357,30 @@ function AdminSettingsInner({ session }) {
       });
   }
 
+  function saveVideoUrl() {
+    setVideoUrlSaving(true);
+    setVideoUrlStatus("idle");
+    fetch(`${API_URL}/api/admin/settings/decouverte-video-url`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.sessionToken}` },
+      body: JSON.stringify({ url: videoUrl }),
+    })
+      .then((res) => {
+        if (!res.ok) return res.json().then((d) => Promise.reject(new Error(d.error || "Échec de l'enregistrement")));
+        return res.json();
+      })
+      .then(() => {
+        setVideoUrlInitial(videoUrl);
+        setVideoUrlStatus("saved");
+        setVideoUrlSaving(false);
+      })
+      .catch((err) => {
+        setError(err.message);
+        setVideoUrlStatus("error");
+        setVideoUrlSaving(false);
+      });
+  }
+
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 800, margin: "0 auto" }}>
       <p style={{ fontSize: 13, marginBottom: "0.5rem" }}>
@@ -382,6 +418,41 @@ function AdminSettingsInner({ session }) {
           </label>
         </section>
       )}
+
+      <section
+        style={{
+          background: "var(--color-carte)",
+          border: "1px solid var(--color-bordure)",
+          borderRadius: 12,
+          padding: "1.25rem",
+          marginTop: "1rem",
+        }}
+      >
+        <p style={{ fontSize: 15, fontWeight: 600, margin: "0 0 4px" }}>Vidéo — page découverte</p>
+        <p style={{ fontSize: 13, color: "var(--color-texte-clair)", margin: "0 0 10px", maxWidth: 520 }}>
+          Lien YouTube affiché au clic sur le bouton &quot;Comprendre en 4 minutes&quot; de la page{" "}
+          <Link href="/decouverte" target="_blank">/decouverte</Link>.
+        </p>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+          <input
+            type="text"
+            value={videoUrl}
+            onChange={(e) => setVideoUrl(e.target.value)}
+            placeholder="https://www.youtube.com/watch?v=..."
+            style={{ flex: 1, minWidth: 280, padding: "6px 10px", fontSize: 13, borderRadius: 8, border: "1px solid var(--color-bordure)" }}
+          />
+          <button
+            type="button"
+            onClick={saveVideoUrl}
+            disabled={videoUrlSaving || videoUrl === videoUrlInitial}
+            style={{ fontSize: 13, fontWeight: 600 }}
+          >
+            {videoUrlSaving ? "Enregistrement..." : "Enregistrer"}
+          </button>
+        </div>
+        {videoUrlStatus === "saved" && <p style={{ fontSize: 12, color: "#1baf7a", marginTop: 8 }}>Enregistré ✓</p>}
+        {videoUrlStatus === "error" && <p style={{ fontSize: 12, color: "#d63e2a", marginTop: 8 }}>Échec de l&apos;enregistrement</p>}
+      </section>
 
       <section
         style={{

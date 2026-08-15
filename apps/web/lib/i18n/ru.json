@@ -933,7 +933,7 @@
   "decouverte": {
     "hero_label": "среднего потепления в мире с 1991-2020",
     "hero_question": "Кажется немного. Тогда почему это проблема?",
-    "hero_cta": "Разобраться за 2 минуты",
+    "hero_cta": "Разобраться за 4 минуты",
     "objections_title": "Возможно, вам уже говорили...",
     "objections_intro": "Нажмите на утверждение, чтобы узнать, что на самом деле говорят данные.",
     "objections_see_sources": "Смотреть источник",
@@ -998,6 +998,7 @@
     "ranking_source_voiture": "Источник: ADEME (Base Empreinte, средний автопарк).",
     "ranking_source_boeuf": "Источник: ADEME (Base Empreinte).",
     "ranking_source_streaming": "Источник: МЭА, Netflix (DIMPACT), ADEME Base Empreinte — оценки сильно различаются, но все сходятся: это в сотни раз меньше, чем перелёт или мясное блюдо.",
-    "ranking_reset": "Начать заново"
+    "ranking_reset": "Начать заново",
+    "hero_video_title": "Разъясняющее видео: изменение климата за 4 минуты"
   }
 }

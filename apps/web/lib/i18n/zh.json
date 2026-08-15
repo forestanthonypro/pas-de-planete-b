@@ -933,7 +933,7 @@
   "decouverte": {
     "hero_label": "自1991-2020年以来的全球平均变暖幅度",
     "hero_question": "看起来很小。那为什么会是个问题？",
-    "hero_cta": "2分钟看懂",
+    "hero_cta": "4分钟看懂",
     "objections_title": "您可能听说过...",
     "objections_intro": "点击一个说法，看看数据实际怎么说。",
     "objections_see_sources": "查看来源",
@@ -998,6 +998,7 @@
     "ranking_source_voiture": "来源：ADEME（Base Empreinte，汽车平均水平）。",
     "ranking_source_boeuf": "来源：ADEME（Base Empreinte）。",
     "ranking_source_streaming": "来源：国际能源署、Netflix（DIMPACT）、ADEME Base Empreinte——各研究给出的具体数值差异很大，但都一致认为：这比一次飞行或一餐肉食要少几百倍。",
-    "ranking_reset": "重新开始"
+    "ranking_reset": "重新开始",
+    "hero_video_title": "讲解视频：4分钟看懂气候变化"
   }
 }

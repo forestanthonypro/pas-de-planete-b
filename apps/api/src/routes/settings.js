@@ -18,6 +18,39 @@ router.get("/api/settings/newsletter-enabled", async (req, res) => {
   }
 });
 
+// URL de la vidéo YouTube de /decouverte (bouton "Comprendre en 4
+// minutes") — éditable sans déploiement, même patron que
+// newsletter-enabled ci-dessus. Récupérée normalement via
+// /api/decouverte-bootstrap (un seul aller-retour réseau avec le reste des
+// données de la page, voir plus bas dans environmentalData.js) ; cette
+// route dédiée existe surtout pour l'admin (lecture de la valeur actuelle
+// avant modification).
+router.get("/api/settings/decouverte-video-url", async (req, res) => {
+  try {
+    const result = await pool.query("SELECT value FROM site_settings WHERE key = 'decouverte_video_url'");
+    res.json({ url: result.rows[0]?.value || "" });
+  } catch (err) {
+    res.status(500).json({ error: "Erreur serveur", detail: errorDetail(err) });
+  }
+});
+
+router.post("/api/admin/settings/decouverte-video-url", requireAdminSession, async (req, res) => {
+  const { url } = req.body || {};
+  if (typeof url !== "string" || !/^https:\/\/(www\.)?youtube\.com\/watch\?v=|^https:\/\/youtu\.be\//.test(url)) {
+    return res.status(400).json({ error: "L'URL doit être un lien YouTube valide (youtube.com/watch?v=... ou youtu.be/...)" });
+  }
+  try {
+    await pool.query(
+      `INSERT INTO site_settings (key, value) VALUES ('decouverte_video_url', $1)
+       ON CONFLICT (key) DO UPDATE SET value = $1`,
+      [url]
+    );
+    res.json({ url });
+  } catch (err) {
+    res.status(500).json({ error: "Erreur serveur", detail: errorDetail(err) });
+  }
+});
+
 router.get("/api/admin/settings", requireAdminSession, async (req, res) => {
   try {
     const result = await pool.query("SELECT key, value FROM site_settings");

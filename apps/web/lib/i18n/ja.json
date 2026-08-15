@@ -933,7 +933,7 @@
   "decouverte": {
     "hero_label": "1991〜2020年基準からの世界平均の温暖化",
     "hero_question": "小さく見えます。では、なぜ問題なのでしょう？",
-    "hero_cta": "2分で理解する",
+    "hero_cta": "4分で理解する",
     "objections_title": "こう聞いたことはありませんか？",
     "objections_intro": "主張をクリックすると、データが実際に示していることがわかります。",
     "objections_see_sources": "出典を見る",
@@ -998,6 +998,7 @@
     "ranking_source_voiture": "出典：ADEME（Base Empreinte、平均的な自動車）。",
     "ranking_source_boeuf": "出典：ADEME（Base Empreinte）。",
     "ranking_source_streaming": "出典：IEA、Netflix（DIMPACT）、ADEME Base Empreinte — 研究によって数値は大きく異なりますが、いずれも飛行機や肉料理に比べて数百分の一という点では一致しています。",
-    "ranking_reset": "もう一度"
+    "ranking_reset": "もう一度",
+    "hero_video_title": "解説動画：4分でわかる気候変動"
   }
 }

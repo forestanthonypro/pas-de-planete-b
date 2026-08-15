@@ -288,6 +288,14 @@ function EngagerCard({ href, Icon, label, desc, tint }) {
 // pas de chiffre unique (aucun consensus entre études, écarts jusqu'à x200),
 // seul l'ordre de grandeur relatif aux autres postes est mis en avant, ce
 // qui reste vrai quelle que soit l'étude retenue.
+// Extrait l'ID d'une URL YouTube (formats watch?v=... ou youtu.be/...) —
+// pas de dépendance externe pour un besoin aussi simple.
+function extractYoutubeId(url) {
+  if (!url) return null;
+  const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/);
+  return match ? match[1] : null;
+}
+
 const RANKING_ITEMS = [
   { key: "avion", rank: 1 },
   { key: "voiture", rank: 2 },
@@ -468,6 +476,8 @@ export default function DecouvertePage() {
   );
   const worldBenchmarks = bootstrap?.worldBenchmarks ?? null;
   const objections = bootstrap?.objections ?? [];
+  const videoId = extractYoutubeId(bootstrap?.videoUrl);
+  const [videoOpen, setVideoOpen] = useState(false);
   const summaryA = bootstrap?.summaryA ?? null;
   const summaryB = bootstrap?.summaryB ?? null;
   const deviation = worldBenchmarks?.temperature_deviation_world?.value;
@@ -510,21 +520,49 @@ export default function DecouvertePage() {
           <p style={{ fontSize: 14, color: "var(--color-texte)", margin: 0 }}>{t("decouverte.hero_question")}</p>
         </div>
 
-        <Link
-          href="#explication"
+        <button
+          type="button"
+          onClick={() => setVideoOpen((v) => !v)}
           style={{
             display: "inline-block",
             background: "var(--color-forest)",
             color: "white",
             padding: "10px 20px",
             borderRadius: 8,
-            textDecoration: "none",
+            border: "none",
+            cursor: "pointer",
             fontWeight: 600,
             fontSize: 14,
           }}
         >
-          {t("decouverte.hero_cta")} →
-        </Link>
+          {t("decouverte.hero_cta")} {videoOpen ? "↑" : "↓"}
+        </button>
+
+        {videoId && (
+          <div
+            style={{
+              display: "grid",
+              gridTemplateRows: videoOpen ? "1fr" : "0fr",
+              transition: "grid-template-rows 0.4s ease",
+              maxWidth: 640,
+              margin: "1rem auto 0",
+            }}
+          >
+            <div style={{ overflow: "hidden", minHeight: 0 }}>
+              {videoOpen && (
+                <div style={{ position: "relative", width: "100%", paddingBottom: "56.25%" }}>
+                  <iframe
+                    src={`https://www.youtube.com/embed/${videoId}`}
+                    title={t("decouverte.hero_video_title")}
+                    style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", border: "none", borderRadius: 8 }}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </section>
 
       {/* --- Section 1bis : C'est quoi le changement climatique ? --- */}

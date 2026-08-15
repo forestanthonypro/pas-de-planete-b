@@ -933,7 +933,7 @@
   "decouverte": {
     "hero_label": "de réchauffement moyen dans le monde depuis 1991-2020",
     "hero_question": "Ça semble peu. Alors pourquoi est-ce un problème ?",
-    "hero_cta": "Comprendre en 2 minutes",
+    "hero_cta": "Comprendre en 4 minutes",
     "objections_title": "On vous a peut-être déjà dit...",
     "objections_intro": "Cliquez sur une affirmation pour voir ce qu'en disent réellement les données.",
     "objections_see_sources": "Voir la source",
@@ -998,6 +998,7 @@
     "ranking_source_voiture": "Source : ADEME (Base Empreinte, moyenne du parc automobile).",
     "ranking_source_boeuf": "Source : ADEME (Base Empreinte).",
     "ranking_source_streaming": "Source : AIE, Netflix (DIMPACT), Base Empreinte ADEME — les études varient beaucoup sur le chiffre exact, mais s'accordent toutes : c'est des centaines de fois moins qu'un vol ou un repas de viande.",
-    "ranking_reset": "Recommencer"
+    "ranking_reset": "Recommencer",
+    "hero_video_title": "Vidéo explicative : le changement climatique en 4 minutes"
   }
 }

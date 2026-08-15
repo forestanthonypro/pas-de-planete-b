@@ -933,7 +933,7 @@
   "decouverte": {
     "hero_label": "di riscaldamento medio nel mondo dal 1991-2020",
     "hero_question": "Sembra poco. Allora perché è un problema?",
-    "hero_cta": "Capire in 2 minuti",
+    "hero_cta": "Capire in 4 minuti",
     "objections_title": "Forse le hanno già detto...",
     "objections_intro": "Clicca su un'affermazione per vedere cosa dicono davvero i dati.",
     "objections_see_sources": "Vedi la fonte",
@@ -998,6 +998,7 @@
     "ranking_source_voiture": "Fonte: ADEME (Base Empreinte, media del parco auto).",
     "ranking_source_boeuf": "Fonte: ADEME (Base Empreinte).",
     "ranking_source_streaming": "Fonte: IEA, Netflix (DIMPACT), Base Empreinte ADEME — gli studi variano molto sulla cifra esatta, ma concordano tutti: è centinaia di volte meno di un volo o di un pasto a base di carne.",
-    "ranking_reset": "Ricomincia"
+    "ranking_reset": "Ricomincia",
+    "hero_video_title": "Video esplicativo: il cambiamento climatico in 4 minuti"
   }
 }

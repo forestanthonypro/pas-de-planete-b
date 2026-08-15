@@ -933,7 +933,7 @@
   "decouverte": {
     "hero_label": "de calentamiento medio en el mundo desde 1991-2020",
     "hero_question": "Parece poco. Entonces, ¿por qué es un problema?",
-    "hero_cta": "Entenderlo en 2 minutos",
+    "hero_cta": "Entenderlo en 4 minutos",
     "objections_title": "Puede que le hayan dicho...",
     "objections_intro": "Haga clic en una afirmación para ver lo que realmente dicen los datos.",
     "objections_see_sources": "Ver la fuente",
@@ -998,6 +998,7 @@
     "ranking_source_voiture": "Fuente: ADEME (Base Empreinte, media del parque automovilístico).",
     "ranking_source_boeuf": "Fuente: ADEME (Base Empreinte).",
     "ranking_source_streaming": "Fuente: AIE, Netflix (DIMPACT), Base Empreinte ADEME — los estudios varían mucho en la cifra exacta, pero todos coinciden: es cientos de veces menos que un vuelo o una comida de carne.",
-    "ranking_reset": "Empezar de nuevo"
+    "ranking_reset": "Empezar de nuevo",
+    "hero_video_title": "Vídeo explicativo: el cambio climático en 4 minutos"
   }
 }
