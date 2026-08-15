@@ -9,25 +9,31 @@
 // fichiers JS pendant des heures de débogage le 9 août 2026, malgré
 // rechargements forcés et vidage de cache navigateur.
 //
-// self.skipWaiting() retiré le 15 août 2026 — volontairement. Il forçait
-// un nouveau service worker à prendre le contrôle de la page **en cours
-// de chargement**, pas seulement des visites suivantes. Sur une toute
-// première visite (aucun service worker actif au départ — exactement ce
-// que mesure l'audit EcoIndex en CI, et ce que vit un vrai premier
-// visiteur), ça provoquait un double téléchargement de chaque fichier
-// JS/JSON encore en cours de chargement au moment de l'activation : une
-// fois via le chargement normal de la page, une seconde fois via le
-// service worker qui interceptait et refaisait la requête lui-même —
-// visible dans DevTools comme deux entrées réseau par fichier, l'une avec
-// pour initiateur le tag <script>, l'autre "sw.js". Ce doublement a fait
-// chuter l'EcoIndex du site de A à C (84 requêtes mesurées au lieu de
-// ~40-45 attendues). Sans skipWaiting(), un nouveau service worker
-// attend la prochaine navigation pour prendre le contrôle — comportement
-// standard des navigateurs, qui évite ce doublement. Le nettoyage de
-// cache versionné ci-dessous (CACHE_NAME) reste suffisant à lui seul pour
+// self.skipWaiting() ET self.clients.claim() retirés le 15 août 2026.
+// D'abord seul skipWaiting() avait été retiré (théorie initiale : il
+// forçait la bascule installation->activation trop vite) — insuffisant,
+// confirmé par le diagnostic détaillé de l'audit EcoIndex CI (liste
+// requête par requête, voir .github/workflows/ci.yml) : sur un profil
+// totalement neuf (aucun service worker préexistant, exactement le cas
+// simulé par l'audit ET celui d'un vrai premier visiteur), rien ne
+// retient la transition installation->activation même sans skipWaiting()
+// s'il n'y a pas d'ancien service worker à attendre. C'est clients.claim()
+// dans le gestionnaire "activate" qui posait vraiment problème : il fait
+// prendre le contrôle de la page **en cours de chargement** dès que
+// l'activation aboutit, provoquant l'interception et le re-téléchargement
+// de fichiers encore en cours de chargement à ce moment précis — confirmé
+// dans les données de l'audit par des dizaines de fichiers JS et JSON
+// apparaissant deux à trois fois chacun (dont une fois à 0 octet,
+// signature typique d'une requête interceptée puis relancée). Sans
+// clients.claim(), un service worker fraîchement activé attend la
+// prochaine navigation pour prendre le contrôle — élimine ce doublement,
+// au prix (acceptable) d'un léger délai avant que le mode hors-ligne soit
+// pleinement actif après la toute première visite. Le nettoyage de cache
+// versionné ci-dessous (CACHE_NAME) reste suffisant à lui seul pour
 // éviter que du contenu périmé reste servi indéfiniment aux visiteurs
-// récurrents — ce n'était pas skipWaiting() qui réglait ce problème-là.
-const CACHE_NAME = "pdpb-cache-v3";
+// récurrents — ni skipWaiting() ni clients.claim() n'étaient nécessaires
+// pour régler ce problème-là spécifiquement.
+const CACHE_NAME = "pdpb-cache-v4";
 const PRECACHE_URLS = ["/", "/manifest.json"];
 
 self.addEventListener("install", (event) => {
@@ -42,7 +48,6 @@ self.addEventListener("activate", (event) => {
       Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
     )
   );
-  self.clients.claim();
 });
 
 self.addEventListener("fetch", (event) => {

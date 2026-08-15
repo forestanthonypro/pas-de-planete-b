@@ -149,7 +149,7 @@ function ComparisonCard({ theme, nameA, nameB, valueA, valueB, t }) {
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
           <theme.Icon size={16} style={{ color: theme.tint }} />
           <span style={{ fontSize: 12, color: "var(--color-texte-clair)" }}>{t(`decouverte.theme_${theme.key}`)}</span>
-          <Link href={theme.page} style={{ fontSize: 11, color: "var(--color-texte-clair)", textDecoration: "none" }} title={t("decouverte.theme_source_title")}>
+          <Link href={theme.page} prefetch={false} style={{ fontSize: 11, color: "var(--color-texte-clair)", textDecoration: "none" }} title={t("decouverte.theme_source_title")}>
             ⓘ
           </Link>
         </div>
@@ -183,7 +183,7 @@ function ComparisonCard({ theme, nameA, nameB, valueA, valueB, t }) {
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
         <theme.Icon size={16} style={{ color: theme.tint }} />
         <span style={{ fontSize: 12, color: "var(--color-texte-clair)" }}>{t(`decouverte.theme_${theme.key}`)}</span>
-        <Link href={theme.page} style={{ fontSize: 11, color: "var(--color-texte-clair)", textDecoration: "none" }} title={t("decouverte.theme_source_title")}>
+        <Link href={theme.page} prefetch={false} style={{ fontSize: 11, color: "var(--color-texte-clair)", textDecoration: "none" }} title={t("decouverte.theme_source_title")}>
           ⓘ
         </Link>
       </div>
