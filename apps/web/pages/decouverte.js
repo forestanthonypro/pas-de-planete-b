@@ -432,14 +432,25 @@ export default function DecouvertePage() {
 
   const countries = useCountriesList("/api/co2/countries");
   const [countryA, setCountryA] = useState("FRA");
+  const [countryADetected, setCountryADetected] = useState(false);
   const [countryB, setCountryB] = useState("USA");
   useEffect(() => {
     setCountryA(detectDefaultCountry());
+    setCountryADetected(true);
   }, []);
 
+  // N'attend pas seulement le montage pour lancer l'appel : attend que la
+  // détection du pays (countryADetected) soit terminée. Sans ça, un
+  // premier appel partait toujours avec "FRA" par défaut, puis un second
+  // dès que la vraie détection corrigeait la valeur — un double appel pour
+  // n'importe quel visiteur dont le pays détecté n'est pas la France, pas
+  // seulement pour le robot de mesure EcoIndex (confirmé dans le
+  // diagnostic détaillé du 15 août 2026 : countryA=FRA puis countryA=USA).
   const { data: bootstrap } = useApiFetch(
-    `/api/decouverte-bootstrap?countryA=${countryA}${countryB ? `&countryB=${countryB}` : ""}&locale=${locale}`,
-    { deps: [countryA, countryB, locale] }
+    countryADetected
+      ? `/api/decouverte-bootstrap?countryA=${countryA}${countryB ? `&countryB=${countryB}` : ""}&locale=${locale}`
+      : null,
+    { deps: [countryA, countryB, locale, countryADetected] }
   );
   const worldBenchmarks = bootstrap?.worldBenchmarks ?? null;
   const objections = bootstrap?.objections ?? [];
