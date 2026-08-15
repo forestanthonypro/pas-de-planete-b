@@ -38,6 +38,12 @@ export function DiscoveryModeProvider({ children }) {
     } catch {
       // Idem — pas grave si on ne peut pas mémoriser.
     }
+    // Cookie en plus du localStorage : lu côté serveur par
+    // getServerSideProps sur "/" (voir pages/index.js) pour rediriger avant
+    // même d'envoyer le HTML — évite le flash d'un aller-retour client
+    // qu'une redirection purement côté client (useEffect + router.replace)
+    // provoquerait sinon au premier chargement.
+    document.cookie = `${STORAGE_KEY}=${isDiscovery}; path=/; max-age=31536000; SameSite=Lax`;
   }, [isDiscovery, hydrated]);
 
   function setIsDiscovery(value) {
