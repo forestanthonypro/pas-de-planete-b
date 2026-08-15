@@ -981,6 +981,23 @@
     "explain_example1_title": "L'auto al sole",
     "explain_example1_text": "Un'auto chiusa al sole, anche in inverno, diventa soffocante in pochi minuti — la luce attraversa i vetri, riscalda l'interno, e questo calore fa fatica a uscire. È esattamente il meccanismo dell'effetto serra, su scala di un intero pianeta.",
     "explain_example2_title": "Venere, Marte, Terra: la prova dei pianeti",
-    "explain_example2_text": "Venere ha un'atmosfera composta al 96% da CO2 e una temperatura superficiale di circa 464°C — più calda di Mercurio, pur essendo molto più distante dal Sole. Marte, con un'atmosfera molto sottile, è gelido. Stessa quantità di luce solare ricevuta in superficie, risultato radicalmente diverso a seconda dello spessore dell'atmosfera e del suo contenuto di CO2."
+    "explain_example2_text": "Venere ha un'atmosfera composta al 96% da CO2 e una temperatura superficiale di circa 464°C — più calda di Mercurio, pur essendo molto più distante dal Sole. Marte, con un'atmosfera molto sottile, è gelido. Stessa quantità di luce solare ricevuta in superficie, risultato radicalmente diverso a seconda dello spessore dell'atmosfera e del suo contenuto di CO2.",
+    "ranking_title": "Classifica dal più al meno inquinante",
+    "ranking_intro": "Clicca sugli elementi in ordine, dal più inquinante al meno inquinante.",
+    "ranking_item_avion": "Un volo andata e ritorno Parigi–New York",
+    "ranking_item_voiture": "100 km in auto, da solo/a",
+    "ranking_item_boeuf": "Un pasto con 100g di manzo",
+    "ranking_item_streaming": "Un'ora di streaming video",
+    "ranking_your_order": "La tua classifica",
+    "ranking_correct_order": "La classifica reale",
+    "ranking_value_avion": "≈ 1 tonnellata di CO2e",
+    "ranking_value_voiture": "≈ 19 kg di CO2e",
+    "ranking_value_boeuf": "fino a 5 kg di CO2e",
+    "ranking_value_streaming": "qualche decina di grammi (6-100g a seconda dello studio)",
+    "ranking_source_avion": "Fonte: ADEME (Base Empreinte).",
+    "ranking_source_voiture": "Fonte: ADEME (Base Empreinte, media del parco auto).",
+    "ranking_source_boeuf": "Fonte: ADEME (Base Empreinte).",
+    "ranking_source_streaming": "Fonte: IEA, Netflix (DIMPACT), Base Empreinte ADEME — gli studi variano molto sulla cifra esatta, ma concordano tutti: è centinaia di volte meno di un volo o di un pasto a base di carne.",
+    "ranking_reset": "Ricomincia"
   }
 }

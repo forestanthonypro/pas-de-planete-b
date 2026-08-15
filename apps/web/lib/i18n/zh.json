@@ -981,6 +981,23 @@
     "explain_example1_title": "阳光下的汽车",
     "explain_example1_text": "即使在冬天，紧闭车窗停在阳光下的汽车，几分钟内就会变得闷热难耐——阳光穿过车窗加热车内，而这些热量却很难散出去。这正是温室效应的机制，只是发生在整个星球的尺度上。",
     "explain_example2_title": "金星、火星、地球：来自行星的证据",
-    "explain_example2_text": "金星的大气96%由CO2构成，表面温度约为464°C——比水星还要热，尽管它离太阳远得多。而大气极其稀薄的火星则异常寒冷。地表接收到的阳光量相近，但由于大气厚度和CO2含量不同，结果却截然不同。"
+    "explain_example2_text": "金星的大气96%由CO2构成，表面温度约为464°C——比水星还要热，尽管它离太阳远得多。而大气极其稀薄的火星则异常寒冷。地表接收到的阳光量相近，但由于大气厚度和CO2含量不同，结果却截然不同。",
+    "ranking_title": "按污染程度从高到低排序",
+    "ranking_intro": "请按从最污染到最不污染的顺序点击各项。",
+    "ranking_item_avion": "巴黎—纽约往返航班",
+    "ranking_item_voiture": "独自开车100公里",
+    "ranking_item_boeuf": "含100克牛肉的一餐",
+    "ranking_item_streaming": "一小时视频流媒体",
+    "ranking_your_order": "您的排序",
+    "ranking_correct_order": "真实排序",
+    "ranking_value_avion": "约1吨CO2当量",
+    "ranking_value_voiture": "约19公斤CO2当量",
+    "ranking_value_boeuf": "最高5公斤CO2当量",
+    "ranking_value_streaming": "几十克（不同研究为6至100克）",
+    "ranking_source_avion": "来源：ADEME（Base Empreinte）。",
+    "ranking_source_voiture": "来源：ADEME（Base Empreinte，汽车平均水平）。",
+    "ranking_source_boeuf": "来源：ADEME（Base Empreinte）。",
+    "ranking_source_streaming": "来源：国际能源署、Netflix（DIMPACT）、ADEME Base Empreinte——各研究给出的具体数值差异很大，但都一致认为：这比一次飞行或一餐肉食要少几百倍。",
+    "ranking_reset": "重新开始"
   }
 }

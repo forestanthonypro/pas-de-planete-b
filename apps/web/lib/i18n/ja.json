@@ -981,6 +981,23 @@
     "explain_example1_title": "太陽の下の車",
     "explain_example1_text": "冬でも、太陽の下に停めた締め切った車内は数分で息苦しいほど暑くなります — 光が窓を通り抜けて車内を温め、その熱はなかなか外へ逃げません。これはまさに温室効果の仕組みを、惑星規模で表したものです。",
     "explain_example2_title": "金星、火星、地球 — 惑星が示す証拠",
-    "explain_example2_text": "金星の大気は96%がCO2で、地表温度は約464°C — 太陽からずっと遠い水星よりも高温です。一方、大気が非常に薄い火星は極寒です。地表が受け取る太陽光の量は同程度でも、大気の厚さとCO2の含有量によって結果はまったく異なります。"
+    "explain_example2_text": "金星の大気は96%がCO2で、地表温度は約464°C — 太陽からずっと遠い水星よりも高温です。一方、大気が非常に薄い火星は極寒です。地表が受け取る太陽光の量は同程度でも、大気の厚さとCO2の含有量によって結果はまったく異なります。",
+    "ranking_title": "排出量が多い順に並べ替えてください",
+    "ranking_intro": "排出量が多い順に、項目をクリックしてください。",
+    "ranking_item_avion": "パリ〜ニューヨーク間の往復飛行機",
+    "ranking_item_voiture": "車で1人100km移動",
+    "ranking_item_boeuf": "牛肉100gを使った食事",
+    "ranking_item_streaming": "動画配信を1時間視聴",
+    "ranking_your_order": "あなたの回答",
+    "ranking_correct_order": "実際の順位",
+    "ranking_value_avion": "約1トンのCO2換算",
+    "ranking_value_voiture": "約19kgのCO2換算",
+    "ranking_value_boeuf": "最大5kgのCO2換算",
+    "ranking_value_streaming": "数十グラム程度（研究により6〜100g）",
+    "ranking_source_avion": "出典：ADEME（Base Empreinte）。",
+    "ranking_source_voiture": "出典：ADEME（Base Empreinte、平均的な自動車）。",
+    "ranking_source_boeuf": "出典：ADEME（Base Empreinte）。",
+    "ranking_source_streaming": "出典：IEA、Netflix（DIMPACT）、ADEME Base Empreinte — 研究によって数値は大きく異なりますが、いずれも飛行機や肉料理に比べて数百分の一という点では一致しています。",
+    "ranking_reset": "もう一度"
   }
 }

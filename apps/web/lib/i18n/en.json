@@ -981,6 +981,23 @@
     "explain_example1_title": "The car in the sun",
     "explain_example1_text": "A closed car left in the sun, even in winter, becomes stifling within minutes — light passes through the windows, heats the interior, and that heat struggles to escape. This is exactly the greenhouse effect mechanism, at the scale of an entire planet.",
     "explain_example2_title": "Venus, Mars, Earth: proof from the planets",
-    "explain_example2_text": "Venus has an atmosphere that's 96% CO2 and a surface temperature of about 464°C — hotter than Mercury, despite being much farther from the Sun. Mars, with a very thin atmosphere, is freezing cold. Same amount of sunlight reaching the surface, radically different result depending on atmospheric thickness and CO2 content."
+    "explain_example2_text": "Venus has an atmosphere that's 96% CO2 and a surface temperature of about 464°C — hotter than Mercury, despite being much farther from the Sun. Mars, with a very thin atmosphere, is freezing cold. Same amount of sunlight reaching the surface, radically different result depending on atmospheric thickness and CO2 content.",
+    "ranking_title": "Rank from most to least polluting",
+    "ranking_intro": "Click the items in order, from most polluting to least polluting.",
+    "ranking_item_avion": "A round-trip flight Paris–New York",
+    "ranking_item_voiture": "100 km by car, alone",
+    "ranking_item_boeuf": "A meal with 100g of beef",
+    "ranking_item_streaming": "One hour of video streaming",
+    "ranking_your_order": "Your ranking",
+    "ranking_correct_order": "The real ranking",
+    "ranking_value_avion": "≈ 1 tonne of CO2e",
+    "ranking_value_voiture": "≈ 19 kg of CO2e",
+    "ranking_value_boeuf": "up to 5 kg of CO2e",
+    "ranking_value_streaming": "a few dozen grams (6 to 100g depending on the study)",
+    "ranking_source_avion": "Source: ADEME (Base Empreinte).",
+    "ranking_source_voiture": "Source: ADEME (Base Empreinte, average vehicle fleet).",
+    "ranking_source_boeuf": "Source: ADEME (Base Empreinte).",
+    "ranking_source_streaming": "Source: IEA, Netflix (DIMPACT), ADEME Base Empreinte — studies vary widely on the exact figure, but all agree: it's hundreds of times less than a flight or a meat meal.",
+    "ranking_reset": "Start over"
   }
 }

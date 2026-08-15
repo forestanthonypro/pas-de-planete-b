@@ -981,6 +981,23 @@
     "explain_example1_title": "El coche al sol",
     "explain_example1_text": "Un coche cerrado al sol, incluso en invierno, se vuelve sofocante en pocos minutos — la luz atraviesa los cristales, calienta el interior, y ese calor tiene dificultad para salir. Es exactamente el mecanismo del efecto invernadero, a escala de un planeta entero.",
     "explain_example2_title": "Venus, Marte, Tierra: la prueba de los planetas",
-    "explain_example2_text": "Venus tiene una atmósfera compuesta en un 96% de CO2 y una temperatura superficial de unos 464°C — más caliente que Mercurio, pese a estar mucho más lejos del Sol. Marte, con una atmósfera muy fina, es gélido. La misma cantidad de luz solar recibida en la superficie, un resultado radicalmente distinto según el grosor de la atmósfera y su contenido en CO2."
+    "explain_example2_text": "Venus tiene una atmósfera compuesta en un 96% de CO2 y una temperatura superficial de unos 464°C — más caliente que Mercurio, pese a estar mucho más lejos del Sol. Marte, con una atmósfera muy fina, es gélido. La misma cantidad de luz solar recibida en la superficie, un resultado radicalmente distinto según el grosor de la atmósfera y su contenido en CO2.",
+    "ranking_title": "Clasifique de más a menos contaminante",
+    "ranking_intro": "Haga clic en los elementos en orden, del más contaminante al menos contaminante.",
+    "ranking_item_avion": "Un vuelo de ida y vuelta París–Nueva York",
+    "ranking_item_voiture": "100 km en coche, solo/a",
+    "ranking_item_boeuf": "Una comida con 100g de carne de vacuno",
+    "ranking_item_streaming": "Una hora de streaming de vídeo",
+    "ranking_your_order": "Su clasificación",
+    "ranking_correct_order": "La clasificación real",
+    "ranking_value_avion": "≈ 1 tonelada de CO2e",
+    "ranking_value_voiture": "≈ 19 kg de CO2e",
+    "ranking_value_boeuf": "hasta 5 kg de CO2e",
+    "ranking_value_streaming": "unas pocas decenas de gramos (6 a 100g según el estudio)",
+    "ranking_source_avion": "Fuente: ADEME (Base Empreinte).",
+    "ranking_source_voiture": "Fuente: ADEME (Base Empreinte, media del parque automovilístico).",
+    "ranking_source_boeuf": "Fuente: ADEME (Base Empreinte).",
+    "ranking_source_streaming": "Fuente: AIE, Netflix (DIMPACT), Base Empreinte ADEME — los estudios varían mucho en la cifra exacta, pero todos coinciden: es cientos de veces menos que un vuelo o una comida de carne.",
+    "ranking_reset": "Empezar de nuevo"
   }
 }

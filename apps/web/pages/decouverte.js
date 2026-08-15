@@ -280,6 +280,141 @@ function EngagerCard({ href, Icon, label, desc, tint }) {
   );
 }
 
+// Classement du plus au moins polluant (rank 1 = le plus). Chiffres vérifiés
+// et sourcés — voir la discussion en amont : le streaming n'a volontairement
+// pas de chiffre unique (aucun consensus entre études, écarts jusqu'à x200),
+// seul l'ordre de grandeur relatif aux autres postes est mis en avant, ce
+// qui reste vrai quelle que soit l'étude retenue.
+const RANKING_ITEMS = [
+  { key: "avion", rank: 1 },
+  { key: "voiture", rank: 2 },
+  { key: "boeuf", rank: 3 },
+  { key: "streaming", rank: 4 },
+];
+
+function shuffle(arr) {
+  const copy = [...arr];
+  for (let i = copy.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
+function RankingQuiz({ t }) {
+  const [shuffled] = useState(() => shuffle(RANKING_ITEMS));
+  const [userOrder, setUserOrder] = useState([]);
+  const [revealed, setRevealed] = useState(false);
+
+  function pick(item) {
+    if (revealed || userOrder.includes(item.key)) return;
+    const next = [...userOrder, item.key];
+    setUserOrder(next);
+    if (next.length === RANKING_ITEMS.length) setRevealed(true);
+  }
+
+  function reset() {
+    setUserOrder([]);
+    setRevealed(false);
+  }
+
+  const remaining = shuffled.filter((item) => !userOrder.includes(item.key));
+
+  return (
+    <div>
+      {!revealed && (
+        <>
+          <p style={{ fontSize: 14, color: "var(--color-texte-clair)", marginBottom: 10 }}>
+            {t("decouverte.ranking_intro")}
+          </p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: userOrder.length ? 16 : 0 }}>
+            {remaining.map((item) => (
+              <button
+                key={item.key}
+                type="button"
+                onClick={() => pick(item)}
+                style={{
+                  textAlign: "left",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  padding: "10px 14px",
+                  background: "var(--color-carte)",
+                  border: "1px solid var(--color-bordure)",
+                  borderRadius: 8,
+                  cursor: "pointer",
+                  fontSize: 14,
+                  color: "var(--color-texte)",
+                }}
+              >
+                {t(`decouverte.ranking_item_${item.key}`)}
+              </button>
+            ))}
+          </div>
+          {userOrder.length > 0 && (
+            <>
+              <p style={{ fontSize: 12, color: "var(--color-texte-clair)", margin: "0 0 6px" }}>
+                {t("decouverte.ranking_your_order")}
+              </p>
+              {userOrder.map((key, i) => {
+                const item = RANKING_ITEMS.find((r) => r.key === key);
+                return (
+                  <div key={key} style={{ display: "flex", alignItems: "center", gap: 10, padding: "6px 14px", fontSize: 13, color: "var(--color-texte-clair)" }}>
+                    <span style={{ fontWeight: 600 }}>{i + 1}</span>
+                    {t(`decouverte.ranking_item_${item.key}`)}
+                  </div>
+                );
+              })}
+            </>
+          )}
+        </>
+      )}
+
+      {revealed && (
+        <>
+          <p style={{ fontSize: 14, fontWeight: 600, color: "var(--color-texte)", marginBottom: 10 }}>
+            {t("decouverte.ranking_correct_order")}
+          </p>
+          {RANKING_ITEMS.slice()
+            .sort((a, b) => a.rank - b.rank)
+            .map((item) => {
+              const userPosition = userOrder.indexOf(item.key) + 1;
+              const wasCorrect = userPosition === item.rank;
+              return (
+                <div
+                  key={item.key}
+                  style={{
+                    background: "var(--color-carte)",
+                    borderRadius: 8,
+                    padding: "10px 14px",
+                    marginBottom: 6,
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <span style={{ fontWeight: 600, fontSize: 14 }}>{item.rank}</span>
+                    <span style={{ fontSize: 14, flex: 1, color: "var(--color-texte)" }}>{t(`decouverte.ranking_item_${item.key}`)}</span>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: "var(--color-texte)" }}>{t(`decouverte.ranking_value_${item.key}`)}</span>
+                    <span style={{ fontSize: 13 }}>{wasCorrect ? "✓" : "—"}</span>
+                  </div>
+                  <p style={{ fontSize: 12, color: "var(--color-texte-clair)", margin: "6px 0 0" }}>
+                    {t(`decouverte.ranking_source_${item.key}`)}
+                  </p>
+                </div>
+              );
+            })}
+          <button
+            type="button"
+            onClick={reset}
+            style={{ marginTop: 8, background: "none", border: "1px solid var(--color-bordure)", borderRadius: 8, padding: "6px 14px", fontSize: 13, cursor: "pointer", color: "var(--color-texte)" }}
+          >
+            {t("decouverte.ranking_reset")}
+          </button>
+        </>
+      )}
+    </div>
+  );
+}
+
 export default function DecouvertePage() {
   const { t, locale } = useT();
   const worldBenchmarks = useWorldBenchmarks();
@@ -410,6 +545,13 @@ export default function DecouvertePage() {
             />
           ))}
       </section>
+
+      {/* --- Section 3bis : Quiz classement --- */}
+      <section style={{ padding: "1rem 0 2rem" }}>
+        <h2 style={{ fontSize: 20, marginBottom: 4 }}>{t("decouverte.ranking_title")}</h2>
+        <RankingQuiz t={t} />
+      </section>
+
       {/* --- Section 4 : Et maintenant ? --- */}
       <section style={{ padding: "2rem 0 3rem" }}>
         <h2 style={{ fontSize: 18, marginBottom: 4 }}>{t("decouverte.gains_title")}</h2>
