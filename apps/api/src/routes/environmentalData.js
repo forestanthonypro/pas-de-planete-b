@@ -192,12 +192,12 @@ router.get("/api/country-summary/:country", async (req, res) => {
   try {
     const [co2Result, plantsResult, speciesResult, firesResult, vegetationResult, waterResult, electricityGenerationResult, speciesThreatenedResult, pollutionResult, temperaturesResult] = await Promise.all([
       pool.query(
-        `SELECT year, emissions_mt, emissions_per_capita, consumption_co2, consumption_co2_per_capita, population
+        `SELECT year, emissions_mt::float, emissions_per_capita::float, consumption_co2::float, consumption_co2_per_capita::float, population::float
          FROM co2_emissions WHERE country_code = $1 ORDER BY year`,
         [country]
       ),
       pool.query(
-        `SELECT fuel_type, COUNT(*) AS plant_count, SUM(capacity_mw) AS total_capacity_mw
+        `SELECT fuel_type, COUNT(*) AS plant_count, SUM(capacity_mw)::float AS total_capacity_mw
          FROM power_plants WHERE country_code = $1
          GROUP BY fuel_type ORDER BY total_capacity_mw DESC NULLS LAST`,
         [country]
@@ -216,18 +216,18 @@ router.get("/api/country-summary/:country", async (req, res) => {
         [country]
       ),
       pool.query(
-        `SELECT year, tree_cover_loss_ha, forest_area_ha
+        `SELECT year, tree_cover_loss_ha::float, forest_area_ha::float
          FROM vegetation_loss WHERE country_code = $1 ORDER BY year`,
         [country]
       ),
       pool.query(
-        `SELECT year, renewable_freshwater_m3_per_capita, precipitation_mm, withdrawal_m3, withdrawal_share_percent
+        `SELECT year, renewable_freshwater_m3_per_capita::float, precipitation_mm::float, withdrawal_m3::float, withdrawal_share_percent::float
          FROM water_data WHERE country_code = $1 ORDER BY year`,
         [country]
       ),
       pool.query(
-        `SELECT year, coal_twh, gas_twh, oil_twh, nuclear_twh, hydro_twh, wind_twh,
-                solar_twh, biofuel_twh, other_renewable_twh, total_generation_twh, demand_twh, demand_per_capita_kwh
+        `SELECT year, coal_twh::float, gas_twh::float, oil_twh::float, nuclear_twh::float, hydro_twh::float, wind_twh::float,
+                solar_twh::float, biofuel_twh::float, other_renewable_twh::float, total_generation_twh::float, demand_twh::float, demand_per_capita_kwh::float
          FROM electricity_generation WHERE country_code = $1 ORDER BY year`,
         [country]
       ),
@@ -237,7 +237,7 @@ router.get("/api/country-summary/:country", async (req, res) => {
         [country]
       ),
       pool.query(
-        `SELECT year, pm25_ug_m3 FROM pollution_data WHERE country_code = $1 ORDER BY year`,
+        `SELECT year, pm25_ug_m3::float FROM pollution_data WHERE country_code = $1 ORDER BY year`,
         [country]
       ),
       pool.query(
