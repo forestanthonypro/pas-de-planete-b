@@ -945,7 +945,7 @@
     "theme_vegetation": "Foresta persa quell'anno",
     "theme_especes": "Specie minacciate",
     "theme_pollution": "Inquinamento atmosferico (PM2.5)",
-    "theme_temperatures": "Scarto di temperatura rispetto al riferimento",
+    "theme_temperatures": "Quanto fa più caldo rispetto a prima",
     "theme_co2_note": "{more} emette {ratio} volte più CO2 pro capite di {less}.",
     "theme_energie_note": "{more} consuma {ratio} volte più elettricità pro capite di {less}.",
     "theme_eau_note": "{more} preleva {ratio} volte più acqua pro capite di {less}.",

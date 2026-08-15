@@ -945,7 +945,7 @@
     "theme_vegetation": "उस वर्ष खोया गया जंगल",
     "theme_especes": "संकटग्रस्त प्रजातियाँ",
     "theme_pollution": "वायु प्रदूषण (PM2.5)",
-    "theme_temperatures": "संदर्भ से तापमान का अंतर",
+    "theme_temperatures": "पहले से कितना अधिक गर्म",
     "theme_co2_note": "{more}, {less} से प्रति व्यक्ति {ratio} गुना अधिक CO2 उत्सर्जित करता है।",
     "theme_energie_note": "{more}, {less} से प्रति व्यक्ति {ratio} गुना अधिक बिजली खपत करता है।",
     "theme_eau_note": "{more}, {less} से प्रति व्यक्ति {ratio} गुना अधिक पानी निकालता है।",

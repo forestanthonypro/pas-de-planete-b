@@ -945,7 +945,7 @@
     "theme_vegetation": "当年损失的森林",
     "theme_especes": "受威胁物种",
     "theme_pollution": "空气污染（PM2.5）",
-    "theme_temperatures": "与参考期的气温偏差",
+    "theme_temperatures": "比以前热了多少",
     "theme_co2_note": "{more}的人均CO2排放量是{less}的{ratio}倍。",
     "theme_energie_note": "{more}的人均用电量是{less}的{ratio}倍。",
     "theme_eau_note": "{more}的人均取水量是{less}的{ratio}倍。",

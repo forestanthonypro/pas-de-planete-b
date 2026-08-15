@@ -945,7 +945,7 @@
     "theme_vegetation": "その年に失われた森林",
     "theme_especes": "絶滅危惧種",
     "theme_pollution": "大気汚染（PM2.5）",
-    "theme_temperatures": "基準期間からの気温差",
+    "theme_temperatures": "以前よりどれだけ暑くなったか",
     "theme_co2_note": "{more}は{less}より一人当たりCO2排出量が{ratio}倍多い。",
     "theme_energie_note": "{more}は{less}より一人当たり電力消費量が{ratio}倍多い。",
     "theme_eau_note": "{more}は{less}より一人当たり取水量が{ratio}倍多い。",

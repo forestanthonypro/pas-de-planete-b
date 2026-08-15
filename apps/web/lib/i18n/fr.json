@@ -945,7 +945,7 @@
     "theme_vegetation": "Forêt perdue cette année-là",
     "theme_especes": "Espèces menacées",
     "theme_pollution": "Pollution de l'air (PM2.5)",
-    "theme_temperatures": "Écart de température à la référence",
+    "theme_temperatures": "Combien il fait plus chaud qu'avant",
     "theme_co2_note": "{more} émet {ratio} fois plus de CO2 par habitant que {less}.",
     "theme_energie_note": "{more} consomme {ratio} fois plus d'électricité par habitant que {less}.",
     "theme_eau_note": "{more} prélève {ratio} fois plus d'eau par habitant que {less}.",

@@ -945,7 +945,7 @@
     "theme_vegetation": "Bosque perdido ese año",
     "theme_especes": "Especies amenazadas",
     "theme_pollution": "Contaminación del aire (PM2.5)",
-    "theme_temperatures": "Desviación de temperatura respecto a la referencia",
+    "theme_temperatures": "Cuánto más calor hace que antes",
     "theme_co2_note": "{more} emite {ratio} veces más CO2 por habitante que {less}.",
     "theme_energie_note": "{more} consume {ratio} veces más electricidad por habitante que {less}.",
     "theme_eau_note": "{more} extrae {ratio} veces más agua por habitante que {less}.",

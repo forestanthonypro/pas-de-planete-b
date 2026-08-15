@@ -945,7 +945,7 @@
     "theme_vegetation": "Потеря леса за этот год",
     "theme_especes": "Виды под угрозой",
     "theme_pollution": "Загрязнение воздуха (PM2.5)",
-    "theme_temperatures": "Отклонение температуры от базового периода",
+    "theme_temperatures": "Насколько теплее, чем раньше",
     "theme_co2_note": "{more} выбрасывает в {ratio} раз больше CO2 на душу населения, чем {less}.",
     "theme_energie_note": "{more} потребляет в {ratio} раз больше электроэнергии на душу населения, чем {less}.",
     "theme_eau_note": "{more} забирает в {ratio} раз больше воды на душу населения, чем {less}.",

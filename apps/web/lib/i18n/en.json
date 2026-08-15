@@ -945,7 +945,7 @@
     "theme_vegetation": "Forest lost that year",
     "theme_especes": "Threatened species",
     "theme_pollution": "Air pollution (PM2.5)",
-    "theme_temperatures": "Temperature deviation from reference",
+    "theme_temperatures": "How much hotter than before",
     "theme_co2_note": "{more} emits {ratio} times more CO2 per capita than {less}.",
     "theme_energie_note": "{more} consumes {ratio} times more electricity per capita than {less}.",
     "theme_eau_note": "{more} withdraws {ratio} times more water per capita than {less}.",
