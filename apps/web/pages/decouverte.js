@@ -190,11 +190,17 @@ function ComparisonCard({ theme, nameA, nameB, valueA, valueB, t }) {
 
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
         <span style={{ fontSize: 12, color: "var(--color-texte-clair)", width: 90, flexShrink: 0 }}>{nameA}</span>
-        <div style={{ flex: 1, background: "var(--color-fond)", borderRadius: 4, height: 18 }}>
-          {valueA !== null && (
-            <div style={{ width: `${(valueA / max) * 100}%`, height: "100%", background: "#1b5e20", borderRadius: 4 }} />
-          )}
-        </div>
+        <div
+          style={{
+            flex: 1,
+            height: 18,
+            borderRadius: 4,
+            background:
+              valueA !== null
+                ? `linear-gradient(to right, #1b5e20 ${(valueA / max) * 100}%, var(--color-fond) ${(valueA / max) * 100}%)`
+                : "var(--color-fond)",
+          }}
+        />
         <span style={{ fontSize: 12, width: 65, textAlign: "right", flexShrink: 0 }}>
           {valueA !== null ? `${formatValue(valueA, theme.decimals)} ${theme.unit}` : "—"}
         </span>
@@ -202,11 +208,17 @@ function ComparisonCard({ theme, nameA, nameB, valueA, valueB, t }) {
       {nameB && (
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
           <span style={{ fontSize: 12, color: "var(--color-texte-clair)", width: 90, flexShrink: 0 }}>{nameB}</span>
-          <div style={{ flex: 1, background: "var(--color-fond)", borderRadius: 4, height: 18 }}>
-            {valueB !== null && (
-              <div style={{ width: `${(valueB / max) * 100}%`, height: "100%", background: "#639922", borderRadius: 4 }} />
-            )}
-          </div>
+          <div
+            style={{
+              flex: 1,
+              height: 18,
+              borderRadius: 4,
+              background:
+                valueB !== null
+                  ? `linear-gradient(to right, #639922 ${(valueB / max) * 100}%, var(--color-fond) ${(valueB / max) * 100}%)`
+                  : "var(--color-fond)",
+            }}
+          />
           <span style={{ fontSize: 12, width: 65, textAlign: "right", flexShrink: 0 }}>
             {valueB !== null ? `${formatValue(valueB, theme.decimals)} ${theme.unit}` : "—"}
           </span>
