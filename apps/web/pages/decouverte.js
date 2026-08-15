@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useT } from "../lib/useT";
-import { useWorldBenchmarks } from "../lib/useWorldBenchmarks";
 import { useApiFetch } from "../lib/useApiFetch";
 import { useCountriesList } from "../lib/useCountriesList";
 import { localizedCountryName } from "../lib/countryNames";
@@ -430,12 +429,6 @@ function RankingQuiz({ t }) {
 
 export default function DecouvertePage() {
   const { t, locale } = useT();
-  const worldBenchmarks = useWorldBenchmarks();
-  const { data: objections } = useApiFetch(`/api/debunk?featured=true&locale=${locale}`, {
-    transform: (rows) => (Array.isArray(rows) ? rows : []),
-    deps: [locale],
-  });
-  const deviation = worldBenchmarks?.temperature_deviation_world?.value;
 
   const countries = useCountriesList("/api/co2/countries");
   const [countryA, setCountryA] = useState("FRA");
@@ -443,8 +436,17 @@ export default function DecouvertePage() {
   useEffect(() => {
     setCountryA(detectDefaultCountry());
   }, []);
-  const { data: summaryA } = useApiFetch(`/api/country-summary-latest/${countryA}`, { deps: [countryA] });
-  const { data: summaryB } = useApiFetch(countryB ? `/api/country-summary-latest/${countryB}` : null, { deps: [countryB] });
+
+  const { data: bootstrap } = useApiFetch(
+    `/api/decouverte-bootstrap?countryA=${countryA}${countryB ? `&countryB=${countryB}` : ""}&locale=${locale}`,
+    { deps: [countryA, countryB, locale] }
+  );
+  const worldBenchmarks = bootstrap?.worldBenchmarks ?? null;
+  const objections = bootstrap?.objections ?? [];
+  const summaryA = bootstrap?.summaryA ?? null;
+  const summaryB = bootstrap?.summaryB ?? null;
+  const deviation = worldBenchmarks?.temperature_deviation_world?.value;
+
   const nameA = localizedCountryName(countryA, locale);
   const nameB = countryB ? localizedCountryName(countryB, locale) : null;
 

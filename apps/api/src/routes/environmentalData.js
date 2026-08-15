@@ -13,6 +13,7 @@ import { ingestSpeciesThreatened } from "../ingest/species_threatened.js";
 import { ingestPollution } from "../ingest/pollution.js";
 import { ingestWorldBenchmarks, ingestTemperatureBenchmark } from "../ingest/world_benchmarks.js";
 import { ingestTemperatures } from "../ingest/temperatures.js";
+import { mergeTranslations } from "../lib/translations.js";
 
 const router = Router();
 
@@ -714,64 +715,108 @@ router.post("/api/admin/ingest/world-benchmarks", requireIngestToken, async (_re
 // complète pour ses graphiques. Réduit fortement le poids de page (et donc
 // l'EcoIndex/Lighthouse mesurés en CI sur l'URL racine, qui redirige
 // désormais vers /decouverte pour un premier visiteur).
+// Extrait en fonction pour être réutilisée à la fois par la route standalone
+// ci-dessous et par /api/decouverte-bootstrap (qui l'appelle deux fois en
+// parallèle, pour les deux pays, dans le cadre d'un seul aller-retour HTTP
+// côté client — voir la route bootstrap plus bas).
+async function fetchLatestCountrySummary(country) {
+  const [co2Result, waterResult, electricityResult, vegetationResult, speciesThreatenedResult, pollutionResult, temperaturesResult] = await Promise.all([
+    pool.query(
+      `SELECT emissions_per_capita::float, population::float
+       FROM co2_emissions WHERE country_code = $1 AND emissions_per_capita IS NOT NULL
+       ORDER BY year DESC LIMIT 1`,
+      [country]
+    ),
+    pool.query(
+      `SELECT withdrawal_m3::float
+       FROM water_data WHERE country_code = $1 AND withdrawal_m3 IS NOT NULL
+       ORDER BY year DESC LIMIT 1`,
+      [country]
+    ),
+    pool.query(
+      `SELECT demand_per_capita_kwh::float
+       FROM electricity_generation WHERE country_code = $1 AND demand_per_capita_kwh IS NOT NULL
+       ORDER BY year DESC LIMIT 1`,
+      [country]
+    ),
+    pool.query(
+      `SELECT tree_cover_loss_ha::float, forest_area_ha::float
+       FROM vegetation_loss WHERE country_code = $1 AND tree_cover_loss_ha IS NOT NULL AND forest_area_ha IS NOT NULL
+       ORDER BY year DESC LIMIT 1`,
+      [country]
+    ),
+    pool.query(
+      `SELECT mammals_threatened, birds_threatened, fish_threatened
+       FROM species_threatened_counts WHERE country_code = $1
+       ORDER BY year DESC LIMIT 1`,
+      [country]
+    ),
+    pool.query(
+      `SELECT pm25_ug_m3::float
+       FROM pollution_data WHERE country_code = $1 AND pm25_ug_m3 IS NOT NULL
+       ORDER BY year DESC LIMIT 1`,
+      [country]
+    ),
+    pool.query(
+      `SELECT deviation_from_reference_c::float
+       FROM country_temperatures WHERE country_code = $1 AND deviation_from_reference_c IS NOT NULL
+       ORDER BY year DESC LIMIT 1`,
+      [country]
+    ),
+  ]);
+
+  return {
+    country,
+    co2: co2Result.rows[0] || null,
+    water: waterResult.rows[0] || null,
+    electricity: electricityResult.rows[0] || null,
+    vegetation: vegetationResult.rows[0] || null,
+    speciesThreatened: speciesThreatenedResult.rows[0] || null,
+    pollution: pollutionResult.rows[0] || null,
+    temperatures: temperaturesResult.rows[0] || null,
+  };
+}
+
 router.get("/api/country-summary-latest/:country", async (req, res) => {
-  const country = req.params.country.toUpperCase();
   try {
-    const [co2Result, waterResult, electricityResult, vegetationResult, speciesThreatenedResult, pollutionResult, temperaturesResult] = await Promise.all([
+    res.json(await fetchLatestCountrySummary(req.params.country.toUpperCase()));
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
+  }
+});
+
+// Un seul aller-retour HTTP pour tout ce dont /decouverte a besoin au
+// chargement (repère mondial, objections Débunk mises en avant, résumé des
+// deux pays comparés) — au lieu de 4 requêtes séparées. Motivé par
+// l'EcoIndex : le nombre de requêtes réseau (87 mesuré, cible 40) pesait
+// bien plus que le poids de page ou la complexité DOM, déjà sous la cible.
+router.get("/api/decouverte-bootstrap", async (req, res) => {
+  const countryA = (req.query.countryA || "FRA").toUpperCase();
+  const countryB = req.query.countryB ? req.query.countryB.toUpperCase() : null;
+  const locale = req.query.locale;
+
+  try {
+    const [worldBenchmarksResult, debunkResult, summaryA, summaryB] = await Promise.all([
+      pool.query("SELECT metric_key, value, unit, year FROM world_benchmarks"),
       pool.query(
-        `SELECT emissions_per_capita::float, population::float
-         FROM co2_emissions WHERE country_code = $1 AND emissions_per_capita IS NOT NULL
-         ORDER BY year DESC LIMIT 1`,
-        [country]
+        `SELECT d.slug, d.myth, d.verdict, d.image_url, d.updated_at,
+                c.name AS category_name, c.slug AS category_slug
+         FROM debunk_entries d
+         LEFT JOIN debunk_categories c ON c.id = d.category_id
+         WHERE d.published = true AND d.featured_decouverte = true
+         ORDER BY d.updated_at DESC`
       ),
-      pool.query(
-        `SELECT withdrawal_m3::float
-         FROM water_data WHERE country_code = $1 AND withdrawal_m3 IS NOT NULL
-         ORDER BY year DESC LIMIT 1`,
-        [country]
-      ),
-      pool.query(
-        `SELECT demand_per_capita_kwh::float
-         FROM electricity_generation WHERE country_code = $1 AND demand_per_capita_kwh IS NOT NULL
-         ORDER BY year DESC LIMIT 1`,
-        [country]
-      ),
-      pool.query(
-        `SELECT tree_cover_loss_ha::float, forest_area_ha::float
-         FROM vegetation_loss WHERE country_code = $1 AND tree_cover_loss_ha IS NOT NULL AND forest_area_ha IS NOT NULL
-         ORDER BY year DESC LIMIT 1`,
-        [country]
-      ),
-      pool.query(
-        `SELECT mammals_threatened, birds_threatened, fish_threatened
-         FROM species_threatened_counts WHERE country_code = $1
-         ORDER BY year DESC LIMIT 1`,
-        [country]
-      ),
-      pool.query(
-        `SELECT pm25_ug_m3::float
-         FROM pollution_data WHERE country_code = $1 AND pm25_ug_m3 IS NOT NULL
-         ORDER BY year DESC LIMIT 1`,
-        [country]
-      ),
-      pool.query(
-        `SELECT deviation_from_reference_c::float
-         FROM country_temperatures WHERE country_code = $1 AND deviation_from_reference_c IS NOT NULL
-         ORDER BY year DESC LIMIT 1`,
-        [country]
-      ),
+      fetchLatestCountrySummary(countryA),
+      countryB ? fetchLatestCountrySummary(countryB) : Promise.resolve(null),
     ]);
 
-    res.json({
-      country,
-      co2: co2Result.rows[0] || null,
-      water: waterResult.rows[0] || null,
-      electricity: electricityResult.rows[0] || null,
-      vegetation: vegetationResult.rows[0] || null,
-      speciesThreatened: speciesThreatenedResult.rows[0] || null,
-      pollution: pollutionResult.rows[0] || null,
-      temperatures: temperaturesResult.rows[0] || null,
-    });
+    const worldBenchmarks = {};
+    for (const row of worldBenchmarksResult.rows) {
+      worldBenchmarks[row.metric_key] = { value: parseFloat(row.value), unit: row.unit, year: row.year };
+    }
+    const objections = await mergeTranslations(debunkResult.rows, "debunk", locale);
+
+    res.json({ worldBenchmarks, objections, summaryA, summaryB });
   } catch (err) {
     res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
