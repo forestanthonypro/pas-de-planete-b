@@ -1037,6 +1037,7 @@
     "profiling_action_logement_changement_jardin": "Instale un compostador en el jardín — reduce sus residuos y nutre sus plantas.",
     "profiling_action_logement_changement_sansjardin": "Infórmese sobre un punto de compostaje colectivo o una pequeña lombricompostera de interior.",
     "profiling_action_logement_projet_locataire": "Hable de aislamiento con su propietario, o infórmese sobre las ayudas a la renovación que también existen para inquilinos.",
-    "profiling_action_logement_projet_proprietaire": "Pida un presupuesto de aislamiento o placas solares — existen varias ayudas."
+    "profiling_action_logement_projet_proprietaire": "Pida un presupuesto de aislamiento o placas solares — existen varias ayudas.",
+    "section_progress": "Sección {current} de {total}"
   }
 }

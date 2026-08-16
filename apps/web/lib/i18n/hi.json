@@ -1037,6 +1037,7 @@
     "profiling_action_logement_changement_jardin": "बगीचे में एक कंपोस्ट लगाएं — इससे कचरा कम होता है और पौधों को पोषण मिलता है।",
     "profiling_action_logement_changement_sansjardin": "सामूहिक कंपोस्ट पॉइंट या छोटे इनडोर वर्म कंपोस्टर के बारे में जानें।",
     "profiling_action_logement_projet_locataire": "अपने मकान मालिक से इन्सुलेशन पर बात करें, या किरायेदारों के लिए भी उपलब्ध नवीनीकरण सहायता योजनाओं के बारे में जानें।",
-    "profiling_action_logement_projet_proprietaire": "इन्सुलेशन या सोलर पैनल के लिए एक अनुमान प्राप्त करें — कई सहायता योजनाएं उपलब्ध हैं।"
+    "profiling_action_logement_projet_proprietaire": "इन्सुलेशन या सोलर पैनल के लिए एक अनुमान प्राप्त करें — कई सहायता योजनाएं उपलब्ध हैं।",
+    "section_progress": "खंड {current} में से {total}"
   }
 }

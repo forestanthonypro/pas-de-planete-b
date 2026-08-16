@@ -1037,6 +1037,7 @@
     "profiling_action_logement_changement_jardin": "在花园里放置堆肥箱——减少垃圾，还能为植物提供养分。",
     "profiling_action_logement_changement_sansjardin": "了解社区堆肥点或小型室内蚯蚓堆肥箱。",
     "profiling_action_logement_projet_locataire": "与房东商量保温改造，或了解租户也能申请的翻新补贴。",
-    "profiling_action_logement_projet_proprietaire": "获取保温或太阳能板的报价——有多项补贴可用。"
+    "profiling_action_logement_projet_proprietaire": "获取保温或太阳能板的报价——有多项补贴可用。",
+    "section_progress": "第 {current}/{total} 部分"
   }
 }

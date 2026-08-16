@@ -1037,6 +1037,7 @@
     "profiling_action_logement_changement_jardin": "Set up a compost bin in the garden — less waste, and it feeds your plants.",
     "profiling_action_logement_changement_sansjardin": "Look into a shared compost point or a small indoor worm compost bin.",
     "profiling_action_logement_projet_locataire": "Talk insulation with your landlord, or look into renovation support schemes available to tenants too.",
-    "profiling_action_logement_projet_proprietaire": "Get a quote for insulation or solar panels — several support schemes exist."
+    "profiling_action_logement_projet_proprietaire": "Get a quote for insulation or solar panels — several support schemes exist.",
+    "section_progress": "Section {current} of {total}"
   }
 }

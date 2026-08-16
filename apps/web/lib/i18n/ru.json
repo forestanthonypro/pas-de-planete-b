@@ -1037,6 +1037,7 @@
     "profiling_action_logement_changement_jardin": "Установите компостер в саду — меньше отходов, и растения получают питание.",
     "profiling_action_logement_changement_sansjardin": "Узнайте о пункте коллективного компостирования или небольшом домашнем вермикомпостере.",
     "profiling_action_logement_projet_locataire": "Обсудите утепление с арендодателем или узнайте о субсидиях на ремонт, доступных и арендаторам.",
-    "profiling_action_logement_projet_proprietaire": "Закажите смету на утепление или солнечные панели — существует несколько программ поддержки."
+    "profiling_action_logement_projet_proprietaire": "Закажите смету на утепление или солнечные панели — существует несколько программ поддержки.",
+    "section_progress": "Раздел {current} из {total}"
   }
 }

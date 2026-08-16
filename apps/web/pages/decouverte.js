@@ -6,7 +6,7 @@ import { useCountriesList } from "../lib/useCountriesList";
 import { localizedCountryName } from "../lib/countryNames";
 import { detectDefaultCountry } from "../lib/detectCountry";
 import CountrySelect from "../components/CountrySelect";
-import { IconCloud, IconBolt, IconDroplet, IconTree, IconPaw, IconSmog, IconThermometer, IconSearch, IconPlay, IconLandmark, IconScroll, IconCheck } from "../components/icons";
+import { IconCloud, IconBolt, IconDroplet, IconTree, IconPaw, IconSmog, IconThermometer, IconSearch, IconPlay, IconLandmark, IconScroll, IconCheck, IconScale, IconUsers, IconLeaf, IconHome, IconBulb } from "../components/icons";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 const VERDICT_COLORS = { faux: "#d63e2a", trompeur: "#f4b400", confirme: "#1baf7a" };
@@ -618,6 +618,26 @@ function RankingQuiz({ t }) {
   );
 }
 
+const TOTAL_SECTIONS = 8;
+
+function SectionDivider({ Icon, index, t }) {
+  return (
+    <div style={{ margin: "2.5rem 0 1.5rem" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
+        <div style={{ flex: 1, height: 1, background: "var(--color-bordure)" }} />
+        <span style={{ fontSize: 14, color: "var(--color-texte-clair)", lineHeight: 1 }}>⌄</span>
+        <div style={{ flex: 1, height: 1, background: "var(--color-bordure)" }} />
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <Icon size={16} style={{ color: "var(--color-forest)" }} />
+        <span style={{ fontSize: 11, letterSpacing: "0.05em", textTransform: "uppercase", color: "var(--color-texte-clair)" }}>
+          {t("decouverte.section_progress", { current: index, total: TOTAL_SECTIONS })}
+        </span>
+      </div>
+    </div>
+  );
+}
+
 export default function DecouvertePage() {
   const { t, locale } = useT();
 
@@ -736,6 +756,7 @@ export default function DecouvertePage() {
 
       {/* --- Section 1bis : C'est quoi le changement climatique ? --- */}
       <section id="explication" style={{ padding: "1rem 0 2rem" }}>
+        <SectionDivider Icon={IconBulb} index={2} t={t} />
         <h2 style={{ fontSize: 20, marginBottom: 12 }}>{t("decouverte.explain_title")}</h2>
         <p style={{ fontSize: 14, color: "var(--color-texte)", lineHeight: 1.7, marginBottom: 10 }}>{t("decouverte.explain_p1")}</p>
         <p style={{ fontSize: 14, color: "var(--color-texte)", lineHeight: 1.7, marginBottom: 16 }}>{t("decouverte.explain_p2")}</p>
@@ -758,6 +779,7 @@ export default function DecouvertePage() {
       {/* --- Section 2 : Objections --- */}
       {objections && objections.length > 0 && (
         <section id="objections" style={{ padding: "2rem 0" }}>
+          <SectionDivider Icon={IconSearch} index={3} t={t} />
           <h2 style={{ fontSize: 20, marginBottom: 4 }}>{t("decouverte.objections_title")}</h2>
           <p style={{ fontSize: 14, color: "var(--color-texte-clair)", marginBottom: "1.25rem" }}>
             {t("decouverte.objections_intro")}
@@ -769,6 +791,7 @@ export default function DecouvertePage() {
       )}
       {/* --- Section 3 : Comparaisons par thème --- */}
       <section id="comparaisons" style={{ padding: "2rem 0" }}>
+        <SectionDivider Icon={IconScale} index={4} t={t} />
         <h2 style={{ fontSize: 20, marginBottom: 4 }}>{t("decouverte.comparisons_title")}</h2>
         <p style={{ fontSize: 14, color: "var(--color-texte-clair)", marginBottom: "1rem" }}>
           {t("decouverte.comparisons_intro")}
@@ -795,21 +818,27 @@ export default function DecouvertePage() {
 
       {/* --- Section 3bis : Quiz classement --- */}
       <section style={{ padding: "1rem 0 2rem" }}>
+        <SectionDivider Icon={IconCheck} index={5} t={t} />
         <h2 style={{ fontSize: 20, marginBottom: 4 }}>{t("decouverte.ranking_title")}</h2>
         <RankingQuiz t={t} />
       </section>
 
-      {/* --- Section 4 : Et maintenant ? --- */}
-      <section style={{ padding: "2rem 0 3rem" }}>
+      {/* --- Section 6 : Ce qu'on y gagne --- */}
+      <section style={{ padding: "1rem 0 2rem" }}>
+        <SectionDivider Icon={IconLeaf} index={6} t={t} />
         <h2 style={{ fontSize: 18, marginBottom: 4 }}>{t("decouverte.gains_title")}</h2>
         <p style={{ fontSize: 14, color: "var(--color-texte-clair)", marginBottom: 10 }}>{t("decouverte.gains_intro")}</p>
-        <ul style={{ fontSize: 14, color: "var(--color-texte)", lineHeight: 1.9, paddingLeft: 20, marginBottom: "1.5rem" }}>
+        <ul style={{ fontSize: 14, color: "var(--color-texte)", lineHeight: 1.9, paddingLeft: 20 }}>
           <li>{t("decouverte.gains_1")}</li>
           <li>{t("decouverte.gains_2")}</li>
           <li>{t("decouverte.gains_3")}</li>
           <li>{t("decouverte.gains_4")}</li>
         </ul>
+      </section>
 
+      {/* --- Section 7 : Et maintenant ? (profilage guidé) --- */}
+      <section style={{ padding: "1rem 0 2rem" }}>
+        <SectionDivider Icon={IconUsers} index={7} t={t} />
         <p style={{ fontSize: 17, fontWeight: 500, color: "var(--color-texte)", margin: "0 0 4px" }}>
           {t("decouverte.action_title")}
         </p>
@@ -822,8 +851,12 @@ export default function DecouvertePage() {
         <div style={{ background: "var(--color-carte-verte, #eaf3de)", borderRadius: 12, padding: "1rem 1.25rem", marginTop: "1.25rem" }}>
           <p style={{ fontSize: 14, color: "var(--color-texte)", margin: 0 }}>{t("decouverte.action_closing")}</p>
         </div>
+      </section>
 
-        <p style={{ fontSize: 14, color: "var(--color-texte)", marginTop: "1.5rem", marginBottom: "0.75rem" }}>
+      {/* --- Section 8 : Envie d'aller plus loin ? --- */}
+      <section style={{ padding: "1rem 0 3rem" }}>
+        <SectionDivider Icon={IconHome} index={8} t={t} />
+        <p style={{ fontSize: 14, color: "var(--color-texte)", marginBottom: "0.75rem" }}>
           {t("decouverte.action_more_intro")}
         </p>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 12 }}>
