@@ -532,17 +532,17 @@ function EngagerCard({ href, Icon, label, desc, tint }) {
     <Link
       href={href}
       prefetch={false}
+      className="pdpb-card"
       style={
         sobriety
-          ? { display: "block", textDecoration: "underline", color: "var(--color-forest)" }
-          : { display: "block", textDecoration: "none", color: "var(--color-texte)", background: "var(--color-carte)", border: "1px solid var(--color-bordure)", borderRadius: "var(--radius)", padding: "1rem" }
+          ? { display: "block", textDecoration: "underline", color: "var(--color-forest)", background: "none", border: "none", borderRadius: 0, padding: 0, boxShadow: "none" }
+          : { display: "block", textDecoration: "none", color: "var(--color-texte)" }
       }
     >
       {!sobriety && (
-        <Icon
-          size={18}
-          style={{ display: "block", boxSizing: "border-box", padding: 9, borderRadius: 10, background: colors.bg, color: colors.color, marginBottom: 8 }}
-        />
+        <div className="pdpb-icon-badge" style={{ background: colors.bg }}>
+          <Icon size={18} style={{ color: colors.color }} />
+        </div>
       )}
       <p style={{ fontSize: 14, fontWeight: 600, margin: sobriety ? 0 : "0 0 2px" }}>{label}</p>
       <p style={{ fontSize: 12, color: "var(--color-texte-clair)", margin: 0 }}>{desc}</p>
