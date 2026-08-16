@@ -1039,6 +1039,7 @@
     "profiling_action_logement_projet_locataire": "大家さんと断熱について相談するか、賃貸でも利用できるリノベーション補助制度を調べてみましょう。",
     "profiling_action_logement_projet_proprietaire": "断熱や太陽光パネルの見積もりを取ってみましょう — 複数の補助制度があります。",
     "section_progress": "セクション {current}/{total}",
-    "more_title": "もっと知りたいですか？"
+    "more_title": "もっと知りたいですか？",
+    "profiling_more_hint": "もっと知りたいですか？ この下に他のアイデアがあります ↓"
   }
 }

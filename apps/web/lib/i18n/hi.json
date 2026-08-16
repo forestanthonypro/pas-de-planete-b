@@ -1039,6 +1039,7 @@
     "profiling_action_logement_projet_locataire": "अपने मकान मालिक से इन्सुलेशन पर बात करें, या किरायेदारों के लिए भी उपलब्ध नवीनीकरण सहायता योजनाओं के बारे में जानें।",
     "profiling_action_logement_projet_proprietaire": "इन्सुलेशन या सोलर पैनल के लिए एक अनुमान प्राप्त करें — कई सहायता योजनाएं उपलब्ध हैं।",
     "section_progress": "खंड {current} में से {total}",
-    "more_title": "और आगे बढ़ना चाहते हैं?"
+    "more_title": "और आगे बढ़ना चाहते हैं?",
+    "profiling_more_hint": "और आगे बढ़ना चाहते हैं? नीचे और सुझाव देखें ↓"
   }
 }

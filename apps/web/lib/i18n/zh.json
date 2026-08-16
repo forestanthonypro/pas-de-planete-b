@@ -1039,6 +1039,7 @@
     "profiling_action_logement_projet_locataire": "与房东商量保温改造，或了解租户也能申请的翻新补贴。",
     "profiling_action_logement_projet_proprietaire": "获取保温或太阳能板的报价——有多项补贴可用。",
     "section_progress": "第 {current}/{total} 部分",
-    "more_title": "想更进一步了解吗？"
+    "more_title": "想更进一步了解吗？",
+    "profiling_more_hint": "想更进一步了解吗？下面还有更多想法 ↓"
   }
 }

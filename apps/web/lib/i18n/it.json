@@ -1039,6 +1039,7 @@
     "profiling_action_logement_projet_locataire": "Parla di isolamento con il proprietario, o informati sugli incentivi alla ristrutturazione disponibili anche per gli inquilini.",
     "profiling_action_logement_projet_proprietaire": "Fatti fare un preventivo per isolamento o pannelli solari — esistono diversi incentivi.",
     "section_progress": "Sezione {current} di {total}",
-    "more_title": "Vuoi andare oltre?"
+    "more_title": "Vuoi andare oltre?",
+    "profiling_more_hint": "Vuoi andare oltre? Altre idee qui sotto ↓"
   }
 }

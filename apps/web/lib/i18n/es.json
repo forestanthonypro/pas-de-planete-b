@@ -1039,6 +1039,7 @@
     "profiling_action_logement_projet_locataire": "Hable de aislamiento con su propietario, o infórmese sobre las ayudas a la renovación que también existen para inquilinos.",
     "profiling_action_logement_projet_proprietaire": "Pida un presupuesto de aislamiento o placas solares — existen varias ayudas.",
     "section_progress": "Sección {current} de {total}",
-    "more_title": "¿Quiere ir más lejos?"
+    "more_title": "¿Quiere ir más lejos?",
+    "profiling_more_hint": "¿Quiere ir más lejos? Más ideas justo debajo ↓"
   }
 }

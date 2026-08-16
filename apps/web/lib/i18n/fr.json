@@ -1039,6 +1039,7 @@
     "profiling_action_logement_projet_locataire": "Parlez isolation avec votre propriétaire, ou renseignez-vous sur les aides à la rénovation qui existent aussi pour les locataires.",
     "profiling_action_logement_projet_proprietaire": "Faites établir un devis d'isolation ou de panneaux solaires — plusieurs aides existent (MaPrimeRénov').",
     "section_progress": "Rubrique {current} sur {total}",
-    "more_title": "Envie d'aller plus loin ?"
+    "more_title": "Envie d'aller plus loin ?",
+    "profiling_more_hint": "Envie d'aller plus loin ? D'autres pistes juste en dessous ↓"
   }
 }

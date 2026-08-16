@@ -1039,6 +1039,7 @@
     "profiling_action_logement_projet_locataire": "Обсудите утепление с арендодателем или узнайте о субсидиях на ремонт, доступных и арендаторам.",
     "profiling_action_logement_projet_proprietaire": "Закажите смету на утепление или солнечные панели — существует несколько программ поддержки.",
     "section_progress": "Раздел {current} из {total}",
-    "more_title": "Хотите узнать больше?"
+    "more_title": "Хотите узнать больше?",
+    "profiling_more_hint": "Хотите узнать больше? Ещё идеи чуть ниже ↓"
   }
 }

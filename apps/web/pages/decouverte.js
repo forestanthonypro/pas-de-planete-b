@@ -412,6 +412,11 @@ function ProfilingQuiz({ t }) {
         <p style={{ fontSize: 13, color: "var(--color-texte-clair)", margin: "0 0 6px" }}>{t("decouverte.profiling_result_title")}</p>
         <p style={{ fontSize: 15, color: "var(--color-texte)", margin: 0, lineHeight: 1.6 }}>{t(`decouverte.profiling_action_${actionKey}`)}</p>
       </div>
+      <p style={{ fontSize: 13, color: "var(--color-texte-clair)", margin: "10px 0 0" }}>
+        <Link href="#plus-loin" style={{ color: "var(--color-forest)", fontWeight: 600 }}>
+          {t("decouverte.profiling_more_hint")}
+        </Link>
+      </p>
       <button
         type="button"
         onClick={reset}
