@@ -165,60 +165,64 @@ export default function Layout({ children }) {
           </Link>
         </div>
 
-        <Link
-          href={`/pays/${countrySummary}`}
-          prefetch={false}
-          title={t("common.nav_country_summary")}
-          aria-label={t("common.nav_country_summary")}
-          style={
-            sobriety
-              ? { color: "var(--color-forest)", fontWeight: 600, textDecoration: "underline" }
-              : {
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 6,
-                  background: "var(--color-forest)",
-                  color: "white",
-                  padding: "6px 14px",
-                  borderRadius: 20,
-                  textDecoration: "none",
-                  fontWeight: 600,
-                  fontSize: 13,
-                }
-          }
-        >
-          {!sobriety && <IconLeaf size={16} />}
-          {t("common.nav_country_summary")}
-        </Link>
-
-        <nav style={{ display: "flex", gap: sobriety ? "1rem" : "0.5rem", flexWrap: "wrap", fontSize: 14 }}>
-          {[
-            { href: "/?section=democratie", label: t("common.nav_democracy") },
-            { href: "/?section=sengager", label: t("common.nav_engage") },
-            { href: "/mes-votes", label: t("common.nav_myvotes") },
-          ].map((item) => (
+        {!isDiscovery && (
+          <>
             <Link
-              key={item.href}
-              href={item.href}
+              href={`/pays/${countrySummary}`}
               prefetch={false}
+              title={t("common.nav_country_summary")}
+              aria-label={t("common.nav_country_summary")}
               style={
                 sobriety
-                  ? { color: "var(--color-bleu-clair)" }
+                  ? { color: "var(--color-forest)", fontWeight: 600, textDecoration: "underline" }
                   : {
-                      background: "var(--color-carte)",
-                      border: "1px solid var(--color-bordure)",
-                      borderRadius: 20,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6,
+                      background: "var(--color-forest)",
+                      color: "white",
                       padding: "6px 14px",
-                      color: "var(--color-texte)",
+                      borderRadius: 20,
                       textDecoration: "none",
-                      fontWeight: 500,
+                      fontWeight: 600,
+                      fontSize: 13,
                     }
               }
             >
-              {item.label}
+              {!sobriety && <IconLeaf size={16} />}
+              {t("common.nav_country_summary")}
             </Link>
-          ))}
-        </nav>
+
+            <nav style={{ display: "flex", gap: sobriety ? "1rem" : "0.5rem", flexWrap: "wrap", fontSize: 14 }}>
+              {[
+                { href: "/?section=democratie", label: t("common.nav_democracy") },
+                { href: "/?section=sengager", label: t("common.nav_engage") },
+                { href: "/mes-votes", label: t("common.nav_myvotes") },
+              ].map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  prefetch={false}
+                  style={
+                    sobriety
+                      ? { color: "var(--color-bleu-clair)" }
+                      : {
+                          background: "var(--color-carte)",
+                          border: "1px solid var(--color-bordure)",
+                          borderRadius: 20,
+                          padding: "6px 14px",
+                          color: "var(--color-texte)",
+                          textDecoration: "none",
+                          fontWeight: 500,
+                        }
+                  }
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
+          </>
+        )}
 
         <Link
           href="/charte"
