@@ -499,7 +499,7 @@ function ProfilingQuiz({ t }) {
         style={
           sobriety
             ? { display: "block", marginTop: 10, background: "none", border: "none", padding: 0, fontSize: 13, cursor: "pointer", color: "var(--color-forest)", textDecoration: "underline" }
-            : { marginTop: 10, background: "none", border: "1px solid var(--color-bordure)", borderRadius: 8, padding: "6px 14px", fontSize: 13, cursor: "pointer", color: "var(--color-texte)" }
+            : { marginTop: 10, background: "none", border: "1.5px solid var(--color-forest)", borderRadius: 8, padding: "6px 14px", fontSize: 13, cursor: "pointer", color: "var(--color-forest)", fontWeight: 600 }
         }
       >
         {t("decouverte.profiling_reset")}
