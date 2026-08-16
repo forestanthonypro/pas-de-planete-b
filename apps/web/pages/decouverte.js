@@ -620,6 +620,41 @@ function RankingQuiz({ t }) {
 
 const TOTAL_SECTIONS = 8;
 
+// Ordre des id de <section> sur la page — sert à la fois à la jauge de
+// progression (IntersectionObserver ci-dessous) et implicitement au
+// numéro affiché par chaque SectionDivider.
+const SECTION_IDS = ["accroche", "explication", "objections", "comparaisons", "quiz", "gains", "profilage", "plus-loin"];
+
+function SectionProgressBar({ activeSection }) {
+  return (
+    <div
+      style={{
+        position: "sticky",
+        top: 0,
+        zIndex: 5,
+        background: "var(--color-fond)",
+        borderBottom: "1px solid var(--color-bordure)",
+        padding: "10px 0",
+      }}
+    >
+      <div style={{ maxWidth: 700, margin: "0 auto", padding: "0 1.5rem", display: "flex", gap: 4 }}>
+        {Array.from({ length: TOTAL_SECTIONS }, (_, i) => i + 1).map((n) => (
+          <div
+            key={n}
+            style={{
+              flex: 1,
+              height: 4,
+              borderRadius: 2,
+              background: n <= activeSection ? "var(--color-forest)" : "var(--color-bordure)",
+              transition: "background 0.3s ease",
+            }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function SectionDivider({ Icon, index, t }) {
   return (
     <div style={{ margin: "3rem 0 1.75rem" }}>
@@ -640,6 +675,31 @@ function SectionDivider({ Icon, index, t }) {
 
 export default function DecouvertePage() {
   const { t, locale } = useT();
+
+  // Jauge de progression (rubrique 1 à 8) — un IntersectionObserver plutôt
+  // qu'un scroll listener classique, plus performant (pas de calcul à
+  // chaque pixel défilé). La bande d'observation est réduite à une fine
+  // ligne proche du haut de l'écran (rootMargin), donc une rubrique
+  // "active" est celle qui vient de croiser cette ligne en défilant.
+  const [activeSection, setActiveSection] = useState(1);
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const idx = SECTION_IDS.indexOf(entry.target.id);
+            if (idx !== -1) setActiveSection(idx + 1);
+          }
+        });
+      },
+      { rootMargin: "-15% 0px -80% 0px" }
+    );
+    SECTION_IDS.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+    return () => observer.disconnect();
+  }, []);
 
   const countries = useCountriesList("/api/co2/countries");
   const [countryA, setCountryA] = useState("FRA");
@@ -675,9 +735,11 @@ export default function DecouvertePage() {
   const nameB = countryB ? localizedCountryName(countryB, locale) : null;
 
   return (
-    <div style={{ maxWidth: 700, margin: "0 auto", padding: "1.5rem" }}>
-      {/* --- Section 1 : Accroche --- */}
-      <section style={{ textAlign: "center", padding: "3rem 1rem 2.5rem" }}>
+    <>
+      <SectionProgressBar activeSection={activeSection} />
+      <div style={{ maxWidth: 700, margin: "0 auto", padding: "1.5rem" }}>
+        {/* --- Section 1 : Accroche --- */}
+        <section id="accroche" style={{ textAlign: "center", padding: "3rem 1rem 2.5rem" }}>
         <p style={{ fontSize: 16, fontWeight: 500, color: "var(--color-texte)", margin: "0 0 1.5rem" }}>
           {t("home.hero_punchline")}
         </p>
@@ -817,14 +879,14 @@ export default function DecouvertePage() {
       </section>
 
       {/* --- Section 3bis : Quiz classement --- */}
-      <section style={{ padding: "1rem 0 2rem" }}>
+      <section id="quiz" style={{ padding: "1rem 0 2rem" }}>
         <SectionDivider Icon={IconCheck} index={5} t={t} />
         <h2 style={{ fontSize: 26, fontWeight: 600, marginBottom: 6 }}>{t("decouverte.ranking_title")}</h2>
         <RankingQuiz t={t} />
       </section>
 
       {/* --- Section 6 : Ce qu'on y gagne --- */}
-      <section style={{ padding: "1rem 0 2rem" }}>
+      <section id="gains" style={{ padding: "1rem 0 2rem" }}>
         <SectionDivider Icon={IconLeaf} index={6} t={t} />
         <h2 style={{ fontSize: 26, fontWeight: 600, marginBottom: 6 }}>{t("decouverte.gains_title")}</h2>
         <p style={{ fontSize: 14, color: "var(--color-texte-clair)", marginBottom: 10 }}>{t("decouverte.gains_intro")}</p>
@@ -837,7 +899,7 @@ export default function DecouvertePage() {
       </section>
 
       {/* --- Section 7 : Et maintenant ? (profilage guidé) --- */}
-      <section style={{ padding: "1rem 0 2rem" }}>
+      <section id="profilage" style={{ padding: "1rem 0 2rem" }}>
         <SectionDivider Icon={IconUsers} index={7} t={t} />
         <h2 style={{ fontSize: 26, fontWeight: 600, color: "var(--color-texte)", margin: "0 0 6px" }}>
           {t("decouverte.action_title")}
@@ -854,7 +916,7 @@ export default function DecouvertePage() {
       </section>
 
       {/* --- Section 8 : Envie d'aller plus loin ? --- */}
-      <section style={{ padding: "1rem 0 3rem" }}>
+      <section id="plus-loin" style={{ padding: "1rem 0 3rem" }}>
         <SectionDivider Icon={IconHome} index={8} t={t} />
         <h2 style={{ fontSize: 26, fontWeight: 600, color: "var(--color-texte)", margin: "0 0 6px" }}>
           {t("decouverte.more_title")}
@@ -869,6 +931,7 @@ export default function DecouvertePage() {
         </div>
       </section>
     </div>
+    </>
   );
 }
 
