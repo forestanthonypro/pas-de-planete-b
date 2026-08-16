@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/router";
+import Head from "next/head";
 import { useT } from "../lib/useT";
 import { useCountrySelector } from "../lib/useCountrySelector";
 import { useSobriety } from "../lib/SobrietyContext";
@@ -6,6 +8,7 @@ import CountrySelect from "../components/CountrySelect";
 import { IconScroll } from "../components/icons";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+const WEB_URL = "https://pasdeplaneteb.com";
 
 // Mêmes 8 langues, mêmes libellés que le sélecteur du header (Layout.js) —
 // dupliqué ici en constante plutôt qu'importé, Layout.js ne les exporte
@@ -23,6 +26,7 @@ const LANGUAGE_LABELS = {
 
 export default function KitCommunicationPage() {
   const { t, locale } = useT();
+  const router = useRouter();
   const { sobriety } = useSobriety();
   const { countryCode, setCountryCode, countries, selectedCountryName } = useCountrySelector("/api/co2/countries", { locale });
   const [docLang, setDocLang] = useState(LANGUAGE_LABELS[locale] ? locale : "fr");
@@ -31,7 +35,26 @@ export default function KitCommunicationPage() {
   const [errorMsg, setErrorMsg] = useState(null);
   const [copied, setCopied] = useState(false);
 
-  const shareUrl = `${API_URL}/api/kit-communication/pdf/${countryCode}?lang=${docLang}`;
+  // Pré-remplit pays/langue depuis l'URL si on arrive via un lien partagé
+  // (?country=FRA&lang=ja) — sans ça, un lien partagé rouvre toujours sur
+  // le pays par défaut, ce qui viderait le partage de son intérêt.
+  useEffect(() => {
+    if (!router.isReady) return;
+    const { country, lang } = router.query;
+    if (typeof country === "string" && country.length === 3) {
+      setCountryCode(country.toUpperCase());
+    }
+    if (typeof lang === "string" && LANGUAGE_LABELS[lang]) {
+      setDocLang(lang);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router.isReady]);
+
+  const pdfEndpoint = `${API_URL}/api/kit-communication/pdf/${countryCode}?lang=${docLang}`;
+  // Lien à partager : la page elle-même (jolie URL, aperçu correct sur les
+  // réseaux sociaux), jamais le PDF brut de l'API — un PDF binaire n'a pas
+  // de titre/description/aperçu et ferait un lien peu engageant à partager.
+  const sharePageUrl = `${WEB_URL}/kit-communication?country=${countryCode}&lang=${docLang}`;
 
   function resetResult() {
     if (pdfBlobUrl) URL.revokeObjectURL(pdfBlobUrl);
@@ -55,7 +78,7 @@ export default function KitCommunicationPage() {
     setStatus("generating");
     setErrorMsg(null);
     try {
-      const res = await fetch(shareUrl);
+      const res = await fetch(pdfEndpoint);
       if (!res.ok) {
         const body = await res.json().catch(() => null);
         throw new Error(body?.error || t("kit.error_generic"));
@@ -71,7 +94,7 @@ export default function KitCommunicationPage() {
   }
 
   function handleCopyLink() {
-    navigator.clipboard.writeText(shareUrl).then(() => {
+    navigator.clipboard.writeText(sharePageUrl).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
     });
@@ -96,8 +119,22 @@ export default function KitCommunicationPage() {
           cursor: disabled ? "default" : "pointer",
         };
 
+  const pageTitle = `${t("kit.title")} — ${selectedCountryName} | Pas de planète B`;
+  const pageDescription = t("kit.subtitle");
+
   return (
     <div style={{ maxWidth: 640, margin: "0 auto", padding: "2.5rem 1.5rem" }}>
+      <Head>
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDescription} />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDescription} />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={sharePageUrl} />
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:title" content={pageTitle} />
+        <meta name="twitter:description" content={pageDescription} />
+      </Head>
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
         {!sobriety && <IconScroll size={22} style={{ color: "var(--color-forest)" }} />}
         <h1 style={{ fontSize: 24, fontWeight: 700, margin: 0 }}>{t("kit.title")}</h1>
@@ -174,6 +211,21 @@ export default function KitCommunicationPage() {
               {t("kit.download")}
             </a>
           </div>
+          <p
+            style={{
+              fontSize: 12,
+              color: "var(--color-texte-clair)",
+              background: sobriety ? "none" : "var(--color-fond)",
+              border: sobriety ? "none" : "1px solid var(--color-bordure)",
+              borderRadius: 6,
+              padding: sobriety ? 0 : "6px 10px",
+              margin: "0 0 8px",
+              wordBreak: "break-all",
+              fontFamily: "monospace",
+            }}
+          >
+            {sharePageUrl}
+          </p>
           <button
             type="button"
             onClick={handleCopyLink}
