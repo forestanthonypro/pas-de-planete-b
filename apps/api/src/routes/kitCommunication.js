@@ -1,6 +1,9 @@
 import { Router } from "express";
+import { chromium } from "playwright-core";
 import { pool } from "../lib/db.js";
 import { errorDetail } from "../lib/errors.js";
+import { buildKitHtml } from "../lib/kitTemplate.js";
+import { labelsFr } from "../lib/kitLabelsFr.js";
 
 const router = Router();
 
@@ -239,102 +242,142 @@ function computeTop3EnergySources(row) {
   return sources.map((s) => ({ ...s, share: Math.round((s.value / total) * 1000) / 10 }));
 }
 
+async function getCountryKitData(country) {
+  const [extremes, co2Row, elecRow, waterRow, popRow, forestRow, pollutionRow, speciesRow, tempLatestRow, tempHistoryResult, heatwaveResult, elecMixRow, worldTempRow, nameRow] = await Promise.all([
+    computeAllExtremes(),
+    pool.query(
+      `SELECT emissions_per_capita::float AS value FROM co2_emissions
+       WHERE country_code = $1 AND emissions_per_capita IS NOT NULL ORDER BY year DESC LIMIT 1`,
+      [country]
+    ),
+    pool.query(
+      `SELECT demand_per_capita_kwh::float AS value FROM electricity_generation
+       WHERE country_code = $1 AND demand_per_capita_kwh IS NOT NULL ORDER BY year DESC LIMIT 1`,
+      [country]
+    ),
+    pool.query(
+      `SELECT withdrawal_m3::float AS value FROM water_data
+       WHERE country_code = $1 AND withdrawal_m3 IS NOT NULL ORDER BY year DESC LIMIT 1`,
+      [country]
+    ),
+    pool.query(
+      `SELECT population::float AS value FROM co2_emissions
+       WHERE country_code = $1 AND population IS NOT NULL ORDER BY year DESC LIMIT 1`,
+      [country]
+    ),
+    pool.query(
+      `SELECT (tree_cover_loss_ha / NULLIF(forest_area_ha, 0) * 100)::float AS value, year
+       FROM vegetation_loss WHERE country_code = $1 AND tree_cover_loss_ha IS NOT NULL AND forest_area_ha IS NOT NULL
+       ORDER BY year DESC LIMIT 1`,
+      [country]
+    ),
+    pool.query(
+      `SELECT pm25_ug_m3::float AS value FROM pollution_data
+       WHERE country_code = $1 AND pm25_ug_m3 IS NOT NULL ORDER BY year DESC LIMIT 1`,
+      [country]
+    ),
+    pool.query(
+      `SELECT mammals_threatened, birds_threatened, fish_threatened FROM species_threatened_counts
+       WHERE country_code = $1 ORDER BY year DESC LIMIT 1`,
+      [country]
+    ),
+    pool.query(
+      `SELECT deviation_from_reference_c::float AS value FROM country_temperatures
+       WHERE country_code = $1 AND deviation_from_reference_c IS NOT NULL ORDER BY year DESC LIMIT 1`,
+      [country]
+    ),
+    pool.query(
+      `SELECT year, deviation_from_reference_c::float AS value FROM country_temperatures
+       WHERE country_code = $1 AND deviation_from_reference_c IS NOT NULL ORDER BY year ASC`,
+      [country]
+    ),
+    pool.query(
+      `SELECT
+         SUM(CASE WHEN year BETWEEN 1991 AND 2025 THEN heatwave_count ELSE 0 END) AS recent_total,
+         SUM(CASE WHEN year BETWEEN 1956 AND 1990 THEN heatwave_count ELSE 0 END) AS past_total
+       FROM country_temperatures WHERE country_code = $1`,
+      [country]
+    ),
+    pool.query(
+      `SELECT coal_twh::float AS coal_twh, gas_twh::float AS gas_twh, oil_twh::float AS oil_twh, nuclear_twh::float AS nuclear_twh,
+              hydro_twh::float AS hydro_twh, wind_twh::float AS wind_twh, solar_twh::float AS solar_twh,
+              biofuel_twh::float AS biofuel_twh, other_renewable_twh::float AS other_renewable_twh, total_generation_twh::float AS total_generation_twh
+       FROM electricity_generation WHERE country_code = $1 ORDER BY year DESC LIMIT 1`,
+      [country]
+    ),
+    // Écart mondial — même valeur que celle déjà utilisée sur /decouverte
+    // (world_benchmarks), indispensable pour ne jamais afficher un chiffre
+    // France isolé sans son repère mondial.
+    pool.query(`SELECT value::float AS value FROM world_benchmarks WHERE metric_key = 'temperature_deviation_world'`),
+    // Nom complet du pays pour l'affichage (le code ISO seul ne suffit pas
+    // dans un document destiné à être lu, pas juste manipulé par une API).
+    pool.query(`SELECT country_name FROM co2_emissions WHERE country_code = $1 ORDER BY year DESC LIMIT 1`, [country]),
+  ]);
+
+  const waterValue = waterRow.rows[0]?.value && popRow.rows[0]?.value ? waterRow.rows[0].value / popRow.rows[0].value : null;
+  const speciesRowData = speciesRow.rows[0];
+  const speciesValue = speciesRowData
+    ? (speciesRowData.mammals_threatened || 0) + (speciesRowData.birds_threatened || 0) + (speciesRowData.fish_threatened || 0)
+    : null;
+
+  const comparisons = {
+    co2: buildComparisonRow("co2", "t", 1, co2Row.rows[0]?.value ?? null, extremes.co2),
+    electricite: buildComparisonRow("electricite", "kWh", 0, elecRow.rows[0]?.value ?? null, extremes.electricite),
+    eau: buildComparisonRow("eau", "m³", 0, waterValue, extremes.eau),
+    foret: buildComparisonRow("foret", "%", 2, forestRow.rows[0]?.value ?? null, extremes.foret),
+    pollution: buildComparisonRow("pollution", "µg/m³", 1, pollutionRow.rows[0]?.value ?? null, extremes.pollution),
+    especes: buildComparisonRow("especes", "", 0, speciesValue > 0 ? speciesValue : null, extremes.especes),
+  };
+
+  return {
+    country,
+    countryName: nameRow.rows[0]?.country_name || country,
+    temperatureDeviation: tempLatestRow.rows[0]?.value ?? null,
+    worldTemperatureDeviation: worldTempRow.rows[0]?.value ?? null,
+    temperatureHistory: tempHistoryResult.rows.map((r) => ({ year: r.year, value: r.value })),
+    forestLossYear: forestRow.rows[0]?.year ?? null,
+    heatwaves: {
+      recent: parseInt(heatwaveResult.rows[0]?.recent_total, 10) || 0,
+      past: parseInt(heatwaveResult.rows[0]?.past_total, 10) || 0,
+    },
+    energyTop3: computeTop3EnergySources(elecMixRow.rows[0]),
+    comparisons,
+  };
+}
+
 router.get("/api/admin/kit-communication/country/:code", async (req, res) => {
   const country = req.params.code.toUpperCase();
   try {
-    const [extremes, co2Row, elecRow, waterRow, popRow, forestRow, pollutionRow, speciesRow, tempLatestRow, tempHistoryResult, heatwaveResult, elecMixRow] = await Promise.all([
-      computeAllExtremes(),
-      pool.query(
-        `SELECT emissions_per_capita::float AS value FROM co2_emissions
-         WHERE country_code = $1 AND emissions_per_capita IS NOT NULL ORDER BY year DESC LIMIT 1`,
-        [country]
-      ),
-      pool.query(
-        `SELECT demand_per_capita_kwh::float AS value FROM electricity_generation
-         WHERE country_code = $1 AND demand_per_capita_kwh IS NOT NULL ORDER BY year DESC LIMIT 1`,
-        [country]
-      ),
-      pool.query(
-        `SELECT withdrawal_m3::float AS value FROM water_data
-         WHERE country_code = $1 AND withdrawal_m3 IS NOT NULL ORDER BY year DESC LIMIT 1`,
-        [country]
-      ),
-      pool.query(
-        `SELECT population::float AS value FROM co2_emissions
-         WHERE country_code = $1 AND population IS NOT NULL ORDER BY year DESC LIMIT 1`,
-        [country]
-      ),
-      pool.query(
-        `SELECT (tree_cover_loss_ha / NULLIF(forest_area_ha, 0) * 100)::float AS value, year
-         FROM vegetation_loss WHERE country_code = $1 AND tree_cover_loss_ha IS NOT NULL AND forest_area_ha IS NOT NULL
-         ORDER BY year DESC LIMIT 1`,
-        [country]
-      ),
-      pool.query(
-        `SELECT pm25_ug_m3::float AS value FROM pollution_data
-         WHERE country_code = $1 AND pm25_ug_m3 IS NOT NULL ORDER BY year DESC LIMIT 1`,
-        [country]
-      ),
-      pool.query(
-        `SELECT mammals_threatened, birds_threatened, fish_threatened FROM species_threatened_counts
-         WHERE country_code = $1 ORDER BY year DESC LIMIT 1`,
-        [country]
-      ),
-      pool.query(
-        `SELECT deviation_from_reference_c::float AS value FROM country_temperatures
-         WHERE country_code = $1 AND deviation_from_reference_c IS NOT NULL ORDER BY year DESC LIMIT 1`,
-        [country]
-      ),
-      pool.query(
-        `SELECT year, deviation_from_reference_c::float AS value FROM country_temperatures
-         WHERE country_code = $1 AND deviation_from_reference_c IS NOT NULL ORDER BY year ASC`,
-        [country]
-      ),
-      pool.query(
-        `SELECT
-           SUM(CASE WHEN year BETWEEN 1991 AND 2025 THEN heatwave_count ELSE 0 END) AS recent_total,
-           SUM(CASE WHEN year BETWEEN 1956 AND 1990 THEN heatwave_count ELSE 0 END) AS past_total
-         FROM country_temperatures WHERE country_code = $1`,
-        [country]
-      ),
-      pool.query(
-        `SELECT coal_twh::float AS coal_twh, gas_twh::float AS gas_twh, oil_twh::float AS oil_twh, nuclear_twh::float AS nuclear_twh,
-                hydro_twh::float AS hydro_twh, wind_twh::float AS wind_twh, solar_twh::float AS solar_twh,
-                biofuel_twh::float AS biofuel_twh, other_renewable_twh::float AS other_renewable_twh, total_generation_twh::float AS total_generation_twh
-         FROM electricity_generation WHERE country_code = $1 ORDER BY year DESC LIMIT 1`,
-        [country]
-      ),
-    ]);
-
-    const waterValue = waterRow.rows[0]?.value && popRow.rows[0]?.value ? waterRow.rows[0].value / popRow.rows[0].value : null;
-    const speciesRowData = speciesRow.rows[0];
-    const speciesValue = speciesRowData
-      ? (speciesRowData.mammals_threatened || 0) + (speciesRowData.birds_threatened || 0) + (speciesRowData.fish_threatened || 0)
-      : null;
-
-    const comparisons = {
-      co2: buildComparisonRow("co2", "t", 1, co2Row.rows[0]?.value ?? null, extremes.co2),
-      electricite: buildComparisonRow("electricite", "kWh", 0, elecRow.rows[0]?.value ?? null, extremes.electricite),
-      eau: buildComparisonRow("eau", "m³", 0, waterValue, extremes.eau),
-      foret: buildComparisonRow("foret", "%", 2, forestRow.rows[0]?.value ?? null, extremes.foret),
-      pollution: buildComparisonRow("pollution", "µg/m³", 1, pollutionRow.rows[0]?.value ?? null, extremes.pollution),
-      especes: buildComparisonRow("especes", "", 0, speciesValue > 0 ? speciesValue : null, extremes.especes),
-    };
-
-    res.json({
-      country,
-      temperatureDeviation: tempLatestRow.rows[0]?.value ?? null,
-      temperatureHistory: tempHistoryResult.rows.map((r) => ({ year: r.year, value: r.value })),
-      forestLossYear: forestRow.rows[0]?.year ?? null,
-      heatwaves: {
-        recent: parseInt(heatwaveResult.rows[0]?.recent_total, 10) || 0,
-        past: parseInt(heatwaveResult.rows[0]?.past_total, 10) || 0,
-      },
-      energyTop3: computeTop3EnergySources(elecMixRow.rows[0]),
-      comparisons,
-    });
+    res.json(await getCountryKitData(country));
   } catch (err) {
     res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
+  }
+});
+
+router.get("/api/admin/kit-communication/pdf/:code", async (req, res) => {
+  const country = req.params.code.toUpperCase();
+  let browser;
+  try {
+    const data = await getCountryKitData(country);
+    const html = buildKitHtml(data, data.countryName, labelsFr);
+
+    browser = await chromium.launch({
+      executablePath: process.env.CHROMIUM_PATH || undefined,
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    });
+    const page = await browser.newPage();
+    await page.setContent(html, { waitUntil: "networkidle0" });
+    const pdfBuffer = await page.pdf({ format: "A4", printBackground: true });
+
+    res.set({
+      "Content-Type": "application/pdf",
+      "Content-Disposition": `attachment; filename="pasdeplaneteb-${country.toLowerCase()}.pdf"`,
+    });
+    res.send(pdfBuffer);
+  } catch (err) {
+    res.status(503).json({ error: "Génération PDF impossible", detail: errorDetail(err) });
+  } finally {
+    if (browser) await browser.close();
   }
 });
 

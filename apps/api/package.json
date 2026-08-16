@@ -32,7 +32,8 @@
     "csv-parse": "^7.0.2",
     "cors": "^2.8.5",
     "i18n-iso-countries": "^7.11.2",
-    "adm-zip": "^0.6.0"
+    "adm-zip": "^0.6.0",
+    "playwright-core": "^1.48.0"
   },
   "devDependencies": {
     "eslint": "^9.9.0",
