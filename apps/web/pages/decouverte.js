@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useT } from "../lib/useT";
+import { useSobriety } from "../lib/SobrietyContext";
 import { useApiFetch } from "../lib/useApiFetch";
 import { useCountriesList } from "../lib/useCountriesList";
 import { localizedCountryName } from "../lib/countryNames";
@@ -12,6 +13,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 const VERDICT_COLORS = { faux: "#d63e2a", trompeur: "#f4b400", confirme: "#1baf7a" };
 
 function ObjectionCard({ entry, locale, t }) {
+  const { sobriety } = useSobriety();
   const [expanded, setExpanded] = useState(false);
   const [detail, setDetail] = useState(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
@@ -38,27 +40,46 @@ function ObjectionCard({ entry, locale, t }) {
       <button
         type="button"
         onClick={toggle}
-        style={{
-          width: "100%",
-          textAlign: "left",
-          background: "var(--color-carte)",
-          border: "1px solid var(--color-bordure)",
-          borderRadius: 12,
-          padding: "1rem 1.25rem",
-          marginBottom: 8,
-          cursor: "pointer",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          gap: 12,
-        }}
+        style={
+          sobriety
+            ? {
+                width: "100%",
+                textAlign: "left",
+                background: "none",
+                border: "none",
+                borderBottom: "1px solid var(--color-bordure)",
+                padding: "10px 0",
+                marginBottom: 0,
+                cursor: "pointer",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                gap: 12,
+              }
+            : {
+                width: "100%",
+                textAlign: "left",
+                background: "var(--color-carte)",
+                border: "1px solid var(--color-bordure)",
+                borderRadius: 12,
+                padding: "1rem 1.25rem",
+                marginBottom: 8,
+                cursor: "pointer",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                gap: 12,
+              }
+        }
       >
-        <span style={{ fontSize: 14, fontWeight: 600, color: "var(--color-texte)" }}>« {entry.myth} »</span>
+        <span style={{ fontSize: 14, fontWeight: 600, color: sobriety ? "var(--color-forest)" : "var(--color-texte)", textDecoration: sobriety ? "underline" : "none" }}>
+          « {entry.myth} »
+        </span>
         <span style={{ fontSize: 16, color: "var(--color-texte-clair)", flexShrink: 0 }}>{expanded ? "▲" : "▼"}</span>
       </button>
 
       {expanded && (
-        <div style={{ background: "var(--color-fond)", borderRadius: 12, padding: "1rem 1.25rem", marginTop: 4, marginBottom: 8 }}>
+        <div style={sobriety ? { padding: "0.75rem 0", marginBottom: 4 } : { background: "var(--color-fond)", borderRadius: 12, padding: "1rem 1.25rem", marginTop: 4, marginBottom: 8 }}>
           {loadingDetail && <p style={{ fontSize: 13 }}>{t("common.loading")}</p>}
           {detail?.entry && (
             <>
@@ -142,15 +163,25 @@ function formatValue(value, decimals) {
 }
 
 function ComparisonCard({ theme, nameA, nameB, valueA, valueB, t }) {
+  const { sobriety } = useSobriety();
   if (valueA === null && valueB === null) return null;
+
+  const containerStyle = sobriety
+    ? { padding: "0.75rem 0", borderBottom: "1px solid var(--color-bordure)" }
+    : { background: "var(--color-carte)", borderRadius: 12, padding: "1rem 1.25rem", marginBottom: 12 };
 
   if (theme.isDeviation) {
     return (
-      <div style={{ background: "var(--color-carte)", borderRadius: 12, padding: "1rem 1.25rem", marginBottom: 12 }}>
+      <div style={containerStyle}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
-          <theme.Icon size={16} style={{ color: theme.tint }} />
+          {!sobriety && <theme.Icon size={16} style={{ color: theme.tint }} />}
           <span style={{ fontSize: 12, color: "var(--color-texte-clair)" }}>{t(`decouverte.theme_${theme.key}`)}</span>
-          <Link href={theme.page} prefetch={false} style={{ fontSize: 11, color: "var(--color-texte-clair)", textDecoration: "none" }} title={t("decouverte.theme_source_title")}>
+          <Link
+            href={theme.page}
+            prefetch={false}
+            style={{ fontSize: 11, color: sobriety ? "var(--color-forest)" : "var(--color-texte-clair)", textDecoration: sobriety ? "underline" : "none" }}
+            title={t("decouverte.theme_source_title")}
+          >
             ⓘ
           </Link>
         </div>
@@ -180,50 +211,72 @@ function ComparisonCard({ theme, nameA, nameB, valueA, valueB, t }) {
   const lowerName = valueA >= valueB ? nameB : nameA;
 
   return (
-    <div style={{ background: "var(--color-carte)", borderRadius: 12, padding: "1rem 1.25rem", marginBottom: 12 }}>
+    <div style={containerStyle}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
-        <theme.Icon size={16} style={{ color: theme.tint }} />
+        {!sobriety && <theme.Icon size={16} style={{ color: theme.tint }} />}
         <span style={{ fontSize: 12, color: "var(--color-texte-clair)" }}>{t(`decouverte.theme_${theme.key}`)}</span>
-        <Link href={theme.page} prefetch={false} style={{ fontSize: 11, color: "var(--color-texte-clair)", textDecoration: "none" }} title={t("decouverte.theme_source_title")}>
+        <Link
+          href={theme.page}
+          prefetch={false}
+          style={{ fontSize: 11, color: sobriety ? "var(--color-forest)" : "var(--color-texte-clair)", textDecoration: sobriety ? "underline" : "none" }}
+          title={t("decouverte.theme_source_title")}
+        >
           ⓘ
         </Link>
       </div>
 
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-        <span style={{ fontSize: 12, color: "var(--color-texte-clair)", width: 90, flexShrink: 0 }}>{nameA}</span>
-        <div
-          style={{
-            flex: 1,
-            height: 18,
-            borderRadius: 4,
-            background:
-              valueA !== null
-                ? `linear-gradient(to right, #1b5e20 ${(valueA / max) * 100}%, var(--color-fond) ${(valueA / max) * 100}%)`
-                : "var(--color-fond)",
-          }}
-        />
-        <span style={{ fontSize: 12, width: 65, textAlign: "right", flexShrink: 0 }}>
-          {valueA !== null ? `${formatValue(valueA, theme.decimals)} ${theme.unit}` : "—"}
-        </span>
-      </div>
-      {nameB && (
-        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-          <span style={{ fontSize: 12, color: "var(--color-texte-clair)", width: 90, flexShrink: 0 }}>{nameB}</span>
-          <div
-            style={{
-              flex: 1,
-              height: 18,
-              borderRadius: 4,
-              background:
-                valueB !== null
-                  ? `linear-gradient(to right, #639922 ${(valueB / max) * 100}%, var(--color-fond) ${(valueB / max) * 100}%)`
-                  : "var(--color-fond)",
-            }}
-          />
-          <span style={{ fontSize: 12, width: 65, textAlign: "right", flexShrink: 0 }}>
-            {valueB !== null ? `${formatValue(valueB, theme.decimals)} ${theme.unit}` : "—"}
-          </span>
-        </div>
+      {sobriety ? (
+        <>
+          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, padding: "3px 0" }}>
+            <span>{nameA}</span>
+            <span style={{ fontWeight: 600 }}>{valueA !== null ? `${formatValue(valueA, theme.decimals)} ${theme.unit}` : "—"}</span>
+          </div>
+          {nameB && (
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, padding: "3px 0" }}>
+              <span>{nameB}</span>
+              <span style={{ fontWeight: 600 }}>{valueB !== null ? `${formatValue(valueB, theme.decimals)} ${theme.unit}` : "—"}</span>
+            </div>
+          )}
+        </>
+      ) : (
+        <>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+            <span style={{ fontSize: 12, color: "var(--color-texte-clair)", width: 90, flexShrink: 0 }}>{nameA}</span>
+            <div
+              style={{
+                flex: 1,
+                height: 18,
+                borderRadius: 4,
+                background:
+                  valueA !== null
+                    ? `linear-gradient(to right, #1b5e20 ${(valueA / max) * 100}%, var(--color-fond) ${(valueA / max) * 100}%)`
+                    : "var(--color-fond)",
+              }}
+            />
+            <span style={{ fontSize: 12, width: 65, textAlign: "right", flexShrink: 0 }}>
+              {valueA !== null ? `${formatValue(valueA, theme.decimals)} ${theme.unit}` : "—"}
+            </span>
+          </div>
+          {nameB && (
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+              <span style={{ fontSize: 12, color: "var(--color-texte-clair)", width: 90, flexShrink: 0 }}>{nameB}</span>
+              <div
+                style={{
+                  flex: 1,
+                  height: 18,
+                  borderRadius: 4,
+                  background:
+                    valueB !== null
+                      ? `linear-gradient(to right, #639922 ${(valueB / max) * 100}%, var(--color-fond) ${(valueB / max) * 100}%)`
+                      : "var(--color-fond)",
+                }}
+              />
+              <span style={{ fontSize: 12, width: 65, textAlign: "right", flexShrink: 0 }}>
+                {valueB !== null ? `${formatValue(valueB, theme.decimals)} ${theme.unit}` : "—"}
+              </span>
+            </div>
+          )}
+        </>
       )}
 
       {ratio && ratio !== "1.0" && (
@@ -267,22 +320,39 @@ function resolveProfilingAction(domain, location, garden, ownership, effort) {
 }
 
 function OptionButton({ onClick, children }) {
+  const { sobriety } = useSobriety();
   return (
     <button
       type="button"
       onClick={onClick}
-      style={{
-        textAlign: "left",
-        padding: "10px 14px",
-        background: "var(--color-carte)",
-        border: "1px solid var(--color-bordure)",
-        borderRadius: 8,
-        cursor: "pointer",
-        fontSize: 14,
-        color: "var(--color-texte)",
-        marginBottom: 6,
-        width: "100%",
-      }}
+      style={
+        sobriety
+          ? {
+              textAlign: "left",
+              padding: "8px 0",
+              background: "none",
+              border: "none",
+              borderBottom: "1px solid var(--color-bordure)",
+              cursor: "pointer",
+              fontSize: 14,
+              color: "var(--color-forest)",
+              textDecoration: "underline",
+              marginBottom: 0,
+              width: "100%",
+            }
+          : {
+              textAlign: "left",
+              padding: "10px 14px",
+              background: "var(--color-carte)",
+              border: "1px solid var(--color-bordure)",
+              borderRadius: 8,
+              cursor: "pointer",
+              fontSize: 14,
+              color: "var(--color-texte)",
+              marginBottom: 6,
+              width: "100%",
+            }
+      }
     >
       {children}
     </button>
@@ -290,6 +360,7 @@ function OptionButton({ onClick, children }) {
 }
 
 function ProfilingQuiz({ t }) {
+  const { sobriety } = useSobriety();
   const [domain, setDomain] = useState(null);
   const [location, setLocation] = useState(null);
   const [garden, setGarden] = useState(null);
@@ -408,30 +479,28 @@ function ProfilingQuiz({ t }) {
   return (
     <div>
       {backLink}
-      <div style={{ background: "var(--color-carte-verte, #eaf3de)", borderRadius: 12, padding: "1.25rem" }}>
+      <div style={sobriety ? { padding: "0.75rem 0", borderBottom: "1px solid var(--color-bordure)" } : { background: "var(--color-carte-verte, #eaf3de)", borderRadius: 12, padding: "1.25rem" }}>
         <p style={{ fontSize: 13, color: "var(--color-texte-clair)", margin: "0 0 6px" }}>{t("decouverte.profiling_result_title")}</p>
         <p style={{ fontSize: 15, color: "var(--color-texte)", margin: 0, lineHeight: 1.6 }}>{t(`decouverte.profiling_action_${actionKey}`)}</p>
       </div>
       <Link
         href="#plus-loin"
-        style={{
-          display: "inline-block",
-          background: "var(--color-forest)",
-          color: "white",
-          padding: "10px 20px",
-          borderRadius: 8,
-          textDecoration: "none",
-          fontWeight: 600,
-          fontSize: 14,
-          marginTop: 12,
-        }}
+        style={
+          sobriety
+            ? { display: "inline-block", color: "var(--color-forest)", fontWeight: 600, fontSize: 14, textDecoration: "underline", marginTop: 12 }
+            : { display: "inline-block", background: "var(--color-forest)", color: "white", padding: "10px 20px", borderRadius: 8, textDecoration: "none", fontWeight: 600, fontSize: 14, marginTop: 12 }
+        }
       >
         {t("decouverte.profiling_more_hint")} ↓
       </Link>
       <button
         type="button"
         onClick={reset}
-        style={{ marginTop: 10, background: "none", border: "1px solid var(--color-bordure)", borderRadius: 8, padding: "6px 14px", fontSize: 13, cursor: "pointer", color: "var(--color-texte)" }}
+        style={
+          sobriety
+            ? { display: "block", marginTop: 10, background: "none", border: "none", padding: 0, fontSize: 13, cursor: "pointer", color: "var(--color-forest)", textDecoration: "underline" }
+            : { marginTop: 10, background: "none", border: "1px solid var(--color-bordure)", borderRadius: 8, padding: "6px 14px", fontSize: 13, cursor: "pointer", color: "var(--color-texte)" }
+        }
       >
         {t("decouverte.profiling_reset")}
       </button>
@@ -455,14 +524,25 @@ const ENGAGER_CARDS = [
 ];
 
 function EngagerCard({ href, Icon, label, desc, tint }) {
+  const { sobriety } = useSobriety();
   const colors = ENGAGER_TINTS[tint] || ENGAGER_TINTS.green;
   return (
-    <Link href={href} prefetch={false} style={{ display: "block", textDecoration: "none", color: "var(--color-texte)", background: "var(--color-carte)", border: "1px solid var(--color-bordure)", borderRadius: "var(--radius)", padding: "1rem" }}>
-      <Icon
-        size={18}
-        style={{ display: "block", boxSizing: "border-box", padding: 9, borderRadius: 10, background: colors.bg, color: colors.color, marginBottom: 8 }}
-      />
-      <p style={{ fontSize: 14, fontWeight: 600, margin: "0 0 2px" }}>{label}</p>
+    <Link
+      href={href}
+      prefetch={false}
+      style={
+        sobriety
+          ? { display: "block", textDecoration: "underline", color: "var(--color-forest)" }
+          : { display: "block", textDecoration: "none", color: "var(--color-texte)", background: "var(--color-carte)", border: "1px solid var(--color-bordure)", borderRadius: "var(--radius)", padding: "1rem" }
+      }
+    >
+      {!sobriety && (
+        <Icon
+          size={18}
+          style={{ display: "block", boxSizing: "border-box", padding: 9, borderRadius: 10, background: colors.bg, color: colors.color, marginBottom: 8 }}
+        />
+      )}
+      <p style={{ fontSize: 14, fontWeight: 600, margin: sobriety ? 0 : "0 0 2px" }}>{label}</p>
       <p style={{ fontSize: 12, color: "var(--color-texte-clair)", margin: 0 }}>{desc}</p>
     </Link>
   );
@@ -498,6 +578,7 @@ function shuffle(arr) {
 }
 
 function RankingQuiz({ t }) {
+  const { sobriety } = useSobriety();
   const [shuffled] = useState(() => shuffle(RANKING_ITEMS));
   const [userOrder, setUserOrder] = useState([]);
   const [revealed, setRevealed] = useState(false);
@@ -533,19 +614,36 @@ function RankingQuiz({ t }) {
                 key={item.key}
                 type="button"
                 onClick={() => pick(item)}
-                style={{
-                  textAlign: "left",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 10,
-                  padding: "10px 14px",
-                  background: "var(--color-carte)",
-                  border: "1px solid var(--color-bordure)",
-                  borderRadius: 8,
-                  cursor: "pointer",
-                  fontSize: 14,
-                  color: "var(--color-texte)",
-                }}
+                style={
+                  sobriety
+                    ? {
+                        textAlign: "left",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 10,
+                        padding: "8px 0",
+                        background: "none",
+                        border: "none",
+                        borderBottom: "1px solid var(--color-bordure)",
+                        cursor: "pointer",
+                        fontSize: 14,
+                        color: "var(--color-forest)",
+                        textDecoration: "underline",
+                      }
+                    : {
+                        textAlign: "left",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 10,
+                        padding: "10px 14px",
+                        background: "var(--color-carte)",
+                        border: "1px solid var(--color-bordure)",
+                        borderRadius: 8,
+                        cursor: "pointer",
+                        fontSize: 14,
+                        color: "var(--color-texte)",
+                      }
+                }
               >
                 {t(`decouverte.ranking_item_${item.key}`)}
               </button>
@@ -602,12 +700,11 @@ function RankingQuiz({ t }) {
               return (
                 <div
                   key={item.key}
-                  style={{
-                    background: "var(--color-carte)",
-                    borderRadius: 8,
-                    padding: "10px 14px",
-                    marginBottom: 6,
-                  }}
+                  style={
+                    sobriety
+                      ? { padding: "8px 0", borderBottom: "1px solid var(--color-bordure)" }
+                      : { background: "var(--color-carte)", borderRadius: 8, padding: "10px 14px", marginBottom: 6 }
+                  }
                 >
                   <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                     <span style={{ fontWeight: 600, fontSize: 14 }}>{item.rank}</span>
@@ -624,7 +721,11 @@ function RankingQuiz({ t }) {
           <button
             type="button"
             onClick={reset}
-            style={{ marginTop: 8, background: "none", border: "1px solid var(--color-bordure)", borderRadius: 8, padding: "6px 14px", fontSize: 13, cursor: "pointer", color: "var(--color-texte)" }}
+            style={
+              sobriety
+                ? { marginTop: 8, background: "none", border: "none", padding: 0, fontSize: 13, cursor: "pointer", color: "var(--color-forest)", textDecoration: "underline" }
+                : { marginTop: 8, background: "none", border: "1px solid var(--color-bordure)", borderRadius: 8, padding: "6px 14px", fontSize: 13, cursor: "pointer", color: "var(--color-texte)" }
+            }
           >
             {t("decouverte.ranking_reset")}
           </button>
@@ -641,7 +742,30 @@ const TOTAL_SECTIONS = 8;
 // numéro affiché par chaque SectionDivider.
 const SECTION_IDS = ["accroche", "explication", "objections", "comparaisons", "quiz", "gains", "profilage", "plus-loin"];
 
-function SectionProgressBar({ activeSection }) {
+function SectionProgressBar({ activeSection, t }) {
+  const { sobriety } = useSobriety();
+
+  if (sobriety) {
+    return (
+      <div
+        style={{
+          position: "sticky",
+          top: 0,
+          zIndex: 5,
+          background: "var(--color-fond)",
+          borderBottom: "1px solid var(--color-bordure)",
+          padding: "8px 0",
+        }}
+      >
+        <div style={{ maxWidth: 700, margin: "0 auto", padding: "0 1.5rem" }}>
+          <span style={{ fontSize: 13, fontWeight: 600, color: "var(--color-texte)" }}>
+            {t("decouverte.section_progress", { current: activeSection, total: TOTAL_SECTIONS })}
+          </span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       style={{
@@ -677,6 +801,16 @@ function SectionProgressBar({ activeSection }) {
 }
 
 function SectionDivider({ Icon, index, t }) {
+  const { sobriety } = useSobriety();
+
+  if (sobriety) {
+    return (
+      <p style={{ fontSize: 13, fontWeight: 700, color: "var(--color-texte-clair)", margin: "2.5rem 0 0.75rem", borderTop: "1px solid var(--color-bordure)", paddingTop: 12 }}>
+        {t("decouverte.section_progress", { current: index, total: TOTAL_SECTIONS })}
+      </p>
+    );
+  }
+
   return (
     <div style={{ margin: "3rem 0 1.75rem" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
@@ -696,6 +830,7 @@ function SectionDivider({ Icon, index, t }) {
 
 export default function DecouvertePage() {
   const { t, locale } = useT();
+  const { sobriety } = useSobriety();
 
   // Jauge de progression (rubrique 1 à 8) — un IntersectionObserver plutôt
   // qu'un scroll listener classique, plus performant (pas de calcul à
@@ -779,7 +914,7 @@ export default function DecouvertePage() {
 
   return (
     <>
-      <SectionProgressBar activeSection={activeSection} />
+      <SectionProgressBar activeSection={activeSection} t={t} />
       <div style={{ maxWidth: 700, margin: "0 auto", padding: "1.5rem" }}>
         {/* --- Section 1 : Accroche --- */}
         <section id="accroche" style={{ textAlign: "center", padding: "3rem 1rem 2.5rem" }}>
@@ -802,14 +937,11 @@ export default function DecouvertePage() {
         )}
 
         <div
-          style={{
-            background: "var(--color-carte)",
-            border: "1px solid var(--color-bordure)",
-            borderRadius: 8,
-            padding: "12px 16px",
-            maxWidth: 420,
-            margin: "0 auto 1.5rem",
-          }}
+          style={
+            sobriety
+              ? { maxWidth: 420, margin: "0 auto 1.5rem", borderTop: "1px solid var(--color-bordure)", borderBottom: "1px solid var(--color-bordure)", padding: "10px 0" }
+              : { background: "var(--color-carte)", border: "1px solid var(--color-bordure)", borderRadius: 8, padding: "12px 16px", maxWidth: 420, margin: "0 auto 1.5rem" }
+          }
         >
           <p style={{ fontSize: 14, color: "var(--color-texte)", margin: 0 }}>{t("decouverte.hero_question")}</p>
         </div>
@@ -817,17 +949,11 @@ export default function DecouvertePage() {
         <button
           type="button"
           onClick={() => setVideoOpen((v) => !v)}
-          style={{
-            display: "inline-block",
-            background: "var(--color-forest)",
-            color: "white",
-            padding: "10px 20px",
-            borderRadius: 8,
-            border: "none",
-            cursor: "pointer",
-            fontWeight: 600,
-            fontSize: 14,
-          }}
+          style={
+            sobriety
+              ? { display: "inline-block", background: "none", border: "none", padding: 0, color: "var(--color-forest)", textDecoration: "underline", cursor: "pointer", fontWeight: 600, fontSize: 14 }
+              : { display: "inline-block", background: "var(--color-forest)", color: "white", padding: "10px 20px", borderRadius: 8, border: "none", cursor: "pointer", fontWeight: 600, fontSize: 14 }
+          }
         >
           {t("decouverte.hero_cta")} {videoOpen ? "↑" : "↓"}
         </button>
@@ -866,17 +992,17 @@ export default function DecouvertePage() {
         <p style={{ fontSize: 14, color: "var(--color-texte)", lineHeight: 1.7, marginBottom: 10 }}>{t("decouverte.explain_p1")}</p>
         <p style={{ fontSize: 14, color: "var(--color-texte)", lineHeight: 1.7, marginBottom: 16 }}>{t("decouverte.explain_p2")}</p>
 
-        <div style={{ background: "var(--color-carte)", borderRadius: 12, padding: "1rem 1.25rem", marginBottom: 12 }}>
+        <div style={sobriety ? { borderTop: "1px solid var(--color-bordure)", paddingTop: 10, marginBottom: 12 } : { background: "var(--color-carte)", borderRadius: 12, padding: "1rem 1.25rem", marginBottom: 12 }}>
           <p style={{ fontSize: 14, fontWeight: 600, color: "var(--color-texte)", margin: "0 0 6px" }}>{t("decouverte.explain_example1_title")}</p>
           <p style={{ fontSize: 14, color: "var(--color-texte)", lineHeight: 1.7, margin: 0 }}>{t("decouverte.explain_example1_text")}</p>
         </div>
 
-        <div style={{ background: "var(--color-carte)", borderRadius: 12, padding: "1rem 1.25rem", marginBottom: 16 }}>
+        <div style={sobriety ? { borderTop: "1px solid var(--color-bordure)", paddingTop: 10, marginBottom: 16 } : { background: "var(--color-carte)", borderRadius: 12, padding: "1rem 1.25rem", marginBottom: 16 }}>
           <p style={{ fontSize: 14, fontWeight: 600, color: "var(--color-texte)", margin: "0 0 6px" }}>{t("decouverte.explain_example2_title")}</p>
           <p style={{ fontSize: 14, color: "var(--color-texte)", lineHeight: 1.7, margin: 0 }}>{t("decouverte.explain_example2_text")}</p>
         </div>
 
-        <div style={{ background: "var(--color-carte)", borderRadius: 12, padding: "1rem 1.25rem" }}>
+        <div style={sobriety ? { borderTop: "1px solid var(--color-bordure)", paddingTop: 10 } : { background: "var(--color-carte)", borderRadius: 12, padding: "1rem 1.25rem" }}>
           <p style={{ fontSize: 14, fontWeight: 600, color: "var(--color-texte)", margin: 0 }}>{t("decouverte.explain_nuance")}</p>
         </div>
       </section>
@@ -953,7 +1079,7 @@ export default function DecouvertePage() {
 
         <ProfilingQuiz t={t} />
 
-        <div style={{ background: "var(--color-carte-verte, #eaf3de)", borderRadius: 12, padding: "1rem 1.25rem", marginTop: "1.25rem" }}>
+        <div style={sobriety ? { padding: "0.75rem 0", borderTop: "1px solid var(--color-bordure)" } : { background: "var(--color-carte-verte, #eaf3de)", borderRadius: 12, padding: "1rem 1.25rem", marginTop: "1.25rem" }}>
           <p style={{ fontSize: 14, color: "var(--color-texte)", margin: 0 }}>{t("decouverte.action_closing")}</p>
         </div>
       </section>
