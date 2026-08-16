@@ -45,6 +45,9 @@ export const labelsFr = {
   heatwaveNarrative: "Une vague de chaleur n'est pas un simple pic ponctuel : c'est une période d'au moins 5 jours consécutifs où les températures dépassent nettement les normales de saison. Leur multiplication en une génération n'est pas une prévision — c'est ce que les stations météorologiques ont effectivement enregistré, année après année, sur l'ensemble du territoire.",
   energyRest: (pct) => `Le reste (${pct} %) réparti entre les autres sources d'énergie.`,
 
+  ogFallbackTitle: "Données ouvertes sur le climat et l'environnement",
+  ogTagline: "Kit de communication — données ouvertes et sourcées",
+
   energySources: {
     nuclear: "Nucléaire",
     hydro: "Hydraulique",

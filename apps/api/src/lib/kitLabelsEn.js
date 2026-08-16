@@ -45,6 +45,9 @@ export const labelsEn = {
   heatwaveNarrative: "A heatwave is not a single, brief spike: it's a period of at least 5 consecutive days where temperatures are markedly above seasonal norms. Their increase within a single generation is not a forecast — it's what weather stations have actually recorded, year after year, across the whole territory.",
   energyRest: (pct) => `The remaining ${pct}% is spread across other energy sources.`,
 
+  ogFallbackTitle: "Open climate and environmental data",
+  ogTagline: "Communication kit — open, sourced data",
+
   energySources: {
     nuclear: "Nuclear",
     hydro: "Hydro",

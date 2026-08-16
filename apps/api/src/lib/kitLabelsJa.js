@@ -45,6 +45,9 @@ export const labelsJa = {
   heatwaveNarrative: "熱波とは一時的な単発のピークではなく、季節の平年値を大きく上回る状態が5日以上続く期間を指します。一世代の間にその頻度が増加したことは予測ではなく、気象観測所が実際に、毎年、国内全域で記録してきた事実です。",
   energyRest: (pct) => `残りの${pct}％はその他のエネルギー源によるものです。`,
 
+  ogFallbackTitle: "気候と環境に関するオープンデータ",
+  ogTagline: "コミュニケーションキット — 出典明記のオープンデータ",
+
   energySources: {
     nuclear: "原子力",
     hydro: "水力",

@@ -45,6 +45,9 @@ export const labelsZh = {
   heatwaveNarrative: "热浪并非短暂的单一高峰：它是指气温明显高于季节常态、持续至少5天的时期。其在一代人时间内的增加并非预测——而是气象站在全国范围内逐年实际记录的结果。",
   energyRest: (pct) => `其余${pct}%分布在其他能源之间。`,
 
+  ogFallbackTitle: "关于气候与环境的开放数据",
+  ogTagline: "宣传资料包——公开且可溯源的数据",
+
   energySources: {
     nuclear: "核能",
     hydro: "水力",

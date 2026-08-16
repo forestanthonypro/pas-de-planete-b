@@ -121,6 +121,7 @@ export default function KitCommunicationPage() {
 
   const pageTitle = `${t("kit.title")} — ${selectedCountryName} | Pas de planète B`;
   const pageDescription = t("kit.subtitle");
+  const ogImageUrl = `${API_URL}/api/kit-communication/og-image/${countryCode}?lang=${docLang}`;
 
   return (
     <div style={{ maxWidth: 640, margin: "0 auto", padding: "2.5rem 1.5rem" }}>
@@ -131,9 +132,13 @@ export default function KitCommunicationPage() {
         <meta property="og:description" content={pageDescription} />
         <meta property="og:type" content="website" />
         <meta property="og:url" content={sharePageUrl} />
-        <meta name="twitter:card" content="summary" />
+        <meta property="og:image" content={ogImageUrl} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={pageTitle} />
         <meta name="twitter:description" content={pageDescription} />
+        <meta name="twitter:image" content={ogImageUrl} />
       </Head>
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
         {!sobriety && <IconScroll size={22} style={{ color: "var(--color-forest)" }} />}

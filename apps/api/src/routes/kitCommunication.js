@@ -5,6 +5,7 @@ import QRCode from "qrcode";
 import { pool } from "../lib/db.js";
 import { errorDetail } from "../lib/errors.js";
 import { buildKitHtml } from "../lib/kitTemplate.js";
+import { buildOgImageHtml } from "../lib/ogImageTemplate.js";
 import { getKitLabels } from "../lib/kitLabels.js";
 import { pdfGenerationLimiter } from "../lib/rateLimits.js";
 
@@ -397,6 +398,49 @@ router.get("/api/kit-communication/pdf/:code", pdfGenerationLimiter, async (req,
     res.send(pdfBuffer);
   } catch (err) {
     res.status(503).json({ error: "Génération PDF impossible", detail: errorDetail(err) });
+  } finally {
+    if (browser) await browser.close();
+  }
+});
+
+// Image de prévisualisation (og:image) — délibérément une requête légère,
+// pas l'assemblage complet de getCountryKitData (qui recalcule les 6
+// comparatifs meilleur/pire sur tous les pays, coûteux et inutile pour une
+// simple image). Les robots des réseaux sociaux (Facebook, Twitter...)
+// peuvent solliciter cette route bien plus souvent qu'un humain ne clique
+// "Générer le PDF" — d'où la même limite de fréquence par prudence.
+router.get("/api/kit-communication/og-image/:code", pdfGenerationLimiter, async (req, res) => {
+  const country = req.params.code.toUpperCase();
+  const lang = req.query.lang || "fr";
+  let browser;
+  try {
+    const [tempRow] = await Promise.all([
+      pool.query(
+        `SELECT deviation_from_reference_c::float AS value FROM country_temperatures
+         WHERE country_code = $1 AND deviation_from_reference_c IS NOT NULL ORDER BY year DESC LIMIT 1`,
+        [country]
+      ),
+    ]);
+
+    const labels = getKitLabels(lang);
+    const countryName = localizeCountryName(country, lang);
+    const html = buildOgImageHtml(countryName, tempRow.rows[0]?.value ?? null, labels);
+
+    browser = await chromium.launch({
+      executablePath: process.env.CHROMIUM_PATH || undefined,
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    });
+    const page = await browser.newPage({ viewport: { width: 1200, height: 630 } });
+    await page.setContent(html, { waitUntil: "networkidle" });
+    const pngBuffer = await page.screenshot({ type: "png" });
+
+    res.set({
+      "Content-Type": "image/png",
+      "Cache-Control": "public, max-age=3600",
+    });
+    res.send(pngBuffer);
+  } catch (err) {
+    res.status(503).json({ error: "Génération de l'image impossible", detail: errorDetail(err) });
   } finally {
     if (browser) await browser.close();
   }

@@ -45,6 +45,9 @@ export const labelsEs = {
   heatwaveNarrative: "Una ola de calor no es un simple pico puntual: es un período de al menos 5 días consecutivos en los que las temperaturas superan claramente las normas estacionales. Su aumento en una sola generación no es una previsión — es lo que las estaciones meteorológicas han registrado realmente, año tras año, en todo el territorio.",
   energyRest: (pct) => `El ${pct}% restante se reparte entre otras fuentes de energía.`,
 
+  ogFallbackTitle: "Datos abiertos sobre clima y medio ambiente",
+  ogTagline: "Kit de comunicación — datos abiertos y verificados",
+
   energySources: {
     nuclear: "Nuclear",
     hydro: "Hidráulica",
