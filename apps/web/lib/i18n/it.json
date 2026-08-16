@@ -1038,6 +1038,7 @@
     "profiling_action_logement_changement_sansjardin": "Informati su un punto di compostaggio collettivo o una piccola compostiera da interno.",
     "profiling_action_logement_projet_locataire": "Parla di isolamento con il proprietario, o informati sugli incentivi alla ristrutturazione disponibili anche per gli inquilini.",
     "profiling_action_logement_projet_proprietaire": "Fatti fare un preventivo per isolamento o pannelli solari — esistono diversi incentivi.",
-    "section_progress": "Sezione {current} di {total}"
+    "section_progress": "Sezione {current} di {total}",
+    "more_title": "Vuoi andare oltre?"
   }
 }

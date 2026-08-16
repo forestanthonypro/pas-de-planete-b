@@ -1038,6 +1038,7 @@
     "profiling_action_logement_changement_sansjardin": "Renseignez-vous sur un point de compost collectif ou un petit lombricomposteur d'appartement.",
     "profiling_action_logement_projet_locataire": "Parlez isolation avec votre propriétaire, ou renseignez-vous sur les aides à la rénovation qui existent aussi pour les locataires.",
     "profiling_action_logement_projet_proprietaire": "Faites établir un devis d'isolation ou de panneaux solaires — plusieurs aides existent (MaPrimeRénov').",
-    "section_progress": "Rubrique {current} sur {total}"
+    "section_progress": "Rubrique {current} sur {total}",
+    "more_title": "Envie d'aller plus loin ?"
   }
 }
