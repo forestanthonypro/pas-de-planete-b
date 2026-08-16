@@ -1,9 +1,20 @@
 import { Router } from "express";
 import { chromium } from "playwright-core";
+import countriesLib from "i18n-iso-countries";
+import QRCode from "qrcode";
 import { pool } from "../lib/db.js";
 import { errorDetail } from "../lib/errors.js";
 import { buildKitHtml } from "../lib/kitTemplate.js";
 import { labelsFr } from "../lib/kitLabelsFr.js";
+
+// Les tables du site stockent les noms de pays en anglais (langue de la
+// donnée source) — jamais ce qu'on veut montrer dans un document destiné à
+// être lu. i18n-iso-countries couvre les 8 langues du site (vérifié :
+// fr/en/es/it/ru/ja/zh/hi) à partir du seul code ISO3, déjà en base.
+function localizeCountryName(code, lang) {
+  if (!code) return code;
+  return countriesLib.getName(code, lang, { select: "official" }) || code;
+}
 
 const router = Router();
 
@@ -136,7 +147,7 @@ const QUERIES = {
   `,
 };
 
-async function computeAllExtremes() {
+async function computeAllExtremes(lang) {
   const keys = Object.keys(QUERIES);
   const results = await Promise.all(keys.map((key) => pool.query(QUERIES[key])));
 
@@ -144,8 +155,8 @@ async function computeAllExtremes() {
   keys.forEach((key, i) => {
     const row = results[i].rows[0];
     out[key] = {
-      best: { country: row.best_name, code: row.best_code, value: row.best_value !== null ? parseFloat(row.best_value) : null },
-      worst: { country: row.worst_name, code: row.worst_code, value: row.worst_value !== null ? parseFloat(row.worst_value) : null },
+      best: { country: localizeCountryName(row.best_code, lang), code: row.best_code, value: row.best_value !== null ? parseFloat(row.best_value) : null },
+      worst: { country: localizeCountryName(row.worst_code, lang), code: row.worst_code, value: row.worst_value !== null ? parseFloat(row.worst_value) : null },
       avg: row.avg_value !== null ? parseFloat(row.avg_value) : null,
       countryCount: parseInt(row.country_count, 10),
     };
@@ -154,8 +165,9 @@ async function computeAllExtremes() {
 }
 
 router.get("/api/admin/kit-communication/extremes", async (req, res) => {
+  const lang = req.query.lang || "fr";
   try {
-    res.json(await computeAllExtremes());
+    res.json(await computeAllExtremes(lang));
   } catch (err) {
     res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
@@ -242,9 +254,9 @@ function computeTop3EnergySources(row) {
   return sources.map((s) => ({ ...s, share: Math.round((s.value / total) * 1000) / 10 }));
 }
 
-async function getCountryKitData(country) {
-  const [extremes, co2Row, elecRow, waterRow, popRow, forestRow, pollutionRow, speciesRow, tempLatestRow, tempHistoryResult, heatwaveResult, elecMixRow, worldTempRow, nameRow] = await Promise.all([
-    computeAllExtremes(),
+async function getCountryKitData(country, lang) {
+  const [extremes, co2Row, elecRow, waterRow, popRow, forestRow, pollutionRow, speciesRow, tempLatestRow, tempHistoryResult, heatwaveResult, elecMixRow, worldTempRow] = await Promise.all([
+    computeAllExtremes(lang),
     pool.query(
       `SELECT emissions_per_capita::float AS value FROM co2_emissions
        WHERE country_code = $1 AND emissions_per_capita IS NOT NULL ORDER BY year DESC LIMIT 1`,
@@ -309,9 +321,6 @@ async function getCountryKitData(country) {
     // (world_benchmarks), indispensable pour ne jamais afficher un chiffre
     // France isolé sans son repère mondial.
     pool.query(`SELECT value::float AS value FROM world_benchmarks WHERE metric_key = 'temperature_deviation_world'`),
-    // Nom complet du pays pour l'affichage (le code ISO seul ne suffit pas
-    // dans un document destiné à être lu, pas juste manipulé par une API).
-    pool.query(`SELECT country_name FROM co2_emissions WHERE country_code = $1 ORDER BY year DESC LIMIT 1`, [country]),
   ]);
 
   const waterValue = waterRow.rows[0]?.value && popRow.rows[0]?.value ? waterRow.rows[0].value / popRow.rows[0].value : null;
@@ -331,7 +340,7 @@ async function getCountryKitData(country) {
 
   return {
     country,
-    countryName: nameRow.rows[0]?.country_name || country,
+    countryName: localizeCountryName(country, lang),
     temperatureDeviation: tempLatestRow.rows[0]?.value ?? null,
     worldTemperatureDeviation: worldTempRow.rows[0]?.value ?? null,
     temperatureHistory: tempHistoryResult.rows.map((r) => ({ year: r.year, value: r.value })),
@@ -347,8 +356,9 @@ async function getCountryKitData(country) {
 
 router.get("/api/admin/kit-communication/country/:code", async (req, res) => {
   const country = req.params.code.toUpperCase();
+  const lang = req.query.lang || "fr";
   try {
-    res.json(await getCountryKitData(country));
+    res.json(await getCountryKitData(country, lang));
   } catch (err) {
     res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
@@ -356,10 +366,20 @@ router.get("/api/admin/kit-communication/country/:code", async (req, res) => {
 
 router.get("/api/admin/kit-communication/pdf/:code", async (req, res) => {
   const country = req.params.code.toUpperCase();
+  const lang = req.query.lang || "fr";
   let browser;
   try {
-    const data = await getCountryKitData(country);
-    const html = buildKitHtml(data, data.countryName, labelsFr);
+    const data = await getCountryKitData(country, lang);
+
+    // QR code vers la fiche pays correspondante — un seul par document,
+    // réutilisé sur les deux pages (même image, pas besoin de le générer
+    // deux fois).
+    const qrCodeDataUrl = await QRCode.toDataURL(`https://pasdeplaneteb.com/pays/${country.toLowerCase()}`, {
+      margin: 1,
+      width: 200,
+    });
+
+    const html = buildKitHtml(data, data.countryName, labelsFr, qrCodeDataUrl);
 
     browser = await chromium.launch({
       executablePath: process.env.CHROMIUM_PATH || undefined,

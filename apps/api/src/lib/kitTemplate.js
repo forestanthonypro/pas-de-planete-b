@@ -77,8 +77,8 @@ const CSS = `
     background: linear-gradient(to right, #639922, #ef9f27, #d85a30); }
   .range-row .rr-dot-france { position: absolute; top: 50%; width: 4.5mm; height: 4.5mm; border-radius: 50%;
     background: #fff; border: 2.5px solid var(--ink); transform: translate(-50%, -50%); }
-  .range-row .rr-bar-avg { position: absolute; top: -1.5mm; width: 1.5px; height: 8mm;
-    background: var(--ink); transform: translateX(-50%); }
+  .range-row .rr-bar-avg { position: absolute; top: -1.5mm; width: 2px; height: 8mm;
+    background: var(--ink); transform: translateX(-1px); }
   .rr-legend { font-size: 8.5px; color: var(--ink-light); margin-top: 4mm; display: flex; align-items: center; gap: 2mm; }
   .rr-subnote { font-size: 9px; color: var(--ink-light); font-style: italic; margin: 0 0 1mm; }
   .legend-dot { display: inline-block; width: 4mm; height: 4mm; border-radius: 50%; background: #fff; border: 2px solid var(--ink); flex-shrink: 0; }
@@ -244,13 +244,13 @@ function renderComparisonRow(row, labels, countryName) {
     </div>`;
 }
 
-function buildPage1Html(data, countryName, labels) {
+function buildPage1Html(data, countryName, labels, qrCodeDataUrl) {
   const worldTemp = data.worldTemperatureDeviation;
   const franceTemp = data.temperatureDeviation;
   const hasHeatwaveData = data.heatwaves && (data.heatwaves.recent > 0 || data.heatwaves.past > 0);
   const heatwaveRatio = hasHeatwaveData && data.heatwaves.past > 0 ? (data.heatwaves.recent / data.heatwaves.past) : null;
   const heatwaveRatioDisplay = heatwaveRatio !== null ? (Number.isInteger(heatwaveRatio) ? String(heatwaveRatio) : heatwaveRatio.toFixed(1)) : null;
-  const maxWave = hasHeatwaveData ? Math.max(data.heatwaves.recent, data.heatwaves.past, 1) : 1;
+  const qrHtml = qrCodeDataUrl ? `<img src="${qrCodeDataUrl}" alt="QR" style="width:15mm;height:15mm;display:block" />` : `<div class="qr"></div>`;
 
   return `
 <div class="page">
@@ -293,14 +293,15 @@ function buildPage1Html(data, countryName, labels) {
   </div>
   <div class="footer">
     <span>${labels.sourcesTemperature}</span>
-    <div class="qr"></div>
+    ${qrHtml}
   </div>
 </div>`;
 }
 
-function buildPage2Html(data, countryName, labels) {
+function buildPage2Html(data, countryName, labels, qrCodeDataUrl) {
   const rows = ["co2", "electricite", "eau", "foret", "pollution", "especes"];
   const rowsHtml = rows.map((key) => renderComparisonRow(data.comparisons[key], labels, countryName)).join("");
+  const qrHtml = qrCodeDataUrl ? `<img src="${qrCodeDataUrl}" alt="QR" style="width:15mm;height:15mm;display:block" />` : `<div class="qr"></div>`;
 
   return `
 <div class="page">
@@ -319,7 +320,7 @@ function buildPage2Html(data, countryName, labels) {
         <b>${labels.closingTitle}</b>
         <span>${labels.closingText}</span>
       </div>
-      <div class="qr"></div>
+      ${qrHtml}
     </div>
   </div>
   <div class="footer">
@@ -328,7 +329,7 @@ function buildPage2Html(data, countryName, labels) {
 </div>`;
 }
 
-function buildKitHtml(data, countryName, labels) {
+function buildKitHtml(data, countryName, labels, qrCodeDataUrl) {
   return `<!DOCTYPE html>
 <html lang="${labels.lang || "fr"}">
 <head>
@@ -341,8 +342,8 @@ function buildKitHtml(data, countryName, labels) {
 </style>
 </head>
 <body>
-${buildPage1Html(data, countryName, labels)}
-${buildPage2Html(data, countryName, labels)}
+${buildPage1Html(data, countryName, labels, qrCodeDataUrl)}
+${buildPage2Html(data, countryName, labels, qrCodeDataUrl)}
 </body>
 </html>`;
 }
