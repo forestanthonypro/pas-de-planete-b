@@ -39,6 +39,12 @@ export const labelsFr = {
     especes: "Espèces menacées",
   },
 
+  worldTempNote: (ratio, faster, country) => faster
+    ? `${country} se réchauffe ${ratio} fois plus vite que la moyenne mondiale.`
+    : `${country} se réchauffe ${ratio} fois moins vite que la moyenne mondiale.`,
+  heatwaveNarrative: "Une vague de chaleur n'est pas un simple pic ponctuel : c'est une période d'au moins 5 jours consécutifs où les températures dépassent nettement les normales de saison. Leur multiplication en une génération n'est pas une prévision — c'est ce que les stations météorologiques ont effectivement enregistré, année après année, sur l'ensemble du territoire.",
+  energyRest: (pct) => `Le reste (${pct} %) réparti entre les autres sources d'énergie.`,
+
   energySources: {
     nuclear: "Nucléaire",
     hydro: "Hydraulique",

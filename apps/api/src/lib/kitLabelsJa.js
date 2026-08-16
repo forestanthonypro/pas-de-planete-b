@@ -39,6 +39,12 @@ export const labelsJa = {
     especes: "絶滅危惧種",
   },
 
+  worldTempNote: (ratio, faster, country) => faster
+    ? `${country}は世界平均の${ratio}倍の速さで温暖化しています。`
+    : `${country}の温暖化は世界平均よりゆるやかで、その差は${ratio}倍です。`,
+  heatwaveNarrative: "熱波とは一時的な単発のピークではなく、季節の平年値を大きく上回る状態が5日以上続く期間を指します。一世代の間にその頻度が増加したことは予測ではなく、気象観測所が実際に、毎年、国内全域で記録してきた事実です。",
+  energyRest: (pct) => `残りの${pct}％はその他のエネルギー源によるものです。`,
+
   energySources: {
     nuclear: "原子力",
     hydro: "水力",

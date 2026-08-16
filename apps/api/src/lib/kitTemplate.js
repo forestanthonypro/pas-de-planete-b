@@ -77,8 +77,7 @@ const CSS = `
     background: linear-gradient(to right, #639922, #ef9f27, #d85a30); }
   .range-row .rr-dot-france { position: absolute; top: 50%; width: 4.5mm; height: 4.5mm; border-radius: 50%;
     background: #fff; border: 2.5px solid var(--ink); transform: translate(-50%, -50%); }
-  .range-row .rr-bar-avg { position: absolute; top: -1.5mm; width: 2px; height: 8mm;
-    background: var(--ink); transform: translateX(-1px); }
+  .range-row .rr-bar-avg-svg { position: absolute; top: -1.5mm; width: 7px; height: 8mm; overflow: visible; }
   .rr-legend { font-size: 8.5px; color: var(--ink-light); margin-top: 4mm; display: flex; align-items: center; gap: 2mm; }
   .rr-subnote { font-size: 9px; color: var(--ink-light); font-style: italic; margin: 0 0 1mm; }
   .legend-dot { display: inline-block; width: 4mm; height: 4mm; border-radius: 50%; background: #fff; border: 2px solid var(--ink); flex-shrink: 0; }
@@ -199,7 +198,12 @@ function renderEnergyCards(energyTop3, labels) {
       </div>`
     )
     .join("");
-  return `<div class="energy-grid">${cards}</div>`;
+
+  const totalShare = energyTop3.reduce((sum, s) => sum + (s.share || 0), 0);
+  const rest = Math.max(0, Math.round(100 - totalShare));
+  const restHtml = rest > 0 ? `<p class="rr-subnote">${labels.energyRest(rest)}</p>` : "";
+
+  return `<div class="energy-grid">${cards}</div>${restHtml}`;
 }
 
 function renderWarmingStripesHtml(history) {
@@ -227,7 +231,7 @@ function renderComparisonRow(row, labels, countryName) {
     row.francePosition !== null || row.avgPosition !== null
       ? `<div class="rr-wrap">
           <div class="rr-track">
-            ${row.avgPosition !== null ? `<div class="rr-bar-avg" style="left:${row.avgPosition}%"></div>` : ""}
+            ${row.avgPosition !== null ? `<svg class="rr-bar-avg-svg" style="left:${row.avgPosition}%;transform:translateX(-3.5px)" viewBox="0 0 7 100" preserveAspectRatio="none"><rect x="0" y="0" width="7" height="100" style="fill:var(--ink)" shape-rendering="crispEdges" /></svg>` : ""}
             ${row.francePosition !== null ? `<div class="rr-dot-france" style="left:${row.francePosition}%"></div>` : ""}
           </div>
         </div>`
@@ -252,6 +256,14 @@ function buildPage1Html(data, countryName, labels, qrCodeDataUrl) {
   const heatwaveRatioDisplay = heatwaveRatio !== null ? (Number.isInteger(heatwaveRatio) ? String(heatwaveRatio) : heatwaveRatio.toFixed(1)) : null;
   const qrHtml = qrCodeDataUrl ? `<img src="${qrCodeDataUrl}" alt="QR" style="width:15mm;height:15mm;display:block" />` : `<div class="qr"></div>`;
 
+  let worldTempNoteHtml = "";
+  if (franceTemp !== null && worldTemp !== null && worldTemp !== 0) {
+    const rawRatio = franceTemp / worldTemp;
+    const faster = rawRatio >= 1;
+    const displayRatio = formatNumber(faster ? rawRatio : 1 / rawRatio, 1);
+    worldTempNoteHtml = `<p class="note">${labels.worldTempNote(displayRatio, faster, countryName)}</p>`;
+  }
+
   return `
 <div class="page">
   <div class="topbar"><span>PAS DE PLANÈTE B</span><span class="right">${countryName.toUpperCase()} • ${labels.page1Eyebrow}</span></div>
@@ -269,6 +281,7 @@ function buildPage1Html(data, countryName, labels, qrCodeDataUrl) {
       <div class="number-block world">
         <p class="eyebrow">${labels.world.toUpperCase()} • ${labels.samePeriod}</p>
         <p class="num">${worldTemp !== null ? (worldTemp > 0 ? "+" : "") + formatNumber(worldTemp, 2) + " °C" : "—"}</p>
+        ${worldTempNoteHtml}
       </div>
     </div>
 
@@ -283,7 +296,8 @@ function buildPage1Html(data, countryName, labels, qrCodeDataUrl) {
         <div class="new" style="flex:${data.heatwaves.recent || 1}"></div>
       </div>
       <div class="split-labels"><span>${data.heatwaves.past} ${labels.wavesLabel} • 1956-1990</span><span>${data.heatwaves.recent} ${labels.wavesLabel} • 1991-2025</span></div>
-    </div>`
+    </div>
+    <p class="narrative">${labels.heatwaveNarrative}</p>`
         : ""
     }
 

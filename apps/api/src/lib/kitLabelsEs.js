@@ -39,6 +39,12 @@ export const labelsEs = {
     especes: "Especies amenazadas",
   },
 
+  worldTempNote: (ratio, faster, country) => faster
+    ? `${country} se está calentando ${ratio} veces más rápido que la media mundial.`
+    : `${country} se está calentando ${ratio} veces más despacio que la media mundial.`,
+  heatwaveNarrative: "Una ola de calor no es un simple pico puntual: es un período de al menos 5 días consecutivos en los que las temperaturas superan claramente las normas estacionales. Su aumento en una sola generación no es una previsión — es lo que las estaciones meteorológicas han registrado realmente, año tras año, en todo el territorio.",
+  energyRest: (pct) => `El ${pct}% restante se reparte entre otras fuentes de energía.`,
+
   energySources: {
     nuclear: "Nuclear",
     hydro: "Hidráulica",

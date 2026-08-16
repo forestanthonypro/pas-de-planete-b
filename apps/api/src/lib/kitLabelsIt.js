@@ -39,6 +39,12 @@ export const labelsIt = {
     especes: "Specie minacciate",
   },
 
+  worldTempNote: (ratio, faster, country) => faster
+    ? `${country} si sta riscaldando ${ratio} volte più velocemente della media mondiale.`
+    : `${country} si sta riscaldando ${ratio} volte più lentamente della media mondiale.`,
+  heatwaveNarrative: "Un'ondata di calore non è un semplice picco isolato: è un periodo di almeno 5 giorni consecutivi in cui le temperature superano nettamente le medie stagionali. Il loro aumento nel giro di una generazione non è una previsione — è ciò che le stazioni meteorologiche hanno effettivamente registrato, anno dopo anno, su tutto il territorio.",
+  energyRest: (pct) => `Il restante ${pct}% è distribuito tra le altre fonti energetiche.`,
+
   energySources: {
     nuclear: "Nucleare",
     hydro: "Idroelettrica",

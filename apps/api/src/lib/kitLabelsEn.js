@@ -39,6 +39,12 @@ export const labelsEn = {
     especes: "Threatened species",
   },
 
+  worldTempNote: (ratio, faster, country) => faster
+    ? `${country} is warming ${ratio} times faster than the world average.`
+    : `${country} is warming ${ratio} times slower than the world average.`,
+  heatwaveNarrative: "A heatwave is not a single, brief spike: it's a period of at least 5 consecutive days where temperatures are markedly above seasonal norms. Their increase within a single generation is not a forecast — it's what weather stations have actually recorded, year after year, across the whole territory.",
+  energyRest: (pct) => `The remaining ${pct}% is spread across other energy sources.`,
+
   energySources: {
     nuclear: "Nuclear",
     hydro: "Hydro",

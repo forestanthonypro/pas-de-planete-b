@@ -39,6 +39,12 @@ export const labelsZh = {
     especes: "受威胁物种",
   },
 
+  worldTempNote: (ratio, faster, country) => faster
+    ? `${country}的升温速度是全球平均水平的${ratio}倍。`
+    : `${country}的升温速度比全球平均水平慢${ratio}倍。`,
+  heatwaveNarrative: "热浪并非短暂的单一高峰：它是指气温明显高于季节常态、持续至少5天的时期。其在一代人时间内的增加并非预测——而是气象站在全国范围内逐年实际记录的结果。",
+  energyRest: (pct) => `其余${pct}%分布在其他能源之间。`,
+
   energySources: {
     nuclear: "核能",
     hydro: "水力",
