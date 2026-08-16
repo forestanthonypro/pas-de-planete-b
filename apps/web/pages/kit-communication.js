@@ -2,7 +2,9 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import Head from "next/head";
 import { useT } from "../lib/useT";
-import { useCountrySelector } from "../lib/useCountrySelector";
+import { useCountriesList } from "../lib/useCountriesList";
+import { localizedCountryName } from "../lib/countryNames";
+import { detectDefaultCountry } from "../lib/detectCountry";
 import { useSobriety } from "../lib/SobrietyContext";
 import CountrySelect from "../components/CountrySelect";
 import { IconScroll } from "../components/icons";
@@ -28,28 +30,42 @@ export default function KitCommunicationPage() {
   const { t, locale } = useT();
   const router = useRouter();
   const { sobriety } = useSobriety();
-  const { countryCode, setCountryCode, countries, selectedCountryName } = useCountrySelector("/api/co2/countries", { locale });
-  const [docLang, setDocLang] = useState(LANGUAGE_LABELS[locale] ? locale : "fr");
+  const countries = useCountriesList("/api/co2/countries");
+  const [countryCode, setCountryCode] = useState("FRA");
+  const [docLang, setDocLang] = useState("fr");
+  const [initialized, setInitialized] = useState(false);
   const [status, setStatus] = useState("idle"); // idle | generating | ready | error
   const [pdfBlobUrl, setPdfBlobUrl] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
   const [copied, setCopied] = useState(false);
 
-  // Pré-remplit pays/langue depuis l'URL si on arrive via un lien partagé
-  // (?country=FRA&lang=ja) — sans ça, un lien partagé rouvre toujours sur
-  // le pays par défaut, ce qui viderait le partage de son intérêt.
+  const selectedCountryName = localizedCountryName(countryCode, locale);
+
+  // Seule source de vérité pour l'état initial — pays/langue de l'URL en
+  // priorité (lien partagé), sinon détection habituelle du site. Tout géré
+  // ici en un seul endroit pour éviter toute course avec un autre effet
+  // qui écraserait la valeur juste après (bug rencontré : useCountrySelector
+  // a son propre effet de détection au montage, qui pouvait s'exécuter
+  // après celui-ci et écraser silencieusement le pays venu de l'URL).
   useEffect(() => {
-    if (!router.isReady) return;
+    if (!router.isReady || initialized) return;
     const { country, lang } = router.query;
     if (typeof country === "string" && country.length === 3) {
       setCountryCode(country.toUpperCase());
+    } else {
+      setCountryCode(detectDefaultCountry("FRA"));
     }
     if (typeof lang === "string" && LANGUAGE_LABELS[lang]) {
       setDocLang(lang);
+    } else if (LANGUAGE_LABELS[locale]) {
+      setDocLang(locale);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router.isReady]);
+    setInitialized(true);
+  }, [router.isReady, initialized, locale, router.query]);
 
+  // Pré-remplit pays/langue depuis l'URL si on arrive via un lien partagé
+  // (?country=FRA&lang=ja) — sans ça, un lien partagé rouvre toujours sur
+  // le pays par défaut, ce qui viderait le partage de son intérêt.
   const pdfEndpoint = `${API_URL}/api/kit-communication/pdf/${countryCode}?lang=${docLang}`;
   // Lien à partager : la page elle-même (jolie URL, aperçu correct sur les
   // réseaux sociaux), jamais le PDF brut de l'API — un PDF binaire n'a pas
