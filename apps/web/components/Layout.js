@@ -225,6 +225,27 @@ export default function Layout({ children }) {
         )}
 
         <Link
+          href="/kit-communication"
+          prefetch={false}
+          style={
+            sobriety
+              ? { color: "var(--color-forest)", fontWeight: 600, textDecoration: "underline" }
+              : {
+                  background: "var(--color-carte)",
+                  border: "1px solid var(--color-bordure)",
+                  borderRadius: 20,
+                  padding: "6px 14px",
+                  color: "var(--color-texte)",
+                  textDecoration: "none",
+                  fontWeight: 500,
+                  fontSize: 14,
+                }
+          }
+        >
+          {t("common.nav_kit")}
+        </Link>
+
+        <Link
           href="/charte"
           prefetch={false}
           title={t("common.nav_charter_title")}

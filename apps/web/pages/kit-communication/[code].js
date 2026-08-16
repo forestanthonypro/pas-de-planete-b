@@ -1,5 +1,6 @@
 import Head from "next/head";
 import { useT } from "../../lib/useT";
+import ShareButtons from "../../components/ShareButtons";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 const WEB_URL = "https://pasdeplaneteb.com";
@@ -53,15 +54,21 @@ export default function KitCommunicationCountryPage({ countryCode, countryName, 
         <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginTop: 8 }}>{t("kit.always_fresh_hint")}</p>
       </div>
 
+      <div style={{ display: "flex", justifyContent: "center", marginBottom: "1.25rem" }}>
+        <ShareButtons title={pageTitle} url={canonicalUrl} />
+      </div>
+
       {/* Contenu du kit dans une iframe isolée — évite tout risque de
           collision entre les classes CSS du gabarit PDF (très génériques :
           .content, .tag, .detail...) et le reste du site. Chargée
           directement par le navigateur, toujours la version la plus
-          fraîche des données à chaque visite. */}
+          fraîche des données à chaque visite. Hauteur généreuse : le
+          contenu est désormais responsive (voir kitTemplate.js) et
+          s'étire davantage sur mobile, où les grilles s'empilent. */}
       <iframe
         src={htmlEndpoint}
         title={pageTitle}
-        style={{ width: "100%", height: "2500px", border: "1px solid var(--color-bordure)", borderRadius: 8 }}
+        style={{ width: "100%", height: "3200px", border: "1px solid var(--color-bordure)", borderRadius: 8 }}
       />
     </div>
   );

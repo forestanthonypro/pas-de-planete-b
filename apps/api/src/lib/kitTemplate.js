@@ -25,9 +25,9 @@ const CSS = `
   }
   .label { text-align: center; font-size: 13px; color: #4a493f; margin: 0 0 10px; font-weight: 700; }
   .page {
-    width: 210mm; height: 297mm; margin: 0 auto 40px;
+    width: 100%; max-width: 210mm; margin: 0 auto 40px;
     background: var(--cream); box-shadow: 0 4px 24px rgba(0,0,0,0.2);
-    display: flex; flex-direction: column; overflow: hidden;
+    display: flex; flex-direction: column;
   }
   .topbar {
     display: flex; justify-content: space-between; align-items: center;
@@ -126,11 +126,35 @@ const CSS = `
      navigateur en défilement. En impression, elles ajoutent de la hauteur
      en trop et créent une page 3 quasi vide (bug rencontré et corrigé
      lors des tests Phase 3). */
+  /* Règles spécifiques à l'impression PDF — .page est fluide par défaut
+     (lecture confortable à l'écran, cf. section "aperçu web responsive"
+     plus bas), les dimensions A4 fixes ne s'appliquent qu'ici. Les
+     marges/ombres de la version écran ajouteraient de la hauteur en trop
+     à l'impression et créeraient une page 3 quasi vide (bug rencontré et
+     corrigé lors des tests Phase 3). */
   @media print {
     body { padding: 0; background: #fff; }
-    .page { margin: 0; box-shadow: none; page-break-after: always; }
+    .page { width: 210mm; height: 297mm; max-width: none; margin: 0; box-shadow: none; overflow: hidden; page-break-after: always; }
     .page:last-child { page-break-after: avoid; }
     .label { display: none; }
+  }
+
+  /* Aperçu web responsive — .page garde ses proportions A4 (max-width)
+     sur grand écran, mais les grilles à 4/3 colonnes (denses même en
+     format A4) deviennent illisibles sur mobile si on ne fait que
+     rétrécir le conteneur : les colonnes s'écrasent au lieu de
+     s'empiler. On les réorganise explicitement en dessous d'un certain
+     seuil plutôt que de laisser le rétrécissement pur créer du texte
+     minuscule. */
+  @media screen and (max-width: 600px) {
+    body { padding: 12px 0 30px; }
+    .page { box-shadow: 0 2px 10px rgba(0,0,0,0.15); margin-bottom: 20px; }
+    h1 { font-size: 24px; }
+    .number-pair { flex-direction: column; gap: 4mm; }
+    .cc-grid { grid-template-columns: repeat(2, 1fr); }
+    .energy-grid { grid-template-columns: repeat(2, 1fr); }
+    .signature-box .headline { font-size: 16px; }
+    .range-row .rr-name { font-size: 10px; }
   }
 `;
 

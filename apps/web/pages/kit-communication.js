@@ -7,6 +7,7 @@ import { localizedCountryName } from "../lib/countryNames";
 import { detectDefaultCountry } from "../lib/detectCountry";
 import { useSobriety } from "../lib/SobrietyContext";
 import CountrySelect from "../components/CountrySelect";
+import ShareButtons from "../components/ShareButtons";
 import { IconScroll } from "../components/icons";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
@@ -37,7 +38,6 @@ export default function KitCommunicationPage() {
   const [status, setStatus] = useState("idle"); // idle | generating | ready | error
   const [pdfBlobUrl, setPdfBlobUrl] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
-  const [copied, setCopied] = useState(false);
 
   const selectedCountryName = localizedCountryName(countryCode, locale);
 
@@ -112,13 +112,6 @@ export default function KitCommunicationPage() {
       setErrorMsg(err.message || t("kit.error_generic"));
       setStatus("error");
     }
-  }
-
-  function handleCopyLink() {
-    navigator.clipboard.writeText(sharePageUrl).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2500);
-    });
   }
 
   const cardStyle = sobriety
@@ -245,28 +238,7 @@ export default function KitCommunicationPage() {
               {t("kit.view_web_version")}
             </a>
           </div>
-          <p
-            style={{
-              fontSize: 12,
-              color: "var(--color-texte-clair)",
-              background: sobriety ? "none" : "var(--color-fond)",
-              border: sobriety ? "none" : "1px solid var(--color-bordure)",
-              borderRadius: 6,
-              padding: sobriety ? 0 : "6px 10px",
-              margin: "0 0 8px",
-              wordBreak: "break-all",
-              fontFamily: "monospace",
-            }}
-          >
-            {sharePageUrl}
-          </p>
-          <button
-            type="button"
-            onClick={handleCopyLink}
-            style={{ background: "none", border: "none", padding: 0, fontSize: 13, color: "var(--color-texte-clair)", textDecoration: "underline", cursor: "pointer" }}
-          >
-            {copied ? t("kit.copied") : t("kit.copy_link")}
-          </button>
+          <ShareButtons title={pageTitle} url={sharePageUrl} />
           <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginTop: 10, marginBottom: 0 }}>{t("kit.regenerate_hint")}</p>
         </div>
       )}
