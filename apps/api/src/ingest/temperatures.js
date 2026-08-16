@@ -79,6 +79,14 @@ const START_YEAR = parseInt(process.env.TEMPERATURES_START_YEAR, 10) || 1990; //
 const COUNTRY_LIMIT = process.env.TEMPERATURES_COUNTRY_LIMIT
   ? parseInt(process.env.TEMPERATURES_COUNTRY_LIMIT, 10)
   : null;
+// Cible un seul pays précis (ex. TEMPERATURES_COUNTRY_CODE=FRA) — utile pour
+// prioriser un pays sans attendre que le backfill général l'atteigne dans
+// son ordre habituel. Ignoré si absent (comportement normal, tous les pays
+// restants dans l'ordre). Se combine avec COUNTRY_LIMIT si les deux sont
+// définis, mais n'a de sens qu'utilisé seul en pratique.
+const COUNTRY_CODE = process.env.TEMPERATURES_COUNTRY_CODE
+  ? process.env.TEMPERATURES_COUNTRY_CODE.toUpperCase()
+  : null;
 const REFERENCE_START_YEAR = 1991;
 const REFERENCE_END_YEAR = 2020;
 const REFERENCE_PERIOD_LABEL = `${REFERENCE_START_YEAR}-${REFERENCE_END_YEAR}`;
@@ -363,6 +371,10 @@ export async function ingestTemperatures(pool) {
   const { covered, skippedNoCapital } = await getCoveredCountries(pool);
   const alreadyDone = await getAlreadyIngestedCountryCodes(pool);
   let remaining = covered.filter((c) => !alreadyDone.has(c.code));
+  if (COUNTRY_CODE) {
+    remaining = remaining.filter((c) => c.code === COUNTRY_CODE);
+    console.log(`TEMPERATURES_COUNTRY_CODE actif : uniquement ${COUNTRY_CODE} (${remaining.length} pays trouvé${remaining.length > 1 ? "s" : ""}).`);
+  }
   if (COUNTRY_LIMIT !== null && COUNTRY_LIMIT >= 0) {
     remaining = remaining.slice(0, COUNTRY_LIMIT);
     console.log(`TEMPERATURES_COUNTRY_LIMIT actif : limité à ${remaining.length} pays pour cette exécution.`);
