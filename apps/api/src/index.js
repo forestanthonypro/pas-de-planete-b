@@ -23,6 +23,7 @@ import charterRoutes from "./routes/charter.js";
 import futureIdeasRoutes from "./routes/futureIdeas.js";
 import petitionsRoutes from "./routes/petitions.js";
 import translateRoutes from "./routes/translate.js";
+import kitCommunicationRoutes from "./routes/kitCommunication.js";
 
 const app = express();
 
@@ -101,6 +102,7 @@ app.use(charterRoutes);
 app.use(futureIdeasRoutes);
 app.use(petitionsRoutes);
 app.use(translateRoutes);
+app.use(kitCommunicationRoutes);
 
 app.listen(port, () => {
   console.log(`API Pas de planète B à l'écoute sur le port ${port}`);
