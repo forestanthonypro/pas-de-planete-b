@@ -35,7 +35,8 @@
     "nav_country_summary": "Sintesi ambientale del mio paese + confronto",
     "mode_switch_to_expert": "Modalità esperto",
     "mode_switch_to_discovery": "Modalità scoperta",
-    "mode_switch_aria": "Passa dalla modalità scoperta alla modalità esperto"
+    "mode_switch_aria": "Passa dalla modalità scoperta alla modalità esperto",
+    "nav_kit": "Kit di comunicazione"
   },
   "home": {
     "intro": "Comprendere il cambiamento climatico, paese per paese, con dati aperti e verificati.",
@@ -1041,5 +1042,20 @@
     "section_progress": "Sezione {current} di {total}",
     "more_title": "Vuoi andare oltre?",
     "profiling_more_hint": "Vuoi andare oltre?"
+  },
+  "kit": {
+    "title": "Kit di comunicazione",
+    "subtitle": "Genera una scheda PDF di 2 pagine, pronta da stampare o condividere, con i dati aggiornati del paese scelto.",
+    "language_label": "Lingua del documento",
+    "generate_button": "Genera PDF",
+    "generating": "Generazione in corso...",
+    "generating_hint": "Qualche secondo — il documento viene ricalcolato ad ogni richiesta, con i dati più recenti.",
+    "error_generic": "La generazione non è riuscita. Riprova tra poco.",
+    "ready_intro": "La tua scheda {country} è pronta.",
+    "open_print": "Apri / stampa",
+    "download": "Scarica",
+    "copy_link": "Copia link di condivisione",
+    "copied": "Link copiato!",
+    "regenerate_hint": "Il link copiato rigenera sempre una versione aggiornata — nulla resta fisso nel tempo."
   }
 }

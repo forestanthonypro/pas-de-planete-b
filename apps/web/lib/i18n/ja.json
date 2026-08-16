@@ -35,7 +35,8 @@
     "nav_country_summary": "自国の環境サマリー + 比較",
     "mode_switch_to_expert": "エキスパートモード",
     "mode_switch_to_discovery": "はじめてモード",
-    "mode_switch_aria": "はじめてモードとエキスパートモードを切り替える"
+    "mode_switch_aria": "はじめてモードとエキスパートモードを切り替える",
+    "nav_kit": "コミュニケーションキット"
   },
   "home": {
     "intro": "オープンで検証済みのデータをもとに、国ごとに気候変動を理解する。",
@@ -1041,5 +1042,20 @@
     "section_progress": "セクション {current}/{total}",
     "more_title": "もっと知りたいですか？",
     "profiling_more_hint": "もっと知りたいですか？"
+  },
+  "kit": {
+    "title": "コミュニケーションキット",
+    "subtitle": "選んだ国の最新データを使った、印刷や共有にすぐ使える2ページのPDFを作成します。",
+    "language_label": "ドキュメントの言語",
+    "generate_button": "PDFを作成",
+    "generating": "作成中...",
+    "generating_hint": "数秒お待ちください — リクエストのたびに最新データで再計算されます。",
+    "error_generic": "作成に失敗しました。しばらくしてからもう一度お試しください。",
+    "ready_intro": "{country}の資料が準備できました。",
+    "open_print": "開く／印刷",
+    "download": "ダウンロード",
+    "copy_link": "共有リンクをコピー",
+    "copied": "リンクをコピーしました！",
+    "regenerate_hint": "コピーしたリンクは常に最新版を再生成します — 内容が古くなることはありません。"
   }
 }

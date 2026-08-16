@@ -35,7 +35,8 @@
     "nav_country_summary": "My country's environmental summary + comparison",
     "mode_switch_to_expert": "Expert mode",
     "mode_switch_to_discovery": "Discovery mode",
-    "mode_switch_aria": "Switch between discovery mode and expert mode"
+    "mode_switch_aria": "Switch between discovery mode and expert mode",
+    "nav_kit": "Communication kit"
   },
   "home": {
     "intro": "Understanding climate change, country by country, with open and sourced data.",
@@ -1041,5 +1042,20 @@
     "section_progress": "Section {current} of {total}",
     "more_title": "Want to go further?",
     "profiling_more_hint": "Want to go further?"
+  },
+  "kit": {
+    "title": "Communication kit",
+    "subtitle": "Generate a 2-page PDF, ready to print or share, with up-to-date data for the country of your choice.",
+    "language_label": "Document language",
+    "generate_button": "Generate PDF",
+    "generating": "Generating...",
+    "generating_hint": "A few seconds — the document is recalculated on every request, with the latest data.",
+    "error_generic": "Generation failed. Please try again shortly.",
+    "ready_intro": "Your {country} sheet is ready.",
+    "open_print": "Open / print",
+    "download": "Download",
+    "copy_link": "Copy share link",
+    "copied": "Link copied!",
+    "regenerate_hint": "The copied link always regenerates an up-to-date version — nothing is frozen in time."
   }
 }

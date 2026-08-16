@@ -198,6 +198,7 @@ export default function Layout({ children }) {
                 { href: "/?section=democratie", label: t("common.nav_democracy") },
                 { href: "/?section=sengager", label: t("common.nav_engage") },
                 { href: "/mes-votes", label: t("common.nav_myvotes") },
+                { href: "/kit-communication", label: t("common.nav_kit") },
               ].map((item) => (
                 <Link
                   key={item.href}

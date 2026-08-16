@@ -35,7 +35,8 @@
     "nav_country_summary": "我的国家环境摘要 + 对比",
     "mode_switch_to_expert": "专家模式",
     "mode_switch_to_discovery": "入门模式",
-    "mode_switch_aria": "在入门模式和专家模式之间切换"
+    "mode_switch_aria": "在入门模式和专家模式之间切换",
+    "nav_kit": "宣传资料包"
   },
   "home": {
     "intro": "通过开放且经过核实的数据，逐国了解气候变化。",
@@ -1041,5 +1042,20 @@
     "section_progress": "第 {current}/{total} 部分",
     "more_title": "想更进一步了解吗？",
     "profiling_more_hint": "想更进一步了解吗？"
+  },
+  "kit": {
+    "title": "宣传资料包",
+    "subtitle": "生成一份两页的PDF文件，随时可打印或分享，包含所选国家的最新数据。",
+    "language_label": "文档语言",
+    "generate_button": "生成PDF",
+    "generating": "生成中...",
+    "generating_hint": "只需几秒钟——每次请求都会用最新数据重新计算文档。",
+    "error_generic": "生成失败，请稍后重试。",
+    "ready_intro": "您的{country}资料已生成。",
+    "open_print": "打开／打印",
+    "download": "下载",
+    "copy_link": "复制分享链接",
+    "copied": "链接已复制！",
+    "regenerate_hint": "复制的链接每次都会重新生成最新版本——内容不会过时。"
   }
 }

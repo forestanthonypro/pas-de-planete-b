@@ -6,6 +6,7 @@ import { pool } from "../lib/db.js";
 import { errorDetail } from "../lib/errors.js";
 import { buildKitHtml } from "../lib/kitTemplate.js";
 import { getKitLabels } from "../lib/kitLabels.js";
+import { pdfGenerationLimiter } from "../lib/rateLimits.js";
 
 // Les tables du site stockent les noms de pays en anglais (langue de la
 // donnée source) — jamais ce qu'on veut montrer dans un document destiné à
@@ -354,7 +355,7 @@ async function getCountryKitData(country, lang) {
   };
 }
 
-router.get("/api/admin/kit-communication/country/:code", async (req, res) => {
+router.get("/api/kit-communication/country/:code", async (req, res) => {
   const country = req.params.code.toUpperCase();
   const lang = req.query.lang || "fr";
   try {
@@ -364,7 +365,7 @@ router.get("/api/admin/kit-communication/country/:code", async (req, res) => {
   }
 });
 
-router.get("/api/admin/kit-communication/pdf/:code", async (req, res) => {
+router.get("/api/kit-communication/pdf/:code", pdfGenerationLimiter, async (req, res) => {
   const country = req.params.code.toUpperCase();
   const lang = req.query.lang || "fr";
   let browser;

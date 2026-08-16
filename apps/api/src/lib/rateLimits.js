@@ -36,3 +36,15 @@ export const otpLimiter = rateLimit({
   legacyHeaders: false,
   message: { error: "Trop de tentatives. Réessaie dans quelques minutes." },
 });
+
+// Génération du kit de communication PDF : lance un navigateur Chromium
+// headless à chaque appel — bien plus coûteux en CPU/mémoire qu'une simple
+// lecture ou écriture en base. Limite volontairement stricte (une personne
+// qui télécharge quelques fiches pays d'affilée reste largement en dessous).
+export const pdfGenerationLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Trop de générations de PDF, réessaie dans quelques minutes." },
+});
