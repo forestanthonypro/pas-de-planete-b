@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/router";
 import Head from "next/head";
 import { useT } from "../lib/useT";
@@ -6,7 +6,7 @@ import { useCountriesList } from "../lib/useCountriesList";
 import { localizedCountryName } from "../lib/countryNames";
 import { detectDefaultCountry } from "../lib/detectCountry";
 import { useSobriety } from "../lib/SobrietyContext";
-import CountrySelect from "../components/CountrySelect";
+import SearchableSelect from "../components/SearchableSelect";
 import ShareButtons from "../components/ShareButtons";
 import { IconScroll } from "../components/icons";
 
@@ -40,6 +40,22 @@ export default function KitCommunicationPage() {
   const [errorMsg, setErrorMsg] = useState(null);
 
   const selectedCountryName = localizedCountryName(countryCode, locale);
+
+  // Même construction d'options que CountrySelect en interne — repris ici
+  // pour pouvoir appeler SearchableSelect directement avec
+  // mobileNative={true} (CountrySelect l'a codé en dur à false, ce qui
+  // impose le menu déroulant maison même sur mobile ; pour un outil proche
+  // d'un formulaire comme celui-ci, le vrai sélecteur natif du téléphone
+  // est plus fiable).
+  const countryCodes = useMemo(
+    () => countries.map((c) => (typeof c === "string" ? c : c.country_code)),
+    [countries]
+  );
+  const countryOptions = useMemo(() => {
+    return countryCodes
+      .map((code) => ({ value: code, label: localizedCountryName(code, locale) }))
+      .sort((a, b) => a.label.localeCompare(b.label, locale || "fr"));
+  }, [countryCodes, locale]);
 
   // Seule source de vérité pour l'état initial — pays/langue de l'URL en
   // priorité (lien partagé), sinon détection habituelle du site. Tout géré
@@ -162,7 +178,15 @@ export default function KitCommunicationPage() {
 
       <div style={{ ...cardStyle, marginBottom: "1.5rem" }}>
         <div style={{ marginBottom: "1.25rem" }}>
-          <CountrySelect countries={countries} value={countryCode} onChange={handleCountryChange} preferredLang={locale} />
+          <SearchableSelect
+            options={countryOptions}
+            value={countryCode}
+            onChange={handleCountryChange}
+            label={t("common.country_label")}
+            placeholder={t("common.country_search_placeholder")}
+            noResultsLabel={t("common.no_results")}
+            mobileNative={true}
+          />
         </div>
 
         <div>
