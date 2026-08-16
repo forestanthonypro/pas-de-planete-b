@@ -483,27 +483,29 @@ function ProfilingQuiz({ t }) {
         <p style={{ fontSize: 13, color: "var(--color-texte-clair)", margin: "0 0 6px" }}>{t("decouverte.profiling_result_title")}</p>
         <p style={{ fontSize: 15, color: "var(--color-texte)", margin: 0, lineHeight: 1.6 }}>{t(`decouverte.profiling_action_${actionKey}`)}</p>
       </div>
-      <Link
-        href="#plus-loin"
-        style={
-          sobriety
-            ? { display: "inline-block", color: "var(--color-forest)", fontWeight: 600, fontSize: 14, textDecoration: "underline", marginTop: 12 }
-            : { display: "inline-block", background: "var(--color-forest)", color: "white", padding: "10px 20px", borderRadius: 8, textDecoration: "none", fontWeight: 600, fontSize: 14, marginTop: 12 }
-        }
-      >
-        {t("decouverte.profiling_more_hint")} ↓
-      </Link>
-      <button
-        type="button"
-        onClick={reset}
-        style={
-          sobriety
-            ? { display: "block", marginTop: 10, background: "none", border: "none", padding: 0, fontSize: 13, cursor: "pointer", color: "var(--color-forest)", textDecoration: "underline" }
-            : { marginTop: 10, background: "none", border: "1.5px solid var(--color-forest)", borderRadius: 8, padding: "6px 14px", fontSize: 13, cursor: "pointer", color: "var(--color-forest)", fontWeight: 600 }
-        }
-      >
-        {t("decouverte.profiling_reset")}
-      </button>
+      <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 10, marginTop: 12 }}>
+        <Link
+          href="#plus-loin"
+          style={
+            sobriety
+              ? { display: "inline-block", color: "var(--color-forest)", fontWeight: 600, fontSize: 14, textDecoration: "underline" }
+              : { display: "inline-block", background: "var(--color-forest)", color: "white", padding: "10px 20px", borderRadius: 8, textDecoration: "none", fontWeight: 600, fontSize: 14 }
+          }
+        >
+          {t("decouverte.profiling_more_hint")} ↓
+        </Link>
+        <button
+          type="button"
+          onClick={reset}
+          style={
+            sobriety
+              ? { display: "block", background: "none", border: "none", padding: 0, fontSize: 13, cursor: "pointer", color: "var(--color-forest)", textDecoration: "underline" }
+              : { background: "none", border: "1.5px solid var(--color-forest)", borderRadius: 8, padding: "10px 20px", fontSize: 14, cursor: "pointer", color: "var(--color-forest)", fontWeight: 600 }
+          }
+        >
+          {t("decouverte.profiling_reset")}
+        </button>
+      </div>
     </div>
   );
 }
