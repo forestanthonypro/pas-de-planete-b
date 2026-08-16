@@ -637,19 +637,24 @@ function SectionProgressBar({ activeSection }) {
         padding: "10px 0",
       }}
     >
-      <div style={{ maxWidth: 700, margin: "0 auto", padding: "0 1.5rem", display: "flex", gap: 4 }}>
-        {Array.from({ length: TOTAL_SECTIONS }, (_, i) => i + 1).map((n) => (
-          <div
-            key={n}
-            style={{
-              flex: 1,
-              height: 4,
-              borderRadius: 2,
-              background: n <= activeSection ? "var(--color-forest)" : "var(--color-bordure)",
-              transition: "background 0.3s ease",
-            }}
-          />
-        ))}
+      <div style={{ maxWidth: 700, margin: "0 auto", padding: "0 1.5rem", display: "flex", alignItems: "center", gap: 10 }}>
+        <div style={{ flex: 1, display: "flex", gap: 5 }}>
+          {Array.from({ length: TOTAL_SECTIONS }, (_, i) => i + 1).map((n) => (
+            <div
+              key={n}
+              style={{
+                flex: 1,
+                height: 8,
+                borderRadius: 4,
+                background: n <= activeSection ? "var(--color-forest)" : "var(--color-bordure)",
+                transition: "background 0.3s ease",
+              }}
+            />
+          ))}
+        </div>
+        <span style={{ fontSize: 13, fontWeight: 600, color: "var(--color-texte-clair)", flexShrink: 0, minWidth: 32, textAlign: "right" }}>
+          {activeSection}/{TOTAL_SECTIONS}
+        </span>
       </div>
     </div>
   );
@@ -698,7 +703,29 @@ export default function DecouvertePage() {
       const el = document.getElementById(id);
       if (el) observer.observe(el);
     });
-    return () => observer.disconnect();
+
+    // Sentinelle dédiée en toute fin de page : la bande d'observation fine
+    // ci-dessus (rootMargin) peut "sortir" de la dernière rubrique avant
+    // que l'utilisateur ait vraiment atteint le bas — cas classique de
+    // cette technique quand la dernière rubrique est plus courte que le
+    // reste du défilement. Un second observateur dédié, avec une bande
+    // normale (pas réduite), force la dernière rubrique à 8/8 dès que le
+    // bas de page devient réellement visible.
+    const bottomObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) setActiveSection(TOTAL_SECTIONS);
+        });
+      },
+      { threshold: 0 }
+    );
+    const bottomEl = document.getElementById("decouverte-bottom-sentinel");
+    if (bottomEl) bottomObserver.observe(bottomEl);
+
+    return () => {
+      observer.disconnect();
+      bottomObserver.disconnect();
+    };
   }, []);
 
   const countries = useCountriesList("/api/co2/countries");
@@ -930,6 +957,7 @@ export default function DecouvertePage() {
           ))}
         </div>
       </section>
+      <div id="decouverte-bottom-sentinel" style={{ height: 1 }} />
     </div>
     </>
   );
