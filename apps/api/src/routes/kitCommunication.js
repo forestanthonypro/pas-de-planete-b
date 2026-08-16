@@ -5,7 +5,7 @@ import QRCode from "qrcode";
 import { pool } from "../lib/db.js";
 import { errorDetail } from "../lib/errors.js";
 import { buildKitHtml } from "../lib/kitTemplate.js";
-import { labelsFr } from "../lib/kitLabelsFr.js";
+import { getKitLabels } from "../lib/kitLabels.js";
 
 // Les tables du site stockent les noms de pays en anglais (langue de la
 // donnée source) — jamais ce qu'on veut montrer dans un document destiné à
@@ -232,15 +232,15 @@ function buildComparisonRow(labelKey, unit, decimals, franceValue, extremes) {
 // figée ici (pas de table dédiée) — à étendre si un pays a un mix
 // dominé par une filière absente de cette liste.
 const ENERGY_SOURCES = [
-  { key: "nuclear_twh", label: "Nucléaire", icon: "nuclear" },
-  { key: "hydro_twh", label: "Hydraulique", icon: "hydro" },
-  { key: "gas_twh", label: "Gaz", icon: "gas" },
-  { key: "coal_twh", label: "Charbon", icon: "coal" },
-  { key: "wind_twh", label: "Éolien", icon: "wind" },
-  { key: "solar_twh", label: "Solaire", icon: "solar" },
-  { key: "oil_twh", label: "Pétrole", icon: "oil" },
-  { key: "biofuel_twh", label: "Bioénergie", icon: "biofuel" },
-  { key: "other_renewable_twh", label: "Autres renouvelables", icon: "other" },
+  { key: "nuclear_twh", icon: "nuclear" },
+  { key: "hydro_twh", icon: "hydro" },
+  { key: "gas_twh", icon: "gas" },
+  { key: "coal_twh", icon: "coal" },
+  { key: "wind_twh", icon: "wind" },
+  { key: "solar_twh", icon: "solar" },
+  { key: "oil_twh", icon: "oil" },
+  { key: "biofuel_twh", icon: "biofuel" },
+  { key: "other_renewable_twh", icon: "other" },
 ];
 
 function computeTop3EnergySources(row) {
@@ -379,7 +379,7 @@ router.get("/api/admin/kit-communication/pdf/:code", async (req, res) => {
       width: 200,
     });
 
-    const html = buildKitHtml(data, data.countryName, labelsFr, qrCodeDataUrl);
+    const html = buildKitHtml(data, data.countryName, getKitLabels(lang), qrCodeDataUrl);
 
     browser = await chromium.launch({
       executablePath: process.env.CHROMIUM_PATH || undefined,

@@ -23,7 +23,7 @@ export const labelsFr = {
   page2TitleLine2: "Ce que le vivant nous dit.",
   page2Subtitle: "Six indicateurs, toujours avec leur repère mondial — jamais un chiffre isolé.",
   eauSubnote: "Prélevée à la source, pas nécessairement consommée — une partie retourne au milieu naturel après usage.",
-  legendFrance: (country) => `position de ${country}`,
+  legendFrance: (country) => `${country}`,
   legendWorld: "moyenne mondiale (simple repère, pas un objectif)",
   narrativeCaveat: "Certains écarts s'expliquent par la taille ou la richesse naturelle du pays, pas uniquement par ses choix — à lire dans cet esprit.",
   closingTitle: "Comprendre. Comparer. Agir.",
@@ -37,5 +37,17 @@ export const labelsFr = {
     foret: "Forêt perdue / an",
     pollution: "Pollution PM2.5",
     especes: "Espèces menacées",
+  },
+
+  energySources: {
+    nuclear: "Nucléaire",
+    hydro: "Hydraulique",
+    gas: "Gaz",
+    coal: "Charbon",
+    wind: "Éolien",
+    solar: "Solaire",
+    oil: "Pétrole",
+    biofuel: "Bioénergie",
+    other: "Autres renouvelables",
   },
 };

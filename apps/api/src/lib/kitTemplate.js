@@ -194,7 +194,7 @@ function renderEnergyCards(energyTop3, labels) {
       (s) => `
       <div class="energy-card ${ENERGY_TINT_CLASS[s.icon] || "gas"}">
         ${renderIcon(s.icon)}
-        <p class="en-name">${s.label}</p>
+        <p class="en-name">${labels.energySources[s.icon] || s.icon}</p>
         <p class="en-pct">${s.share !== null ? formatNumber(s.share, 0) + " %" : "—"}</p>
       </div>`
     )
