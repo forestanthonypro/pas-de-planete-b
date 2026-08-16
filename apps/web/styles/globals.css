@@ -58,6 +58,16 @@
   box-sizing: border-box;
 }
 
+/* Réserve toujours la place de la barre de défilement verticale, qu'elle
+   soit affichée ou non — sans ça, une page assez longue pour faire
+   apparaître la barre (ex. /kit-communication/[code], avec sa grande
+   iframe) dispose de quelques pixels de moins qu'une page courte sans
+   barre, suffisant pour faire basculer la nav du header sur deux lignes
+   uniquement sur certaines pages (repéré le 16 août 2026). */
+html {
+  scrollbar-gutter: stable;
+}
+
 /* Verrouillé uniquement sur body (pas html) : poser overflow-x:hidden sur
    les deux à la fois bloque, sur certains navigateurs mobiles (notamment
    iOS), tout défilement horizontal imbriqué — y compris celui, volontaire,

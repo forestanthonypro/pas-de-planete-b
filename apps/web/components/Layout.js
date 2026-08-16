@@ -75,8 +75,8 @@ export default function Layout({ children }) {
           alignItems: "center",
           justifyContent: "space-between",
           flexWrap: "wrap",
-          gap: "0.75rem",
-          padding: "0.85rem 1.5rem",
+          gap: "0.6rem",
+          padding: "0.85rem 1.25rem",
           borderBottom: "1px solid var(--color-bordure)",
           background: "var(--color-fond)",
         }}
@@ -198,7 +198,6 @@ export default function Layout({ children }) {
                 { href: "/?section=democratie", label: t("common.nav_democracy") },
                 { href: "/?section=sengager", label: t("common.nav_engage") },
                 { href: "/mes-votes", label: t("common.nav_myvotes") },
-                { href: "/kit-communication", label: t("common.nav_kit") },
               ].map((item) => (
                 <Link
                   key={item.href}
