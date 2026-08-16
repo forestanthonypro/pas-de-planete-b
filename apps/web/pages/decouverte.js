@@ -266,6 +266,29 @@ function resolveProfilingAction(domain, location, garden, ownership, effort) {
   return null;
 }
 
+function OptionButton({ onClick, children }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      style={{
+        textAlign: "left",
+        padding: "10px 14px",
+        background: "var(--color-carte)",
+        border: "1px solid var(--color-bordure)",
+        borderRadius: 8,
+        cursor: "pointer",
+        fontSize: 14,
+        color: "var(--color-texte)",
+        marginBottom: 6,
+        width: "100%",
+      }}
+    >
+      {children}
+    </button>
+  );
+}
+
 function ProfilingQuiz({ t }) {
   const [domain, setDomain] = useState(null);
   const [location, setLocation] = useState(null);
@@ -308,29 +331,6 @@ function ProfilingQuiz({ t }) {
     setGarden(null);
     setOwnership(null);
     setEffort(null);
-  }
-
-  function OptionButton({ onClick, children }) {
-    return (
-      <button
-        type="button"
-        onClick={onClick}
-        style={{
-          textAlign: "left",
-          padding: "10px 14px",
-          background: "var(--color-carte)",
-          border: "1px solid var(--color-bordure)",
-          borderRadius: 8,
-          cursor: "pointer",
-          fontSize: 14,
-          color: "var(--color-texte)",
-          marginBottom: 6,
-          width: "100%",
-        }}
-      >
-        {children}
-      </button>
-    );
   }
 
   const backLink = phase !== "domain" && (
