@@ -1056,6 +1056,9 @@
     "download": "下载",
     "copy_link": "复制分享链接",
     "copied": "链接已复制！",
-    "regenerate_hint": "复制的链接每次都会重新生成最新版本——内容不会过时。"
+    "regenerate_hint": "复制的链接每次都会重新生成最新版本——内容不会过时。",
+    "download_pdf_button": "下载PDF",
+    "always_fresh_hint": "每次访问本页面都会自动更新——绝不会是过时的版本。",
+    "view_web_version": "查看网页版"
   }
 }

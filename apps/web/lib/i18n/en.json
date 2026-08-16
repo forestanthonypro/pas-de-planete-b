@@ -1056,6 +1056,9 @@
     "download": "Download",
     "copy_link": "Copy share link",
     "copied": "Link copied!",
-    "regenerate_hint": "The copied link always regenerates an up-to-date version — nothing is frozen in time."
+    "regenerate_hint": "The copied link always regenerates an up-to-date version — nothing is frozen in time.",
+    "download_pdf_button": "Download as PDF",
+    "always_fresh_hint": "This page updates automatically on every visit — never a frozen version.",
+    "view_web_version": "View web version"
   }
 }

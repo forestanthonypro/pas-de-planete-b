@@ -446,4 +446,31 @@ router.get("/api/kit-communication/og-image/:code", pdfGenerationLimiter, async 
   }
 });
 
+// Version HTML brute du kit — la même que celle envoyée à Chromium pour
+// produire le PDF, mais renvoyée telle quelle (pas de conversion PDF, donc
+// pas de lancement de navigateur). C'est la route la plus légère des
+// trois : utilisée par la page web /kit-communication/[code], appelée à
+// chaque visite (getServerSideProps) pour rester toujours à jour.
+router.get("/api/kit-communication/html/:code", async (req, res) => {
+  const country = req.params.code.toUpperCase();
+  const lang = req.query.lang || "fr";
+  try {
+    const data = await getCountryKitData(country, lang);
+    const html = buildKitHtml(data, data.countryName, getKitLabels(lang));
+    // Cette route est volontairement affichée dans une <iframe> sur
+    // pasdeplaneteb.com (/kit-communication/[code]) — helmet() applique par
+    // défaut X-Frame-Options: SAMEORIGIN sur toute l'API, ce qui bloquerait
+    // cette iframe puisque api.pasdeplaneteb.com est une origine différente
+    // du point de vue du navigateur. On neutralise ça uniquement ici (pas
+    // touché ailleurs sur l'API) via frame-ancestors, la version moderne
+    // qui remplace X-Frame-Options.
+    res.removeHeader("X-Frame-Options");
+    res.set("Content-Security-Policy", "frame-ancestors 'self' https://pasdeplaneteb.com https://*.pasdeplaneteb.com");
+    res.set("Content-Type", "text/html; charset=utf-8");
+    res.send(html);
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
+  }
+});
+
 export default router;

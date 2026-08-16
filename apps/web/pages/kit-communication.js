@@ -70,7 +70,12 @@ export default function KitCommunicationPage() {
   // Lien à partager : la page elle-même (jolie URL, aperçu correct sur les
   // réseaux sociaux), jamais le PDF brut de l'API — un PDF binaire n'a pas
   // de titre/description/aperçu et ferait un lien peu engageant à partager.
-  const sharePageUrl = `${WEB_URL}/kit-communication?country=${countryCode}&lang=${docLang}`;
+  // Lien à partager : la nouvelle page de contenu /kit-communication/{code}
+  // (rendue côté serveur, toujours à jour), avec le vrai préfixe de langue
+  // Next.js (i18n natif : pas de préfixe pour le français, "/xx/" pour les
+  // 7 autres) — jamais cette page-sélecteur elle-même, ni le PDF brut.
+  const localePrefix = docLang === "fr" ? "" : `/${docLang}`;
+  const sharePageUrl = `${WEB_URL}${localePrefix}/kit-communication/${countryCode.toLowerCase()}`;
 
   function resetResult() {
     if (pdfBlobUrl) URL.revokeObjectURL(pdfBlobUrl);
@@ -230,6 +235,14 @@ export default function KitCommunicationPage() {
               }}
             >
               {t("kit.download")}
+            </a>
+            <a
+              href={sharePageUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ display: "inline-block", background: "none", border: "none", color: "var(--color-forest)", padding: "9px 4px", fontWeight: 600, fontSize: 14, textDecoration: "underline" }}
+            >
+              {t("kit.view_web_version")}
             </a>
           </div>
           <p

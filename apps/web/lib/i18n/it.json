@@ -1056,6 +1056,9 @@
     "download": "Scarica",
     "copy_link": "Copia link di condivisione",
     "copied": "Link copiato!",
-    "regenerate_hint": "Il link copiato rigenera sempre una versione aggiornata — nulla resta fisso nel tempo."
+    "regenerate_hint": "Il link copiato rigenera sempre una versione aggiornata — nulla resta fisso nel tempo.",
+    "download_pdf_button": "Scarica in PDF",
+    "always_fresh_hint": "Questa pagina si aggiorna automaticamente a ogni visita — mai una versione bloccata.",
+    "view_web_version": "Vedi versione web"
   }
 }
