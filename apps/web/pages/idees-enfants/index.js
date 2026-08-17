@@ -174,7 +174,7 @@ export default function FutureIdeasPage() {
         ) : (
           <form onSubmit={handleSuggestionSubmit}>
             <div aria-hidden="true" style={{ position: "absolute", left: "-9999px", top: "-9999px" }}>
-              <label htmlFor="website-future-idea">Laisser vide</label>
+              <label htmlFor="website-future-idea">{t("common.honeypot_label")}</label>
               <input id="website-future-idea" type="text" tabIndex={-1} autoComplete="off" value={website} onChange={(e) => setWebsite(e.target.value)} />
             </div>
             <textarea

@@ -479,7 +479,14 @@
     "claim_title": "L'affirmation",
     "published_on": "Publié le {date}",
     "updated_on": " · Mis à jour le {date}",
-    "propose_link": "Proposer une idée reçue à vérifier →"
+    "propose_link": "Proposer une idée reçue à vérifier →",
+    "submit_done": "Cette idée reçue a bien été transmise à la rédaction, qui vérifiera et rédigera la réponse avant publication.",
+    "proposer_title": "Proposer une idée reçue à vérifier",
+    "proposer_intro": "Une affirmation qui circule et mérite d'être vérifiée — c'est nous qui rédigeons la réponse, sourcée, avant toute publication. Pas besoin de l'écrire vous-même.",
+    "myth_label": "L'idée reçue, telle que vous l'avez entendue",
+    "source_url_label": "Où l'avez-vous vue/entendue ? (optionnel)",
+    "source_url_placeholder": "https://... (article, réseau social, vidéo...)",
+    "notes_label": "Contexte ou précisions (optionnel)"
   },
   "pays": {
     "change_country": "Changer de pays",
@@ -632,7 +639,14 @@
     "watch_source": "Voir la source originale →",
     "related_debunk": "À lire aussi (Débunk) :",
     "error_no_data": "Données indisponibles",
-    "propose_link": "Proposer un contenu →"
+    "propose_link": "Proposer un contenu →",
+    "submit_done": "Cette proposition a bien été transmise à la rédaction, qui rédigera un résumé avant publication.",
+    "proposer_title": "Proposer une interview, un article ou une vidéo",
+    "proposer_intro": "Un contenu scientifique intéressant à relayer — c'est nous qui rédigeons le résumé avant publication, jamais une reprise telle quelle de la source.",
+    "source_url_label": "Lien vers la source",
+    "suggested_title_label": "Titre suggéré (optionnel)",
+    "content_type_label": "Type de contenu",
+    "notes_label": "Contexte ou précisions (optionnel)"
   },
   "paysans": {
     "title": "On devient tous paysans",

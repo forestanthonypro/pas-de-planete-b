@@ -8,7 +8,7 @@ import { IconPlay } from "../../components/icons";
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 export default function ProposerInterview() {
-  const { locale } = useT();
+  const { t, locale } = useT();
   const [sourceUrl, setSourceUrl] = useState("");
   const [suggestedTitle, setSuggestedTitle] = useState("");
   const [contentType, setContentType] = useState("article");
@@ -44,10 +44,10 @@ export default function ProposerInterview() {
   if (status === "done") {
     return (
       <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 700, margin: "0 auto", textAlign: "center" }}>
-        <h2 style={{ fontSize: 20 }}>Merci !</h2>
-        <p>Cette proposition a bien été transmise à la rédaction, qui rédigera un résumé avant publication.</p>
+        <h2 style={{ fontSize: 20 }}>{t("common.thanks_title")}</h2>
+        <p>{t("interviews.submit_done")}</p>
         <p style={{ fontSize: 13 }}>
-          <Link href="/interviews">← Retour au relais scientifique</Link>
+          <Link href="/interviews">{t("interviews.back_to_list")}</Link>
         </p>
       </div>
     );
@@ -56,44 +56,43 @@ export default function ProposerInterview() {
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 700, margin: "0 auto" }}>
       <p style={{ fontSize: 13 }}>
-        <Link href="/interviews">← Retour au relais scientifique</Link>
+        <Link href="/interviews">{t("interviews.back_to_list")}</Link>
       </p>
-      <PageHeader Icon={IconPlay} tint="mauve" title="Proposer une interview, un article ou une vidéo">
+      <PageHeader Icon={IconPlay} tint="mauve" title={t("interviews.proposer_title")}>
         <p style={{ fontSize: 13, color: "var(--color-texte-clair)", margin: 0 }}>
-          Un contenu scientifique intéressant à relayer — c&apos;est nous qui rédigeons le résumé avant
-          publication, jamais une reprise telle quelle de la source.
+          {t("interviews.proposer_intro")}
         </p>
       </PageHeader>
 
       <form onSubmit={handleSubmit}>
         <div aria-hidden="true" style={{ position: "absolute", left: "-9999px", top: "-9999px" }}>
-          <label htmlFor="website-interview">Laisser vide</label>
+          <label htmlFor="website-interview">{t("common.honeypot_label")}</label>
           <input id="website-interview" type="text" tabIndex={-1} autoComplete="off" value={website} onChange={(e) => setWebsite(e.target.value)} />
         </div>
 
         {error && <p role="alert" style={{ color: "#d63e2a" }}>{error}</p>}
 
         <label style={{ display: "block", marginBottom: "0.75rem" }}>
-          <span style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>Lien vers la source</span>
+          <span style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>{t("interviews.source_url_label")}</span>
           <input type="url" required value={sourceUrl} onChange={(e) => setSourceUrl(e.target.value)} placeholder="https://..." style={{ width: "100%", padding: "8px 10px" }} />
         </label>
 
         <label style={{ display: "block", marginBottom: "0.75rem" }}>
-          <span style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>Titre suggéré (optionnel)</span>
+          <span style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>{t("interviews.suggested_title_label")}</span>
           <input type="text" value={suggestedTitle} onChange={(e) => setSuggestedTitle(e.target.value)} style={{ width: "100%", padding: "8px 10px" }} />
         </label>
 
         <label style={{ display: "block", marginBottom: "0.75rem" }}>
-          <span style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>Type de contenu</span>
+          <span style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>{t("interviews.content_type_label")}</span>
           <select value={contentType} onChange={(e) => setContentType(e.target.value)} style={{ width: "100%", padding: "8px 10px" }}>
-            <option value="article">Article</option>
-            <option value="video">Vidéo</option>
-            <option value="podcast">Podcast</option>
+            <option value="article">{t("interviews.type_article")}</option>
+            <option value="video">{t("interviews.type_video")}</option>
+            <option value="podcast">{t("interviews.type_podcast")}</option>
           </select>
         </label>
 
         <label style={{ display: "block", marginBottom: "0.75rem" }}>
-          <span style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>Contexte ou précisions (optionnel)</span>
+          <span style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>{t("interviews.notes_label")}</span>
           <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} style={{ width: "100%", padding: "8px 10px", fontFamily: "inherit" }} />
         </label>
 
@@ -102,18 +101,18 @@ export default function ProposerInterview() {
             value={scopeCodes}
             onChange={setScopeCodes}
             locale={locale}
-            label="Pays ou zone concernée (optionnel)"
-            placeholder="Rechercher un pays, un continent..."
+            label={t("common.scope_selector_label")}
+            placeholder={t("common.scope_selector_placeholder")}
           />
         </div>
 
         <label style={{ display: "block", marginBottom: "1rem" }}>
-          <span style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>Votre email (optionnel)</span>
-          <input type="email" value={submitterEmail} onChange={(e) => setSubmitterEmail(e.target.value)} placeholder="pour vous recontacter si besoin" style={{ width: "100%", padding: "8px 10px" }} />
+          <span style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>{t("common.optional_email_label")}</span>
+          <input type="email" value={submitterEmail} onChange={(e) => setSubmitterEmail(e.target.value)} placeholder={t("common.optional_email_placeholder")} style={{ width: "100%", padding: "8px 10px" }} />
         </label>
 
         <button type="submit" disabled={status === "sending" || !sourceUrl.trim()}>
-          {status === "sending" ? "Envoi..." : "Envoyer ma proposition"}
+          {status === "sending" ? t("common.sending") : t("common.send_proposal_button")}
         </button>
       </form>
     </div>

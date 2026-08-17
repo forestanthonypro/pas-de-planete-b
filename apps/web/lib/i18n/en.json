@@ -479,7 +479,14 @@
     "claim_title": "The claim",
     "published_on": "Published on {date}",
     "updated_on": " · Updated on {date}",
-    "propose_link": "Suggest a claim to check →"
+    "propose_link": "Suggest a claim to check →",
+    "submit_done": "This claim has been sent to our team, who will verify it and write the response before publishing.",
+    "proposer_title": "Suggest a claim to check",
+    "proposer_intro": "A claim that's circulating and deserves checking — we write the sourced response ourselves before any publication. No need to write it yourself.",
+    "myth_label": "The claim, as you heard it",
+    "source_url_label": "Where did you see/hear it? (optional)",
+    "source_url_placeholder": "https://... (article, social media, video...)",
+    "notes_label": "Context or details (optional)"
   },
   "pays": {
     "change_country": "Change country",
@@ -632,7 +639,14 @@
     "watch_source": "See the original source →",
     "related_debunk": "Also see (Debunk):",
     "error_no_data": "Data unavailable",
-    "propose_link": "Suggest content →"
+    "propose_link": "Suggest content →",
+    "submit_done": "This submission has been sent to our team, who will write a summary before publishing.",
+    "proposer_title": "Suggest an interview, article or video",
+    "proposer_intro": "Interesting science content worth relaying — we write the summary ourselves before publishing, never a direct copy of the source.",
+    "source_url_label": "Link to the source",
+    "suggested_title_label": "Suggested title (optional)",
+    "content_type_label": "Content type",
+    "notes_label": "Context or details (optional)"
   },
   "paysans": {
     "title": "We're all becoming farmers",

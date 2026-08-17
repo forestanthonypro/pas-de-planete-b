@@ -479,7 +479,14 @@
     "claim_title": "L'affermazione",
     "published_on": "Pubblicato il {date}",
     "updated_on": " · Aggiornato il {date}",
-    "propose_link": "Proponi un'idea da verificare →"
+    "propose_link": "Proponi un'idea da verificare →",
+    "submit_done": "Questa idea è stata inviata alla redazione, che la verificherà e scriverà la risposta prima della pubblicazione.",
+    "proposer_title": "Proponi un'idea da verificare",
+    "proposer_intro": "Un'affermazione che circola e merita di essere verificata — siamo noi a scrivere la risposta, con fonti, prima della pubblicazione. Non serve scriverla tu stesso.",
+    "myth_label": "L'idea, così come l'hai sentita",
+    "source_url_label": "Dove l'hai vista/sentita? (opzionale)",
+    "source_url_placeholder": "https://... (articolo, social media, video...)",
+    "notes_label": "Contesto o precisazioni (opzionale)"
   },
   "pays": {
     "change_country": "Cambia paese",
@@ -632,7 +639,14 @@
     "watch_source": "Vedi la fonte originale →",
     "related_debunk": "Leggi anche (Smentite):",
     "error_no_data": "Dati non disponibili",
-    "propose_link": "Proponi un contenuto →"
+    "propose_link": "Proponi un contenuto →",
+    "submit_done": "Questa proposta è stata inviata alla redazione, che scriverà un riassunto prima della pubblicazione.",
+    "proposer_title": "Proponi un'intervista, un articolo o un video",
+    "proposer_intro": "Un contenuto scientifico interessante da rilanciare — siamo noi a scrivere il riassunto prima della pubblicazione, mai una copia diretta della fonte.",
+    "source_url_label": "Link alla fonte",
+    "suggested_title_label": "Titolo suggerito (opzionale)",
+    "content_type_label": "Tipo di contenuto",
+    "notes_label": "Contesto o precisazioni (opzionale)"
   },
   "paysans": {
     "title": "Tutti contadini",

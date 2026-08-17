@@ -479,7 +479,14 @@
     "claim_title": "说法",
     "published_on": "发布日期：{date}",
     "updated_on": " · 更新日期：{date}",
-    "propose_link": "提议一个待核实的说法 →"
+    "propose_link": "提议一个待核实的说法 →",
+    "submit_done": "该说法已发送给编辑团队，他们将在发布前进行核实并撰写回应。",
+    "proposer_title": "提议一个待核实的说法",
+    "proposer_intro": "一个正在流传、值得核实的说法——由我们撰写附有来源的回应后再发布，您无需自己撰写。",
+    "myth_label": "您所听到的说法原文",
+    "source_url_label": "您在哪里看到/听到的？（可选）",
+    "source_url_placeholder": "https://...（文章、社交媒体、视频等）",
+    "notes_label": "背景信息或补充说明（可选）"
   },
   "pays": {
     "change_country": "更换国家",
@@ -632,7 +639,14 @@
     "watch_source": "查看原始来源 →",
     "related_debunk": "另请参阅（辟谣）：",
     "error_no_data": "数据不可用",
-    "propose_link": "提议内容 →"
+    "propose_link": "提议内容 →",
+    "submit_done": "该提议已发送给编辑团队，他们将在发布前撰写摘要。",
+    "proposer_title": "提议一段采访、文章或视频",
+    "proposer_intro": "值得传播的有趣科学内容——由我们在发布前撰写摘要，绝不会直接照搬原文。",
+    "source_url_label": "来源链接",
+    "suggested_title_label": "建议标题（可选）",
+    "content_type_label": "内容类型",
+    "notes_label": "背景信息或补充说明（可选）"
   },
   "paysans": {
     "title": "人人都是农民",

@@ -479,7 +479,14 @@
     "claim_title": "主張",
     "published_on": "公開日：{date}",
     "updated_on": " · 更新日：{date}",
-    "propose_link": "検証してほしい説を提案する →"
+    "propose_link": "検証してほしい説を提案する →",
+    "submit_done": "この情報は編集部に送られました。公開前に確認し、回答を作成いたします。",
+    "proposer_title": "検証してほしい説を提案する",
+    "proposer_intro": "広まっていて検証する価値のある主張 — 出典付きの回答は私たちが作成します。ご自身で書いていただく必要はありません。",
+    "myth_label": "聞いたままの内容",
+    "source_url_label": "どこで見聞きしましたか？（任意）",
+    "source_url_placeholder": "https://...（記事、SNS、動画など）",
+    "notes_label": "背景や詳細（任意）"
   },
   "pays": {
     "change_country": "国を変更",
@@ -632,7 +639,14 @@
     "watch_source": "元の出典を見る →",
     "related_debunk": "こちらもご覧ください（デバンク）：",
     "error_no_data": "データは利用できません",
-    "propose_link": "コンテンツを提案する →"
+    "propose_link": "コンテンツを提案する →",
+    "submit_done": "この提案は編集部に送られました。公開前に要約を作成いたします。",
+    "proposer_title": "インタビュー・記事・動画を提案する",
+    "proposer_intro": "広める価値のある興味深い科学コンテンツ — 出典をそのまま転載することはなく、公開前に私たちが要約を作成します。",
+    "source_url_label": "出典へのリンク",
+    "suggested_title_label": "提案タイトル（任意）",
+    "content_type_label": "コンテンツの種類",
+    "notes_label": "背景や詳細（任意）"
   },
   "paysans": {
     "title": "みんな農家になる",

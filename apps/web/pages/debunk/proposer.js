@@ -8,7 +8,7 @@ import { IconSearch } from "../../components/icons";
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 export default function ProposerDebunk() {
-  const { locale } = useT();
+  const { t, locale } = useT();
   const [myth, setMyth] = useState("");
   const [sourceUrl, setSourceUrl] = useState("");
   const [notes, setNotes] = useState("");
@@ -41,10 +41,10 @@ export default function ProposerDebunk() {
   if (status === "done") {
     return (
       <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 700, margin: "0 auto", textAlign: "center" }}>
-        <h2 style={{ fontSize: 20 }}>Merci !</h2>
-        <p>Cette idée reçue a bien été transmise à la rédaction, qui vérifiera et rédigera la réponse avant publication.</p>
+        <h2 style={{ fontSize: 20 }}>{t("common.thanks_title")}</h2>
+        <p>{t("debunk.submit_done")}</p>
         <p style={{ fontSize: 13 }}>
-          <Link href="/debunk">← Retour à Debunk</Link>
+          <Link href="/debunk">{t("debunk.back_to_list")}</Link>
         </p>
       </div>
     );
@@ -53,35 +53,34 @@ export default function ProposerDebunk() {
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 700, margin: "0 auto" }}>
       <p style={{ fontSize: 13 }}>
-        <Link href="/debunk">← Retour à Debunk</Link>
+        <Link href="/debunk">{t("debunk.back_to_list")}</Link>
       </p>
-      <PageHeader Icon={IconSearch} tint="teal" title="Proposer une idée reçue à vérifier">
+      <PageHeader Icon={IconSearch} tint="teal" title={t("debunk.proposer_title")}>
         <p style={{ fontSize: 13, color: "var(--color-texte-clair)", margin: 0 }}>
-          Une affirmation qui circule et mérite d&apos;être vérifiée — c&apos;est nous qui rédigeons la réponse,
-          sourcée, avant toute publication. Pas besoin de l&apos;écrire vous-même.
+          {t("debunk.proposer_intro")}
         </p>
       </PageHeader>
 
       <form onSubmit={handleSubmit}>
         <div aria-hidden="true" style={{ position: "absolute", left: "-9999px", top: "-9999px" }}>
-          <label htmlFor="website-debunk">Laisser vide</label>
+          <label htmlFor="website-debunk">{t("common.honeypot_label")}</label>
           <input id="website-debunk" type="text" tabIndex={-1} autoComplete="off" value={website} onChange={(e) => setWebsite(e.target.value)} />
         </div>
 
         {error && <p role="alert" style={{ color: "#d63e2a" }}>{error}</p>}
 
         <label style={{ display: "block", marginBottom: "0.75rem" }}>
-          <span style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>L&apos;idée reçue, telle que vous l&apos;avez entendue</span>
+          <span style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>{t("debunk.myth_label")}</span>
           <textarea required value={myth} onChange={(e) => setMyth(e.target.value)} rows={3} style={{ width: "100%", padding: "8px 10px", fontFamily: "inherit" }} />
         </label>
 
         <label style={{ display: "block", marginBottom: "0.75rem" }}>
-          <span style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>Où l&apos;avez-vous vue/entendue ? (optionnel)</span>
-          <input type="url" value={sourceUrl} onChange={(e) => setSourceUrl(e.target.value)} placeholder="https://... (article, réseau social, vidéo...)" style={{ width: "100%", padding: "8px 10px" }} />
+          <span style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>{t("debunk.source_url_label")}</span>
+          <input type="url" value={sourceUrl} onChange={(e) => setSourceUrl(e.target.value)} placeholder={t("debunk.source_url_placeholder")} style={{ width: "100%", padding: "8px 10px" }} />
         </label>
 
         <label style={{ display: "block", marginBottom: "0.75rem" }}>
-          <span style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>Contexte ou précisions (optionnel)</span>
+          <span style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>{t("debunk.notes_label")}</span>
           <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} style={{ width: "100%", padding: "8px 10px", fontFamily: "inherit" }} />
         </label>
 
@@ -90,18 +89,18 @@ export default function ProposerDebunk() {
             value={scopeCodes}
             onChange={setScopeCodes}
             locale={locale}
-            label="Pays ou zone concernée (optionnel)"
-            placeholder="Rechercher un pays, un continent..."
+            label={t("common.scope_selector_label")}
+            placeholder={t("common.scope_selector_placeholder")}
           />
         </div>
 
         <label style={{ display: "block", marginBottom: "1rem" }}>
-          <span style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>Votre email (optionnel)</span>
-          <input type="email" value={submitterEmail} onChange={(e) => setSubmitterEmail(e.target.value)} placeholder="pour vous recontacter si besoin" style={{ width: "100%", padding: "8px 10px" }} />
+          <span style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>{t("common.optional_email_label")}</span>
+          <input type="email" value={submitterEmail} onChange={(e) => setSubmitterEmail(e.target.value)} placeholder={t("common.optional_email_placeholder")} style={{ width: "100%", padding: "8px 10px" }} />
         </label>
 
         <button type="submit" disabled={status === "sending" || !myth.trim()}>
-          {status === "sending" ? "Envoi..." : "Envoyer ma proposition"}
+          {status === "sending" ? t("common.sending") : t("common.send_proposal_button")}
         </button>
       </form>
     </div>
