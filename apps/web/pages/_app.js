@@ -15,6 +15,17 @@ import Layout from "../components/Layout";
 // (déjà traduit dans les 8 langues) plutôt que d'ajouter du texte neuf.
 // Amélioration possible plus tard : un titre spécifique par page plutôt
 // qu'un seul titre générique partout.
+//
+// hreflang : le sitemap.xml (voir sitemap.xml.js) ne déclare le hreflang
+// que pour les pages "principales" (une trentaine) — pas les milliers de
+// pages dynamiques (chaque scrutin, chaque député) qui seraient bien trop
+// nombreuses pour un sitemap. Sans hreflang du tout, Google ne peut pas
+// distinguer ces pages profondes de simples doublons entre langues, et les
+// signale comme telles en Search Console (repéré le 16 août 2026 : 184
+// pages "en double sans URL canonique", ~150 échecs de validation
+// d'indexation, presque toutes des /scrutins/... et /deputes/... traduits).
+// Générer le hreflang ici, de façon centralisée pour TOUTE page du site,
+// couvre ces pages profondes sans avoir à toucher chaque fichier un par un.
 function DefaultHead({ router }) {
   const { t } = useT();
   // Les pages filtrées par section (/?section=democratie, etc.) sont vues
@@ -23,11 +34,31 @@ function DefaultHead({ router }) {
   // paramètres de requête (repéré via Search Console le 9 août 2026).
   const canonicalPath = router?.asPath?.split("?")[0]?.split("#")[0] || "/";
   const canonicalUrl = `https://pasdeplaneteb.com${canonicalPath}`;
+
+  const locales = router?.locales?.length ? router.locales : ["fr"];
+  const defaultLocale = router?.defaultLocale || "fr";
+  const currentLocale = router?.locale || defaultLocale;
+  const currentPrefix = currentLocale !== defaultLocale ? `/${currentLocale}` : "";
+  // Chemin "nu" — sans le préfixe de langue courant — pour pouvoir
+  // réappliquer le bon préfixe (ou aucun, pour le français) à chaque
+  // langue ci-dessous.
+  let barePath = currentPrefix && canonicalPath.startsWith(currentPrefix) ? canonicalPath.slice(currentPrefix.length) : canonicalPath;
+  if (barePath === "") barePath = "/";
+
+  function urlForLocale(locale) {
+    const p = barePath === "/" ? "" : barePath;
+    return locale === defaultLocale ? `https://pasdeplaneteb.com${p || "/"}` : `https://pasdeplaneteb.com/${locale}${p}`;
+  }
+
   return (
     <Head>
       <title>Pas de planète B</title>
       <meta name="description" content={t("home.intro")} />
       <link rel="canonical" href={canonicalUrl} />
+      {locales.map((loc) => (
+        <link key={loc} rel="alternate" hrefLang={loc} href={urlForLocale(loc)} />
+      ))}
+      <link rel="alternate" hrefLang="x-default" href={urlForLocale(defaultLocale)} />
     </Head>
   );
 }
