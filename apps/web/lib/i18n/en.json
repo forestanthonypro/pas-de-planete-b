@@ -934,7 +934,12 @@
     "source_latest_year": "— latest year covered: {year}",
     "source_last_updated": "· our database was last updated: {date}",
     "error_no_data": "Data unavailable for this country",
-    "chart_sobriety_disabled": "Charts disabled in low-data mode (avoids graphics rendering) — see the table below"
+    "chart_sobriety_disabled": "Charts disabled in low-data mode (avoids graphics rendering) — see the table below",
+    "hook_headline": "The climate has already changed — measured, not estimated.",
+    "chart_stripes_title_world": "World warming",
+    "deviation_stat_label": "Deviation from the {period} reference: {value} °C",
+    "show_more_details": "Show more details",
+    "show_simplified": "Back to simplified view"
   },
   "decouverte": {
     "hero_label": "average warming worldwide since 1991-2020",

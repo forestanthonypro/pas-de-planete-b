@@ -934,7 +934,12 @@
     "source_latest_year": "— カバーしている最新年：{year}",
     "source_last_updated": "・当サイトのデータベース最終更新：{date}",
     "error_no_data": "この国のデータはありません",
-    "chart_sobriety_disabled": "省エネモードではグラフを無効化しています（描画負荷を回避）— 下の表をご覧ください"
+    "chart_sobriety_disabled": "省エネモードではグラフを無効化しています（描画負荷を回避）— 下の表をご覧ください",
+    "hook_headline": "気候はすでに変化しています——推定ではなく実測データです。",
+    "chart_stripes_title_world": "世界の温暖化",
+    "deviation_stat_label": "基準期間（{period}）からの偏差：{value} °C",
+    "show_more_details": "詳細を見る",
+    "show_simplified": "簡易表示に戻る"
   },
   "decouverte": {
     "hero_label": "1991〜2020年基準からの世界平均の温暖化",

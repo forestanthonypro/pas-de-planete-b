@@ -637,6 +637,30 @@ router.get("/api/temperatures/countries", async (_req, res) => {
   }
 });
 
+// Moyenne mondiale année par année, calculée à la volée sur tous les pays
+// déjà couverts (pas une table à part, pas de matérialisation nécessaire —
+// le volume reste faible, une agrégation par année). Sert le warming
+// stripes mondial affiché par défaut sur /temperatures, avant même le
+// choix d'un pays précis. reference_period pris du premier pays trouvé :
+// tous les pays de ce site partagent la même période de référence (OMM,
+// 1991-2020), donc n'importe quelle ligne convient.
+router.get("/api/temperatures/world", async (_req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT year, AVG(deviation_from_reference_c)::float AS deviation_from_reference_c,
+              COUNT(DISTINCT country_code) AS country_count,
+              (ARRAY_AGG(reference_period))[1] AS reference_period
+       FROM country_temperatures
+       WHERE deviation_from_reference_c IS NOT NULL
+       GROUP BY year
+       ORDER BY year`
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
+  }
+});
+
 router.get("/api/temperatures/:country", async (req, res) => {
   const { country } = req.params;
   try {

@@ -934,7 +934,12 @@
     "source_latest_year": "— último año cubierto: {year}",
     "source_last_updated": "· última actualización de nuestra base de datos: {date}",
     "error_no_data": "Datos no disponibles para este país",
-    "chart_sobriety_disabled": "Gráficos desactivados en modo sobrio (evita el renderizado gráfico) — ver la tabla a continuación"
+    "chart_sobriety_disabled": "Gráficos desactivados en modo sobrio (evita el renderizado gráfico) — ver la tabla a continuación",
+    "hook_headline": "El clima ya ha cambiado — medido, no estimado.",
+    "chart_stripes_title_world": "Calentamiento mundial",
+    "deviation_stat_label": "Desviación respecto a la referencia {period}: {value} °C",
+    "show_more_details": "Ver más detalles",
+    "show_simplified": "Volver a la vista simplificada"
   },
   "decouverte": {
     "hero_label": "de calentamiento medio en el mundo desde 1991-2020",

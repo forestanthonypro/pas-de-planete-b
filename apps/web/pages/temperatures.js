@@ -49,6 +49,14 @@ export default function TemperaturesPage() {
   );
   const [view, setView] = useState("chart"); // "chart" ou "table"
   const [page, setPage] = useState(1);
+  // Vue simplifiée par défaut : masque le graphique vagues de chaleur/froid,
+  // le détail méthodologique et le tableau, pour un premier contact rapide
+  // plutôt qu'une exploration complète — le detail reste à un clic (bouton
+  // "Voir plus de détails"). Repensé après un constat : la page d'origine
+  // montrait tout d'un coup, plus proche d'un outil d'exploration pour
+  // public déjà convaincu que d'un outil pensé pour convaincre vite un
+  // novice sceptique.
+  const [simplified, setSimplified] = useState(true);
 
   useEffect(() => {
     if (sobriety) setView("table");
@@ -62,6 +70,8 @@ export default function TemperaturesPage() {
   const stripesChartRef = useRef(null);
   const wavesCanvasRef = useRef(null);
   const wavesChartRef = useRef(null);
+  const worldStripesCanvasRef = useRef(null);
+  const worldStripesChartRef = useRef(null);
 
   const { data: tempData, loading, error } = useApiFetch(
     countryCode ? `/api/temperatures/${countryCode}` : null,
@@ -72,6 +82,69 @@ export default function TemperaturesPage() {
     }
   );
   const data = tempData ?? [];
+
+  // Moyenne mondiale — affichée par défaut, avant même le choix d'un pays,
+  // pour donner un point de repère immédiat quel que soit le pays détecté
+  // automatiquement. Chargée une seule fois (pas de dépendance à
+  // countryCode), indépendante du pays affiché juste en dessous.
+  const { data: worldTempData, loading: worldLoading } = useApiFetch("/api/temperatures/world", {
+    transform: (rows) => (Array.isArray(rows) ? rows : []),
+  });
+  const worldData = worldTempData ?? [];
+  const worldLatest = worldData.length > 0 ? [...worldData].reverse().find((d) => d.deviation_from_reference_c !== null) : null;
+
+  // Warming stripes mondial — affiché en premier, indépendant du pays.
+  useEffect(() => {
+    if (worldLoading || worldData.length === 0 || !worldStripesCanvasRef.current) return;
+    let cancelled = false;
+    import("../lib/chartSetup").then(({ default: Chart }) => {
+      if (cancelled || !worldStripesCanvasRef.current) return;
+      if (worldStripesChartRef.current) worldStripesChartRef.current.destroy();
+
+      worldStripesChartRef.current = new Chart(worldStripesCanvasRef.current, {
+        type: "bar",
+        data: {
+          labels: worldData.map((d) => d.year),
+          datasets: [
+            {
+              label: t("temperatures.chart_stripes_title_world"),
+              data: worldData.map(() => 1),
+              backgroundColor: worldData.map((d) => stripeColor(d.deviation_from_reference_c)),
+              borderWidth: 0,
+              categoryPercentage: 1.0,
+              barPercentage: 1.0,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: { grid: { display: false }, ticks: { maxRotation: 0, autoSkip: true } },
+            y: { display: false },
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => {
+                  const d = worldData[ctx.dataIndex];
+                  const dev = d.deviation_from_reference_c;
+                  return dev === null || dev === undefined
+                    ? t("temperatures.tooltip_no_deviation")
+                    : `${dev > 0 ? "+" : ""}${dev.toFixed(2)}°C`;
+                },
+              },
+            },
+          },
+        },
+      });
+    });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [worldData, worldLoading, locale]);
 
   // Warming stripes.
   useEffect(() => {
@@ -128,7 +201,7 @@ export default function TemperaturesPage() {
 
   // Vagues de chaleur / de froid.
   useEffect(() => {
-    if (view !== "chart" || loading || error || data.length === 0 || !wavesCanvasRef.current) return;
+    if (simplified || view !== "chart" || loading || error || data.length === 0 || !wavesCanvasRef.current) return;
     let cancelled = false;
     import("../lib/chartSetup").then(({ default: Chart }) => {
       if (cancelled || !wavesCanvasRef.current) return;
@@ -166,21 +239,49 @@ export default function TemperaturesPage() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data, loading, error, view, locale]);
+  }, [data, loading, error, view, locale, simplified]);
 
   const referencePeriod = data.length > 0 ? data[data.length - 1].reference_period : null;
+  const worldReferencePeriod = worldLatest?.reference_period || referencePeriod || "1991-2020";
+  const countryLatest = data.length > 0 ? [...data].reverse().find((d) => d.deviation_from_reference_c !== null) : null;
 
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 800, margin: "0 auto" }}>
-      <PageHeader Icon={IconThermometer} tint="teal" title={`${t("temperatures.title")} — ${selectedCountryName}`} />
+      <PageHeader Icon={IconThermometer} tint="teal" title={t("temperatures.title")} />
+
+      {/* Accroche + repère mondial — toujours visible, avant même le choix
+          d'un pays, pour donner un point d'entrée immédiat plutôt que
+          d'obliger à choisir un pays avant de voir quoi que ce soit
+          (le pays par défaut est de toute façon déjà détecté automatiquement
+          juste en dessous, mais ce repère mondial reste vrai quel qu'il soit). */}
+      <p style={{ fontSize: 17, fontWeight: 600, color: "var(--color-texte)", marginBottom: 4 }}>
+        {t("temperatures.hook_headline")}
+      </p>
+      <h3 style={{ fontSize: 15, marginBottom: 4 }}>{t("temperatures.chart_stripes_title_world")}</h3>
+      {!worldLoading && worldLatest && (
+        <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginBottom: 8 }}>
+          {t("temperatures.deviation_stat_label", {
+            value: `${worldLatest.deviation_from_reference_c > 0 ? "+" : ""}${worldLatest.deviation_from_reference_c.toFixed(2)}`,
+            period: worldReferencePeriod,
+          })}
+        </p>
+      )}
+      {!worldLoading && worldData.length > 0 && (
+        <div style={{ position: "relative", height: 70, marginBottom: "1.5rem" }}>
+          <canvas ref={worldStripesCanvasRef} role="img" aria-label={t("temperatures.chart_stripes_title_world")} />
+        </div>
+      )}
+
       <ShareButtons title={`${t("temperatures.title")} — ${selectedCountryName}`} />
 
       <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem", flexWrap: "wrap" }}>
         <CountrySelect countries={countries} value={countryCode} onChange={setCountryCode} preferredLang={locale} />
-        <button type="button" onClick={() => setView(view === "chart" ? "table" : "chart")} disabled={sobriety}>
-          {view === "chart" ? t("common.view_as_table") : t("common.view_as_chart")}
-        </button>
-        {sobriety && (
+        {!simplified && (
+          <button type="button" onClick={() => setView(view === "chart" ? "table" : "chart")} disabled={sobriety}>
+            {view === "chart" ? t("common.view_as_table") : t("common.view_as_chart")}
+          </button>
+        )}
+        {sobriety && !simplified && (
           <span style={{ fontSize: 12, color: "var(--color-texte-clair)", alignSelf: "center" }}>
             {t("temperatures.chart_sobriety_disabled")}
           </span>
@@ -194,20 +295,38 @@ export default function TemperaturesPage() {
         </p>
       )}
 
-      <h2 style={{ fontSize: 18, marginBottom: "0.25rem" }}>{t("temperatures.what_shows_title")}</h2>
-      <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginBottom: "0.75rem" }}>
-        {t("temperatures.explain_stripes", { period: referencePeriod || "1991-2020" })}
-      </p>
-      <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginBottom: "0.75rem" }}>
-        {t("temperatures.explain_waves")}
-      </p>
-      <p style={{ fontSize: 13, color: "var(--color-texte-clair)", fontWeight: 600, marginBottom: "0.75rem" }}>
-        {t("temperatures.explain_point")}
-      </p>
-
-      {!loading && !error && view === "chart" && data.length > 0 && (
+      {simplified ? (
+        <p style={{ fontSize: 13, color: "var(--color-texte-clair)", fontWeight: 600, marginBottom: "0.75rem" }}>
+          {t("temperatures.explain_point")}
+        </p>
+      ) : (
         <>
-          <h3 style={{ fontSize: 15, marginBottom: 4 }}>{t("temperatures.chart_stripes_title")}</h3>
+          <h2 style={{ fontSize: 18, marginBottom: "0.25rem" }}>{t("temperatures.what_shows_title")}</h2>
+          <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginBottom: "0.75rem" }}>
+            {t("temperatures.explain_stripes", { period: referencePeriod || "1991-2020" })}
+          </p>
+          <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginBottom: "0.75rem" }}>
+            {t("temperatures.explain_waves")}
+          </p>
+          <p style={{ fontSize: 13, color: "var(--color-texte-clair)", fontWeight: 600, marginBottom: "0.75rem" }}>
+            {t("temperatures.explain_point")}
+          </p>
+        </>
+      )}
+
+      {!loading && !error && data.length > 0 && (view === "chart" || simplified) && (
+        <>
+          <h3 style={{ fontSize: 15, marginBottom: 4 }}>
+            {t("temperatures.chart_stripes_title")} — {selectedCountryName}
+          </h3>
+          {countryLatest && (
+            <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginBottom: 6 }}>
+              {t("temperatures.deviation_stat_label", {
+                value: `${countryLatest.deviation_from_reference_c > 0 ? "+" : ""}${countryLatest.deviation_from_reference_c.toFixed(2)}`,
+                period: referencePeriod || "1991-2020",
+              })}
+            </p>
+          )}
           <div style={{ position: "relative", height: 140, marginBottom: "1.5rem" }}>
             <canvas
               ref={stripesCanvasRef}
@@ -216,18 +335,28 @@ export default function TemperaturesPage() {
             />
           </div>
 
-          <h3 style={{ fontSize: 15, marginBottom: 4 }}>{t("temperatures.chart_waves_title")}</h3>
-          <div style={{ position: "relative", height: 260, marginBottom: "1rem" }}>
-            <canvas
-              ref={wavesCanvasRef}
-              role="img"
-              aria-label={`${t("temperatures.chart_waves_title")} — ${selectedCountryName}`}
-            />
-          </div>
+          {!simplified && (
+            <>
+              <h3 style={{ fontSize: 15, marginBottom: 4 }}>{t("temperatures.chart_waves_title")}</h3>
+              <div style={{ position: "relative", height: 260, marginBottom: "1rem" }}>
+                <canvas
+                  ref={wavesCanvasRef}
+                  role="img"
+                  aria-label={`${t("temperatures.chart_waves_title")} — ${selectedCountryName}`}
+                />
+              </div>
+            </>
+          )}
         </>
       )}
 
-      {!loading && !error && view === "table" && data.length > 0 && (() => {
+      <p style={{ marginBottom: "1rem" }}>
+        <button type="button" onClick={() => setSimplified((s) => !s)} style={{ fontSize: 13, background: "none", border: "1px solid var(--color-bordure)", borderRadius: 20, padding: "6px 14px", cursor: "pointer", color: "var(--color-texte)" }}>
+          {simplified ? t("temperatures.show_more_details") : t("temperatures.show_simplified")}
+        </button>
+      </p>
+
+      {!simplified && !loading && !error && view === "table" && data.length > 0 && (() => {
         const totalPages = Math.max(1, Math.ceil(data.length / PAGE_SIZE));
         const pageItems = data.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
         return (
@@ -272,12 +401,14 @@ export default function TemperaturesPage() {
         );
       })()}
 
-      <details style={{ marginBottom: "1rem", fontSize: 13, color: "var(--color-texte-clair)" }}>
-        <summary style={{ cursor: "pointer" }}>{t("temperatures.details_summary")}</summary>
-        <p style={{ marginTop: 8 }}>{t("temperatures.details_p1")}</p>
-        <p>{t("temperatures.details_p2")}</p>
-        <p>{t("temperatures.details_p3")}</p>
-      </details>
+      {!simplified && (
+        <details style={{ marginBottom: "1rem", fontSize: 13, color: "var(--color-texte-clair)" }}>
+          <summary style={{ cursor: "pointer" }}>{t("temperatures.details_summary")}</summary>
+          <p style={{ marginTop: 8 }}>{t("temperatures.details_p1")}</p>
+          <p>{t("temperatures.details_p2")}</p>
+          <p>{t("temperatures.details_p3")}</p>
+        </details>
+      )}
 
       <p style={{ fontSize: 12, color: "var(--color-texte-clair)" }}>
         {t("temperatures.source")}

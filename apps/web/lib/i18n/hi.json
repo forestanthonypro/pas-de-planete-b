@@ -934,7 +934,12 @@
     "source_latest_year": "— अंतिम शामिल वर्ष: {year}",
     "source_last_updated": "· हमारे डेटाबेस का अंतिम अपडेट: {date}",
     "error_no_data": "इस देश के लिए डेटा उपलब्ध नहीं है",
-    "chart_sobriety_disabled": "सोबरायटी मोड में चार्ट अक्षम हैं (ग्राफिक रेंडरिंग से बचने के लिए) — नीचे तालिका देखें"
+    "chart_sobriety_disabled": "सोबरायटी मोड में चार्ट अक्षम हैं (ग्राफिक रेंडरिंग से बचने के लिए) — नीचे तालिका देखें",
+    "hook_headline": "जलवायु पहले ही बदल चुकी है — मापा गया, अनुमानित नहीं।",
+    "chart_stripes_title_world": "विश्व तापमान वृद्धि",
+    "deviation_stat_label": "{period} संदर्भ से अंतर: {value} °C",
+    "show_more_details": "अधिक विवरण देखें",
+    "show_simplified": "सरल दृश्य पर वापस जाएं"
   },
   "decouverte": {
     "hero_label": "1991-2020 के बाद से दुनिया भर में औसत वार्मिंग",

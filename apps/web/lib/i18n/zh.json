@@ -934,7 +934,12 @@
     "source_latest_year": "——覆盖的最新年份：{year}",
     "source_last_updated": "· 我们数据库的最近更新时间：{date}",
     "error_no_data": "该国家暂无数据",
-    "chart_sobriety_disabled": "精简模式下已禁用图表（避免图形渲染）——请查看下方表格"
+    "chart_sobriety_disabled": "精简模式下已禁用图表（避免图形渲染）——请查看下方表格",
+    "hook_headline": "气候已经发生变化——这是实测数据，而非估算。",
+    "chart_stripes_title_world": "全球变暖",
+    "deviation_stat_label": "与{period}基准期的偏差：{value} °C",
+    "show_more_details": "查看更多详情",
+    "show_simplified": "返回简化视图"
   },
   "decouverte": {
     "hero_label": "自1991-2020年以来的全球平均变暖幅度",
