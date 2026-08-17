@@ -38,7 +38,17 @@
     "mode_switch_aria": "Switch between discovery mode and expert mode",
     "nav_kit": "Communication kit",
     "filter_by_scope": "Filter by country / region",
-    "footer_contact": "Contact"
+    "footer_contact": "Contact",
+    "optional_email_label": "Your email (optional)",
+    "optional_email_placeholder": "so we can contact you if needed",
+    "optional_message_label": "A message for us? (optional)",
+    "optional_message_placeholder": "Context, details...",
+    "scope_selector_label": "Country or area concerned (optional)",
+    "scope_selector_placeholder": "Search a country, a continent...",
+    "sending": "Sending...",
+    "send_proposal_button": "Send my submission",
+    "honeypot_label": "Leave blank",
+    "thanks_title": "Thank you!"
   },
   "home": {
     "intro": "Understanding climate change, country by country, with open and sourced data.",
@@ -660,7 +670,31 @@
     "table_category": "Category",
     "table_address": "Address",
     "table_links": "Links",
-    "propose_link": "Suggest a resource →"
+    "propose_link": "Suggest a resource →",
+    "back_to_list": "← Back to resources",
+    "proposer_title": "Suggest a resource",
+    "proposer_intro": "A place near you, or a useful online platform — we review it before publishing.",
+    "proposer_tab_location": "A place",
+    "proposer_tab_online": "An online resource",
+    "location_submit_done": "This place has been received and will be reviewed before appearing on the map.",
+    "online_submit_done": "This resource has been received and will be reviewed before publishing.",
+    "name_label": "Place name",
+    "description_label": "Description",
+    "address_label": "Address (optional)",
+    "latitude_label": "Latitude",
+    "longitude_label": "Longitude",
+    "latitude_placeholder": "e.g. 45.1885",
+    "longitude_placeholder": "e.g. 5.7245",
+    "coords_hint_prefix": "Tip: find the coordinates on",
+    "coords_hint_suffix": "(right-click on the place → \"Show address\").",
+    "category_label": "Category (optional)",
+    "category_none": "— None —",
+    "links_label": "Links (optional)",
+    "link_label_placeholder": "Label (e.g. Website)",
+    "remove_link_button": "Remove",
+    "add_link_button": "+ Add a link",
+    "title_label": "Title",
+    "url_label": "URL"
   },
   "petitions": {
     "title": "Petitions",
@@ -673,7 +707,16 @@
     "view_link": "View →",
     "no_ongoing": "No ongoing petitions published yet.",
     "no_closed": "No closed petitions published yet.",
-    "error_no_data": "Couldn't load petitions right now — try again in a moment."
+    "error_no_data": "Couldn't load petitions right now — try again in a moment.",
+    "back_to_list": "← Back to petitions",
+    "proposer_title": "Suggest a petition",
+    "proposer_intro": "An ongoing or completed petition worth knowing about — we review it before publishing.",
+    "title_label": "Title",
+    "description_label": "Description",
+    "petition_url_label": "Link to the petition",
+    "source_name_label": "Platform (optional)",
+    "source_name_placeholder": "e.g. Change.org, Mes Opinions...",
+    "submit_done": "This petition has been received and will be reviewed before publishing."
   },
   "charter": {
     "title": "Ethical charter",
@@ -1074,5 +1117,17 @@
     "download_pdf_button": "Download as PDF",
     "always_fresh_hint": "This page updates automatically on every visit — never a frozen version.",
     "view_web_version": "View web version"
+  },
+  "contact": {
+    "title": "Contact us",
+    "intro": "A question, a comment, a partnership idea? Write to us directly.",
+    "name_label": "Your name (optional)",
+    "email_label": "Your email",
+    "email_placeholder": "so we can reply",
+    "subject_label": "Subject (optional)",
+    "message_label": "Your message",
+    "send_button": "Send",
+    "done_message": "Your message has been sent — we'll reply as soon as possible.",
+    "back_home": "← Back to home"
   }
 }

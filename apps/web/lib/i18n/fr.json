@@ -38,7 +38,17 @@
     "mode_switch_aria": "Basculer entre le mode découverte et le mode expert",
     "nav_kit": "Kit communication",
     "filter_by_scope": "Filtrer par pays / zone",
-    "footer_contact": "Contact"
+    "footer_contact": "Contact",
+    "optional_email_label": "Votre email (optionnel)",
+    "optional_email_placeholder": "pour vous recontacter si besoin",
+    "optional_message_label": "Un message pour nous ? (optionnel)",
+    "optional_message_placeholder": "Contexte, précisions...",
+    "scope_selector_label": "Pays ou zone concernée (optionnel)",
+    "scope_selector_placeholder": "Rechercher un pays, un continent...",
+    "sending": "Envoi...",
+    "send_proposal_button": "Envoyer ma proposition",
+    "honeypot_label": "Laisser vide",
+    "thanks_title": "Merci !"
   },
   "home": {
     "intro": "Comprendre le changement climatique, pays par pays, avec des données ouvertes et sourcées.",
@@ -660,7 +670,31 @@
     "table_category": "Catégorie",
     "table_address": "Adresse",
     "table_links": "Liens",
-    "propose_link": "Proposer une ressource →"
+    "propose_link": "Proposer une ressource →",
+    "back_to_list": "← Retour aux ressources",
+    "proposer_title": "Proposer une ressource",
+    "proposer_intro": "Un lieu près de chez toi, ou une plateforme en ligne utile — nous la relisons avant publication.",
+    "proposer_tab_location": "Un lieu",
+    "proposer_tab_online": "Une ressource en ligne",
+    "location_submit_done": "Ce lieu a bien été reçu et sera examiné avant publication sur la carte.",
+    "online_submit_done": "Cette ressource a bien été reçue et sera examinée avant publication.",
+    "name_label": "Nom du lieu",
+    "description_label": "Description",
+    "address_label": "Adresse (optionnel)",
+    "latitude_label": "Latitude",
+    "longitude_label": "Longitude",
+    "latitude_placeholder": "ex : 45.1885",
+    "longitude_placeholder": "ex : 5.7245",
+    "coords_hint_prefix": "Astuce : trouve les coordonnées sur",
+    "coords_hint_suffix": "(clic droit sur le lieu → « Afficher l'adresse »).",
+    "category_label": "Catégorie (optionnel)",
+    "category_none": "— Aucune —",
+    "links_label": "Liens (optionnel)",
+    "link_label_placeholder": "Libellé (ex : Site web)",
+    "remove_link_button": "Retirer",
+    "add_link_button": "+ Ajouter un lien",
+    "title_label": "Titre",
+    "url_label": "URL"
   },
   "petitions": {
     "title": "Pétitions",
@@ -673,7 +707,16 @@
     "view_link": "Voir →",
     "no_ongoing": "Aucune pétition en cours publiée pour l'instant.",
     "no_closed": "Aucune pétition clôturée publiée pour l'instant.",
-    "error_no_data": "Impossible de charger les pétitions pour l'instant — réessaie dans un instant."
+    "error_no_data": "Impossible de charger les pétitions pour l'instant — réessaie dans un instant.",
+    "back_to_list": "← Retour aux pétitions",
+    "proposer_title": "Proposer une pétition",
+    "proposer_intro": "Une pétition en cours ou déjà aboutie qui mérite d'être connue — nous la relisons avant publication.",
+    "title_label": "Titre",
+    "description_label": "Description",
+    "petition_url_label": "Lien vers la pétition",
+    "source_name_label": "Plateforme (optionnel)",
+    "source_name_placeholder": "ex : Change.org, Mes Opinions...",
+    "submit_done": "Cette pétition a bien été reçue et sera examinée avant publication."
   },
   "charter": {
     "title": "Charte éthique",
@@ -1074,5 +1117,17 @@
     "download_pdf_button": "Télécharger en PDF",
     "always_fresh_hint": "Cette page se met à jour automatiquement à chaque visite — jamais de version figée.",
     "view_web_version": "Voir la version web"
+  },
+  "contact": {
+    "title": "Contactez-nous",
+    "intro": "Une question, une remarque, un partenariat ? Écrivez-nous directement.",
+    "name_label": "Votre nom (optionnel)",
+    "email_label": "Votre email",
+    "email_placeholder": "pour vous répondre",
+    "subject_label": "Sujet (optionnel)",
+    "message_label": "Votre message",
+    "send_button": "Envoyer",
+    "done_message": "Votre message a bien été envoyé, nous vous répondrons dès que possible.",
+    "back_home": "← Retour à l'accueil"
   }
 }

@@ -38,7 +38,17 @@
     "mode_switch_aria": "はじめてモードとエキスパートモードを切り替える",
     "nav_kit": "コミュニケーションキット",
     "filter_by_scope": "国・地域で絞り込む",
-    "footer_contact": "お問い合わせ"
+    "footer_contact": "お問い合わせ",
+    "optional_email_label": "メールアドレス（任意）",
+    "optional_email_placeholder": "必要な場合にご連絡するため",
+    "optional_message_label": "メッセージ（任意）",
+    "optional_message_placeholder": "背景・詳細など",
+    "scope_selector_label": "関係する国・地域（任意）",
+    "scope_selector_placeholder": "国、大陸を検索...",
+    "sending": "送信中...",
+    "send_proposal_button": "提案を送信する",
+    "honeypot_label": "空欄のままにしてください",
+    "thanks_title": "ありがとうございます！"
   },
   "home": {
     "intro": "オープンで検証済みのデータをもとに、国ごとに気候変動を理解する。",
@@ -660,7 +670,31 @@
     "table_category": "カテゴリー",
     "table_address": "住所",
     "table_links": "リンク",
-    "propose_link": "リソースを提案する →"
+    "propose_link": "リソースを提案する →",
+    "back_to_list": "← リソース一覧に戻る",
+    "proposer_title": "リソースを提案する",
+    "proposer_intro": "お近くの場所、または役立つオンラインプラットフォーム — 公開前に確認します。",
+    "proposer_tab_location": "場所",
+    "proposer_tab_online": "オンラインリソース",
+    "location_submit_done": "この場所を受け付けました。地図に掲載される前に確認いたします。",
+    "online_submit_done": "このリソースを受け付けました。公開前に確認いたします。",
+    "name_label": "場所の名前",
+    "description_label": "説明",
+    "address_label": "住所（任意）",
+    "latitude_label": "緯度",
+    "longitude_label": "経度",
+    "latitude_placeholder": "例：45.1885",
+    "longitude_placeholder": "例：5.7245",
+    "coords_hint_prefix": "ヒント：座標はこちらで確認できます：",
+    "coords_hint_suffix": "（場所を右クリック →「住所を表示」）。",
+    "category_label": "カテゴリー（任意）",
+    "category_none": "— なし —",
+    "links_label": "リンク（任意）",
+    "link_label_placeholder": "ラベル（例：ウェブサイト）",
+    "remove_link_button": "削除",
+    "add_link_button": "+ リンクを追加",
+    "title_label": "タイトル",
+    "url_label": "URL"
   },
   "petitions": {
     "title": "署名活動",
@@ -673,7 +707,16 @@
     "view_link": "見る →",
     "no_ongoing": "現在公開されている進行中の署名活動はありません。",
     "no_closed": "現在公開されている終了した署名活動はありません。",
-    "error_no_data": "現在、署名活動を読み込めません — しばらくしてから再度お試しください。"
+    "error_no_data": "現在、署名活動を読み込めません — しばらくしてから再度お試しください。",
+    "back_to_list": "← 署名活動一覧に戻る",
+    "proposer_title": "署名活動を提案する",
+    "proposer_intro": "進行中または既に達成された、知ってもらう価値のある署名活動 — 公開前に確認します。",
+    "title_label": "タイトル",
+    "description_label": "説明",
+    "petition_url_label": "署名活動へのリンク",
+    "source_name_label": "プラットフォーム（任意）",
+    "source_name_placeholder": "例：Change.org、Mes Opinions...",
+    "submit_done": "この署名活動を受け付けました。公開前に確認いたします。"
   },
   "charter": {
     "title": "倫理憲章",
@@ -1074,5 +1117,17 @@
     "download_pdf_button": "PDFをダウンロード",
     "always_fresh_hint": "このページは訪問のたびに自動的に更新されます — 古い情報のまま固定されることはありません。",
     "view_web_version": "ウェブ版を見る"
+  },
+  "contact": {
+    "title": "お問い合わせ",
+    "intro": "ご質問、ご意見、提携のご相談など、お気軽にご連絡ください。",
+    "name_label": "お名前（任意）",
+    "email_label": "メールアドレス",
+    "email_placeholder": "返信のために使用します",
+    "subject_label": "件名（任意）",
+    "message_label": "メッセージ",
+    "send_button": "送信",
+    "done_message": "メッセージを送信しました。できるだけ早くご返信いたします。",
+    "back_home": "← ホームに戻る"
   }
 }

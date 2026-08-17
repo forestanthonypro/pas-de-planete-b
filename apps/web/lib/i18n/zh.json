@@ -38,7 +38,17 @@
     "mode_switch_aria": "在入门模式和专家模式之间切换",
     "nav_kit": "宣传资料包",
     "filter_by_scope": "按国家/地区筛选",
-    "footer_contact": "联系我们"
+    "footer_contact": "联系我们",
+    "optional_email_label": "您的邮箱（可选）",
+    "optional_email_placeholder": "如需联系您时使用",
+    "optional_message_label": "给我们的留言？（可选）",
+    "optional_message_placeholder": "背景信息、补充说明...",
+    "scope_selector_label": "相关国家或地区（可选）",
+    "scope_selector_placeholder": "搜索国家、大洲...",
+    "sending": "发送中...",
+    "send_proposal_button": "发送我的提议",
+    "honeypot_label": "请留空",
+    "thanks_title": "谢谢！"
   },
   "home": {
     "intro": "通过开放且经过核实的数据，逐国了解气候变化。",
@@ -660,7 +670,31 @@
     "table_category": "类别",
     "table_address": "地址",
     "table_links": "链接",
-    "propose_link": "推荐资源 →"
+    "propose_link": "推荐资源 →",
+    "back_to_list": "← 返回资源列表",
+    "proposer_title": "提议一项资源",
+    "proposer_intro": "您附近的一个地点，或一个有用的在线平台——发布前我们会先审核。",
+    "proposer_tab_location": "一个地点",
+    "proposer_tab_online": "一个在线资源",
+    "location_submit_done": "该地点已收到，将在显示于地图前进行审核。",
+    "online_submit_done": "该资源已收到，将在发布前进行审核。",
+    "name_label": "地点名称",
+    "description_label": "描述",
+    "address_label": "地址（可选）",
+    "latitude_label": "纬度",
+    "longitude_label": "经度",
+    "latitude_placeholder": "例如：45.1885",
+    "longitude_placeholder": "例如：5.7245",
+    "coords_hint_prefix": "提示：在以下网站查找坐标：",
+    "coords_hint_suffix": "（右键点击该地点 →「显示地址」）。",
+    "category_label": "类别（可选）",
+    "category_none": "— 无 —",
+    "links_label": "链接（可选）",
+    "link_label_placeholder": "标签（例如：网站）",
+    "remove_link_button": "移除",
+    "add_link_button": "+ 添加链接",
+    "title_label": "标题",
+    "url_label": "URL"
   },
   "petitions": {
     "title": "请愿活动",
@@ -673,7 +707,16 @@
     "view_link": "查看 →",
     "no_ongoing": "目前暂无已发布的进行中请愿活动。",
     "no_closed": "目前暂无已发布的已结束请愿活动。",
-    "error_no_data": "暂时无法加载请愿活动——请稍后再试。"
+    "error_no_data": "暂时无法加载请愿活动——请稍后再试。",
+    "back_to_list": "← 返回请愿列表",
+    "proposer_title": "提议一项请愿",
+    "proposer_intro": "值得关注的进行中或已完成的请愿——发布前我们会先审核。",
+    "title_label": "标题",
+    "description_label": "描述",
+    "petition_url_label": "请愿链接",
+    "source_name_label": "平台（可选）",
+    "source_name_placeholder": "例如：Change.org、Mes Opinions...",
+    "submit_done": "该请愿已收到，将在发布前进行审核。"
   },
   "charter": {
     "title": "道德宪章",
@@ -1074,5 +1117,17 @@
     "download_pdf_button": "下载PDF",
     "always_fresh_hint": "每次访问本页面都会自动更新——绝不会是过时的版本。",
     "view_web_version": "查看网页版"
+  },
+  "contact": {
+    "title": "联系我们",
+    "intro": "有问题、建议或合作意向？请直接给我们留言。",
+    "name_label": "您的姓名（可选）",
+    "email_label": "您的邮箱",
+    "email_placeholder": "以便回复您",
+    "subject_label": "主题（可选）",
+    "message_label": "您的留言",
+    "send_button": "发送",
+    "done_message": "您的留言已成功发送，我们会尽快回复。",
+    "back_home": "← 返回首页"
   }
 }

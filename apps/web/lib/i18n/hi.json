@@ -38,7 +38,17 @@
     "mode_switch_aria": "परिचय मोड और विशेषज्ञ मोड के बीच स्विच करें",
     "nav_kit": "संचार किट",
     "filter_by_scope": "देश / क्षेत्र के अनुसार फ़िल्टर करें",
-    "footer_contact": "संपर्क करें"
+    "footer_contact": "संपर्क करें",
+    "optional_email_label": "आपका ईमेल (वैकल्पिक)",
+    "optional_email_placeholder": "ज़रूरत पड़ने पर संपर्क करने के लिए",
+    "optional_message_label": "हमारे लिए कोई संदेश? (वैकल्पिक)",
+    "optional_message_placeholder": "संदर्भ, विवरण...",
+    "scope_selector_label": "संबंधित देश या क्षेत्र (वैकल्पिक)",
+    "scope_selector_placeholder": "देश, महाद्वीप खोजें...",
+    "sending": "भेजा जा रहा है...",
+    "send_proposal_button": "अपना प्रस्ताव भेजें",
+    "honeypot_label": "खाली छोड़ें",
+    "thanks_title": "धन्यवाद!"
   },
   "home": {
     "intro": "खुले और सत्यापित डेटा के साथ, देश दर देश जलवायु परिवर्तन को समझना।",
@@ -660,7 +670,31 @@
     "table_category": "श्रेणी",
     "table_address": "पता",
     "table_links": "लिंक",
-    "propose_link": "संसाधन सुझाएं →"
+    "propose_link": "संसाधन सुझाएं →",
+    "back_to_list": "← संसाधनों पर वापस जाएं",
+    "proposer_title": "एक संसाधन सुझाएं",
+    "proposer_intro": "आपके पास का कोई स्थान, या एक उपयोगी ऑनलाइन मंच — प्रकाशन से पहले हम इसकी समीक्षा करते हैं।",
+    "proposer_tab_location": "एक स्थान",
+    "proposer_tab_online": "एक ऑनलाइन संसाधन",
+    "location_submit_done": "यह स्थान प्राप्त हो गया है और मानचित्र पर दिखने से पहले इसकी समीक्षा की जाएगी।",
+    "online_submit_done": "यह संसाधन प्राप्त हो गया है और प्रकाशन से पहले इसकी समीक्षा की जाएगी।",
+    "name_label": "स्थान का नाम",
+    "description_label": "विवरण",
+    "address_label": "पता (वैकल्पिक)",
+    "latitude_label": "अक्षांश",
+    "longitude_label": "देशांतर",
+    "latitude_placeholder": "जैसे: 45.1885",
+    "longitude_placeholder": "जैसे: 5.7245",
+    "coords_hint_prefix": "सुझाव: निर्देशांक यहां खोजें:",
+    "coords_hint_suffix": "(स्थान पर राइट-क्लिक करें → \"पता दिखाएं\")।",
+    "category_label": "श्रेणी (वैकल्पिक)",
+    "category_none": "— कोई नहीं —",
+    "links_label": "लिंक (वैकल्पिक)",
+    "link_label_placeholder": "लेबल (जैसे: वेबसाइट)",
+    "remove_link_button": "हटाएं",
+    "add_link_button": "+ एक लिंक जोड़ें",
+    "title_label": "शीर्षक",
+    "url_label": "URL"
   },
   "petitions": {
     "title": "याचिकाएं",
@@ -673,7 +707,16 @@
     "view_link": "देखें →",
     "no_ongoing": "फिलहाल कोई चल रही याचिका प्रकाशित नहीं हुई है।",
     "no_closed": "फिलहाल कोई समाप्त याचिका प्रकाशित नहीं हुई है।",
-    "error_no_data": "फिलहाल याचिकाएं लोड नहीं हो सकीं — कृपया थोड़ी देर बाद पुनः प्रयास करें।"
+    "error_no_data": "फिलहाल याचिकाएं लोड नहीं हो सकीं — कृपया थोड़ी देर बाद पुनः प्रयास करें।",
+    "back_to_list": "← याचिकाओं पर वापस जाएं",
+    "proposer_title": "एक याचिका सुझाएं",
+    "proposer_intro": "एक चल रही या पहले ही पूरी हो चुकी याचिका जिसके बारे में जानना ज़रूरी है — प्रकाशन से पहले हम इसकी समीक्षा करते हैं।",
+    "title_label": "शीर्षक",
+    "description_label": "विवरण",
+    "petition_url_label": "याचिका का लिंक",
+    "source_name_label": "प्लेटफ़ॉर्म (वैकल्पिक)",
+    "source_name_placeholder": "जैसे: Change.org, Mes Opinions...",
+    "submit_done": "यह याचिका प्राप्त हो गई है और प्रकाशन से पहले इसकी समीक्षा की जाएगी।"
   },
   "charter": {
     "title": "नैतिक चार्टर",
@@ -1074,5 +1117,17 @@
     "download_pdf_button": "PDF डाउनलोड करें",
     "always_fresh_hint": "यह पृष्ठ हर बार देखने पर स्वतः अपडेट होता है — कभी पुराना संस्करण नहीं।",
     "view_web_version": "वेब संस्करण देखें"
+  },
+  "contact": {
+    "title": "हमसे संपर्क करें",
+    "intro": "कोई सवाल, सुझाव या साझेदारी का विचार? सीधे हमें लिखें।",
+    "name_label": "आपका नाम (वैकल्पिक)",
+    "email_label": "आपका ईमेल",
+    "email_placeholder": "ताकि हम आपको जवाब दे सकें",
+    "subject_label": "विषय (वैकल्पिक)",
+    "message_label": "आपका संदेश",
+    "send_button": "भेजें",
+    "done_message": "आपका संदेश भेज दिया गया है, हम जल्द से जल्द जवाब देंगे।",
+    "back_home": "← होम पर वापस जाएं"
   }
 }
