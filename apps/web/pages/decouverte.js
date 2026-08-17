@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import dynamic from "next/dynamic";
 import { useT } from "../lib/useT";
 import { localeTag } from "../lib/dateLocale";
 import { useSobriety } from "../lib/SobrietyContext";
@@ -10,22 +9,6 @@ import { localizedCountryName } from "../lib/countryNames";
 import { detectDefaultCountry } from "../lib/detectCountry";
 import CountrySelect from "../components/CountrySelect";
 import { IconCloud, IconBolt, IconDroplet, IconTree, IconPaw, IconSmog, IconThermometer, IconSearch, IconPlay, IconLandmark, IconScroll, IconCheck, IconScale, IconUsers, IconLeaf, IconHome, IconBulb } from "../components/icons";
-
-// Chargés en différé (chunk JS séparé, téléchargé seulement quand le
-// composant est effectivement rendu) — ce sont les deux plus gros
-// composants de la page, tous deux des widgets interactifs en bas de
-// page, jamais nécessaires pour le premier affichage. Allège le paquet
-// JS principal exécuté au chargement (repéré via Lighthouse le 16 août
-// 2026 : ~42 Ko de JS propre à /decouverte, ProfilingQuiz et RankingQuiz
-// à eux seuls en représentant l'essentiel).
-const ProfilingQuiz = dynamic(() => import("../components/ProfilingQuiz"), {
-  loading: () => <p style={{ fontSize: 14, color: "var(--color-texte-clair)" }}>…</p>,
-  ssr: false,
-});
-const RankingQuiz = dynamic(() => import("../components/RankingQuiz"), {
-  loading: () => <p style={{ fontSize: 14, color: "var(--color-texte-clair)" }}>…</p>,
-  ssr: false,
-});
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 const VERDICT_COLORS = { faux: "#d63e2a", trompeur: "#f4b400", confirme: "#1baf7a" };
@@ -315,6 +298,212 @@ function ComparisonCard({ theme, nameA, nameB, valueA, valueB, t, locale }) {
 //
 // Construite section par section (voir les commentaires ci-dessous) plutôt
 // que d'un bloc — chaque section est testée et livrée séparément.
+const PROFILING_DOMAINS = ["deplacements", "alimentation", "logement", "consommation"];
+const PROFILING_EFFORTS = ["petit", "changement", "projet"];
+
+function resolveProfilingAction(domain, location, garden, ownership, effort) {
+  if (domain === "deplacements") return `deplacements_${location}_${effort}`;
+  if (domain === "alimentation") return `alimentation_${effort}`;
+  if (domain === "consommation") return `consommation_${effort}`;
+  if (domain === "logement") {
+    if (effort === "petit") return "logement_petit";
+    if (effort === "changement") return `logement_changement_${garden === "oui" ? "jardin" : "sansjardin"}`;
+    return `logement_projet_${ownership}`;
+  }
+  return null;
+}
+
+function OptionButton({ onClick, children }) {
+  const { sobriety } = useSobriety();
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      style={
+        sobriety
+          ? {
+              textAlign: "left",
+              padding: "8px 0",
+              background: "none",
+              border: "none",
+              borderBottom: "1px solid var(--color-bordure)",
+              cursor: "pointer",
+              fontSize: 14,
+              color: "var(--color-forest)",
+              textDecoration: "underline",
+              marginBottom: 0,
+              width: "100%",
+            }
+          : {
+              textAlign: "left",
+              padding: "10px 14px",
+              background: "var(--color-carte)",
+              border: "1px solid var(--color-bordure)",
+              borderRadius: 8,
+              cursor: "pointer",
+              fontSize: 14,
+              color: "var(--color-texte)",
+              marginBottom: 6,
+              width: "100%",
+            }
+      }
+    >
+      {children}
+    </button>
+  );
+}
+
+function ProfilingQuiz({ t }) {
+  const { sobriety } = useSobriety();
+  const [domain, setDomain] = useState(null);
+  const [location, setLocation] = useState(null);
+  const [garden, setGarden] = useState(null);
+  const [ownership, setOwnership] = useState(null);
+  const [effort, setEffort] = useState(null);
+
+  const conditionalDone =
+    domain === "alimentation" || domain === "consommation"
+      ? true
+      : domain === "deplacements"
+        ? location !== null
+        : domain === "logement"
+          ? garden !== null && ownership !== null
+          : false;
+
+  let phase = "domain";
+  if (domain && !conditionalDone) {
+    if (domain === "deplacements") phase = "location";
+    else if (domain === "logement") phase = garden === null ? "garden" : "ownership";
+  } else if (domain && conditionalDone && !effort) {
+    phase = "effort";
+  } else if (domain && conditionalDone && effort) {
+    phase = "result";
+  }
+
+  function goBack() {
+    if (phase === "location" || phase === "garden") setDomain(null);
+    else if (phase === "ownership") setGarden(null);
+    else if (phase === "effort") {
+      if (domain === "deplacements") setLocation(null);
+      else if (domain === "logement") setOwnership(null);
+      else setDomain(null);
+    } else if (phase === "result") setEffort(null);
+  }
+
+  function reset() {
+    setDomain(null);
+    setLocation(null);
+    setGarden(null);
+    setOwnership(null);
+    setEffort(null);
+  }
+
+  const backLink = phase !== "domain" && (
+    <button
+      type="button"
+      onClick={goBack}
+      style={{ background: "none", border: "none", padding: 0, fontSize: 12, color: "var(--color-texte-clair)", cursor: "pointer", marginBottom: 8 }}
+    >
+      {t("decouverte.profiling_back")}
+    </button>
+  );
+
+  if (phase === "domain") {
+    return (
+      <div>
+        <p style={{ fontSize: 14, fontWeight: 600, color: "var(--color-texte)", marginBottom: 10 }}>{t("decouverte.profiling_q_domain")}</p>
+        {PROFILING_DOMAINS.map((d) => (
+          <OptionButton key={d} onClick={() => setDomain(d)}>
+            {t(`decouverte.profiling_domain_${d}`)}
+          </OptionButton>
+        ))}
+      </div>
+    );
+  }
+
+  if (phase === "location") {
+    return (
+      <div>
+        {backLink}
+        <p style={{ fontSize: 14, fontWeight: 600, color: "var(--color-texte)", marginBottom: 10 }}>{t("decouverte.profiling_q_location")}</p>
+        <OptionButton onClick={() => setLocation("ville")}>{t("decouverte.profiling_location_ville")}</OptionButton>
+        <OptionButton onClick={() => setLocation("campagne")}>{t("decouverte.profiling_location_campagne")}</OptionButton>
+      </div>
+    );
+  }
+
+  if (phase === "garden") {
+    return (
+      <div>
+        {backLink}
+        <p style={{ fontSize: 14, fontWeight: 600, color: "var(--color-texte)", marginBottom: 10 }}>{t("decouverte.profiling_q_garden")}</p>
+        <OptionButton onClick={() => setGarden("oui")}>{t("decouverte.profiling_garden_oui")}</OptionButton>
+        <OptionButton onClick={() => setGarden("non")}>{t("decouverte.profiling_garden_non")}</OptionButton>
+      </div>
+    );
+  }
+
+  if (phase === "ownership") {
+    return (
+      <div>
+        {backLink}
+        <p style={{ fontSize: 14, fontWeight: 600, color: "var(--color-texte)", marginBottom: 10 }}>{t("decouverte.profiling_q_ownership")}</p>
+        <OptionButton onClick={() => setOwnership("locataire")}>{t("decouverte.profiling_ownership_locataire")}</OptionButton>
+        <OptionButton onClick={() => setOwnership("proprietaire")}>{t("decouverte.profiling_ownership_proprietaire")}</OptionButton>
+      </div>
+    );
+  }
+
+  if (phase === "effort") {
+    return (
+      <div>
+        {backLink}
+        <p style={{ fontSize: 14, fontWeight: 600, color: "var(--color-texte)", marginBottom: 10 }}>{t("decouverte.profiling_q_effort")}</p>
+        {PROFILING_EFFORTS.map((e) => (
+          <OptionButton key={e} onClick={() => setEffort(e)}>
+            {t(`decouverte.profiling_effort_${e}`)}
+          </OptionButton>
+        ))}
+      </div>
+    );
+  }
+
+  // phase === "result"
+  const actionKey = resolveProfilingAction(domain, location, garden, ownership, effort);
+  return (
+    <div>
+      {backLink}
+      <div style={sobriety ? { padding: "0.75rem 0", borderBottom: "1px solid var(--color-bordure)" } : { background: "var(--color-carte-verte, #eaf3de)", borderRadius: 12, padding: "1.25rem" }}>
+        <p style={{ fontSize: 13, color: "var(--color-texte-clair)", margin: "0 0 6px" }}>{t("decouverte.profiling_result_title")}</p>
+        <p style={{ fontSize: 15, color: "var(--color-texte)", margin: 0, lineHeight: 1.6 }}>{t(`decouverte.profiling_action_${actionKey}`)}</p>
+      </div>
+      <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 10, marginTop: 12 }}>
+        <Link
+          href="#plus-loin"
+          style={
+            sobriety
+              ? { display: "inline-block", color: "var(--color-forest)", fontWeight: 600, fontSize: 14, textDecoration: "underline" }
+              : { display: "inline-block", background: "var(--color-forest)", color: "white", padding: "10px 20px", borderRadius: 8, textDecoration: "none", fontWeight: 600, fontSize: 14 }
+          }
+        >
+          {t("decouverte.profiling_more_hint")} ↓
+        </Link>
+        <button
+          type="button"
+          onClick={reset}
+          style={
+            sobriety
+              ? { display: "block", background: "none", border: "none", padding: 0, fontSize: 13, cursor: "pointer", color: "var(--color-forest)", textDecoration: "underline" }
+              : { background: "none", border: "1.5px solid var(--color-forest)", borderRadius: 8, padding: "10px 20px", fontSize: 14, cursor: "pointer", color: "var(--color-forest)", fontWeight: 600 }
+          }
+        >
+          {t("decouverte.profiling_reset")}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 const ENGAGER_TINTS = {
   teal: { bg: "#dcf2ee", color: "#0f6e56" },
   mauve: { bg: "#ece5f2", color: "#5c3d7a" },
@@ -366,6 +555,188 @@ function extractYoutubeId(url) {
   if (!url) return null;
   const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/);
   return match ? match[1] : null;
+}
+
+const RANKING_ITEMS = [
+  { key: "avion", rank: 1 },
+  { key: "voiture", rank: 2 },
+  { key: "boeuf", rank: 3 },
+  { key: "streaming", rank: 4 },
+];
+
+function shuffle(arr) {
+  const copy = [...arr];
+  for (let i = copy.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
+function RankingQuiz({ t }) {
+  const { sobriety } = useSobriety();
+  // Ordre stable (non mélangé) au premier rendu — identique sur le serveur
+  // et sur le client, donc pas de décalage d'hydratation. Le mélange
+  // n'intervient qu'après le montage, exclusivement côté client : voir
+  // le commit qui a corrigé l'erreur d'hydratation React #418 (16 août
+  // 2026) pour le détail du raisonnement.
+  const [shuffled, setShuffled] = useState(RANKING_ITEMS);
+  useEffect(() => {
+    setShuffled(shuffle(RANKING_ITEMS));
+  }, []);
+  const [userOrder, setUserOrder] = useState([]);
+  const [revealed, setRevealed] = useState(false);
+
+  function pick(item) {
+    if (revealed || userOrder.includes(item.key)) return;
+    const next = [...userOrder, item.key];
+    setUserOrder(next);
+    if (next.length === RANKING_ITEMS.length) setRevealed(true);
+  }
+
+  function unpick(key) {
+    setUserOrder((prev) => prev.filter((k) => k !== key));
+  }
+
+  function reset() {
+    setUserOrder([]);
+    setRevealed(false);
+  }
+
+  const remaining = shuffled.filter((item) => !userOrder.includes(item.key));
+
+  return (
+    <div>
+      {!revealed && (
+        <>
+          <p style={{ fontSize: 14, color: "var(--color-texte-clair)", marginBottom: 10 }}>
+            {t("decouverte.ranking_intro")}
+          </p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: userOrder.length ? 16 : 0 }}>
+            {remaining.map((item) => (
+              <button
+                key={item.key}
+                type="button"
+                onClick={() => pick(item)}
+                style={
+                  sobriety
+                    ? {
+                        textAlign: "left",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 10,
+                        padding: "8px 0",
+                        background: "none",
+                        border: "none",
+                        borderBottom: "1px solid var(--color-bordure)",
+                        cursor: "pointer",
+                        fontSize: 14,
+                        color: "var(--color-forest)",
+                        textDecoration: "underline",
+                      }
+                    : {
+                        textAlign: "left",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 10,
+                        padding: "10px 14px",
+                        background: "var(--color-carte)",
+                        border: "1px solid var(--color-bordure)",
+                        borderRadius: 8,
+                        cursor: "pointer",
+                        fontSize: 14,
+                        color: "var(--color-texte)",
+                      }
+                }
+              >
+                {t(`decouverte.ranking_item_${item.key}`)}
+              </button>
+            ))}
+          </div>
+          {userOrder.length > 0 && (
+            <>
+              <p style={{ fontSize: 12, color: "var(--color-texte-clair)", margin: "0 0 6px" }}>
+                {t("decouverte.ranking_your_order")}
+              </p>
+              {userOrder.map((key, i) => {
+                const item = RANKING_ITEMS.find((r) => r.key === key);
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => unpick(key)}
+                    title={t("decouverte.ranking_undo_hint")}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 10,
+                      padding: "6px 14px",
+                      fontSize: 13,
+                      color: "var(--color-texte-clair)",
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      width: "100%",
+                      textAlign: "left",
+                    }}
+                  >
+                    <span style={{ fontWeight: 600 }}>{i + 1}</span>
+                    {t(`decouverte.ranking_item_${item.key}`)}
+                    <span style={{ marginLeft: "auto", fontSize: 12 }}>✕</span>
+                  </button>
+                );
+              })}
+            </>
+          )}
+        </>
+      )}
+
+      {revealed && (
+        <>
+          <p style={{ fontSize: 14, fontWeight: 600, color: "var(--color-texte)", marginBottom: 10 }}>
+            {t("decouverte.ranking_correct_order")}
+          </p>
+          {RANKING_ITEMS.slice()
+            .sort((a, b) => a.rank - b.rank)
+            .map((item) => {
+              const userPosition = userOrder.indexOf(item.key) + 1;
+              const wasCorrect = userPosition === item.rank;
+              return (
+                <div
+                  key={item.key}
+                  style={
+                    sobriety
+                      ? { padding: "8px 0", borderBottom: "1px solid var(--color-bordure)" }
+                      : { background: "var(--color-carte)", borderRadius: 8, padding: "10px 14px", marginBottom: 6 }
+                  }
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <span style={{ fontWeight: 600, fontSize: 14 }}>{item.rank}</span>
+                    <span style={{ fontSize: 14, flex: 1, color: "var(--color-texte)" }}>{t(`decouverte.ranking_item_${item.key}`)}</span>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: "var(--color-texte)" }}>{t(`decouverte.ranking_value_${item.key}`)}</span>
+                    <span style={{ fontSize: 13 }}>{wasCorrect ? "✓" : "—"}</span>
+                  </div>
+                  <p style={{ fontSize: 12, color: "var(--color-texte-clair)", margin: "6px 0 0" }}>
+                    {t(`decouverte.ranking_source_${item.key}`)}
+                  </p>
+                </div>
+              );
+            })}
+          <button
+            type="button"
+            onClick={reset}
+            style={
+              sobriety
+                ? { marginTop: 8, background: "none", border: "none", padding: 0, fontSize: 13, cursor: "pointer", color: "var(--color-forest)", textDecoration: "underline" }
+                : { marginTop: 8, background: "none", border: "1px solid var(--color-bordure)", borderRadius: 8, padding: "6px 14px", fontSize: 13, cursor: "pointer", color: "var(--color-texte)" }
+            }
+          >
+            {t("decouverte.ranking_reset")}
+          </button>
+        </>
+      )}
+    </div>
+  );
 }
 
 const TOTAL_SECTIONS = 8;
