@@ -13,8 +13,6 @@ Suivi des chantiers en attente. Voir aussi `README.md` pour les points d'archite
 ## 🟢 Dette technique
 
 - **Revalider l'application mobile (Capacitor)** sur un vrai appareil/émulateur — plusieurs montées de version majeures (Next.js, React, Express, ESLint) depuis le dernier test.
-- **Contrôle automatique des migrations manquantes** : un script/étape CI comparant les fichiers présents dans `db/migrations/` avec ceux réellement appliqués en base éviterait qu'un saut de numérotation passe inaperçu.
-- Sécurité, moyen/bas, non bloquants : pas de révocation globale des sessions admin, `npm audit`/Dependabot à automatiser, comparaison de jeton non "timing-safe".
 
 ## 🆕 Chantiers ouverts
 
