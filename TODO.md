@@ -17,11 +17,9 @@ Suivi des chantiers en attente. Voir aussi `README.md` pour les points d'archite
 ## 🆕 Chantiers ouverts
 
 - **EcoIndex bloqué à B** : Performance Lighthouse remontée à 96 (bug d'hydratation React corrigé), mais DOM/requêtes déjà sous les cibles — pas de gain facile identifié. Une tentative de chargement différé (`next/dynamic`) sur `/decouverte` a été essayée puis **annulée** (dégradait la Performance au lieu de l'améliorer). Piste non essayée : chargement conditionné au défilement réel (`IntersectionObserver`), plus complexe, à réserver si vraiment nécessaire.
-- **Search Console — doublons de contenu entre langues** : `hreflang` généré automatiquement pour toutes les pages (y compris les pages profondes comme chaque scrutin/député, hors périmètre du sitemap). Déployé récemment — à revérifier dans le rapport "Indexation des pages" d'ici quelques semaines pour confirmer que Google a bien réévalué ces pages.
 - **Espagne, Congreso — nombre de votes limité à 20** (législature courante) : pas de pagination/export exposé côté source, un navigateur automatisé serait nécessaire. Écarté à l'origine faute de cette brique d'infrastructure — **le projet dispose maintenant de Playwright** (ajouté pour le kit PDF), ce qui change potentiellement le calcul. À réévaluer si prioritaire.
 - **Suggestion de sources pour les parlements russe/japonais/chinois/hindi** (`/international`) : aucune source identifiée à ce jour.
 - **Lien "voir le texte complet" des scrutins** : résolu pour États-Unis (Chambre), France, Italie (Chambre). Aucune solution trouvée pour Italie Sénat, Espagne Congreso, Espagne Sénat — limite des données sources, pas un manque d'effort.
-- **Page Températures — efficacité pédagogique retravaillée** : warming stripes mondial affiché par défaut (avant même le choix d'un pays, nouvelle route `/api/temperatures/world`), accroche courte ajoutée, vue simplifiée par défaut (masque vagues de chaleur/froid, tableau et détail méthodologique — accessible via un bouton "Voir plus de détails"). Testé avec un rendu navigateur réel et des données simulées, pas encore vérifié sur les vraies données en production.
 
 ## 💡 Idées en suspens
 
