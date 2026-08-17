@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import ShareButtons from "../../components/ShareButtons";
 import PageHeader from "../../components/PageHeader";
+import ScopeMultiSelect from "../../components/ScopeMultiSelect";
+import ScopeBadges from "../../components/ScopeBadges";
 import { IconSearch } from "../../components/icons";
 import { useT } from "../../lib/useT";
 import { toYoutubeThumbnailUrl } from "../../lib/youtube";
@@ -16,12 +18,14 @@ export default function InterviewsPage() {
   const [categories, setCategories] = useState([]);
   const [categoryFilter, setCategoryFilter] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
+  const [scopeFilter, setScopeFilter] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    const scopesParam = scopeFilter.length > 0 ? `&scopes=${scopeFilter.join(",")}` : "";
     Promise.all([
-      fetch(`${API_URL}/api/science-relays?locale=${locale}`).then((res) => {
+      fetch(`${API_URL}/api/science-relays?locale=${locale}${scopesParam}`).then((res) => {
         if (!res.ok) throw new Error(t("interviews.error_no_data"));
         return res.json();
       }),
@@ -37,7 +41,7 @@ export default function InterviewsPage() {
         setLoading(false);
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [locale]);
+  }, [locale, scopeFilter]);
 
   const filtered = useMemo(() => {
     return entries.filter((e) => {
@@ -102,6 +106,15 @@ export default function InterviewsPage() {
           <option value="article">{t("interviews.type_article")}</option>
           <option value="podcast">{t("interviews.type_podcast")}</option>
         </select>
+        <div style={{ minWidth: 220, flex: 1 }}>
+          <ScopeMultiSelect
+            value={scopeFilter}
+            onChange={setScopeFilter}
+            locale={locale}
+            label={t("common.filter_by_scope")}
+            placeholder={t("common.country_search_placeholder")}
+          />
+        </div>
       </div>
 
       {loading && <p>{t("common.loading")}</p>}
@@ -134,7 +147,9 @@ export default function InterviewsPage() {
                   <span style={{ fontSize: 11, color: "var(--color-texte-clair)", textTransform: "uppercase", letterSpacing: "0.03em" }}>
                     {TYPE_ICONS[e.content_type]} {typeLabel(e.content_type)}
                   </span>
-                  <p style={{ fontSize: 15, fontWeight: 600, margin: "6px 0 4px" }}>{e.title}</p>
+                  <p style={{ fontSize: 15, fontWeight: 600, margin: "6px 0 4px" }}>
+                    {e.title} {e.scope_codes && e.scope_codes.length > 0 && <ScopeBadges codes={e.scope_codes} locale={locale} />}
+                  </p>
                   {e.scientist_name && (
                     <p style={{ fontSize: 12, color: "var(--color-texte-clair)", margin: "0 0 4px" }}>
                       {e.scientist_name}{e.scientist_field ? ` — ${e.scientist_field}` : ""}

@@ -36,7 +36,8 @@
     "mode_switch_to_expert": "专家模式",
     "mode_switch_to_discovery": "入门模式",
     "mode_switch_aria": "在入门模式和专家模式之间切换",
-    "nav_kit": "宣传资料包"
+    "nav_kit": "宣传资料包",
+    "filter_by_scope": "按国家/地区筛选"
   },
   "home": {
     "intro": "通过开放且经过核实的数据，逐国了解气候变化。",

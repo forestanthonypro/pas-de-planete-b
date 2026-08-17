@@ -2,6 +2,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import ShareButtons from "../../components/ShareButtons";
 import PageHeader from "../../components/PageHeader";
+import ScopeMultiSelect from "../../components/ScopeMultiSelect";
+import ScopeBadges from "../../components/ScopeBadges";
+import { scopeFlag } from "../../lib/scopes";
 import { IconLandmark } from "../../components/icons";
 import { useSobriety } from "../../lib/SobrietyContext";
 import { useT } from "../../lib/useT";
@@ -17,6 +20,7 @@ export default function RessourcesPage() {
   const [online, setOnline] = useState([]);
   const [categories, setCategories] = useState([]);
   const [categoryFilter, setCategoryFilter] = useState("");
+  const [scopeFilter, setScopeFilter] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -25,9 +29,10 @@ export default function RessourcesPage() {
   const markersLayerRef = useRef(null);
 
   useEffect(() => {
+    const scopesParam = scopeFilter.length > 0 ? `&scopes=${scopeFilter.join(",")}` : "";
     Promise.all([
-      fetch(`${API_URL}/api/resource-locations?locale=${locale}`).then((res) => (res.ok ? res.json() : [])),
-      fetch(`${API_URL}/api/resource-online?locale=${locale}`).then((res) => (res.ok ? res.json() : [])),
+      fetch(`${API_URL}/api/resource-locations?locale=${locale}${scopesParam}`).then((res) => (res.ok ? res.json() : [])),
+      fetch(`${API_URL}/api/resource-online?locale=${locale}${scopesParam}`).then((res) => (res.ok ? res.json() : [])),
       fetch(`${API_URL}/api/resource-categories`).then((res) => (res.ok ? res.json() : [])),
     ])
       .then(([locationRows, onlineRows, categoryRows]) => {
@@ -40,7 +45,7 @@ export default function RessourcesPage() {
         setError(err.message);
         setLoading(false);
       });
-  }, [locale]);
+  }, [locale, scopeFilter]);
 
   const filteredLocations = useMemo(() => {
     if (!categoryFilter) return locations;
@@ -85,6 +90,7 @@ export default function RessourcesPage() {
         const linksHtml = (loc.links || [])
           .map((link) => `<a href="${link.url}" target="_blank" rel="noopener noreferrer">${link.label}</a>`)
           .join(" · ");
+        const flagsHtml = (loc.scope_codes || []).map((c) => scopeFlag(c)).join(" ");
         L.circleMarker([loc.latitude, loc.longitude], {
           radius: 8,
           color: "#1b5e20",
@@ -93,7 +99,7 @@ export default function RessourcesPage() {
           weight: 2,
         })
           .bindPopup(
-            `<strong>${loc.name}</strong><br/>${loc.description}${loc.address ? `<br/><em>${loc.address}</em>` : ""}${linksHtml ? `<br/>${linksHtml}` : ""}`
+            `<strong>${loc.name}</strong>${flagsHtml ? ` ${flagsHtml}` : ""}<br/>${loc.description}${loc.address ? `<br/><em>${loc.address}</em>` : ""}${linksHtml ? `<br/>${linksHtml}` : ""}`
           )
           .addTo(markersLayerRef.current);
       });
@@ -171,6 +177,16 @@ export default function RessourcesPage() {
         )}
       </div>
 
+      <div style={{ maxWidth: 400, marginBottom: "1rem" }}>
+        <ScopeMultiSelect
+          value={scopeFilter}
+          onChange={setScopeFilter}
+          locale={locale}
+          label={t("common.filter_by_scope")}
+          placeholder={t("common.country_search_placeholder")}
+        />
+      </div>
+
       <p style={{ fontSize: 12, marginBottom: "1rem" }}>
         <Link
           href="/ressources/proposer"
@@ -209,6 +225,7 @@ export default function RessourcesPage() {
                     <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("ressources.table_category")}</th>
                     <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("ressources.table_address")}</th>
                     <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("ressources.table_links")}</th>
+                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>{t("common.filter_by_scope")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -224,6 +241,9 @@ export default function RessourcesPage() {
                             <a href={link.url} target="_blank" rel="noopener noreferrer">{link.label}</a>
                           </span>
                         ))}
+                      </td>
+                      <td style={{ padding: 8 }}>
+                        {loc.scope_codes && loc.scope_codes.length > 0 && <ScopeBadges codes={loc.scope_codes} locale={locale} />}
                       </td>
                     </tr>
                   ))}
@@ -246,7 +266,9 @@ export default function RessourcesPage() {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 12 }}>
             {filteredOnline.map((o) => (
               <div key={o.slug} className="pdpb-card">
-                <p style={{ fontSize: 15, fontWeight: 600, margin: "0 0 6px" }}>{o.title}</p>
+                <p style={{ fontSize: 15, fontWeight: 600, margin: "0 0 6px" }}>
+                  {o.title} {o.scope_codes && o.scope_codes.length > 0 && <ScopeBadges codes={o.scope_codes} locale={locale} />}
+                </p>
                 {o.category_name && (
                   <p style={{ fontSize: 11, color: "var(--color-texte-clair)", textTransform: "uppercase", letterSpacing: "0.03em", margin: "0 0 6px" }}>
                     {o.category_name}

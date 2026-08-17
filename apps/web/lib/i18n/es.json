@@ -36,7 +36,8 @@
     "mode_switch_to_expert": "Modo experto",
     "mode_switch_to_discovery": "Modo descubrimiento",
     "mode_switch_aria": "Cambiar entre el modo descubrimiento y el modo experto",
-    "nav_kit": "Kit de comunicación"
+    "nav_kit": "Kit de comunicación",
+    "filter_by_scope": "Filtrar por país / zona"
   },
   "home": {
     "intro": "Comprender el cambio climático, país por país, con datos abiertos y verificados.",

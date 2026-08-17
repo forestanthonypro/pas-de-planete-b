@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import ShareButtons from "../../components/ShareButtons";
 import PageHeader from "../../components/PageHeader";
+import ScopeMultiSelect from "../../components/ScopeMultiSelect";
+import ScopeBadges from "../../components/ScopeBadges";
 import { IconSearch } from "../../components/icons";
 import { useT } from "../../lib/useT";
 import { localeTag } from "../../lib/dateLocale";
@@ -19,12 +21,14 @@ export default function DebunkPage() {
   const [entries, setEntries] = useState([]);
   const [categories, setCategories] = useState([]);
   const [categoryFilter, setCategoryFilter] = useState("");
+  const [scopeFilter, setScopeFilter] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    const scopesParam = scopeFilter.length > 0 ? `&scopes=${scopeFilter.join(",")}` : "";
     Promise.all([
-      fetch(`${API_URL}/api/debunk?locale=${locale}`).then((res) => {
+      fetch(`${API_URL}/api/debunk?locale=${locale}${scopesParam}`).then((res) => {
         if (!res.ok) throw new Error(t("debunk.error_no_data"));
         return res.json();
       }),
@@ -40,7 +44,7 @@ export default function DebunkPage() {
         setLoading(false);
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [locale]);
+  }, [locale, scopeFilter]);
 
   const filtered = useMemo(() => {
     if (!categoryFilter) return entries;
@@ -91,6 +95,16 @@ export default function DebunkPage() {
         </Link>
       </p>
 
+      <div style={{ maxWidth: 400, marginBottom: "1rem" }}>
+        <ScopeMultiSelect
+          value={scopeFilter}
+          onChange={setScopeFilter}
+          locale={locale}
+          label={t("common.filter_by_scope")}
+          placeholder={t("common.country_search_placeholder")}
+        />
+      </div>
+
       <div style={{ marginTop: "0.5rem" }}>
         <ShareButtons title={t("debunk.share_title")} />
       </div>
@@ -120,7 +134,9 @@ export default function DebunkPage() {
                 <span style={{ display: "inline-block", background: VERDICT_COLORS[e.verdict] || VERDICT_COLORS.faux, color: e.verdict === "trompeur" ? "var(--color-texte)" : "white", fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: 20 }}>
                   {verdictLabel(e.verdict).toUpperCase()}
                 </span>
-                <p style={{ fontSize: 15, fontWeight: 500, margin: "10px 0 6px", lineHeight: 1.4 }}>{e.myth}</p>
+                <p style={{ fontSize: 15, fontWeight: 500, margin: "10px 0 6px", lineHeight: 1.4 }}>
+                  {e.myth} {e.scope_codes && e.scope_codes.length > 0 && <ScopeBadges codes={e.scope_codes} locale={locale} />}
+                </p>
                 <p style={{ fontSize: 12, color: "var(--color-texte-clair)", margin: 0 }}>
                   {e.category_name ? `${e.category_name} · ` : ""}
                   {new Date(e.updated_at).toLocaleDateString(localeTag(locale), { day: "numeric", month: "long", year: "numeric" })}

@@ -36,7 +36,8 @@
     "mode_switch_to_expert": "エキスパートモード",
     "mode_switch_to_discovery": "はじめてモード",
     "mode_switch_aria": "はじめてモードとエキスパートモードを切り替える",
-    "nav_kit": "コミュニケーションキット"
+    "nav_kit": "コミュニケーションキット",
+    "filter_by_scope": "国・地域で絞り込む"
   },
   "home": {
     "intro": "オープンで検証済みのデータをもとに、国ごとに気候変動を理解する。",

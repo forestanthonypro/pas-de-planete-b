@@ -1,6 +1,8 @@
 import Link from "next/link";
 import ShareButtons from "../../components/ShareButtons";
 import PageHeader from "../../components/PageHeader";
+import ScopeMultiSelect from "../../components/ScopeMultiSelect";
+import ScopeBadges from "../../components/ScopeBadges";
 import { IconLandmark } from "../../components/icons";
 import { useSobriety } from "../../lib/SobrietyContext";
 import { useT } from "../../lib/useT";
@@ -11,10 +13,12 @@ export default function PetitionsPage() {
   const { t, locale } = useT();
   const { sobriety } = useSobriety();
   const [statusFilter, setStatusFilter] = useState("ongoing");
+  const [scopeFilter, setScopeFilter] = useState([]);
 
+  const scopesParam = scopeFilter.length > 0 ? `&scopes=${scopeFilter.join(",")}` : "";
   const { data, loading, error } = useApiFetch(
-    `/api/petitions?status=${statusFilter}&locale=${locale}`,
-    { errorMessage: t("petitions.error_no_data"), deps: [statusFilter] }
+    `/api/petitions?status=${statusFilter}&locale=${locale}${scopesParam}`,
+    { errorMessage: t("petitions.error_no_data"), deps: [statusFilter, scopeFilter] }
   );
   const petitions = data ?? [];
 
@@ -59,6 +63,16 @@ export default function PetitionsPage() {
         </button>
       </div>
 
+      <div style={{ maxWidth: 400, marginBottom: "1rem" }}>
+        <ScopeMultiSelect
+          value={scopeFilter}
+          onChange={setScopeFilter}
+          locale={locale}
+          label={t("common.filter_by_scope")}
+          placeholder={t("common.country_search_placeholder")}
+        />
+      </div>
+
       <p style={{ fontSize: 12, marginBottom: "1rem" }}>
         <Link
           href="/petitions/proposer"
@@ -98,7 +112,9 @@ export default function PetitionsPage() {
                     style={{ width: "100%", height: 120, objectFit: "cover", borderRadius: 8, marginBottom: 8 }}
                   />
                 )}
-                <p style={{ fontSize: 15, fontWeight: 600, margin: "0 0 6px" }}>{p.title}</p>
+                <p style={{ fontSize: 15, fontWeight: 600, margin: "0 0 6px" }}>
+                  {p.title} {p.scope_codes && p.scope_codes.length > 0 && <ScopeBadges codes={p.scope_codes} locale={locale} />}
+                </p>
                 {p.source_name && (
                   <p style={{ fontSize: 11, color: "var(--color-texte-clair)", textTransform: "uppercase", letterSpacing: "0.03em", margin: "0 0 6px" }}>
                     {p.source_name}
