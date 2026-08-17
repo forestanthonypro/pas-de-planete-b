@@ -2,7 +2,10 @@ import { Router } from "express";
 import { pool } from "../lib/db.js";
 import { errorDetail } from "../lib/errors.js";
 import { requireAdminSession } from "../lib/auth.js";
+import { publicWriteLimiter } from "../lib/rateLimits.js";
+import { generateUniqueSlug } from "../lib/slug.js";
 import { mergeTranslations, applyTranslations } from "../lib/translations.js";
+import { sanitizeScopeCodes, parseScopesQueryParam } from "../lib/scopeCodes.js";
 
 const router = Router();
 
@@ -16,7 +19,7 @@ router.get("/api/debunk-categories", async (_req, res) => {
 });
 
 router.get("/api/debunk", async (req, res) => {
-  const { category, featured, locale } = req.query;
+  const { category, featured, locale, scopes } = req.query;
   try {
     const params = [];
     let where = "WHERE d.published = true";
@@ -27,8 +30,13 @@ router.get("/api/debunk", async (req, res) => {
     if (featured === "true") {
       where += " AND d.featured_decouverte = true";
     }
+    const scopeCodes = parseScopesQueryParam(scopes);
+    if (scopeCodes.length > 0) {
+      params.push(scopeCodes);
+      where += ` AND d.scope_codes && $${params.length}`;
+    }
     const result = await pool.query(
-      `SELECT d.slug, d.myth, d.verdict, d.image_url, d.updated_at,
+      `SELECT d.slug, d.myth, d.verdict, d.image_url, d.scope_codes, d.updated_at,
               c.name AS category_name, c.slug AS category_slug
        FROM debunk_entries d
        LEFT JOIN debunk_categories c ON c.id = d.category_id
@@ -74,10 +82,10 @@ router.get("/api/debunk/:slug", async (req, res) => {
 router.get("/api/admin/debunk", requireAdminSession, async (_req, res) => {
   try {
     const result = await pool.query(
-      `SELECT d.slug, d.myth, d.verdict, d.published, d.featured_decouverte, d.image_url, d.updated_at, c.name AS category_name
+      `SELECT d.slug, d.myth, d.verdict, d.published, d.submitted_publicly, d.featured_decouverte, d.image_url, d.updated_at, c.name AS category_name
        FROM debunk_entries d
        LEFT JOIN debunk_categories c ON c.id = d.category_id
-       ORDER BY d.updated_at DESC`
+       ORDER BY d.submitted_publicly DESC, d.updated_at DESC`
     );
     res.json(result.rows);
   } catch (err) {
@@ -183,7 +191,7 @@ router.post("/api/admin/debunk/:slug/featured", requireAdminSession, async (req,
 });
 
 router.post("/api/admin/debunk", requireAdminSession, async (req, res) => {
-  const { slug, myth, reality, categoryId, verdict, claimQuote, imageUrl, published, sources } = req.body || {};
+  const { slug, myth, reality, categoryId, verdict, claimQuote, imageUrl, published, sources, scopeCodes } = req.body || {};
   if (!slug || !myth || !reality) {
     return res.status(400).json({ error: "slug, myth et reality sont requis" });
   }
@@ -194,13 +202,14 @@ router.post("/api/admin/debunk", requireAdminSession, async (req, res) => {
   try {
     await client.query("BEGIN");
     await client.query(
-      `INSERT INTO debunk_entries (slug, myth, reality, category_id, verdict, claim_quote, image_url, published, updated_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, now())
+      `INSERT INTO debunk_entries (slug, myth, reality, category_id, verdict, claim_quote, image_url, published, scope_codes, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, now())
        ON CONFLICT (slug)
        DO UPDATE SET myth = EXCLUDED.myth, reality = EXCLUDED.reality, category_id = EXCLUDED.category_id,
                      verdict = EXCLUDED.verdict, claim_quote = EXCLUDED.claim_quote,
-                     image_url = EXCLUDED.image_url, published = EXCLUDED.published, updated_at = now()`,
-      [slug, myth, reality, categoryId || null, verdict || "faux", claimQuote || null, imageUrl || null, published === true]
+                     image_url = EXCLUDED.image_url, published = EXCLUDED.published,
+                     scope_codes = EXCLUDED.scope_codes, updated_at = now()`,
+      [slug, myth, reality, categoryId || null, verdict || "faux", claimQuote || null, imageUrl || null, published === true, sanitizeScopeCodes(scopeCodes)]
     );
     if (Array.isArray(sources)) {
       await client.query("DELETE FROM debunk_sources WHERE debunk_slug = $1", [slug]);
@@ -223,5 +232,34 @@ router.post("/api/admin/debunk", requireAdminSession, async (req, res) => {
   }
 });
 
+// Soumission publique — une simple proposition de mythe à vérifier, pas un
+// article rédigé : "reality" reste volontairement vide à ce stade (jamais
+// affiché tant que published=false), le contexte éventuel fourni par la
+// personne va dans submission_notes, séparé du contenu éditorial vérifié.
+// C'est la rédaction qui écrit "reality" avant toute publication — jamais
+// une reprise telle quelle de ce qu'un visiteur a soumis.
+router.post("/api/debunk/submit", publicWriteLimiter, async (req, res) => {
+  const { myth, sourceUrl, notes, website, scopeCodes } = req.body || {};
+  if (website) {
+    return res.json({ status: "pending" });
+  }
+  if (!myth || !myth.trim()) {
+    return res.status(400).json({ error: "myth est requis" });
+  }
+  try {
+    const slug = await generateUniqueSlug(myth, "debunk_entries");
+    const combinedNotes = [sourceUrl ? `Source suggérée : ${sourceUrl}` : null, notes ? notes.trim() : null]
+      .filter(Boolean)
+      .join("\n\n");
+    await pool.query(
+      `INSERT INTO debunk_entries (slug, myth, reality, published, submitted_publicly, submission_notes, scope_codes, updated_at)
+       VALUES ($1, $2, '', false, true, $3, $4, now())`,
+      [slug, myth.trim(), combinedNotes || null, sanitizeScopeCodes(scopeCodes)]
+    );
+    res.json({ status: "pending" });
+  } catch (err) {
+    res.status(500).json({ error: "Erreur serveur", detail: errorDetail(err) });
+  }
+});
 
 export default router;

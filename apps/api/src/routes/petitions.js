@@ -5,6 +5,7 @@ import { requireAdminSession } from "../lib/auth.js";
 import { publicWriteLimiter } from "../lib/rateLimits.js";
 import { generateUniqueSlug } from "../lib/slug.js";
 import { mergeTranslations, applyTranslations } from "../lib/translations.js";
+import { sanitizeScopeCodes, parseScopesQueryParam } from "../lib/scopeCodes.js";
 
 const router = Router();
 
@@ -14,7 +15,7 @@ const router = Router();
 // avant publication (published = false par défaut).
 
 router.get("/api/petitions", async (req, res) => {
-  const { status, locale } = req.query;
+  const { status, locale, scopes } = req.query;
   try {
     const params = [];
     let where = "WHERE published = true";
@@ -22,8 +23,13 @@ router.get("/api/petitions", async (req, res) => {
       params.push(status);
       where += ` AND status = $${params.length}`;
     }
+    const scopeCodes = parseScopesQueryParam(scopes);
+    if (scopeCodes.length > 0) {
+      params.push(scopeCodes);
+      where += ` AND scope_codes && $${params.length}`;
+    }
     const result = await pool.query(
-      `SELECT slug, title, description, petition_url, source_name, status, image_url, updated_at
+      `SELECT slug, title, description, petition_url, source_name, status, image_url, scope_codes, updated_at
        FROM petitions
        ${where}
        ORDER BY status ASC, updated_at DESC`,
@@ -79,7 +85,7 @@ router.get("/api/admin/petitions/:slug", requireAdminSession, async (req, res) =
 });
 
 router.post("/api/admin/petitions", requireAdminSession, async (req, res) => {
-  const { slug, title, description, petitionUrl, sourceName, status, imageUrl, published } = req.body || {};
+  const { slug, title, description, petitionUrl, sourceName, status, imageUrl, published, scopeCodes } = req.body || {};
   if (!slug || !title || !description || !petitionUrl) {
     return res.status(400).json({ error: "slug, title, description et petitionUrl sont requis" });
   }
@@ -89,13 +95,13 @@ router.post("/api/admin/petitions", requireAdminSession, async (req, res) => {
   try {
     await pool.query(
       `INSERT INTO petitions
-         (slug, title, description, petition_url, source_name, status, image_url, published, updated_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, now())
+         (slug, title, description, petition_url, source_name, status, image_url, published, scope_codes, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, now())
        ON CONFLICT (slug) DO UPDATE SET
          title = EXCLUDED.title, description = EXCLUDED.description, petition_url = EXCLUDED.petition_url,
          source_name = EXCLUDED.source_name, status = EXCLUDED.status, image_url = EXCLUDED.image_url,
-         published = EXCLUDED.published, updated_at = now()`,
-      [slug, title, description, petitionUrl, sourceName || null, status, imageUrl || null, published === true]
+         published = EXCLUDED.published, scope_codes = EXCLUDED.scope_codes, updated_at = now()`,
+      [slug, title, description, petitionUrl, sourceName || null, status, imageUrl || null, published === true, sanitizeScopeCodes(scopeCodes)]
     );
     res.json({ status: "ok" });
   } catch (err) {
@@ -132,7 +138,7 @@ router.delete("/api/admin/petitions/:slug", requireAdminSession, async (req, res
 });
 
 router.post("/api/petitions/submit", publicWriteLimiter, async (req, res) => {
-  const { title, description, petitionUrl, sourceName, website } = req.body || {};
+  const { title, description, petitionUrl, sourceName, website, scopeCodes } = req.body || {};
   if (website) {
     // Piège à bots rempli : on répond succès sans rien enregistrer, pour
     // ne pas révéler à un robot que sa soumission a été repérée.
@@ -145,9 +151,9 @@ router.post("/api/petitions/submit", publicWriteLimiter, async (req, res) => {
     const slug = await generateUniqueSlug(title, "petitions");
     await pool.query(
       `INSERT INTO petitions
-         (slug, title, description, petition_url, source_name, status, published, submitted_publicly, updated_at)
-       VALUES ($1, $2, $3, $4, $5, 'ongoing', false, true, now())`,
-      [slug, title, description, petitionUrl, sourceName || null]
+         (slug, title, description, petition_url, source_name, status, published, submitted_publicly, scope_codes, updated_at)
+       VALUES ($1, $2, $3, $4, $5, 'ongoing', false, true, $6, now())`,
+      [slug, title, description, petitionUrl, sourceName || null, sanitizeScopeCodes(scopeCodes)]
     );
     res.json({ status: "pending" });
   } catch (err) {

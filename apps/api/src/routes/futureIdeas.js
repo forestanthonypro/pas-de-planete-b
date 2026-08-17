@@ -5,6 +5,7 @@ import { requireAdminSession } from "../lib/auth.js";
 import { publicWriteLimiter } from "../lib/rateLimits.js";
 import { UUID_RE } from "../lib/validators.js";
 import { mergeTranslations } from "../lib/translations.js";
+import { sanitizeScopeCodes, parseScopesQueryParam } from "../lib/scopeCodes.js";
 
 const router = Router();
 
@@ -13,16 +14,24 @@ const router = Router();
 // Classement par popularité (nombre de soutiens), pas d'ordre géré à la main.
 
 router.get("/api/future-ideas", async (req, res) => {
-  const { locale } = req.query;
+  const { locale, scopes } = req.query;
   try {
+    const params = [];
+    let where = "WHERE i.published = true";
+    const scopeCodes = parseScopesQueryParam(scopes);
+    if (scopeCodes.length > 0) {
+      params.push(scopeCodes);
+      where += ` AND i.scope_codes && $${params.length}`;
+    }
     const result = await pool.query(
-      `SELECT i.slug, i.title, i.description, i.updated_at,
+      `SELECT i.slug, i.title, i.description, i.scope_codes, i.updated_at,
               COUNT(v.anonymous_id) AS support_count
        FROM future_ideas i
        LEFT JOIN future_idea_votes v ON v.idea_slug = i.slug
-       WHERE i.published = true
+       ${where}
        GROUP BY i.slug
-       ORDER BY support_count DESC, i.updated_at DESC`
+       ORDER BY support_count DESC, i.updated_at DESC`,
+      params
     );
     const parsedRows = result.rows.map((r) => ({ ...r, support_count: parseInt(r.support_count, 10) }));
     const rows = await mergeTranslations(parsedRows, "future_idea", locale);
@@ -95,18 +104,18 @@ router.get("/api/admin/future-ideas/:slug", requireAdminSession, async (req, res
 });
 
 router.post("/api/admin/future-ideas", requireAdminSession, async (req, res) => {
-  const { slug, title, description, published } = req.body || {};
+  const { slug, title, description, published, scopeCodes } = req.body || {};
   if (!slug || !title || !title.trim()) {
     return res.status(400).json({ error: "slug et title sont requis" });
   }
   try {
     await pool.query(
-      `INSERT INTO future_ideas (slug, title, description, published, updated_at)
-       VALUES ($1, $2, $3, $4, now())
+      `INSERT INTO future_ideas (slug, title, description, published, scope_codes, updated_at)
+       VALUES ($1, $2, $3, $4, $5, now())
        ON CONFLICT (slug) DO UPDATE SET
          title = EXCLUDED.title, description = EXCLUDED.description,
-         published = EXCLUDED.published, updated_at = now()`,
-      [slug, title.trim(), description || null, published === true]
+         published = EXCLUDED.published, scope_codes = EXCLUDED.scope_codes, updated_at = now()`,
+      [slug, title.trim(), description || null, published === true, sanitizeScopeCodes(scopeCodes)]
     );
     res.json({ status: "ok" });
   } catch (err) {
@@ -144,7 +153,12 @@ router.post("/api/admin/future-ideas/:slug/publish", requireAdminSession, async 
 // publié directement, toujours modéré manuellement (même principe que la
 // boîte à idées de la charte éthique).
 router.post("/api/future-idea-suggestions", publicWriteLimiter, async (req, res) => {
-  const { text } = req.body || {};
+  const { text, website, scopeCodes } = req.body || {};
+  if (website) {
+    // Piège à bots rempli — même principe que pétitions/ressources : on
+    // répond succès sans rien enregistrer, sans révéler la détection.
+    return res.json({ status: "ok" });
+  }
   if (!text || !text.trim()) {
     return res.status(400).json({ error: "text est requis" });
   }
@@ -152,17 +166,29 @@ router.post("/api/future-idea-suggestions", publicWriteLimiter, async (req, res)
     return res.status(400).json({ error: "Texte trop long (2000 caractères max)" });
   }
   try {
-    await pool.query("INSERT INTO future_idea_suggestions (text, status) VALUES ($1, 'pending')", [text.trim()]);
+    await pool.query(
+      "INSERT INTO future_idea_suggestions (text, status, scope_codes) VALUES ($1, 'pending', $2)",
+      [text.trim(), sanitizeScopeCodes(scopeCodes)]
+    );
     res.json({ status: "ok" });
   } catch (err) {
     res.status(500).json({ error: "Échec de l'enregistrement", detail: errorDetail(err) });
   }
 });
 
-router.get("/api/future-idea-suggestions/published", async (_req, res) => {
+router.get("/api/future-idea-suggestions/published", async (req, res) => {
+  const { scopes } = req.query;
   try {
+    const params = [];
+    let where = "WHERE status = 'published'";
+    const scopeCodes = parseScopesQueryParam(scopes);
+    if (scopeCodes.length > 0) {
+      params.push(scopeCodes);
+      where += ` AND scope_codes && $${params.length}`;
+    }
     const result = await pool.query(
-      "SELECT id, text FROM future_idea_suggestions WHERE status = 'published' ORDER BY submitted_at DESC"
+      `SELECT id, text, scope_codes FROM future_idea_suggestions ${where} ORDER BY submitted_at DESC`,
+      params
     );
     res.json(result.rows);
   } catch (err) {

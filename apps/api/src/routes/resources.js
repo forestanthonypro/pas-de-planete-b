@@ -5,6 +5,7 @@ import { requireAdminSession } from "../lib/auth.js";
 import { publicWriteLimiter } from "../lib/rateLimits.js";
 import { generateUniqueSlug } from "../lib/slug.js";
 import { mergeTranslations } from "../lib/translations.js";
+import { sanitizeScopeCodes, parseScopesQueryParam } from "../lib/scopeCodes.js";
 
 const router = Router();
 
@@ -52,7 +53,7 @@ router.delete("/api/admin/resource-categories/:id", requireAdminSession, async (
 // Lieux physiques — toujours renvoyés avec leurs liens joints, pour éviter
 // un aller-retour supplémentaire (une carte affiche tout d'un coup).
 router.get("/api/resource-locations", async (req, res) => {
-  const { category, locale } = req.query;
+  const { category, locale, scopes } = req.query;
   try {
     const params = [];
     let where = "WHERE l.published = true";
@@ -60,8 +61,13 @@ router.get("/api/resource-locations", async (req, res) => {
       params.push(category);
       where += ` AND c.slug = $${params.length}`;
     }
+    const scopeCodes = parseScopesQueryParam(scopes);
+    if (scopeCodes.length > 0) {
+      params.push(scopeCodes);
+      where += ` AND l.scope_codes && $${params.length}`;
+    }
     const locations = await pool.query(
-      `SELECT l.slug, l.name, l.description, l.address, l.latitude, l.longitude,
+      `SELECT l.slug, l.name, l.description, l.address, l.latitude, l.longitude, l.scope_codes,
               c.name AS category_name, c.slug AS category_slug
        FROM resource_locations l
        LEFT JOIN resource_categories c ON c.id = l.category_id
@@ -118,7 +124,7 @@ router.get("/api/admin/resource-locations/:slug", requireAdminSession, async (re
 });
 
 router.post("/api/admin/resource-locations", requireAdminSession, async (req, res) => {
-  const { slug, name, description, address, latitude, longitude, categoryId, published, links } = req.body || {};
+  const { slug, name, description, address, latitude, longitude, categoryId, published, links, scopeCodes } = req.body || {};
   if (!slug || !name || !description || latitude === undefined || longitude === undefined) {
     return res.status(400).json({ error: "slug, name, description, latitude et longitude sont requis" });
   }
@@ -131,13 +137,13 @@ router.post("/api/admin/resource-locations", requireAdminSession, async (req, re
   try {
     await client.query("BEGIN");
     await client.query(
-      `INSERT INTO resource_locations (slug, name, description, address, latitude, longitude, category_id, published, updated_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, now())
+      `INSERT INTO resource_locations (slug, name, description, address, latitude, longitude, category_id, published, scope_codes, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, now())
        ON CONFLICT (slug) DO UPDATE SET
          name = EXCLUDED.name, description = EXCLUDED.description, address = EXCLUDED.address,
          latitude = EXCLUDED.latitude, longitude = EXCLUDED.longitude, category_id = EXCLUDED.category_id,
-         published = EXCLUDED.published, updated_at = now()`,
-      [slug, name, description, address || null, lat, lng, categoryId || null, published === true]
+         published = EXCLUDED.published, scope_codes = EXCLUDED.scope_codes, updated_at = now()`,
+      [slug, name, description, address || null, lat, lng, categoryId || null, published === true, sanitizeScopeCodes(scopeCodes)]
     );
     if (Array.isArray(links)) {
       await client.query("DELETE FROM resource_location_links WHERE location_slug = $1", [slug]);
@@ -190,7 +196,7 @@ router.delete("/api/admin/resource-locations/:slug", requireAdminSession, async 
 
 // Ressources non physiques (trocs, plateformes d'échange...).
 router.get("/api/resource-online", async (req, res) => {
-  const { category, locale } = req.query;
+  const { category, locale, scopes } = req.query;
   try {
     const params = [];
     let where = "WHERE o.published = true";
@@ -198,8 +204,13 @@ router.get("/api/resource-online", async (req, res) => {
       params.push(category);
       where += ` AND c.slug = $${params.length}`;
     }
+    const scopeCodes = parseScopesQueryParam(scopes);
+    if (scopeCodes.length > 0) {
+      params.push(scopeCodes);
+      where += ` AND o.scope_codes && $${params.length}`;
+    }
     const result = await pool.query(
-      `SELECT o.slug, o.title, o.description, o.url, c.name AS category_name, c.slug AS category_slug
+      `SELECT o.slug, o.title, o.description, o.url, o.scope_codes, c.name AS category_name, c.slug AS category_slug
        FROM resource_online o
        LEFT JOIN resource_categories c ON c.id = o.category_id
        ${where}
@@ -240,18 +251,18 @@ router.get("/api/admin/resource-online/:slug", requireAdminSession, async (req, 
 });
 
 router.post("/api/admin/resource-online", requireAdminSession, async (req, res) => {
-  const { slug, title, description, url, categoryId, published } = req.body || {};
+  const { slug, title, description, url, categoryId, published, scopeCodes } = req.body || {};
   if (!slug || !title || !description || !url) {
     return res.status(400).json({ error: "slug, title, description et url sont requis" });
   }
   try {
     await pool.query(
-      `INSERT INTO resource_online (slug, title, description, url, category_id, published, updated_at)
-       VALUES ($1, $2, $3, $4, $5, $6, now())
+      `INSERT INTO resource_online (slug, title, description, url, category_id, published, scope_codes, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, now())
        ON CONFLICT (slug) DO UPDATE SET
          title = EXCLUDED.title, description = EXCLUDED.description, url = EXCLUDED.url,
-         category_id = EXCLUDED.category_id, published = EXCLUDED.published, updated_at = now()`,
-      [slug, title, description, url, categoryId || null, published === true]
+         category_id = EXCLUDED.category_id, published = EXCLUDED.published, scope_codes = EXCLUDED.scope_codes, updated_at = now()`,
+      [slug, title, description, url, categoryId || null, published === true, sanitizeScopeCodes(scopeCodes)]
     );
     res.json({ status: "ok" });
   } catch (err) {
@@ -288,7 +299,7 @@ router.delete("/api/admin/resource-online/:slug", requireAdminSession, async (re
 });
 
 router.post("/api/resource-locations/submit", publicWriteLimiter, async (req, res) => {
-  const { name, description, address, latitude, longitude, categoryId, links, website } = req.body || {};
+  const { name, description, address, latitude, longitude, categoryId, links, website, scopeCodes } = req.body || {};
   if (website) {
     return res.json({ status: "pending" });
   }
@@ -305,9 +316,9 @@ router.post("/api/resource-locations/submit", publicWriteLimiter, async (req, re
     await client.query("BEGIN");
     const slug = await generateUniqueSlug(name, "resource_locations");
     await client.query(
-      `INSERT INTO resource_locations (slug, name, description, address, latitude, longitude, category_id, published, submitted_publicly, updated_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, false, true, now())`,
-      [slug, name, description, address || null, lat, lng, categoryId || null]
+      `INSERT INTO resource_locations (slug, name, description, address, latitude, longitude, category_id, published, submitted_publicly, scope_codes, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, false, true, $8, now())`,
+      [slug, name, description, address || null, lat, lng, categoryId || null, sanitizeScopeCodes(scopeCodes)]
     );
     if (Array.isArray(links)) {
       for (const l of links) {
@@ -330,7 +341,7 @@ router.post("/api/resource-locations/submit", publicWriteLimiter, async (req, re
 });
 
 router.post("/api/resource-online/submit", publicWriteLimiter, async (req, res) => {
-  const { title, description, url, categoryId, website } = req.body || {};
+  const { title, description, url, categoryId, website, scopeCodes } = req.body || {};
   if (website) {
     return res.json({ status: "pending" });
   }
@@ -340,15 +351,14 @@ router.post("/api/resource-online/submit", publicWriteLimiter, async (req, res) 
   try {
     const slug = await generateUniqueSlug(title, "resource_online");
     await pool.query(
-      `INSERT INTO resource_online (slug, title, description, url, category_id, published, submitted_publicly, updated_at)
-       VALUES ($1, $2, $3, $4, $5, false, true, now())`,
-      [slug, title, description, url, categoryId || null]
+      `INSERT INTO resource_online (slug, title, description, url, category_id, published, submitted_publicly, scope_codes, updated_at)
+       VALUES ($1, $2, $3, $4, $5, false, true, $6, now())`,
+      [slug, title, description, url, categoryId || null, sanitizeScopeCodes(scopeCodes)]
     );
     res.json({ status: "pending" });
   } catch (err) {
     res.status(500).json({ error: "Erreur serveur", detail: errorDetail(err) });
   }
 });
-
 
 export default router;

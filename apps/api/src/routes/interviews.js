@@ -2,8 +2,11 @@ import { Router } from "express";
 import { pool } from "../lib/db.js";
 import { errorDetail } from "../lib/errors.js";
 import { requireAdminSession } from "../lib/auth.js";
+import { publicWriteLimiter } from "../lib/rateLimits.js";
+import { generateUniqueSlug } from "../lib/slug.js";
 import { isAllowedEmbedUrl } from "../lib/embedValidation.js";
 import { mergeTranslations, applyTranslations } from "../lib/translations.js";
+import { sanitizeScopeCodes, parseScopesQueryParam } from "../lib/scopeCodes.js";
 
 const router = Router();
 
@@ -48,7 +51,7 @@ router.delete("/api/admin/interview-categories/:id", requireAdminSession, async 
 });
 
 router.get("/api/science-relays", async (req, res) => {
-  const { category, locale } = req.query;
+  const { category, locale, scopes } = req.query;
   try {
     const params = [];
     let where = "WHERE r.published = true";
@@ -56,9 +59,14 @@ router.get("/api/science-relays", async (req, res) => {
       params.push(category);
       where += ` AND c.slug = $${params.length}`;
     }
+    const scopeCodes = parseScopesQueryParam(scopes);
+    if (scopeCodes.length > 0) {
+      params.push(scopeCodes);
+      where += ` AND r.scope_codes && $${params.length}`;
+    }
     const result = await pool.query(
       `SELECT r.slug, r.title, r.description, r.scientist_name, r.scientist_field, r.content_type,
-              r.source_name, r.embed_url, r.image_url, c.name AS category_name, c.slug AS category_slug, r.updated_at
+              r.source_name, r.embed_url, r.image_url, r.scope_codes, c.name AS category_name, c.slug AS category_slug, r.updated_at
        FROM science_relays r
        LEFT JOIN interview_categories c ON c.id = r.category_id
        ${where}
@@ -95,10 +103,10 @@ router.get("/api/science-relays/:slug", async (req, res) => {
 router.get("/api/admin/science-relays", requireAdminSession, async (_req, res) => {
   try {
     const result = await pool.query(
-      `SELECT r.slug, r.title, r.content_type, r.published, r.image_url, r.updated_at, c.name AS category_name
+      `SELECT r.slug, r.title, r.content_type, r.published, r.submitted_publicly, r.image_url, r.updated_at, c.name AS category_name
        FROM science_relays r
        LEFT JOIN interview_categories c ON c.id = r.category_id
-       ORDER BY r.updated_at DESC`
+       ORDER BY r.submitted_publicly DESC, r.updated_at DESC`
     );
     res.json(result.rows);
   } catch (err) {
@@ -121,7 +129,7 @@ router.get("/api/admin/science-relays/:slug", requireAdminSession, async (req, r
 router.post("/api/admin/science-relays", requireAdminSession, async (req, res) => {
   const {
     slug, title, description, scientistName, scientistField, contentType,
-    sourceUrl, sourceName, embedUrl, imageUrl, categoryId, relatedDebunkSlug, published,
+    sourceUrl, sourceName, embedUrl, imageUrl, categoryId, relatedDebunkSlug, published, scopeCodes,
   } = req.body || {};
   if (!slug || !title || !description || !sourceUrl) {
     return res.status(400).json({ error: "slug, title, description et sourceUrl sont requis" });
@@ -136,8 +144,8 @@ router.post("/api/admin/science-relays", requireAdminSession, async (req, res) =
     await pool.query(
       `INSERT INTO science_relays
          (slug, title, description, scientist_name, scientist_field, content_type,
-          source_url, source_name, embed_url, image_url, category_id, related_debunk_slug, published, updated_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, now())
+          source_url, source_name, embed_url, image_url, category_id, related_debunk_slug, published, scope_codes, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, now())
        ON CONFLICT (slug) DO UPDATE SET
          title = EXCLUDED.title, description = EXCLUDED.description,
          scientist_name = EXCLUDED.scientist_name, scientist_field = EXCLUDED.scientist_field,
@@ -145,9 +153,9 @@ router.post("/api/admin/science-relays", requireAdminSession, async (req, res) =
          source_name = EXCLUDED.source_name, embed_url = EXCLUDED.embed_url,
          image_url = EXCLUDED.image_url,
          category_id = EXCLUDED.category_id, related_debunk_slug = EXCLUDED.related_debunk_slug,
-         published = EXCLUDED.published, updated_at = now()`,
+         published = EXCLUDED.published, scope_codes = EXCLUDED.scope_codes, updated_at = now()`,
       [slug, title, description, scientistName || null, scientistField || null, contentType,
-       sourceUrl, sourceName || null, embedUrl || null, imageUrl || null, categoryId || null, relatedDebunkSlug || null, published === true]
+       sourceUrl, sourceName || null, embedUrl || null, imageUrl || null, categoryId || null, relatedDebunkSlug || null, published === true, sanitizeScopeCodes(scopeCodes)]
     );
     res.json({ status: "ok" });
   } catch (err) {
@@ -174,5 +182,33 @@ router.post("/api/admin/science-relays/:slug/publish", requireAdminSession, asyn
   }
 });
 
+// Soumission publique — juste un lien à examiner (interview, article,
+// vidéo) proposé par un visiteur, pas un article rédigé : "description"
+// reste vide à ce stade (jamais affichée tant que published=false), le
+// contexte fourni va dans submission_notes. La rédaction écrit toujours
+// sa propre description avant publication.
+router.post("/api/science-relays/submit", publicWriteLimiter, async (req, res) => {
+  const { sourceUrl, suggestedTitle, contentType, notes, website, scopeCodes } = req.body || {};
+  if (website) {
+    return res.json({ status: "pending" });
+  }
+  if (!sourceUrl || !sourceUrl.trim()) {
+    return res.status(400).json({ error: "sourceUrl est requis" });
+  }
+  const validContentType = ["video", "article", "podcast"].includes(contentType) ? contentType : "article";
+  try {
+    const baseTitle = suggestedTitle && suggestedTitle.trim() ? suggestedTitle.trim() : sourceUrl.trim();
+    const slug = await generateUniqueSlug(baseTitle, "science_relays");
+    await pool.query(
+      `INSERT INTO science_relays
+         (slug, title, description, content_type, source_url, published, submitted_publicly, submission_notes, scope_codes, updated_at)
+       VALUES ($1, $2, '', $3, $4, false, true, $5, $6, now())`,
+      [slug, baseTitle, validContentType, sourceUrl.trim(), notes ? notes.trim() : null, sanitizeScopeCodes(scopeCodes)]
+    );
+    res.json({ status: "pending" });
+  } catch (err) {
+    res.status(500).json({ error: "Erreur serveur", detail: errorDetail(err) });
+  }
+});
 
 export default router;
