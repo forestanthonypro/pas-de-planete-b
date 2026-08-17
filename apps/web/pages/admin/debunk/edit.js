@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import AdminAuthGate from "../../../components/AdminAuthGate";
 import ContentTranslationsEditor from "../../../components/ContentTranslationsEditor";
+import ScopeMultiSelect from "../../../components/ScopeMultiSelect";
 import Link from "next/link";
 import { slugify } from "../../../lib/slugify";
 
@@ -27,7 +28,10 @@ function AdminDebunkEditInner({ session }) {
   const [categories, setCategories] = useState([]);
   const [verdict, setVerdict] = useState("faux");
   const [published, setPublished] = useState(false);
+  const [scopeCodes, setScopeCodes] = useState([]);
   const [sources, setSources] = useState([{ label: "", url: "" }]);
+  const [submissionNotes, setSubmissionNotes] = useState(null);
+  const [submittedPublicly, setSubmittedPublicly] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -60,6 +64,9 @@ function AdminDebunkEditInner({ session }) {
         setCategoryId(data.entry.category_id || "");
         setVerdict(data.entry.verdict || "faux");
         setPublished(data.entry.published);
+        setScopeCodes(data.entry.scope_codes || []);
+        setSubmissionNotes(data.entry.submission_notes || null);
+        setSubmittedPublicly(data.entry.submitted_publicly || false);
         setSources(data.sources.length > 0 ? data.sources : [{ label: "", url: "" }]);
         setLoading(false);
       })
@@ -103,6 +110,7 @@ function AdminDebunkEditInner({ session }) {
         categoryId: categoryId || null,
         verdict,
         published,
+        scopeCodes,
         sources: sources.filter((s) => s.label && s.url),
       }),
     })
@@ -139,6 +147,15 @@ function AdminDebunkEditInner({ session }) {
 
       {loading && <p>Chargement...</p>}
       {error && <p role="alert" style={{ color: "#d63e2a" }}>{error}</p>}
+
+      {submittedPublicly && submissionNotes && (
+        <div style={{ background: "#fff8e1", border: "1px solid #f4b400", borderRadius: 8, padding: "0.75rem 1rem", marginBottom: "1rem" }}>
+          <p style={{ fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.03em", margin: "0 0 6px", color: "#8a6d00" }}>
+            Proposition d&apos;un visiteur — à vérifier avant publication
+          </p>
+          <p style={{ fontSize: 13, margin: 0, whiteSpace: "pre-wrap" }}>{submissionNotes}</p>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit}>
         <label style={{ display: "block", marginBottom: "0.75rem" }}>
@@ -248,6 +265,16 @@ function AdminDebunkEditInner({ session }) {
           <input type="checkbox" checked={published} onChange={(e) => setPublished(e.target.checked)} />
           Publier (visible sur la page publique)
         </label>
+
+        <div style={{ marginBottom: "1rem" }}>
+          <ScopeMultiSelect
+            value={scopeCodes}
+            onChange={setScopeCodes}
+            locale="fr"
+            label="Pays ou zone concernée (optionnel)"
+            placeholder="Rechercher un pays, un continent..."
+          />
+        </div>
 
         <p style={{ fontSize: 13, fontWeight: 600, marginBottom: 4 }}>Sources</p>
         {sources.map((s, i) => (

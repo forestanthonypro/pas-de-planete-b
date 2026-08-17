@@ -99,7 +99,7 @@ router.get("/api/admin/resource-locations", requireAdminSession, async (_req, re
       `SELECT l.slug, l.name, l.published, l.submitted_publicly, l.updated_at, c.name AS category_name
        FROM resource_locations l
        LEFT JOIN resource_categories c ON c.id = l.category_id
-       ORDER BY l.updated_at DESC`
+       ORDER BY l.submitted_publicly DESC, l.updated_at DESC`
     );
     res.json(result.rows);
   } catch (err) {
@@ -230,7 +230,7 @@ router.get("/api/admin/resource-online", requireAdminSession, async (_req, res) 
       `SELECT o.slug, o.title, o.published, o.submitted_publicly, o.updated_at, c.name AS category_name
        FROM resource_online o
        LEFT JOIN resource_categories c ON c.id = o.category_id
-       ORDER BY o.updated_at DESC`
+       ORDER BY o.submitted_publicly DESC, o.updated_at DESC`
     );
     res.json(result.rows);
   } catch (err) {

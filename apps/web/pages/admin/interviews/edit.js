@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import AdminAuthGate from "../../../components/AdminAuthGate";
 import ContentTranslationsEditor from "../../../components/ContentTranslationsEditor";
+import ScopeMultiSelect from "../../../components/ScopeMultiSelect";
 import Link from "next/link";
 import { slugify } from "../../../lib/slugify";
 import { toYoutubeEmbedUrl, isYoutubeUrl } from "../../../lib/youtube";
@@ -33,6 +34,9 @@ function AdminInterviewEditInner({ session }) {
   const [categoryId, setCategoryId] = useState("");
   const [relatedDebunkSlug, setRelatedDebunkSlug] = useState("");
   const [published, setPublished] = useState(false);
+  const [scopeCodes, setScopeCodes] = useState([]);
+  const [submissionNotes, setSubmissionNotes] = useState(null);
+  const [submittedPublicly, setSubmittedPublicly] = useState(false);
 
   const [error, setError] = useState(null);
   const [status, setStatus] = useState("idle");
@@ -66,6 +70,9 @@ function AdminInterviewEditInner({ session }) {
     setCategoryId(interviewData.category_id || "");
     setRelatedDebunkSlug(interviewData.related_debunk_slug || "");
     setPublished(interviewData.published);
+    setScopeCodes(interviewData.scope_codes || []);
+    setSubmissionNotes(interviewData.submission_notes || null);
+    setSubmittedPublicly(interviewData.submitted_publicly || false);
   }, [interviewData]);
 
   useEffect(() => {
@@ -107,6 +114,7 @@ function AdminInterviewEditInner({ session }) {
         categoryId: categoryId || null,
         relatedDebunkSlug: relatedDebunkSlug || null,
         published,
+        scopeCodes,
       }),
     })
       .then((res) => {
@@ -142,6 +150,15 @@ function AdminInterviewEditInner({ session }) {
 
       {loading && <p>Chargement...</p>}
       {error && <p role="alert" style={{ color: "#d63e2a" }}>{error}</p>}
+
+      {submittedPublicly && submissionNotes && (
+        <div style={{ background: "#fff8e1", border: "1px solid #f4b400", borderRadius: 8, padding: "0.75rem 1rem", marginBottom: "1rem" }}>
+          <p style={{ fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.03em", margin: "0 0 6px", color: "#8a6d00" }}>
+            Proposition d&apos;un visiteur — à vérifier avant publication
+          </p>
+          <p style={{ fontSize: 13, margin: 0, whiteSpace: "pre-wrap" }}>{submissionNotes}</p>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit}>
         <label style={{ display: "block", marginBottom: "0.75rem" }}>
@@ -290,6 +307,16 @@ function AdminInterviewEditInner({ session }) {
           <input type="checkbox" checked={published} onChange={(e) => setPublished(e.target.checked)} />
           Publier (visible sur la page publique)
         </label>
+
+        <div style={{ marginBottom: "1rem" }}>
+          <ScopeMultiSelect
+            value={scopeCodes}
+            onChange={setScopeCodes}
+            locale="fr"
+            label="Pays ou zone concernée (optionnel)"
+            placeholder="Rechercher un pays, un continent..."
+          />
+        </div>
 
         <button type="submit" disabled={status === "saving"}>
           {status === "saving" ? "Enregistrement..." : "Enregistrer"}

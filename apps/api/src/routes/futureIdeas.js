@@ -199,7 +199,8 @@ router.get("/api/future-idea-suggestions/published", async (req, res) => {
 router.get("/api/admin/future-idea-suggestions", requireAdminSession, async (_req, res) => {
   try {
     const result = await pool.query(
-      "SELECT id, text, status, submitted_at FROM future_idea_suggestions ORDER BY submitted_at DESC"
+      `SELECT id, text, status, scope_codes, submitted_at FROM future_idea_suggestions
+       ORDER BY (status = 'pending') DESC, submitted_at DESC`
     );
     res.json(result.rows);
   } catch (err) {

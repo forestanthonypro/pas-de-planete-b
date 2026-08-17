@@ -3,6 +3,7 @@ import Link from "next/link";
 import AdminAuthGate from "../../../components/AdminAuthGate";
 import Pagination from "../../../components/Pagination";
 import ScrollableTable from "../../../components/ScrollableTable";
+import ScopeBadges from "../../../components/ScopeBadges";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 const PAGE_SIZE = 20;
@@ -125,7 +126,9 @@ function AdminFutureIdeasListInner({ session }) {
               <tbody>
                 {ideas.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE).map((idea) => (
                   <tr key={idea.slug}>
-                    <td style={{ padding: 8 }}>{idea.title}</td>
+                    <td style={{ padding: 8 }}>
+                      {idea.title} {idea.scope_codes && idea.scope_codes.length > 0 && <ScopeBadges codes={idea.scope_codes} locale="fr" />}
+                    </td>
                     <td style={{ padding: 8, textAlign: "right", fontWeight: 600 }}>{idea.support_count}</td>
                     <td style={{ padding: 8, fontSize: 13, color: idea.published ? "#1baf7a" : "var(--color-texte-clair)" }}>
                       {idea.published ? "Publiée" : "Brouillon"}
@@ -166,7 +169,9 @@ function AdminFutureIdeasListInner({ session }) {
             <tbody>
               {suggestions.map((s) => (
                 <tr key={s.id}>
-                  <td style={{ padding: 8, fontSize: 13 }}>{s.text}</td>
+                  <td style={{ padding: 8, fontSize: 13 }}>
+                    {s.text} {s.scope_codes && s.scope_codes.length > 0 && <ScopeBadges codes={s.scope_codes} locale="fr" />}
+                  </td>
                   <td style={{ padding: 8, fontSize: 13 }}>
                     {{ pending: "En attente", published: "Publiée", draft: "Brouillon", rejected: "Rejetée" }[s.status] || s.status}
                   </td>

@@ -204,8 +204,8 @@ function AdminDebunkListInner({ session }) {
                         {(VERDICT_LABELS[e.verdict] || e.verdict).toUpperCase()}
                       </span>
                     </td>
-                    <td style={{ padding: 8, fontSize: 13, color: e.published ? "#1baf7a" : "var(--color-texte-clair)" }}>
-                      {e.published ? "Publié" : "Brouillon"}
+                    <td style={{ padding: 8, fontSize: 13, color: e.published ? "#1baf7a" : e.submitted_publicly ? "#8a6d00" : "var(--color-texte-clair)" }}>
+                      {e.published ? "Publié" : e.submitted_publicly ? "⏳ Proposition à examiner" : "Brouillon"}
                     </td>
                     <td style={{ padding: 8, textAlign: "center" }}>
                       <input

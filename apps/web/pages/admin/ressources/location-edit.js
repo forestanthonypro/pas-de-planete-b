@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import AdminAuthGate from "../../../components/AdminAuthGate";
 import ContentTranslationsEditor from "../../../components/ContentTranslationsEditor";
+import ScopeMultiSelect from "../../../components/ScopeMultiSelect";
 import Link from "next/link";
 import { slugify } from "../../../lib/slugify";
 import { useApiFetch } from "../../../lib/useApiFetch";
@@ -26,6 +27,8 @@ function AdminLocationEditInner({ session }) {
   const [longitude, setLongitude] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [published, setPublished] = useState(false);
+  const [scopeCodes, setScopeCodes] = useState([]);
+  const [submittedPublicly, setSubmittedPublicly] = useState(false);
   const [links, setLinks] = useState([{ label: "", url: "" }]);
 
   const [error, setError] = useState(null);
@@ -55,6 +58,8 @@ function AdminLocationEditInner({ session }) {
     setLongitude(String(locationData.location.longitude));
     setCategoryId(locationData.location.category_id || "");
     setPublished(locationData.location.published);
+    setScopeCodes(locationData.location.scope_codes || []);
+    setSubmittedPublicly(locationData.location.submitted_publicly || false);
     setLinks(locationData.links.length > 0 ? locationData.links : [{ label: "", url: "" }]);
   }, [locationData]);
 
@@ -96,6 +101,7 @@ function AdminLocationEditInner({ session }) {
         longitude,
         categoryId: categoryId || null,
         published,
+        scopeCodes,
         links: links.filter((l) => l.label && l.url),
       }),
     })
@@ -132,6 +138,12 @@ function AdminLocationEditInner({ session }) {
 
       {loading && <p>Chargement...</p>}
       {error && <p role="alert" style={{ color: "#d63e2a" }}>{error}</p>}
+
+      {submittedPublicly && !published && (
+        <p style={{ background: "#fff8e1", border: "1px solid #f4b400", borderRadius: 8, padding: "0.5rem 0.75rem", fontSize: 13, color: "#8a6d00" }}>
+          Proposition d&apos;un visiteur — à vérifier avant publication.
+        </p>
+      )}
 
       <form onSubmit={handleSubmit}>
         <label style={{ display: "block", marginBottom: "0.75rem" }}>
@@ -222,6 +234,16 @@ function AdminLocationEditInner({ session }) {
         <button type="button" onClick={addLink} style={{ marginBottom: "1.5rem" }}>
           + Ajouter un lien
         </button>
+
+        <div style={{ marginBottom: "1rem" }}>
+          <ScopeMultiSelect
+            value={scopeCodes}
+            onChange={setScopeCodes}
+            locale="fr"
+            label="Pays ou zone concernée (optionnel)"
+            placeholder="Rechercher un pays, un continent..."
+          />
+        </div>
 
         <label style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: "1rem", fontSize: 14 }}>
           <input type="checkbox" checked={published} onChange={(e) => setPublished(e.target.checked)} />

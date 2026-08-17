@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import AdminAuthGate from "../../../components/AdminAuthGate";
 import ContentTranslationsEditor from "../../../components/ContentTranslationsEditor";
+import ScopeMultiSelect from "../../../components/ScopeMultiSelect";
 import Link from "next/link";
 import { useApiFetch } from "../../../lib/useApiFetch";
 
@@ -35,6 +36,8 @@ function AdminPetitionEditInner({ session }) {
   const [status, setStatus] = useState("ongoing");
   const [imageUrl, setImageUrl] = useState("");
   const [published, setPublished] = useState(false);
+  const [scopeCodes, setScopeCodes] = useState([]);
+  const [submittedPublicly, setSubmittedPublicly] = useState(false);
 
   const [error, setError] = useState(null);
   const [saveStatus, setSaveStatus] = useState("idle");
@@ -58,6 +61,8 @@ function AdminPetitionEditInner({ session }) {
     setStatus(petitionData.status);
     setImageUrl(petitionData.image_url || "");
     setPublished(petitionData.published);
+    setScopeCodes(petitionData.scope_codes || []);
+    setSubmittedPublicly(petitionData.submitted_publicly || false);
   }, [petitionData]);
 
   useEffect(() => {
@@ -78,7 +83,7 @@ function AdminPetitionEditInner({ session }) {
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.sessionToken}` },
       body: JSON.stringify({
         slug, title, description, petitionUrl, sourceName: sourceName || null,
-        status, imageUrl: imageUrl || null, published,
+        status, imageUrl: imageUrl || null, published, scopeCodes,
       }),
     })
       .then((res) => {
@@ -105,6 +110,12 @@ function AdminPetitionEditInner({ session }) {
       <h1>{isEditing ? "Modifier la pétition" : "Nouvelle pétition"}</h1>
 
       {error && <p role="alert" style={{ color: "#d63e2a" }}>{error}</p>}
+
+      {submittedPublicly && !published && (
+        <p style={{ background: "#fff8e1", border: "1px solid #f4b400", borderRadius: 8, padding: "0.5rem 0.75rem", fontSize: 13, color: "#8a6d00" }}>
+          Proposition d&apos;un visiteur — à vérifier avant publication.
+        </p>
+      )}
 
       <form onSubmit={handleSubmit}>
         <label style={{ display: "block", marginBottom: "0.75rem" }}>
@@ -158,6 +169,16 @@ function AdminPetitionEditInner({ session }) {
           <input type="checkbox" checked={published} onChange={(e) => setPublished(e.target.checked)} />
           <span style={{ fontSize: 13, fontWeight: 600 }}>Publié</span>
         </label>
+
+        <div style={{ marginBottom: "1rem" }}>
+          <ScopeMultiSelect
+            value={scopeCodes}
+            onChange={setScopeCodes}
+            locale="fr"
+            label="Pays ou zone concernée (optionnel)"
+            placeholder="Rechercher un pays, un continent..."
+          />
+        </div>
 
         <button type="submit" disabled={saveStatus === "saving"}>
           {saveStatus === "saving" ? "Enregistrement..." : saveStatus === "saved" ? "Enregistré ✓" : "Enregistrer"}

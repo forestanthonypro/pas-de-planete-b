@@ -64,7 +64,7 @@ router.get("/api/admin/petitions", requireAdminSession, async (_req, res) => {
     const result = await pool.query(
       `SELECT slug, title, status, published, submitted_publicly, updated_at
        FROM petitions
-       ORDER BY updated_at DESC`
+       ORDER BY submitted_publicly DESC, updated_at DESC`
     );
     res.json(result.rows);
   } catch (err) {

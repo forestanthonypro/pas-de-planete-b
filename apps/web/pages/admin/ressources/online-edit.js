@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import AdminAuthGate from "../../../components/AdminAuthGate";
 import ContentTranslationsEditor from "../../../components/ContentTranslationsEditor";
+import ScopeMultiSelect from "../../../components/ScopeMultiSelect";
 import Link from "next/link";
 import { slugify } from "../../../lib/slugify";
 import { useApiFetch } from "../../../lib/useApiFetch";
@@ -24,6 +25,8 @@ function AdminOnlineResourceEditInner({ session }) {
   const [url, setUrl] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [published, setPublished] = useState(false);
+  const [scopeCodes, setScopeCodes] = useState([]);
+  const [submittedPublicly, setSubmittedPublicly] = useState(false);
 
   const [error, setError] = useState(null);
   const [status, setStatus] = useState("idle");
@@ -50,6 +53,8 @@ function AdminOnlineResourceEditInner({ session }) {
     setUrl(onlineData.url);
     setCategoryId(onlineData.category_id || "");
     setPublished(onlineData.published);
+    setScopeCodes(onlineData.scope_codes || []);
+    setSubmittedPublicly(onlineData.submitted_publicly || false);
   }, [onlineData]);
 
   useEffect(() => {
@@ -69,7 +74,7 @@ function AdminOnlineResourceEditInner({ session }) {
     fetch(`${API_URL}/api/admin/resource-online`, {
       method: "POST",
       headers: { "Content-Type": "application/json", ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
-      body: JSON.stringify({ slug, title, description, url, categoryId: categoryId || null, published }),
+      body: JSON.stringify({ slug, title, description, url, categoryId: categoryId || null, published, scopeCodes }),
     })
       .then((res) => {
         if (res.status === 401) throw new Error("Jeton invalide");
@@ -104,6 +109,12 @@ function AdminOnlineResourceEditInner({ session }) {
 
       {loading && <p>Chargement...</p>}
       {error && <p role="alert" style={{ color: "#d63e2a" }}>{error}</p>}
+
+      {submittedPublicly && !published && (
+        <p style={{ background: "#fff8e1", border: "1px solid #f4b400", borderRadius: 8, padding: "0.5rem 0.75rem", fontSize: 13, color: "#8a6d00" }}>
+          Proposition d&apos;un visiteur — à vérifier avant publication.
+        </p>
+      )}
 
       <form onSubmit={handleSubmit}>
         <label style={{ display: "block", marginBottom: "0.75rem" }}>

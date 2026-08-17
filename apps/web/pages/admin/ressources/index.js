@@ -228,8 +228,8 @@ function AdminRessourcesListInner({ session }) {
                           {l.submitted_publicly && <PublicSubmissionBadge />}
                         </td>
                         <td style={{ padding: 8 }}>{l.category_name || "—"}</td>
-                        <td style={{ padding: 8, fontSize: 13, color: l.published ? "#1baf7a" : "var(--color-texte-clair)" }}>
-                          {l.published ? "Publié" : "Brouillon"}
+                        <td style={{ padding: 8, fontSize: 13, color: l.published ? "#1baf7a" : l.submitted_publicly ? "#8a6d00" : "var(--color-texte-clair)" }}>
+                          {l.published ? "Publié" : l.submitted_publicly ? "⏳ Proposition à examiner" : "Brouillon"}
                         </td>
                         <td style={{ padding: 8 }}>
                           <button type="button" onClick={() => toggleLocationPublished(l)} style={{ fontSize: 12, marginRight: 8 }}>
@@ -279,8 +279,8 @@ function AdminRessourcesListInner({ session }) {
                           {o.title}
                           {o.submitted_publicly && <PublicSubmissionBadge />}
                         </td>
-                        <td style={{ padding: 8, fontSize: 13, color: o.published ? "#1baf7a" : "var(--color-texte-clair)" }}>
-                          {o.published ? "Publié" : "Brouillon"}
+                        <td style={{ padding: 8, fontSize: 13, color: o.published ? "#1baf7a" : o.submitted_publicly ? "#8a6d00" : "var(--color-texte-clair)" }}>
+                          {o.published ? "Publié" : o.submitted_publicly ? "⏳ Proposition à examiner" : "Brouillon"}
                         </td>
                         <td style={{ padding: 8 }}>
                           <button type="button" onClick={() => toggleOnlinePublished(o)} style={{ fontSize: 12, marginRight: 8 }}>

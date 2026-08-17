@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import AdminAuthGate from "../../../components/AdminAuthGate";
 import ContentTranslationsEditor from "../../../components/ContentTranslationsEditor";
+import ScopeMultiSelect from "../../../components/ScopeMultiSelect";
 import Link from "next/link";
 import { slugify } from "../../../lib/slugify";
 import { useApiFetch } from "../../../lib/useApiFetch";
@@ -22,6 +23,7 @@ function AdminFutureIdeaEditInner({ session }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [published, setPublished] = useState(false);
+  const [scopeCodes, setScopeCodes] = useState([]);
 
   const [error, setError] = useState(null);
   const [status, setStatus] = useState("idle");
@@ -41,6 +43,7 @@ function AdminFutureIdeaEditInner({ session }) {
     setTitle(ideaData.title);
     setDescription(ideaData.description || "");
     setPublished(ideaData.published);
+    setScopeCodes(ideaData.scope_codes || []);
   }, [ideaData]);
 
   useEffect(() => {
@@ -60,7 +63,7 @@ function AdminFutureIdeaEditInner({ session }) {
     fetch(`${API_URL}/api/admin/future-ideas`, {
       method: "POST",
       headers: { "Content-Type": "application/json", ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
-      body: JSON.stringify({ slug, title, description: description || null, published }),
+      body: JSON.stringify({ slug, title, description: description || null, published, scopeCodes }),
     })
       .then((res) => {
         if (res.status === 401) throw new Error("Jeton invalide");
@@ -128,6 +131,16 @@ function AdminFutureIdeaEditInner({ session }) {
           <input type="checkbox" checked={published} onChange={(e) => setPublished(e.target.checked)} />
           Publier (visible sur la page publique)
         </label>
+
+        <div style={{ marginBottom: "1rem" }}>
+          <ScopeMultiSelect
+            value={scopeCodes}
+            onChange={setScopeCodes}
+            locale="fr"
+            label="Pays ou zone concernée (optionnel)"
+            placeholder="Rechercher un pays, un continent..."
+          />
+        </div>
 
         <button type="submit" disabled={status === "saving"}>
           {status === "saving" ? "Enregistrement..." : "Enregistrer"}

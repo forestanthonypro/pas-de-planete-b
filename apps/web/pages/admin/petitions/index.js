@@ -116,8 +116,8 @@ function AdminPetitionsListInner({ session }) {
                         {e.submitted_publicly && <PublicSubmissionBadge />}
                       </td>
                       <td style={{ padding: 8 }}>{STATUS_LABELS[e.status] || e.status}</td>
-                      <td style={{ padding: 8, fontSize: 13, color: e.published ? "#1baf7a" : "var(--color-texte-clair)" }}>
-                        {e.published ? "Publié" : "Brouillon"}
+                      <td style={{ padding: 8, fontSize: 13, color: e.published ? "#1baf7a" : e.submitted_publicly ? "#8a6d00" : "var(--color-texte-clair)" }}>
+                        {e.published ? "Publié" : e.submitted_publicly ? "⏳ Proposition à examiner" : "Brouillon"}
                       </td>
                       <td style={{ padding: 8 }}>
                         <button type="button" onClick={() => togglePublished(e)} style={{ fontSize: 12, marginRight: 8 }}>

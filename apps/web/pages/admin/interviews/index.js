@@ -176,8 +176,8 @@ function AdminInterviewsListInner({ session }) {
                     <td style={{ padding: 8 }}>{e.title}</td>
                     <td style={{ padding: 8 }}>{TYPE_LABELS[e.content_type] || e.content_type}</td>
                     <td style={{ padding: 8 }}>{e.category_name || "—"}</td>
-                    <td style={{ padding: 8, fontSize: 13, color: e.published ? "#1baf7a" : "var(--color-texte-clair)" }}>
-                      {e.published ? "Publié" : "Brouillon"}
+                    <td style={{ padding: 8, fontSize: 13, color: e.published ? "#1baf7a" : e.submitted_publicly ? "#8a6d00" : "var(--color-texte-clair)" }}>
+                      {e.published ? "Publié" : e.submitted_publicly ? "⏳ Proposition à examiner" : "Brouillon"}
                     </td>
                     <td style={{ padding: 8 }}>
                       <button type="button" onClick={() => togglePublished(e)} style={{ fontSize: 12, marginRight: 8 }}>
