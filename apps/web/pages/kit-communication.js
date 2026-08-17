@@ -82,7 +82,6 @@ export default function KitCommunicationPage() {
     setPdfBlobUrl(null);
     setStatus("idle");
     setErrorMsg(null);
-    setCopied(false);
   }
 
   function handleCountryChange(code) {
