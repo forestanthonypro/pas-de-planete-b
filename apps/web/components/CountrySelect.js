@@ -8,7 +8,7 @@ import SearchableSelect from "./SearchableSelect";
 // endpoints) : les deux formats coexistent encore selon les pages.
 // Le rendu (recherche web vs <select> natif mobile) est délégué à
 // SearchableSelect, partagé avec les autres filtres du site.
-export default function CountrySelect({ countries, value, onChange, preferredLang, label, raised = false }) {
+export default function CountrySelect({ countries, value, onChange, preferredLang, label }) {
   const { t } = useT();
   const resolvedLabel = label || t("common.country_label");
 
@@ -32,7 +32,6 @@ export default function CountrySelect({ countries, value, onChange, preferredLan
       placeholder={t("common.country_search_placeholder")}
       noResultsLabel={t("common.no_results")}
       mobileNative={false}
-      dropdownZIndex={raised ? 1100 : 20}
     />
   );
 }

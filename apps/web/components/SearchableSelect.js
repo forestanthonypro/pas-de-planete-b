@@ -29,7 +29,6 @@ export default function SearchableSelect({
   noResultsLabel = "Aucun résultat",
   allLabel,
   mobileNative = true,
-  dropdownZIndex = 20,
 }) {
   const isNativeApp = useIsNativeApp();
   const isMobileViewport = useIsMobileViewport();
@@ -121,7 +120,7 @@ export default function SearchableSelect({
           role="listbox"
           style={{
             position: "absolute",
-            zIndex: dropdownZIndex,
+            zIndex: 1000,
             top: "100%",
             left: 0,
             right: 0,
@@ -141,6 +140,7 @@ export default function SearchableSelect({
               role="option"
               aria-selected={value === ""}
               onMouseDown={() => select("")}
+              onMouseEnter={() => setHighlighted(-1)}
               style={{
                 padding: isMobileViewport ? "12px 14px" : "6px 10px",
                 cursor: "pointer",
@@ -163,11 +163,16 @@ export default function SearchableSelect({
               role="option"
               aria-selected={o.value === value}
               onMouseDown={() => select(o.value)}
+              onMouseEnter={() => setHighlighted(i)}
               style={{
                 padding: isMobileViewport ? "12px 14px" : "6px 10px",
                 cursor: "pointer",
                 fontSize: isMobileViewport ? 15 : 14,
                 color: "var(--color-texte)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: 8,
                 background:
                   i === highlighted
                     ? "var(--color-carte-verte)"
@@ -176,7 +181,8 @@ export default function SearchableSelect({
                     : "var(--color-fond)",
               }}
             >
-              {o.label}
+              <span>{o.label}</span>
+              {o.value === value && <span aria-hidden="true" style={{ color: "var(--color-forest)", fontWeight: 700 }}>✓</span>}
             </li>
           ))}
         </ul>

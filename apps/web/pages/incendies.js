@@ -121,7 +121,6 @@ export default function IncendiesPage() {
           value={country}
           onChange={setCountry}
           preferredLang={locale}
-          raised
         />
         <button onClick={() => setView(view === "map" ? "table" : "map")} disabled={sobriety}>
           {view === "map" ? t("common.view_as_table") : t("common.view_as_chart")}

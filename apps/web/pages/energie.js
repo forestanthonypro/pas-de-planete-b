@@ -277,7 +277,6 @@ export default function EnergiePage() {
           value={country}
           onChange={setCountry}
           preferredLang={locale}
-          raised
         />
         <label>
           {t("energie.fuel_type_label")}{" "}

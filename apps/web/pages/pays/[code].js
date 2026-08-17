@@ -1143,7 +1143,6 @@ export default function PaysDashboard() {
           onChange={(newCode) => router.push(`/pays/${newCode}`)}
           preferredLang={locale}
           label={t("pays.change_country")}
-          raised
         />
           {summary && (
             <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
@@ -1153,7 +1152,6 @@ export default function PaysDashboard() {
                 onChange={setCompareCode}
                 preferredLang={locale}
                 label={t("pays.compare_with")}
-                raised
               />
               {compareCode && (
                 <button onClick={() => setCompareCode("")} style={{ fontSize: 13 }}>
