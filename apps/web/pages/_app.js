@@ -55,6 +55,24 @@ function DefaultHead({ router }) {
       <title>Pas de planète B</title>
       <meta name="description" content={t("home.intro")} />
       <link rel="canonical" href={canonicalUrl} />
+      {/* Image de partage par défaut — sans elle, un lien du site collé
+          dans SMS/WhatsApp/Signal/réseaux sociaux n'affiche aucun aperçu
+          riche (juste le lien nu). Image statique (pas de génération à la
+          demande, contrairement au kit de communication qui a besoin de
+          données par pays) : contenu générique, ne change jamais d'un
+          partage à l'autre — voir public/og-image.png. Une page qui a
+          besoin d'un aperçu plus spécifique peut définir ses propres
+          balises og:* dans son propre <Head>, qui prennent le dessus. */}
+      <meta property="og:title" content="Pas de planète B" />
+      <meta property="og:description" content={t("home.intro")} />
+      <meta property="og:type" content="website" />
+      <meta property="og:image" content="https://pasdeplaneteb.com/og-image.png" />
+      <meta property="og:image:width" content="1200" />
+      <meta property="og:image:height" content="630" />
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:title" content="Pas de planète B" />
+      <meta name="twitter:description" content={t("home.intro")} />
+      <meta name="twitter:image" content="https://pasdeplaneteb.com/og-image.png" />
       {locales.map((loc) => (
         <link key={loc} rel="alternate" hrefLang={loc} href={urlForLocale(loc)} />
       ))}
