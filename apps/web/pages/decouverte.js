@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useT } from "../lib/useT";
+import { localeTag } from "../lib/dateLocale";
 import { useSobriety } from "../lib/SobrietyContext";
 import { useApiFetch } from "../lib/useApiFetch";
 import { useCountriesList } from "../lib/useCountriesList";
@@ -158,11 +159,11 @@ const THEMES = [
   { key: "temperatures", Icon: IconThermometer, tint: "#D85A30", compute: computeTemperature, unit: "°C", decimals: 2, isDeviation: true, page: "/temperatures" },
 ];
 
-function formatValue(value, decimals) {
-  return value.toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+function formatValue(value, decimals, locale) {
+  return value.toLocaleString(localeTag(locale), { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
 }
 
-function ComparisonCard({ theme, nameA, nameB, valueA, valueB, t }) {
+function ComparisonCard({ theme, nameA, nameB, valueA, valueB, t, locale }) {
   const { sobriety } = useSobriety();
   if (valueA === null && valueB === null) return null;
 
@@ -189,14 +190,14 @@ function ComparisonCard({ theme, nameA, nameB, valueA, valueB, t }) {
           <div>
             <div style={{ fontSize: 12, color: "var(--color-texte-clair)" }}>{nameA}</div>
             <div style={{ fontSize: 22, fontWeight: 500 }}>
-              {valueA !== null ? `${valueA > 0 ? "+" : ""}${formatValue(valueA, theme.decimals)}${theme.unit}` : "—"}
+              {valueA !== null ? `${valueA > 0 ? "+" : ""}${formatValue(valueA, theme.decimals, locale)}${theme.unit}` : "—"}
             </div>
           </div>
           {nameB && (
             <div>
               <div style={{ fontSize: 12, color: "var(--color-texte-clair)" }}>{nameB}</div>
               <div style={{ fontSize: 22, fontWeight: 500 }}>
-                {valueB !== null ? `${valueB > 0 ? "+" : ""}${formatValue(valueB, theme.decimals)}${theme.unit}` : "—"}
+                {valueB !== null ? `${valueB > 0 ? "+" : ""}${formatValue(valueB, theme.decimals, locale)}${theme.unit}` : "—"}
               </div>
             </div>
           )}
@@ -229,12 +230,12 @@ function ComparisonCard({ theme, nameA, nameB, valueA, valueB, t }) {
         <>
           <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, padding: "3px 0" }}>
             <span>{nameA}</span>
-            <span style={{ fontWeight: 600 }}>{valueA !== null ? `${formatValue(valueA, theme.decimals)} ${theme.unit}` : "—"}</span>
+            <span style={{ fontWeight: 600 }}>{valueA !== null ? `${formatValue(valueA, theme.decimals, locale)} ${theme.unit}` : "—"}</span>
           </div>
           {nameB && (
             <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, padding: "3px 0" }}>
               <span>{nameB}</span>
-              <span style={{ fontWeight: 600 }}>{valueB !== null ? `${formatValue(valueB, theme.decimals)} ${theme.unit}` : "—"}</span>
+              <span style={{ fontWeight: 600 }}>{valueB !== null ? `${formatValue(valueB, theme.decimals, locale)} ${theme.unit}` : "—"}</span>
             </div>
           )}
         </>
@@ -254,7 +255,7 @@ function ComparisonCard({ theme, nameA, nameB, valueA, valueB, t }) {
               }}
             />
             <span style={{ fontSize: 12, width: 65, textAlign: "right", flexShrink: 0 }}>
-              {valueA !== null ? `${formatValue(valueA, theme.decimals)} ${theme.unit}` : "—"}
+              {valueA !== null ? `${formatValue(valueA, theme.decimals, locale)} ${theme.unit}` : "—"}
             </span>
           </div>
           {nameB && (
@@ -272,7 +273,7 @@ function ComparisonCard({ theme, nameA, nameB, valueA, valueB, t }) {
                 }}
               />
               <span style={{ fontSize: 12, width: 65, textAlign: "right", flexShrink: 0 }}>
-                {valueB !== null ? `${formatValue(valueB, theme.decimals)} ${theme.unit}` : "—"}
+                {valueB !== null ? `${formatValue(valueB, theme.decimals, locale)} ${theme.unit}` : "—"}
               </span>
             </div>
           )}
@@ -581,7 +582,19 @@ function shuffle(arr) {
 
 function RankingQuiz({ t }) {
   const { sobriety } = useSobriety();
-  const [shuffled] = useState(() => shuffle(RANKING_ITEMS));
+  // Ordre stable (non mélangé) au premier rendu — identique sur le serveur
+  // et sur le client, donc pas de décalage d'hydratation. Le mélange
+  // n'intervient qu'après le montage, exclusivement côté client (voir
+  // useEffect ci-dessous) : Math.random() exécuté pendant le rendu produit
+  // un résultat différent sur le serveur et sur le client, ce qui causait
+  // une erreur d'hydratation React (#418) à chaque chargement de page —
+  // détecté via un audit Lighthouse le 16 août 2026 (TBT à 690ms, 12
+  // tâches longues, la page entière était re-rendue côté client pour
+  // rattraper le décalage).
+  const [shuffled, setShuffled] = useState(RANKING_ITEMS);
+  useEffect(() => {
+    setShuffled(shuffle(RANKING_ITEMS));
+  }, []);
   const [userOrder, setUserOrder] = useState([]);
   const [revealed, setRevealed] = useState(false);
 
@@ -1045,6 +1058,7 @@ export default function DecouvertePage() {
               valueA={theme.compute(summaryA)}
               valueB={summaryB ? theme.compute(summaryB) : null}
               t={t}
+              locale={locale}
             />
           ))}
       </section>
