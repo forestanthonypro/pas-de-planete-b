@@ -19,6 +19,8 @@ export default function FutureIdeasPage() {
   const [publishedSuggestions, setPublishedSuggestions] = useState([]);
   const [suggestionText, setSuggestionText] = useState("");
   const [suggestionScopeCodes, setSuggestionScopeCodes] = useState([]);
+  const [suggestionEmail, setSuggestionEmail] = useState("");
+  const [suggestionNotes, setSuggestionNotes] = useState("");
   const [website, setWebsite] = useState("");
   const [suggestionStatus, setSuggestionStatus] = useState("idle"); // idle | sending | done | error
 
@@ -83,7 +85,10 @@ export default function FutureIdeasPage() {
     fetch(`${API_URL}/api/future-idea-suggestions`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text: suggestionText.trim(), scopeCodes: suggestionScopeCodes, website }),
+      body: JSON.stringify({
+        text: suggestionText.trim(), scopeCodes: suggestionScopeCodes,
+        submitterEmail: suggestionEmail || null, submissionNotes: suggestionNotes || null, website,
+      }),
     })
       .then((res) => {
         if (!res.ok) throw new Error();
@@ -93,6 +98,8 @@ export default function FutureIdeasPage() {
         setSuggestionStatus("done");
         setSuggestionText("");
         setSuggestionScopeCodes([]);
+        setSuggestionEmail("");
+        setSuggestionNotes("");
       })
       .catch(() => setSuggestionStatus("error"));
   }
@@ -187,6 +194,25 @@ export default function FutureIdeasPage() {
                 placeholder={t("common.country_search_placeholder")}
               />
             </div>
+            <label style={{ display: "block", marginBottom: "0.5rem" }}>
+              <span style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>{t("futureIdeas.email_label")}</span>
+              <input
+                type="email"
+                value={suggestionEmail}
+                onChange={(e) => setSuggestionEmail(e.target.value)}
+                placeholder={t("futureIdeas.email_placeholder")}
+                style={{ width: "100%", padding: "8px 10px" }}
+              />
+            </label>
+            <label style={{ display: "block", marginBottom: "0.75rem" }}>
+              <span style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>{t("futureIdeas.notes_label")}</span>
+              <textarea
+                value={suggestionNotes}
+                onChange={(e) => setSuggestionNotes(e.target.value)}
+                rows={2}
+                style={{ width: "100%", padding: "8px 10px", fontFamily: "inherit" }}
+              />
+            </label>
             <button type="submit" disabled={suggestionStatus === "sending" || !suggestionText.trim()}>
               {suggestionStatus === "sending" ? t("futureIdeas.propose_sending") : t("futureIdeas.propose_button")}
             </button>

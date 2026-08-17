@@ -24,6 +24,7 @@ import futureIdeasRoutes from "./routes/futureIdeas.js";
 import petitionsRoutes from "./routes/petitions.js";
 import translateRoutes from "./routes/translate.js";
 import kitCommunicationRoutes from "./routes/kitCommunication.js";
+import contactRoutes from "./routes/contact.js";
 
 const app = express();
 
@@ -103,6 +104,7 @@ app.use(futureIdeasRoutes);
 app.use(petitionsRoutes);
 app.use(translateRoutes);
 app.use(kitCommunicationRoutes);
+app.use(contactRoutes);
 
 app.listen(port, () => {
   console.log(`API Pas de planète B à l'écoute sur le port ${port}`);

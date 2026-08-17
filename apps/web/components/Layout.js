@@ -347,6 +347,8 @@ export default function Layout({ children }) {
         <Link href="/mentions-legales" prefetch={false} style={{ color: "inherit" }}>{t("common.footer_legal")}</Link>
         <span aria-hidden="true">·</span>
         <Link href="/confidentialite" prefetch={false} style={{ color: "inherit" }}>{t("common.footer_privacy")}</Link>
+        <span aria-hidden="true">·</span>
+        <Link href="/contact" prefetch={false} style={{ color: "inherit" }}>{t("common.footer_contact")}</Link>
       </footer>
 
       <ScrollTopButton />

@@ -37,7 +37,8 @@
     "mode_switch_to_discovery": "入门模式",
     "mode_switch_aria": "在入门模式和专家模式之间切换",
     "nav_kit": "宣传资料包",
-    "filter_by_scope": "按国家/地区筛选"
+    "filter_by_scope": "按国家/地区筛选",
+    "footer_contact": "联系我们"
   },
   "home": {
     "intro": "通过开放且经过核实的数据，逐国了解气候变化。",
@@ -718,7 +719,10 @@
     "propose_error": "提交失败，请稍后重试。",
     "back_to_home": "返回首页 →",
     "error_no_data": "数据不可用",
-    "scope_label": "相关国家或地区（可选）"
+    "scope_label": "相关国家或地区（可选）",
+    "email_label": "您的邮箱（可选）",
+    "email_placeholder": "如需联系您时使用",
+    "notes_label": "给我们的留言？（可选）"
   },
   "dataStatus": {
     "title": "数据状态",

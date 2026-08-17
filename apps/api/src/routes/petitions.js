@@ -6,6 +6,7 @@ import { publicWriteLimiter } from "../lib/rateLimits.js";
 import { generateUniqueSlug } from "../lib/slug.js";
 import { mergeTranslations, applyTranslations } from "../lib/translations.js";
 import { sanitizeScopeCodes, parseScopesQueryParam } from "../lib/scopeCodes.js";
+import { EMAIL_RE } from "../lib/validators.js";
 
 const router = Router();
 
@@ -138,7 +139,7 @@ router.delete("/api/admin/petitions/:slug", requireAdminSession, async (req, res
 });
 
 router.post("/api/petitions/submit", publicWriteLimiter, async (req, res) => {
-  const { title, description, petitionUrl, sourceName, website, scopeCodes } = req.body || {};
+  const { title, description, petitionUrl, sourceName, website, scopeCodes, submitterEmail, submissionNotes } = req.body || {};
   if (website) {
     // Piège à bots rempli : on répond succès sans rien enregistrer, pour
     // ne pas révéler à un robot que sa soumission a été repérée.
@@ -147,13 +148,14 @@ router.post("/api/petitions/submit", publicWriteLimiter, async (req, res) => {
   if (!title || !description || !petitionUrl) {
     return res.status(400).json({ error: "title, description et petitionUrl sont requis" });
   }
+  const cleanEmail = submitterEmail && EMAIL_RE.test(submitterEmail.trim()) ? submitterEmail.trim() : null;
   try {
     const slug = await generateUniqueSlug(title, "petitions");
     await pool.query(
       `INSERT INTO petitions
-         (slug, title, description, petition_url, source_name, status, published, submitted_publicly, scope_codes, updated_at)
-       VALUES ($1, $2, $3, $4, $5, 'ongoing', false, true, $6, now())`,
-      [slug, title, description, petitionUrl, sourceName || null, sanitizeScopeCodes(scopeCodes)]
+         (slug, title, description, petition_url, source_name, status, published, submitted_publicly, scope_codes, submitter_email, submission_notes, updated_at)
+       VALUES ($1, $2, $3, $4, $5, 'ongoing', false, true, $6, $7, $8, now())`,
+      [slug, title, description, petitionUrl, sourceName || null, sanitizeScopeCodes(scopeCodes), cleanEmail, submissionNotes ? submissionNotes.trim().slice(0, 2000) : null]
     );
     res.json({ status: "pending" });
   } catch (err) {

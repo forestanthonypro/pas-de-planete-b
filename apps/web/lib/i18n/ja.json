@@ -37,7 +37,8 @@
     "mode_switch_to_discovery": "はじめてモード",
     "mode_switch_aria": "はじめてモードとエキスパートモードを切り替える",
     "nav_kit": "コミュニケーションキット",
-    "filter_by_scope": "国・地域で絞り込む"
+    "filter_by_scope": "国・地域で絞り込む",
+    "footer_contact": "お問い合わせ"
   },
   "home": {
     "intro": "オープンで検証済みのデータをもとに、国ごとに気候変動を理解する。",
@@ -718,7 +719,10 @@
     "propose_error": "送信に失敗しました。後でもう一度お試しください。",
     "back_to_home": "ホームに戻る →",
     "error_no_data": "データは利用できません",
-    "scope_label": "関係する国・地域（任意）"
+    "scope_label": "関係する国・地域（任意）",
+    "email_label": "メールアドレス（任意）",
+    "email_placeholder": "必要な場合にご連絡するため",
+    "notes_label": "メッセージ（任意）"
   },
   "dataStatus": {
     "title": "データの状態",

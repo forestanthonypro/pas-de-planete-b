@@ -14,6 +14,7 @@ export default function ProposerInterview() {
   const [contentType, setContentType] = useState("article");
   const [notes, setNotes] = useState("");
   const [scopeCodes, setScopeCodes] = useState([]);
+  const [submitterEmail, setSubmitterEmail] = useState("");
   const [website, setWebsite] = useState("");
   const [status, setStatus] = useState("idle");
   const [error, setError] = useState(null);
@@ -26,7 +27,7 @@ export default function ProposerInterview() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        sourceUrl, suggestedTitle: suggestedTitle || null, contentType, notes: notes || null, scopeCodes, website,
+        sourceUrl, suggestedTitle: suggestedTitle || null, contentType, notes: notes || null, scopeCodes, submitterEmail: submitterEmail || null, website,
       }),
     })
       .then((res) => {
@@ -105,6 +106,11 @@ export default function ProposerInterview() {
             placeholder="Rechercher un pays, un continent..."
           />
         </div>
+
+        <label style={{ display: "block", marginBottom: "1rem" }}>
+          <span style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>Votre email (optionnel)</span>
+          <input type="email" value={submitterEmail} onChange={(e) => setSubmitterEmail(e.target.value)} placeholder="pour vous recontacter si besoin" style={{ width: "100%", padding: "8px 10px" }} />
+        </label>
 
         <button type="submit" disabled={status === "sending" || !sourceUrl.trim()}>
           {status === "sending" ? "Envoi..." : "Envoyer ma proposition"}

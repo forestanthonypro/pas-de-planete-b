@@ -6,6 +6,7 @@ import { publicWriteLimiter } from "../lib/rateLimits.js";
 import { generateUniqueSlug } from "../lib/slug.js";
 import { mergeTranslations } from "../lib/translations.js";
 import { sanitizeScopeCodes, parseScopesQueryParam } from "../lib/scopeCodes.js";
+import { EMAIL_RE } from "../lib/validators.js";
 
 const router = Router();
 
@@ -299,7 +300,7 @@ router.delete("/api/admin/resource-online/:slug", requireAdminSession, async (re
 });
 
 router.post("/api/resource-locations/submit", publicWriteLimiter, async (req, res) => {
-  const { name, description, address, latitude, longitude, categoryId, links, website, scopeCodes } = req.body || {};
+  const { name, description, address, latitude, longitude, categoryId, links, website, scopeCodes, submitterEmail, submissionNotes } = req.body || {};
   if (website) {
     return res.json({ status: "pending" });
   }
@@ -311,14 +312,15 @@ router.post("/api/resource-locations/submit", publicWriteLimiter, async (req, re
   if (Number.isNaN(lat) || Number.isNaN(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
     return res.status(400).json({ error: "Coordonnées invalides" });
   }
+  const cleanEmail = submitterEmail && EMAIL_RE.test(submitterEmail.trim()) ? submitterEmail.trim() : null;
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
     const slug = await generateUniqueSlug(name, "resource_locations");
     await client.query(
-      `INSERT INTO resource_locations (slug, name, description, address, latitude, longitude, category_id, published, submitted_publicly, scope_codes, updated_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, false, true, $8, now())`,
-      [slug, name, description, address || null, lat, lng, categoryId || null, sanitizeScopeCodes(scopeCodes)]
+      `INSERT INTO resource_locations (slug, name, description, address, latitude, longitude, category_id, published, submitted_publicly, scope_codes, submitter_email, submission_notes, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, false, true, $8, $9, $10, now())`,
+      [slug, name, description, address || null, lat, lng, categoryId || null, sanitizeScopeCodes(scopeCodes), cleanEmail, submissionNotes ? submissionNotes.trim().slice(0, 2000) : null]
     );
     if (Array.isArray(links)) {
       for (const l of links) {
@@ -341,19 +343,20 @@ router.post("/api/resource-locations/submit", publicWriteLimiter, async (req, re
 });
 
 router.post("/api/resource-online/submit", publicWriteLimiter, async (req, res) => {
-  const { title, description, url, categoryId, website, scopeCodes } = req.body || {};
+  const { title, description, url, categoryId, website, scopeCodes, submitterEmail, submissionNotes } = req.body || {};
   if (website) {
     return res.json({ status: "pending" });
   }
   if (!title || !description || !url) {
     return res.status(400).json({ error: "title, description et url sont requis" });
   }
+  const cleanEmail = submitterEmail && EMAIL_RE.test(submitterEmail.trim()) ? submitterEmail.trim() : null;
   try {
     const slug = await generateUniqueSlug(title, "resource_online");
     await pool.query(
-      `INSERT INTO resource_online (slug, title, description, url, category_id, published, submitted_publicly, scope_codes, updated_at)
-       VALUES ($1, $2, $3, $4, $5, false, true, $6, now())`,
-      [slug, title, description, url, categoryId || null, sanitizeScopeCodes(scopeCodes)]
+      `INSERT INTO resource_online (slug, title, description, url, category_id, published, submitted_publicly, scope_codes, submitter_email, submission_notes, updated_at)
+       VALUES ($1, $2, $3, $4, $5, false, true, $6, $7, $8, now())`,
+      [slug, title, description, url, categoryId || null, sanitizeScopeCodes(scopeCodes), cleanEmail, submissionNotes ? submissionNotes.trim().slice(0, 2000) : null]
     );
     res.json({ status: "pending" });
   } catch (err) {

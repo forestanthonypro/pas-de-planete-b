@@ -17,6 +17,8 @@ function LocationForm({ locale }) {
   const [categoryId, setCategoryId] = useState("");
   const [links, setLinks] = useState([{ label: "", url: "" }]);
   const [scopeCodes, setScopeCodes] = useState([]);
+  const [submitterEmail, setSubmitterEmail] = useState("");
+  const [submissionNotes, setSubmissionNotes] = useState("");
   const [website, setWebsite] = useState("");
   const [status, setStatus] = useState("idle");
   const [error, setError] = useState(null);
@@ -47,7 +49,8 @@ function LocationForm({ locale }) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         name, description, address: address || null, latitude, longitude,
-        categoryId: categoryId || null, links: links.filter((l) => l.label && l.url), scopeCodes, website,
+        categoryId: categoryId || null, links: links.filter((l) => l.label && l.url), scopeCodes,
+        submitterEmail: submitterEmail || null, submissionNotes: submissionNotes || null, website,
       }),
     })
       .then((res) => {
@@ -132,6 +135,16 @@ function LocationForm({ locale }) {
         />
       </div>
 
+      <label style={{ display: "block", marginBottom: "0.75rem" }}>
+        <span style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>Votre email (optionnel)</span>
+        <input type="email" value={submitterEmail} onChange={(e) => setSubmitterEmail(e.target.value)} placeholder="pour vous recontacter si besoin" style={{ width: "100%", padding: "8px 10px" }} />
+      </label>
+
+      <label style={{ display: "block", marginBottom: "1rem" }}>
+        <span style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>Un message pour nous ? (optionnel)</span>
+        <textarea value={submissionNotes} onChange={(e) => setSubmissionNotes(e.target.value)} rows={2} placeholder="Contexte, précisions..." style={{ width: "100%", padding: "8px 10px", fontFamily: "inherit" }} />
+      </label>
+
       <p style={{ fontSize: 13, fontWeight: 600, marginBottom: 4 }}>Liens (optionnel)</p>
       {links.map((l, i) => (
         <div key={i} style={{ display: "flex", gap: "0.5rem", marginBottom: "0.5rem" }}>
@@ -158,6 +171,8 @@ function OnlineForm({ locale }) {
   const [url, setUrl] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [scopeCodes, setScopeCodes] = useState([]);
+  const [submitterEmail, setSubmitterEmail] = useState("");
+  const [submissionNotes, setSubmissionNotes] = useState("");
   const [website, setWebsite] = useState("");
   const [status, setStatus] = useState("idle");
   const [error, setError] = useState(null);
@@ -176,7 +191,7 @@ function OnlineForm({ locale }) {
     fetch(`${API_URL}/api/resource-online/submit`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title, description, url, categoryId: categoryId || null, scopeCodes, website }),
+      body: JSON.stringify({ title, description, url, categoryId: categoryId || null, scopeCodes, submitterEmail: submitterEmail || null, submissionNotes: submissionNotes || null, website }),
     })
       .then((res) => {
         if (!res.ok) return res.json().then((d) => Promise.reject(new Error(d.error || "Erreur")));
@@ -243,6 +258,16 @@ function OnlineForm({ locale }) {
           placeholder="Rechercher un pays, un continent..."
         />
       </div>
+
+      <label style={{ display: "block", marginBottom: "0.75rem" }}>
+        <span style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>Votre email (optionnel)</span>
+        <input type="email" value={submitterEmail} onChange={(e) => setSubmitterEmail(e.target.value)} placeholder="pour vous recontacter si besoin" style={{ width: "100%", padding: "8px 10px" }} />
+      </label>
+
+      <label style={{ display: "block", marginBottom: "1rem" }}>
+        <span style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>Un message pour nous ? (optionnel)</span>
+        <textarea value={submissionNotes} onChange={(e) => setSubmissionNotes(e.target.value)} rows={2} placeholder="Contexte, précisions..." style={{ width: "100%", padding: "8px 10px", fontFamily: "inherit" }} />
+      </label>
 
       <button type="submit" disabled={status === "sending"}>
         {status === "sending" ? "Envoi..." : "Envoyer ma proposition"}

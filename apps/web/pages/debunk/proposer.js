@@ -13,6 +13,7 @@ export default function ProposerDebunk() {
   const [sourceUrl, setSourceUrl] = useState("");
   const [notes, setNotes] = useState("");
   const [scopeCodes, setScopeCodes] = useState([]);
+  const [submitterEmail, setSubmitterEmail] = useState("");
   const [website, setWebsite] = useState("");
   const [status, setStatus] = useState("idle");
   const [error, setError] = useState(null);
@@ -24,7 +25,7 @@ export default function ProposerDebunk() {
     fetch(`${API_URL}/api/debunk/submit`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ myth, sourceUrl: sourceUrl || null, notes: notes || null, scopeCodes, website }),
+      body: JSON.stringify({ myth, sourceUrl: sourceUrl || null, notes: notes || null, scopeCodes, submitterEmail: submitterEmail || null, website }),
     })
       .then((res) => {
         if (!res.ok) return res.json().then((d) => Promise.reject(new Error(d.error || "Erreur")));
@@ -93,6 +94,11 @@ export default function ProposerDebunk() {
             placeholder="Rechercher un pays, un continent..."
           />
         </div>
+
+        <label style={{ display: "block", marginBottom: "1rem" }}>
+          <span style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>Votre email (optionnel)</span>
+          <input type="email" value={submitterEmail} onChange={(e) => setSubmitterEmail(e.target.value)} placeholder="pour vous recontacter si besoin" style={{ width: "100%", padding: "8px 10px" }} />
+        </label>
 
         <button type="submit" disabled={status === "sending" || !myth.trim()}>
           {status === "sending" ? "Envoi..." : "Envoyer ma proposition"}

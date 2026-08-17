@@ -37,7 +37,8 @@
     "mode_switch_to_discovery": "Mode découverte",
     "mode_switch_aria": "Basculer entre le mode découverte et le mode expert",
     "nav_kit": "Kit communication",
-    "filter_by_scope": "Filtrer par pays / zone"
+    "filter_by_scope": "Filtrer par pays / zone",
+    "footer_contact": "Contact"
   },
   "home": {
     "intro": "Comprendre le changement climatique, pays par pays, avec des données ouvertes et sourcées.",
@@ -718,7 +719,10 @@
     "propose_error": "Échec de l'envoi, réessaie plus tard.",
     "back_to_home": "Retour à l'accueil →",
     "error_no_data": "Données indisponibles",
-    "scope_label": "Pays ou zone concernée (optionnel)"
+    "scope_label": "Pays ou zone concernée (optionnel)",
+    "email_label": "Votre email (optionnel)",
+    "email_placeholder": "pour vous recontacter si besoin",
+    "notes_label": "Un message pour nous ? (optionnel)"
   },
   "dataStatus": {
     "title": "État des données",

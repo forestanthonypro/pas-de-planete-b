@@ -3,7 +3,7 @@
 // Brevo soit créé), on se contente de logger le contenu au lieu d'échouer
 // — permet de développer/tester tout le système de suivi sans dépendre
 // d'un vrai envoi d'email.
-export async function sendEmail({ to, subject, html }) {
+export async function sendEmail({ to, subject, html, replyTo }) {
   const apiKey = process.env.BREVO_API_KEY;
 
   if (!apiKey) {
@@ -26,6 +26,7 @@ export async function sendEmail({ to, subject, html }) {
       to: [{ email: to }],
       subject,
       htmlContent: html,
+      ...(replyTo ? { replyTo: { email: replyTo } } : {}),
     }),
   });
 

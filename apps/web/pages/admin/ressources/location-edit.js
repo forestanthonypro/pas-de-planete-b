@@ -29,6 +29,8 @@ function AdminLocationEditInner({ session }) {
   const [published, setPublished] = useState(false);
   const [scopeCodes, setScopeCodes] = useState([]);
   const [submittedPublicly, setSubmittedPublicly] = useState(false);
+  const [submitterEmail, setSubmitterEmail] = useState(null);
+  const [submissionNotes, setSubmissionNotes] = useState(null);
   const [links, setLinks] = useState([{ label: "", url: "" }]);
 
   const [error, setError] = useState(null);
@@ -60,6 +62,8 @@ function AdminLocationEditInner({ session }) {
     setPublished(locationData.location.published);
     setScopeCodes(locationData.location.scope_codes || []);
     setSubmittedPublicly(locationData.location.submitted_publicly || false);
+    setSubmitterEmail(locationData.location.submitter_email || null);
+    setSubmissionNotes(locationData.location.submission_notes || null);
     setLinks(locationData.links.length > 0 ? locationData.links : [{ label: "", url: "" }]);
   }, [locationData]);
 
@@ -140,9 +144,17 @@ function AdminLocationEditInner({ session }) {
       {error && <p role="alert" style={{ color: "#d63e2a" }}>{error}</p>}
 
       {submittedPublicly && !published && (
-        <p style={{ background: "#fff8e1", border: "1px solid #f4b400", borderRadius: 8, padding: "0.5rem 0.75rem", fontSize: 13, color: "#8a6d00" }}>
-          Proposition d&apos;un visiteur — à vérifier avant publication.
-        </p>
+        <div style={{ background: "#fff8e1", border: "1px solid #f4b400", borderRadius: 8, padding: "0.75rem 1rem", marginBottom: "1rem" }}>
+          <p style={{ fontSize: 13, color: "#8a6d00", margin: submitterEmail || submissionNotes ? "0 0 6px" : 0 }}>
+            Proposition d&apos;un visiteur — à vérifier avant publication.
+          </p>
+          {submitterEmail && (
+            <p style={{ fontSize: 13, margin: "0 0 4px" }}>
+              Email : <a href={`mailto:${submitterEmail}`}>{submitterEmail}</a>
+            </p>
+          )}
+          {submissionNotes && <p style={{ fontSize: 13, margin: 0, whiteSpace: "pre-wrap" }}>{submissionNotes}</p>}
+        </div>
       )}
 
       <form onSubmit={handleSubmit}>

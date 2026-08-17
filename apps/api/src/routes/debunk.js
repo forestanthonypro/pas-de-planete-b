@@ -6,6 +6,7 @@ import { publicWriteLimiter } from "../lib/rateLimits.js";
 import { generateUniqueSlug } from "../lib/slug.js";
 import { mergeTranslations, applyTranslations } from "../lib/translations.js";
 import { sanitizeScopeCodes, parseScopesQueryParam } from "../lib/scopeCodes.js";
+import { EMAIL_RE } from "../lib/validators.js";
 
 const router = Router();
 
@@ -239,22 +240,23 @@ router.post("/api/admin/debunk", requireAdminSession, async (req, res) => {
 // C'est la rédaction qui écrit "reality" avant toute publication — jamais
 // une reprise telle quelle de ce qu'un visiteur a soumis.
 router.post("/api/debunk/submit", publicWriteLimiter, async (req, res) => {
-  const { myth, sourceUrl, notes, website, scopeCodes } = req.body || {};
+  const { myth, sourceUrl, notes, website, scopeCodes, submitterEmail } = req.body || {};
   if (website) {
     return res.json({ status: "pending" });
   }
   if (!myth || !myth.trim()) {
     return res.status(400).json({ error: "myth est requis" });
   }
+  const cleanEmail = submitterEmail && EMAIL_RE.test(submitterEmail.trim()) ? submitterEmail.trim() : null;
   try {
     const slug = await generateUniqueSlug(myth, "debunk_entries");
     const combinedNotes = [sourceUrl ? `Source suggérée : ${sourceUrl}` : null, notes ? notes.trim() : null]
       .filter(Boolean)
       .join("\n\n");
     await pool.query(
-      `INSERT INTO debunk_entries (slug, myth, reality, published, submitted_publicly, submission_notes, scope_codes, updated_at)
-       VALUES ($1, $2, '', false, true, $3, $4, now())`,
-      [slug, myth.trim(), combinedNotes || null, sanitizeScopeCodes(scopeCodes)]
+      `INSERT INTO debunk_entries (slug, myth, reality, published, submitted_publicly, submission_notes, scope_codes, submitter_email, updated_at)
+       VALUES ($1, $2, '', false, true, $3, $4, $5, now())`,
+      [slug, myth.trim(), combinedNotes || null, sanitizeScopeCodes(scopeCodes), cleanEmail]
     );
     res.json({ status: "pending" });
   } catch (err) {

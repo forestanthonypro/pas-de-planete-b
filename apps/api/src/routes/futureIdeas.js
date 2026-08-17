@@ -3,7 +3,7 @@ import { pool } from "../lib/db.js";
 import { errorDetail } from "../lib/errors.js";
 import { requireAdminSession } from "../lib/auth.js";
 import { publicWriteLimiter } from "../lib/rateLimits.js";
-import { UUID_RE } from "../lib/validators.js";
+import { UUID_RE, EMAIL_RE } from "../lib/validators.js";
 import { mergeTranslations } from "../lib/translations.js";
 import { sanitizeScopeCodes, parseScopesQueryParam } from "../lib/scopeCodes.js";
 
@@ -153,7 +153,7 @@ router.post("/api/admin/future-ideas/:slug/publish", requireAdminSession, async 
 // publié directement, toujours modéré manuellement (même principe que la
 // boîte à idées de la charte éthique).
 router.post("/api/future-idea-suggestions", publicWriteLimiter, async (req, res) => {
-  const { text, website, scopeCodes } = req.body || {};
+  const { text, website, scopeCodes, submitterEmail, submissionNotes } = req.body || {};
   if (website) {
     // Piège à bots rempli — même principe que pétitions/ressources : on
     // répond succès sans rien enregistrer, sans révéler la détection.
@@ -165,10 +165,11 @@ router.post("/api/future-idea-suggestions", publicWriteLimiter, async (req, res)
   if (text.length > 2000) {
     return res.status(400).json({ error: "Texte trop long (2000 caractères max)" });
   }
+  const cleanEmail = submitterEmail && EMAIL_RE.test(submitterEmail.trim()) ? submitterEmail.trim() : null;
   try {
     await pool.query(
-      "INSERT INTO future_idea_suggestions (text, status, scope_codes) VALUES ($1, 'pending', $2)",
-      [text.trim(), sanitizeScopeCodes(scopeCodes)]
+      "INSERT INTO future_idea_suggestions (text, status, scope_codes, submitter_email, submission_notes) VALUES ($1, 'pending', $2, $3, $4)",
+      [text.trim(), sanitizeScopeCodes(scopeCodes), cleanEmail, submissionNotes ? submissionNotes.trim().slice(0, 2000) : null]
     );
     res.json({ status: "ok" });
   } catch (err) {
@@ -199,7 +200,7 @@ router.get("/api/future-idea-suggestions/published", async (req, res) => {
 router.get("/api/admin/future-idea-suggestions", requireAdminSession, async (_req, res) => {
   try {
     const result = await pool.query(
-      `SELECT id, text, status, scope_codes, submitted_at FROM future_idea_suggestions
+      `SELECT id, text, status, scope_codes, submitter_email, submission_notes, submitted_at FROM future_idea_suggestions
        ORDER BY (status = 'pending') DESC, submitted_at DESC`
     );
     res.json(result.rows);

@@ -14,6 +14,8 @@ export default function ProposerPetition() {
   const [petitionUrl, setPetitionUrl] = useState("");
   const [sourceName, setSourceName] = useState("");
   const [scopeCodes, setScopeCodes] = useState([]);
+  const [submitterEmail, setSubmitterEmail] = useState("");
+  const [submissionNotes, setSubmissionNotes] = useState("");
   const [website, setWebsite] = useState("");
   const [status, setStatus] = useState("idle");
   const [error, setError] = useState(null);
@@ -25,7 +27,7 @@ export default function ProposerPetition() {
     fetch(`${API_URL}/api/petitions/submit`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title, description, petitionUrl, sourceName: sourceName || null, scopeCodes, website }),
+      body: JSON.stringify({ title, description, petitionUrl, sourceName: sourceName || null, scopeCodes, submitterEmail: submitterEmail || null, submissionNotes: submissionNotes || null, website }),
     })
       .then((res) => {
         if (!res.ok) return res.json().then((d) => Promise.reject(new Error(d.error || "Erreur")));
@@ -98,6 +100,16 @@ export default function ProposerPetition() {
             placeholder="Rechercher un pays, un continent..."
           />
         </div>
+
+        <label style={{ display: "block", marginBottom: "0.75rem" }}>
+          <span style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>Votre email (optionnel)</span>
+          <input type="email" value={submitterEmail} onChange={(e) => setSubmitterEmail(e.target.value)} placeholder="pour vous recontacter si besoin" style={{ width: "100%", padding: "8px 10px" }} />
+        </label>
+
+        <label style={{ display: "block", marginBottom: "1rem" }}>
+          <span style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>Un message pour nous ? (optionnel)</span>
+          <textarea value={submissionNotes} onChange={(e) => setSubmissionNotes(e.target.value)} rows={2} placeholder="Contexte, précisions..." style={{ width: "100%", padding: "8px 10px", fontFamily: "inherit" }} />
+        </label>
 
         <button type="submit" disabled={status === "sending"}>
           {status === "sending" ? "Envoi..." : "Envoyer ma proposition"}

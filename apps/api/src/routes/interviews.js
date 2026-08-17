@@ -7,6 +7,7 @@ import { generateUniqueSlug } from "../lib/slug.js";
 import { isAllowedEmbedUrl } from "../lib/embedValidation.js";
 import { mergeTranslations, applyTranslations } from "../lib/translations.js";
 import { sanitizeScopeCodes, parseScopesQueryParam } from "../lib/scopeCodes.js";
+import { EMAIL_RE } from "../lib/validators.js";
 
 const router = Router();
 
@@ -188,7 +189,7 @@ router.post("/api/admin/science-relays/:slug/publish", requireAdminSession, asyn
 // contexte fourni va dans submission_notes. La rédaction écrit toujours
 // sa propre description avant publication.
 router.post("/api/science-relays/submit", publicWriteLimiter, async (req, res) => {
-  const { sourceUrl, suggestedTitle, contentType, notes, website, scopeCodes } = req.body || {};
+  const { sourceUrl, suggestedTitle, contentType, notes, website, scopeCodes, submitterEmail } = req.body || {};
   if (website) {
     return res.json({ status: "pending" });
   }
@@ -196,14 +197,15 @@ router.post("/api/science-relays/submit", publicWriteLimiter, async (req, res) =
     return res.status(400).json({ error: "sourceUrl est requis" });
   }
   const validContentType = ["video", "article", "podcast"].includes(contentType) ? contentType : "article";
+  const cleanEmail = submitterEmail && EMAIL_RE.test(submitterEmail.trim()) ? submitterEmail.trim() : null;
   try {
     const baseTitle = suggestedTitle && suggestedTitle.trim() ? suggestedTitle.trim() : sourceUrl.trim();
     const slug = await generateUniqueSlug(baseTitle, "science_relays");
     await pool.query(
       `INSERT INTO science_relays
-         (slug, title, description, content_type, source_url, published, submitted_publicly, submission_notes, scope_codes, updated_at)
-       VALUES ($1, $2, '', $3, $4, false, true, $5, $6, now())`,
-      [slug, baseTitle, validContentType, sourceUrl.trim(), notes ? notes.trim() : null, sanitizeScopeCodes(scopeCodes)]
+         (slug, title, description, content_type, source_url, published, submitted_publicly, submission_notes, scope_codes, submitter_email, updated_at)
+       VALUES ($1, $2, '', $3, $4, false, true, $5, $6, $7, now())`,
+      [slug, baseTitle, validContentType, sourceUrl.trim(), notes ? notes.trim() : null, sanitizeScopeCodes(scopeCodes), cleanEmail]
     );
     res.json({ status: "pending" });
   } catch (err) {
