@@ -466,7 +466,8 @@
     "category_all": "すべてのカテゴリー",
     "claim_title": "主張",
     "published_on": "公開日：{date}",
-    "updated_on": " · 更新日：{date}"
+    "updated_on": " · 更新日：{date}",
+    "propose_link": "検証してほしい説を提案する →"
   },
   "pays": {
     "change_country": "国を変更",
@@ -617,7 +618,8 @@
     "source_label": "出典：",
     "watch_source": "元の出典を見る →",
     "related_debunk": "こちらもご覧ください（デバンク）：",
-    "error_no_data": "データは利用できません"
+    "error_no_data": "データは利用できません",
+    "propose_link": "コンテンツを提案する →"
   },
   "paysans": {
     "title": "みんな農家になる",
@@ -713,7 +715,8 @@
     "propose_done": "ありがとうございます！あなたの提案は公開前に審査されます。",
     "propose_error": "送信に失敗しました。後でもう一度お試しください。",
     "back_to_home": "ホームに戻る →",
-    "error_no_data": "データは利用できません"
+    "error_no_data": "データは利用できません",
+    "scope_label": "関係する国・地域（任意）"
   },
   "dataStatus": {
     "title": "データの状態",

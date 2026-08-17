@@ -466,7 +466,8 @@
     "category_all": "Toutes les catégories",
     "claim_title": "L'affirmation",
     "published_on": "Publié le {date}",
-    "updated_on": " · Mis à jour le {date}"
+    "updated_on": " · Mis à jour le {date}",
+    "propose_link": "Proposer une idée reçue à vérifier →"
   },
   "pays": {
     "change_country": "Changer de pays",
@@ -617,7 +618,8 @@
     "source_label": "Source :",
     "watch_source": "Voir la source originale →",
     "related_debunk": "À lire aussi (Débunk) :",
-    "error_no_data": "Données indisponibles"
+    "error_no_data": "Données indisponibles",
+    "propose_link": "Proposer un contenu →"
   },
   "paysans": {
     "title": "On devient tous paysans",
@@ -713,7 +715,8 @@
     "propose_done": "Merci ! Ta suggestion sera examinée avant publication.",
     "propose_error": "Échec de l'envoi, réessaie plus tard.",
     "back_to_home": "Retour à l'accueil →",
-    "error_no_data": "Données indisponibles"
+    "error_no_data": "Données indisponibles",
+    "scope_label": "Pays ou zone concernée (optionnel)"
   },
   "dataStatus": {
     "title": "État des données",

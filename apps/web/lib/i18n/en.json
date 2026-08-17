@@ -466,7 +466,8 @@
     "category_all": "All categories",
     "claim_title": "The claim",
     "published_on": "Published on {date}",
-    "updated_on": " · Updated on {date}"
+    "updated_on": " · Updated on {date}",
+    "propose_link": "Suggest a claim to check →"
   },
   "pays": {
     "change_country": "Change country",
@@ -617,7 +618,8 @@
     "source_label": "Source:",
     "watch_source": "See the original source →",
     "related_debunk": "Also see (Debunk):",
-    "error_no_data": "Data unavailable"
+    "error_no_data": "Data unavailable",
+    "propose_link": "Suggest content →"
   },
   "paysans": {
     "title": "We're all becoming farmers",
@@ -713,7 +715,8 @@
     "propose_done": "Thank you! Your suggestion will be reviewed before publication.",
     "propose_error": "Failed to send, try again later.",
     "back_to_home": "Back to home →",
-    "error_no_data": "Data unavailable"
+    "error_no_data": "Data unavailable",
+    "scope_label": "Country or region concerned (optional)"
   },
   "dataStatus": {
     "title": "Data status",

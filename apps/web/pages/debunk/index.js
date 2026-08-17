@@ -73,6 +73,24 @@ export default function DebunkPage() {
         )}
       </div>
 
+      <p style={{ fontSize: 12, marginBottom: "1rem" }}>
+        <Link
+          href="/debunk/proposer"
+          style={{
+            display: "inline-block",
+            background: "var(--color-forest)",
+            color: "white",
+            padding: "8px 16px",
+            borderRadius: 20,
+            textDecoration: "none",
+            fontWeight: 600,
+            fontSize: 13,
+          }}
+        >
+          {t("debunk.propose_link")}
+        </Link>
+      </p>
+
       <div style={{ marginTop: "0.5rem" }}>
         <ShareButtons title={t("debunk.share_title")} />
       </div>

@@ -61,6 +61,24 @@ export default function InterviewsPage() {
 
       <ShareButtons title={t("interviews.share_title")} />
 
+      <p style={{ fontSize: 12, marginBottom: "1rem" }}>
+        <Link
+          href="/interviews/proposer"
+          style={{
+            display: "inline-block",
+            background: "var(--color-forest)",
+            color: "white",
+            padding: "8px 16px",
+            borderRadius: 20,
+            textDecoration: "none",
+            fontWeight: 600,
+            fontSize: 13,
+          }}
+        >
+          {t("interviews.propose_link")}
+        </Link>
+      </p>
+
       <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", marginBottom: "1rem" }}>
         {categories.length > 0 && (
           <select

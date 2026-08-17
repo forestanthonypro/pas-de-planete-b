@@ -3,16 +3,15 @@ import Link from "next/link";
 import PageHeader from "../../components/PageHeader";
 import ScopeMultiSelect from "../../components/ScopeMultiSelect";
 import { useT } from "../../lib/useT";
-import { IconLandmark } from "../../components/icons";
+import { IconSearch } from "../../components/icons";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
-export default function ProposerPetition() {
+export default function ProposerDebunk() {
   const { locale } = useT();
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [petitionUrl, setPetitionUrl] = useState("");
-  const [sourceName, setSourceName] = useState("");
+  const [myth, setMyth] = useState("");
+  const [sourceUrl, setSourceUrl] = useState("");
+  const [notes, setNotes] = useState("");
   const [scopeCodes, setScopeCodes] = useState([]);
   const [website, setWebsite] = useState("");
   const [status, setStatus] = useState("idle");
@@ -22,10 +21,10 @@ export default function ProposerPetition() {
     e.preventDefault();
     setStatus("sending");
     setError(null);
-    fetch(`${API_URL}/api/petitions/submit`, {
+    fetch(`${API_URL}/api/debunk/submit`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title, description, petitionUrl, sourceName: sourceName || null, scopeCodes, website }),
+      body: JSON.stringify({ myth, sourceUrl: sourceUrl || null, notes: notes || null, scopeCodes, website }),
     })
       .then((res) => {
         if (!res.ok) return res.json().then((d) => Promise.reject(new Error(d.error || "Erreur")));
@@ -42,9 +41,9 @@ export default function ProposerPetition() {
     return (
       <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 700, margin: "0 auto", textAlign: "center" }}>
         <h2 style={{ fontSize: 20 }}>Merci !</h2>
-        <p>Cette pétition a bien été reçue et sera examinée avant publication.</p>
+        <p>Cette idée reçue a bien été transmise à la rédaction, qui vérifiera et rédigera la réponse avant publication.</p>
         <p style={{ fontSize: 13 }}>
-          <Link href="/petitions">← Retour aux pétitions</Link>
+          <Link href="/debunk">← Retour à Debunk</Link>
         </p>
       </div>
     );
@@ -53,40 +52,36 @@ export default function ProposerPetition() {
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 700, margin: "0 auto" }}>
       <p style={{ fontSize: 13 }}>
-        <Link href="/petitions">← Retour aux pétitions</Link>
+        <Link href="/debunk">← Retour à Debunk</Link>
       </p>
-      <PageHeader Icon={IconLandmark} tint="green" title="Proposer une pétition">
+      <PageHeader Icon={IconSearch} tint="teal" title="Proposer une idée reçue à vérifier">
         <p style={{ fontSize: 13, color: "var(--color-texte-clair)", margin: 0 }}>
-          Une pétition en cours ou déjà aboutie qui mérite d&apos;être connue — nous la relisons avant publication.
+          Une affirmation qui circule et mérite d&apos;être vérifiée — c&apos;est nous qui rédigeons la réponse,
+          sourcée, avant toute publication. Pas besoin de l&apos;écrire vous-même.
         </p>
       </PageHeader>
 
       <form onSubmit={handleSubmit}>
         <div aria-hidden="true" style={{ position: "absolute", left: "-9999px", top: "-9999px" }}>
-          <label htmlFor="website-petition">Laisser vide</label>
-          <input id="website-petition" type="text" tabIndex={-1} autoComplete="off" value={website} onChange={(e) => setWebsite(e.target.value)} />
+          <label htmlFor="website-debunk">Laisser vide</label>
+          <input id="website-debunk" type="text" tabIndex={-1} autoComplete="off" value={website} onChange={(e) => setWebsite(e.target.value)} />
         </div>
 
         {error && <p role="alert" style={{ color: "#d63e2a" }}>{error}</p>}
 
         <label style={{ display: "block", marginBottom: "0.75rem" }}>
-          <span style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>Titre</span>
-          <input type="text" required value={title} onChange={(e) => setTitle(e.target.value)} style={{ width: "100%", padding: "8px 10px" }} />
+          <span style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>L&apos;idée reçue, telle que vous l&apos;avez entendue</span>
+          <textarea required value={myth} onChange={(e) => setMyth(e.target.value)} rows={3} style={{ width: "100%", padding: "8px 10px", fontFamily: "inherit" }} />
         </label>
 
         <label style={{ display: "block", marginBottom: "0.75rem" }}>
-          <span style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>Description</span>
-          <textarea required value={description} onChange={(e) => setDescription(e.target.value)} rows={3} style={{ width: "100%", padding: "8px 10px", fontFamily: "inherit" }} />
+          <span style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>Où l&apos;avez-vous vue/entendue ? (optionnel)</span>
+          <input type="url" value={sourceUrl} onChange={(e) => setSourceUrl(e.target.value)} placeholder="https://... (article, réseau social, vidéo...)" style={{ width: "100%", padding: "8px 10px" }} />
         </label>
 
         <label style={{ display: "block", marginBottom: "0.75rem" }}>
-          <span style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>Lien vers la pétition</span>
-          <input type="url" required value={petitionUrl} onChange={(e) => setPetitionUrl(e.target.value)} placeholder="https://..." style={{ width: "100%", padding: "8px 10px" }} />
-        </label>
-
-        <label style={{ display: "block", marginBottom: "1rem" }}>
-          <span style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>Plateforme (optionnel)</span>
-          <input type="text" value={sourceName} onChange={(e) => setSourceName(e.target.value)} placeholder="ex : Change.org, Mes Opinions..." style={{ width: "100%", padding: "8px 10px" }} />
+          <span style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>Contexte ou précisions (optionnel)</span>
+          <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} style={{ width: "100%", padding: "8px 10px", fontFamily: "inherit" }} />
         </label>
 
         <div style={{ marginBottom: "1rem" }}>
@@ -99,7 +94,7 @@ export default function ProposerPetition() {
           />
         </div>
 
-        <button type="submit" disabled={status === "sending"}>
+        <button type="submit" disabled={status === "sending" || !myth.trim()}>
           {status === "sending" ? "Envoi..." : "Envoyer ma proposition"}
         </button>
       </form>

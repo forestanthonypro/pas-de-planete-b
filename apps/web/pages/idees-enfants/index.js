@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import ShareButtons from "../../components/ShareButtons";
 import PageHeader from "../../components/PageHeader";
+import ScopeMultiSelect from "../../components/ScopeMultiSelect";
+import ScopeBadges from "../../components/ScopeBadges";
 import { IconCheck } from "../../components/icons";
 import { useT } from "../../lib/useT";
 import { getAnonymousId } from "../../lib/anonymousId";
@@ -16,6 +18,8 @@ export default function FutureIdeasPage() {
   const [error, setError] = useState(null);
   const [publishedSuggestions, setPublishedSuggestions] = useState([]);
   const [suggestionText, setSuggestionText] = useState("");
+  const [suggestionScopeCodes, setSuggestionScopeCodes] = useState([]);
+  const [website, setWebsite] = useState("");
   const [suggestionStatus, setSuggestionStatus] = useState("idle"); // idle | sending | done | error
 
   useEffect(() => {
@@ -79,7 +83,7 @@ export default function FutureIdeasPage() {
     fetch(`${API_URL}/api/future-idea-suggestions`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text: suggestionText.trim() }),
+      body: JSON.stringify({ text: suggestionText.trim(), scopeCodes: suggestionScopeCodes, website }),
     })
       .then((res) => {
         if (!res.ok) throw new Error();
@@ -88,6 +92,7 @@ export default function FutureIdeasPage() {
       .then(() => {
         setSuggestionStatus("done");
         setSuggestionText("");
+        setSuggestionScopeCodes([]);
       })
       .catch(() => setSuggestionStatus("error"));
   }
@@ -109,7 +114,9 @@ export default function FutureIdeasPage() {
         return (
           <div key={idea.slug} className="pdpb-card" style={{ marginBottom: 10, display: "flex", alignItems: "center", gap: 12 }}>
             <div style={{ flex: 1 }}>
-              <p style={{ fontSize: 15, fontWeight: 600, margin: "0 0 4px" }}>{idea.title}</p>
+              <p style={{ fontSize: 15, fontWeight: 600, margin: "0 0 4px" }}>
+                {idea.title} {idea.scope_codes && idea.scope_codes.length > 0 && <ScopeBadges codes={idea.scope_codes} locale={locale} />}
+              </p>
               {idea.description && (
                 <p style={{ fontSize: 13, color: "var(--color-texte-clair)", margin: 0 }}>{idea.description}</p>
               )}
@@ -143,7 +150,9 @@ export default function FutureIdeasPage() {
           <h2 style={{ fontSize: 18 }}>{t("futureIdeas.suggestions_title")}</h2>
           <ul>
             {publishedSuggestions.map((s) => (
-              <li key={s.id} style={{ fontSize: 14, marginBottom: 6 }}>{s.text}</li>
+              <li key={s.id} style={{ fontSize: 14, marginBottom: 6 }}>
+                {s.text} {s.scope_codes && s.scope_codes.length > 0 && <ScopeBadges codes={s.scope_codes} locale={locale} />}
+              </li>
             ))}
           </ul>
         </section>
@@ -157,6 +166,10 @@ export default function FutureIdeasPage() {
           <p style={{ fontSize: 14, fontWeight: 600 }}>{t("futureIdeas.propose_done")}</p>
         ) : (
           <form onSubmit={handleSuggestionSubmit}>
+            <div aria-hidden="true" style={{ position: "absolute", left: "-9999px", top: "-9999px" }}>
+              <label htmlFor="website-future-idea">Laisser vide</label>
+              <input id="website-future-idea" type="text" tabIndex={-1} autoComplete="off" value={website} onChange={(e) => setWebsite(e.target.value)} />
+            </div>
             <textarea
               value={suggestionText}
               onChange={(e) => setSuggestionText(e.target.value)}
@@ -165,6 +178,15 @@ export default function FutureIdeasPage() {
               maxLength={2000}
               style={{ width: "100%", padding: "8px 10px", fontFamily: "inherit", marginBottom: "0.5rem" }}
             />
+            <div style={{ marginBottom: "0.75rem" }}>
+              <ScopeMultiSelect
+                value={suggestionScopeCodes}
+                onChange={setSuggestionScopeCodes}
+                locale={locale}
+                label={t("futureIdeas.scope_label")}
+                placeholder={t("common.country_search_placeholder")}
+              />
+            </div>
             <button type="submit" disabled={suggestionStatus === "sending" || !suggestionText.trim()}>
               {suggestionStatus === "sending" ? t("futureIdeas.propose_sending") : t("futureIdeas.propose_button")}
             </button>

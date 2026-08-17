@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import PageHeader from "../../components/PageHeader";
+import ScopeMultiSelect from "../../components/ScopeMultiSelect";
+import { useT } from "../../lib/useT";
 import { IconLandmark } from "../../components/icons";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
-function LocationForm() {
+function LocationForm({ locale }) {
   const [categories, setCategories] = useState([]);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -14,6 +16,7 @@ function LocationForm() {
   const [longitude, setLongitude] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [links, setLinks] = useState([{ label: "", url: "" }]);
+  const [scopeCodes, setScopeCodes] = useState([]);
   const [website, setWebsite] = useState("");
   const [status, setStatus] = useState("idle");
   const [error, setError] = useState(null);
@@ -44,7 +47,7 @@ function LocationForm() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         name, description, address: address || null, latitude, longitude,
-        categoryId: categoryId || null, links: links.filter((l) => l.label && l.url), website,
+        categoryId: categoryId || null, links: links.filter((l) => l.label && l.url), scopeCodes, website,
       }),
     })
       .then((res) => {
@@ -119,6 +122,16 @@ function LocationForm() {
         </label>
       )}
 
+      <div style={{ marginBottom: "1rem" }}>
+        <ScopeMultiSelect
+          value={scopeCodes}
+          onChange={setScopeCodes}
+          locale={locale}
+          label="Pays ou zone concernée (optionnel)"
+          placeholder="Rechercher un pays, un continent..."
+        />
+      </div>
+
       <p style={{ fontSize: 13, fontWeight: 600, marginBottom: 4 }}>Liens (optionnel)</p>
       {links.map((l, i) => (
         <div key={i} style={{ display: "flex", gap: "0.5rem", marginBottom: "0.5rem" }}>
@@ -138,12 +151,13 @@ function LocationForm() {
   );
 }
 
-function OnlineForm() {
+function OnlineForm({ locale }) {
   const [categories, setCategories] = useState([]);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [url, setUrl] = useState("");
   const [categoryId, setCategoryId] = useState("");
+  const [scopeCodes, setScopeCodes] = useState([]);
   const [website, setWebsite] = useState("");
   const [status, setStatus] = useState("idle");
   const [error, setError] = useState(null);
@@ -162,7 +176,7 @@ function OnlineForm() {
     fetch(`${API_URL}/api/resource-online/submit`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title, description, url, categoryId: categoryId || null, website }),
+      body: JSON.stringify({ title, description, url, categoryId: categoryId || null, scopeCodes, website }),
     })
       .then((res) => {
         if (!res.ok) return res.json().then((d) => Promise.reject(new Error(d.error || "Erreur")));
@@ -220,6 +234,16 @@ function OnlineForm() {
         </label>
       )}
 
+      <div style={{ marginBottom: "1rem" }}>
+        <ScopeMultiSelect
+          value={scopeCodes}
+          onChange={setScopeCodes}
+          locale={locale}
+          label="Pays ou zone concernée (optionnel)"
+          placeholder="Rechercher un pays, un continent..."
+        />
+      </div>
+
       <button type="submit" disabled={status === "sending"}>
         {status === "sending" ? "Envoi..." : "Envoyer ma proposition"}
       </button>
@@ -228,6 +252,7 @@ function OnlineForm() {
 }
 
 export default function ProposerRessource() {
+  const { locale } = useT();
   const [tab, setTab] = useState("location");
 
   return (
@@ -268,7 +293,7 @@ export default function ProposerRessource() {
         </button>
       </div>
 
-      {tab === "location" ? <LocationForm /> : <OnlineForm />}
+      {tab === "location" ? <LocationForm locale={locale} /> : <OnlineForm locale={locale} />}
     </div>
   );
 }

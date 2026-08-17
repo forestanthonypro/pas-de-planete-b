@@ -466,7 +466,8 @@
     "category_all": "Todas las categorías",
     "claim_title": "La afirmación",
     "published_on": "Publicado el {date}",
-    "updated_on": " · Actualizado el {date}"
+    "updated_on": " · Actualizado el {date}",
+    "propose_link": "Proponer una idea a verificar →"
   },
   "pays": {
     "change_country": "Cambiar de país",
@@ -617,7 +618,8 @@
     "source_label": "Fuente:",
     "watch_source": "Ver la fuente original →",
     "related_debunk": "Lee también (Desmentidos):",
-    "error_no_data": "Datos no disponibles"
+    "error_no_data": "Datos no disponibles",
+    "propose_link": "Proponer un contenido →"
   },
   "paysans": {
     "title": "Todos agricultores",
@@ -713,7 +715,8 @@
     "propose_done": "¡Gracias! Tu sugerencia será revisada antes de su publicación.",
     "propose_error": "Error al enviar, inténtalo de nuevo más tarde.",
     "back_to_home": "Volver al inicio →",
-    "error_no_data": "Datos no disponibles"
+    "error_no_data": "Datos no disponibles",
+    "scope_label": "País o zona concernida (opcional)"
   },
   "dataStatus": {
     "title": "Estado de los datos",

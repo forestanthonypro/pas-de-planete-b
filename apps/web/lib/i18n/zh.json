@@ -466,7 +466,8 @@
     "category_all": "全部类别",
     "claim_title": "说法",
     "published_on": "发布日期：{date}",
-    "updated_on": " · 更新日期：{date}"
+    "updated_on": " · 更新日期：{date}",
+    "propose_link": "提议一个待核实的说法 →"
   },
   "pays": {
     "change_country": "更换国家",
@@ -617,7 +618,8 @@
     "source_label": "来源：",
     "watch_source": "查看原始来源 →",
     "related_debunk": "另请参阅（辟谣）：",
-    "error_no_data": "数据不可用"
+    "error_no_data": "数据不可用",
+    "propose_link": "提议内容 →"
   },
   "paysans": {
     "title": "人人都是农民",
@@ -713,7 +715,8 @@
     "propose_done": "谢谢！您的建议将在发布前接受审核。",
     "propose_error": "提交失败，请稍后重试。",
     "back_to_home": "返回首页 →",
-    "error_no_data": "数据不可用"
+    "error_no_data": "数据不可用",
+    "scope_label": "相关国家或地区（可选）"
   },
   "dataStatus": {
     "title": "数据状态",

@@ -466,7 +466,8 @@
     "category_all": "सभी श्रेणियां",
     "claim_title": "दावा",
     "published_on": "{date} को प्रकाशित",
-    "updated_on": " · {date} को अपडेट किया गया"
+    "updated_on": " · {date} को अपडेट किया गया",
+    "propose_link": "जाँचने के लिए एक धारणा सुझाएं →"
   },
   "pays": {
     "change_country": "देश बदलें",
@@ -617,7 +618,8 @@
     "source_label": "स्रोत:",
     "watch_source": "मूल स्रोत देखें →",
     "related_debunk": "यह भी पढ़ें (भ्रांति-निवारण):",
-    "error_no_data": "डेटा उपलब्ध नहीं है"
+    "error_no_data": "डेटा उपलब्ध नहीं है",
+    "propose_link": "सामग्री सुझाएं →"
   },
   "paysans": {
     "title": "हम सब किसान बनें",
@@ -713,7 +715,8 @@
     "propose_done": "धन्यवाद! आपका सुझाव प्रकाशन से पहले जांचा जाएगा।",
     "propose_error": "भेजने में विफल, बाद में पुनः प्रयास करें।",
     "back_to_home": "होम पर वापस जाएं →",
-    "error_no_data": "डेटा उपलब्ध नहीं है"
+    "error_no_data": "डेटा उपलब्ध नहीं है",
+    "scope_label": "संबंधित देश या क्षेत्र (वैकल्पिक)"
   },
   "dataStatus": {
     "title": "डेटा की स्थिति",

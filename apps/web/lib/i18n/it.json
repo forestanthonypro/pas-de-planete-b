@@ -466,7 +466,8 @@
     "category_all": "Tutte le categorie",
     "claim_title": "L'affermazione",
     "published_on": "Pubblicato il {date}",
-    "updated_on": " · Aggiornato il {date}"
+    "updated_on": " · Aggiornato il {date}",
+    "propose_link": "Proponi un'idea da verificare →"
   },
   "pays": {
     "change_country": "Cambia paese",
@@ -617,7 +618,8 @@
     "source_label": "Fonte:",
     "watch_source": "Vedi la fonte originale →",
     "related_debunk": "Leggi anche (Smentite):",
-    "error_no_data": "Dati non disponibili"
+    "error_no_data": "Dati non disponibili",
+    "propose_link": "Proponi un contenuto →"
   },
   "paysans": {
     "title": "Tutti contadini",
@@ -713,7 +715,8 @@
     "propose_done": "Grazie! Il tuo suggerimento sarà esaminato prima della pubblicazione.",
     "propose_error": "Invio fallito, riprova più tardi.",
     "back_to_home": "Torna alla home →",
-    "error_no_data": "Dati non disponibili"
+    "error_no_data": "Dati non disponibili",
+    "scope_label": "Paese o zona interessata (opzionale)"
   },
   "dataStatus": {
     "title": "Stato dei dati",
