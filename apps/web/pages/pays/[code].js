@@ -1203,6 +1203,7 @@ export default function PaysDashboard() {
       {!loading && !error && summary && (
         <section style={{ marginTop: "1rem", marginBottom: "2rem", padding: "1rem", background: "var(--color-carte)", borderRadius: 8 }}>
           <h2 id="comparaison" style={{ marginTop: 0 }}>{t("pays.world_comparison_title")}</h2>
+          <p style={{ fontSize: 13, color: "var(--color-texte-clair)", fontWeight: 600 }}>{t("pays.world_comparison_normalization_note")}</p>
           <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>{t("pays.world_comparison_p1")}</p>
           <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>{t("pays.world_comparison_p2")}</p>
           <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>{t("pays.world_comparison_p3")}</p>

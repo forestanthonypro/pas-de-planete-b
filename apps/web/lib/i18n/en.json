@@ -481,7 +481,7 @@
     "world_comparison_p2": "\"Water withdrawn per capita\" includes all uses — agriculture, industry and domestic combined, not just tap water. A country with less irrigated agriculture or less heavy industry can show a lower per-capita total without its inhabitants \"using less water day to day\" in the usual sense — it's the country's total withdrawal, spread per capita, that's compared.",
     "world_comparison_p3": "\"Water stress\" is different: it measures how much of a country's naturally renewing water (rivers, groundwater...) is actually being drawn out. Think of a well that refills a little each year: if you take out much more than what refills, you're in water stress — even if the actual amount you take isn't huge. That's often the case in very dry countries with little rain. Conversely, a country that withdraws a lot of water in absolute terms can have low water stress if it also has plenty of rain and rivers. An index of 150 means: this country withdraws 50% more than the world average, relative to what it actually has available.",
     "world_comparison_p4": "\"Deforestation\" here compares how fast a country is losing its forest this year, compared to the average pace in the rest of the world (all causes combined: logging, fire, farming — a plot can also grow back after managed logging, it isn't always permanent). An index of 60 means: this country is losing its forest, that year, 40% slower than the world average (60% of the average pace). If you'd rather see how this changes over time for this specific country instead of compared to others, the \"Tree cover loss\" section further down this page shows it year by year.",
-    "world_comparison_p5": "The \"Threatened species\" line is different: it doesn't compare to a world average like the other lines. It simply shows what share of the whole planet's threatened species is found in this country. Since no single country can hold all of the world's threatened species, the 100 mark used for the other lines doesn't apply here — ignore it for this line.",
+    "world_comparison_p5": "The \"Threatened species\" line is different: it doesn't compare to a world average like the other lines. It simply shows what share of the whole planet's threatened species is found in this country. Since no single country can hold all of the world's threatened species, the 100 mark used for the other lines doesn't apply here — ignore it for this line. Unlike the five indicators above, this one isn't adjusted for country size: a large country, or one with especially rich biodiversity (rainforest, ocean coastline...), will mechanically show a higher share here, without that necessarily reflecting weaker environmental protection choices.",
     "tooltip_no_data": "{dataset}: no data",
     "tooltip_share": "{dataset}: {value}% of world total",
     "tooltip_index": "{dataset}: index {value} (100 = world average, so {value}% of the average)",
@@ -564,7 +564,8 @@
     "table_metric_pollution": "Air pollution (PM2.5)",
     "table_species_cell": "{count} (~{share}% of world total)",
     "table_pollution_cell": "{value} µg/m³ ({ratio}× WHO threshold)",
-    "table_world_average_note": "World average (temperature): {value}"
+    "table_world_average_note": "World average (temperature): {value}",
+    "world_comparison_normalization_note": "CO2, electricity and water withdrawn are shown per capita; water stress and deforestation are shown as a share of the country's own resources — so a country's size doesn't bias how these five indicators read."
   },
   "citizenVote": {
     "question": "How would you have voted?",
