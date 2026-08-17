@@ -4,7 +4,7 @@ import countriesLib from "i18n-iso-countries";
 // db/migrations/046_scope_codes.sql pour le détail. Distincts des codes
 // pays ISO 3166-1 alpha-3 (toujours 3 lettres eux aussi, mais aucun pays
 // réel n'a l'un de ces codes précis).
-export const CONTINENT_WORLD_CODES = ["AFR", "NAM", "SAM", "ASI", "EUR", "OCE", "ANT", "WORLD"];
+export const CONTINENT_WORLD_CODES = ["AFR", "NAC", "SAM", "ASI", "EUR", "OCE", "ANT", "WORLD"];
 const CONTINENT_WORLD_SET = new Set(CONTINENT_WORLD_CODES);
 
 export function isValidScopeCode(code) {

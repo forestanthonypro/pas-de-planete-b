@@ -9,9 +9,12 @@
 --
 -- Format des codes : ISO 3166-1 alpha-3 pour un pays ("FRA", "ESP"...),
 -- ou l'un des 8 codes fixes ci-dessous pour une portée plus large :
---   AFR (Afrique), NAM (Amérique du Nord), SAM (Amérique du Sud),
+--   AFR (Afrique), NAC (Amérique du Nord), SAM (Amérique du Sud),
 --   ASI (Asie), EUR (Europe), OCE (Océanie), ANT (Antarctique),
 --   WORLD (international / monde entier)
+-- NAC et non NAM : NAM est le vrai code ISO3 de la Namibie, collision
+-- repérée en testant le module de sélection avant livraison (16 août
+-- 2026) — corrigé avant toute donnée réelle enregistrée avec l'ancien code.
 -- La correspondance codes -> libellés traduits est gérée côté front
 -- (apps/web/lib/scopes.js), pas en base.
 
