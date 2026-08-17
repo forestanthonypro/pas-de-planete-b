@@ -28,8 +28,14 @@ jobs:
       - run: npm run lint
         working-directory: apps/${{ matrix.app }}
 
+  migration-sequence-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: chmod +x db/migrate.sh && ./db/migrate.sh --check-sequence
+
   build-push:
-    needs: lint-test
+    needs: [lint-test, migration-sequence-check]
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     strategy:

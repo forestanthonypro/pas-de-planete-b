@@ -18,19 +18,58 @@
 #     # lui-même (ajouté le 10 août 2026, après la découverte d'une
 #     # migration restée non appliquée plusieurs semaines sans que
 #     # personne ne le remarque).
+#   ./db/migrate.sh --check-sequence
+#     # Vérifie que les fichiers db/migrations/0XX_*.sql forment une suite
+#     # continue (001, 002, 003...), sans base de données requise — utile
+#     # en CI sur chaque pull request, avant même qu'un déploiement existe.
+#     # Complémentaire à --check : --check détecte un fichier présent mais
+#     # jamais appliqué en base ; --check-sequence détecte un numéro de
+#     # fichier jamais créé du tout (le vrai scénario de l'incident du 10
+#     # août : le fichier 035 n'existait simplement pas dans le dépôt).
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
 COMPOSE_FILE="docker-compose.yml"
 BASELINE=false
 CHECK=false
+CHECK_SEQUENCE=false
 for arg in "$@"; do
   case "$arg" in
     --baseline) BASELINE=true ;;
     --check) CHECK=true ;;
+    --check-sequence) CHECK_SEQUENCE=true ;;
     *.yml) COMPOSE_FILE="$arg" ;;
   esac
 done
+
+if [ "$CHECK_SEQUENCE" = true ]; then
+  echo "Mode --check-sequence : vérification de la continuité de numérotation (aucune connexion base requise)."
+  expected=1
+  gap_found=false
+  for f in db/migrations/*.sql; do
+    name=$(basename "$f")
+    num=$(echo "$name" | grep -oE '^[0-9]+' || echo "")
+    if [ -z "$num" ]; then
+      echo "⚠️  Fichier sans préfixe numérique ignoré : $name"
+      continue
+    fi
+    num=$((10#$num))  # force la base 10 (évite une interprétation octale sur un numéro du type 008, 009)
+    if [ "$num" -ne "$expected" ]; then
+      echo "❌ Saut de numérotation détecté : attendu $(printf '%03d' "$expected"), trouvé $(printf '%03d' "$num") ($name)."
+      gap_found=true
+      expected=$((num + 1))
+    else
+      expected=$((expected + 1))
+    fi
+  done
+  if [ "$gap_found" = true ]; then
+    echo "Un ou plusieurs numéros de migration manquent dans db/migrations/ — vérifier qu'aucun fichier n'a été oublié avant de committer."
+    exit 1
+  else
+    echo "✅ Numérotation continue, aucun saut détecté ($((expected - 1)) fichier(s))."
+    exit 0
+  fi
+fi
 
 if [ -f .env ]; then
   set -a

@@ -50,12 +50,25 @@ function hotp(secretBuffer, counter) {
 
 // Vérifie un code à 6 chiffres, en tolérant ±1 fenêtre de 30s (dérive
 // d'horloge raisonnable entre le téléphone et le serveur).
+//
+// Comparaison en temps constant (crypto.timingSafeEqual) plutôt que
+// "===" — même principe que timingSafeTokenEqual dans lib/auth.js pour
+// le jeton d'ingestion. Moins critique ici (limite de fréquence déjà en
+// place sur cette route, code à 6 chiffres donc entropie limitée de
+// toute façon), mais protège en profondeur sans coût.
+function timingSafeCodeEqual(a, b) {
+  const bufA = Buffer.from(a);
+  const bufB = Buffer.from(b);
+  if (bufA.length !== bufB.length) return false;
+  return crypto.timingSafeEqual(bufA, bufB);
+}
+
 export function verifyTotp(secretBase32, code, window = 1) {
   if (!/^\d{6}$/.test(String(code || ""))) return false;
   const secretBuffer = base32Decode(secretBase32);
   const counter = Math.floor(Date.now() / 1000 / 30);
   for (let errorWindow = -window; errorWindow <= window; errorWindow++) {
-    if (hotp(secretBuffer, counter + errorWindow) === String(code)) return true;
+    if (timingSafeCodeEqual(hotp(secretBuffer, counter + errorWindow), String(code))) return true;
   }
   return false;
 }
