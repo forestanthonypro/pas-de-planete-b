@@ -394,6 +394,88 @@ export async function ingestSpainVotesHistorical({
 }
 
 // ---------------------------------------------------------------------
+// Vérification post-backfill : un cas limite a été observé lors du test
+// (séance 190 absente entre 191 et 189, sans certitude si c'est un vrai
+// trou côté source ou une limite de la marche jour par jour). Cette
+// fonction contrôle la suite des numéros de séance déjà en base et
+// retente spécifiquement chaque trou détecté, en balayant les jours
+// autour de la séance suivante (celle du numéro juste au-dessus du trou)
+// plutôt que de refaire tout le backfill.
+// ---------------------------------------------------------------------
+export async function checkAndFillSessionGaps({ legislatura = CURRENT_LEGISLATURE, searchWindowDays = 10 } = {}) {
+  const result = await pool.query(
+    `SELECT DISTINCT (external_id::text) AS external_id, vote_date
+     FROM parliament_votes
+     WHERE country_code = 'es' AND chamber = 'lower'
+     ORDER BY vote_date DESC`
+  );
+
+  // external_id est au format "{sesion}-{numeroVotacion}" — n'en extraire
+  // que le numéro de séance, une fois par séance distincte (avec sa date
+  // la plus récente rencontrée, pour ancrer la recherche du trou suivant).
+  const sessionsSeen = new Map(); // numéro de séance -> date
+  for (const row of result.rows) {
+    const sessionNumber = parseInt(row.external_id.split("-")[0], 10);
+    if (!Number.isNaN(sessionNumber) && !sessionsSeen.has(sessionNumber)) {
+      sessionsSeen.set(sessionNumber, row.vote_date);
+    }
+  }
+
+  const sortedNumbers = [...sessionsSeen.keys()].sort((a, b) => a - b);
+  const gaps = [];
+  for (let i = 1; i < sortedNumbers.length; i++) {
+    const prev = sortedNumbers[i - 1];
+    const current = sortedNumbers[i];
+    for (let missing = prev + 1; missing < current; missing++) {
+      gaps.push({ missingSession: missing, nearDate: sessionsSeen.get(current) });
+    }
+  }
+
+  if (gaps.length === 0) {
+    console.log("Aucun trou détecté dans la numérotation des séances déjà en base.");
+    return { gapsFound: 0, gapsResolved: 0, stillMissing: [] };
+  }
+
+  console.log(`${gaps.length} trou(s) détecté(s) : séance(s) ${gaps.map((g) => g.missingSession).join(", ")}.`);
+
+  let resolved = 0;
+  const stillMissing = [];
+
+  for (const gap of gaps) {
+    console.log(`  Recherche de la séance ${gap.missingSession} autour du ${gap.nearDate.toISOString().slice(0, 10)}...`);
+    let found = false;
+    const cursor = new Date(gap.nearDate);
+
+    for (let i = 0; i < searchWindowDays && !found; i++) {
+      cursor.setUTCDate(cursor.getUTCDate() - 1);
+      const dateStr = formatDateForCongreso(cursor);
+      const url = `${VOTES_INDEX_URL}?p_p_id=votaciones&p_p_lifecycle=0&p_p_state=normal&p_p_mode=view&targetLegislatura=${legislatura}&targetDate=${encodeURIComponent(dateStr)}`;
+
+      try {
+        const html = await fetchText(url);
+        const { sessionNumber, sessionDate } = extractSessionInfo(html);
+        if (sessionNumber === gap.missingSession) {
+          const votes = await ingestVotesFromPage(html);
+          console.log(`    Trouvée le ${sessionDate || dateStr} : ${votes} vote(s).`);
+          resolved++;
+          found = true;
+        }
+      } catch (err) {
+        console.error(`    [avertissement] Échec pour ${dateStr} : ${err.message}`);
+      }
+      await sleep(1500);
+    }
+
+    if (!found) {
+      console.log(`    Non trouvée dans une fenêtre de ${searchWindowDays} jours — probablement un numéro jamais attribué côté source, pas un trou de notre côté.`);
+      stillMissing.push(gap.missingSession);
+    }
+  }
+
+  return { gapsFound: gaps.length, gapsResolved: resolved, stillMissing };
+}
+
+// ---------------------------------------------------------------------
 // Points d'entrée réutilisables — même modèle que ingestUsCongress().
 // ---------------------------------------------------------------------
 export async function ingestSpainCongress({ limitVotes = Infinity } = {}) {
@@ -418,6 +500,8 @@ if (import.meta.url === `file://${process.argv[1]}`) {
         const result = await ingestSpainVotesHistorical({ maxSessions });
         return { members: memberCount, ...result };
       })()
+    : process.argv.includes("--check-gaps")
+    ? checkAndFillSessionGaps()
     : ingestSpainCongress();
 
   run
