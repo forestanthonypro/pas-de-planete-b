@@ -6,7 +6,6 @@ import { IconLeaf } from "../../components/icons";
 import { useT } from "../../lib/useT";
 import { getAnonymousId } from "../../lib/anonymousId";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 const MIN_ALTERNATIVE_LENGTH = 30;
 
 export default function CharterPage() {
@@ -25,11 +24,11 @@ export default function CharterPage() {
   useEffect(() => {
     const anonymousId = getAnonymousId();
     Promise.all([
-      fetch(`${API_URL}/api/charter?locale=${locale}`).then((res) => {
+      fetch(`/api/charter?locale=${locale}`).then((res) => {
         if (!res.ok) throw new Error(t("charter.error_no_data"));
         return res.json();
       }),
-      anonymousId ? fetch(`${API_URL}/api/charter-votes/${anonymousId}`).then((res) => (res.ok ? res.json() : [])) : Promise.resolve([]),
+      anonymousId ? fetch(`/api/charter-votes/${anonymousId}`).then((res) => (res.ok ? res.json() : [])) : Promise.resolve([]),
     ])
       .then(([charterData, voteRows]) => {
         setData(charterData);
@@ -71,7 +70,7 @@ export default function CharterPage() {
     });
     setMyVotes((prev) => ({ ...prev, [itemId]: voteType }));
 
-    fetch(`${API_URL}/api/charter-votes`, {
+    fetch(`/api/charter-votes`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ anonymousId, itemId, voteType }),
@@ -109,7 +108,7 @@ export default function CharterPage() {
     if (nuanceAlternative.trim().length < MIN_ALTERNATIVE_LENGTH) return;
     setNuanceSubmitting(true);
     vote(itemId, "nuance");
-    fetch(`${API_URL}/api/charter-suggestions`, {
+    fetch(`/api/charter-suggestions`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ text: `Concernant « ${itemTitle} » : ${nuanceAlternative.trim()}` }),
@@ -131,7 +130,7 @@ export default function CharterPage() {
     e.preventDefault();
     if (!suggestionText.trim()) return;
     setSuggestionStatus("sending");
-    fetch(`${API_URL}/api/charter-suggestions`, {
+    fetch(`/api/charter-suggestions`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ text: suggestionText.trim() }),

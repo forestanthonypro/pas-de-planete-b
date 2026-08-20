@@ -33,7 +33,7 @@
 // éviter que du contenu périmé reste servi indéfiniment aux visiteurs
 // récurrents — ni skipWaiting() ni clients.claim() n'étaient nécessaires
 // pour régler ce problème-là spécifiquement.
-const CACHE_NAME = "pdpb-cache-v4";
+const CACHE_NAME = "pdpb-cache-v5";
 const PRECACHE_URLS = ["/", "/manifest.json"];
 
 self.addEventListener("install", (event) => {
@@ -96,4 +96,25 @@ self.addEventListener("fetch", (event) => {
       })
       .catch(() => caches.match(request))
   );
+});
+
+self.addEventListener("push", (event) => {
+  let data = {};
+  try { data = event.data ? event.data.json() : {}; } catch { data = {}; }
+  const safeUrl = typeof data.url === "string" && data.url.startsWith("/") && !data.url.startsWith("//") ? data.url : "/";
+  event.waitUntil(self.registration.showNotification(data.title || "Pas de planète B", {
+    body: data.body || "", icon: data.icon || "/icons/icon-192.png",
+    badge: data.badge || "/icons/icon-192.png", tag: data.tag,
+    renotify: false, data: { url: safeUrl },
+  }));
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const target = new URL(event.notification.data?.url || "/", self.location.origin).href;
+  event.waitUntil(self.clients.matchAll({ type: "window", includeUncontrolled: true }).then(async (windows) => {
+    const existing = windows.find((client) => client.url === target);
+    if (existing) return existing.focus();
+    return self.clients.openWindow(target);
+  }));
 });

@@ -10,7 +10,6 @@ import { useSobriety } from "../../lib/SobrietyContext";
 import { useT } from "../../lib/useT";
 import ScrollableTable from "../../components/ScrollableTable";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 export default function RessourcesPage() {
   const { t, locale } = useT();
@@ -31,9 +30,9 @@ export default function RessourcesPage() {
   useEffect(() => {
     const scopesParam = scopeFilter.length > 0 ? `&scopes=${scopeFilter.join(",")}` : "";
     Promise.all([
-      fetch(`${API_URL}/api/resource-locations?locale=${locale}${scopesParam}`).then((res) => (res.ok ? res.json() : [])),
-      fetch(`${API_URL}/api/resource-online?locale=${locale}${scopesParam}`).then((res) => (res.ok ? res.json() : [])),
-      fetch(`${API_URL}/api/resource-categories`).then((res) => (res.ok ? res.json() : [])),
+      fetch(`/api/resource-locations?locale=${locale}${scopesParam}`).then((res) => (res.ok ? res.json() : [])),
+      fetch(`/api/resource-online?locale=${locale}${scopesParam}`).then((res) => (res.ok ? res.json() : [])),
+      fetch(`/api/resource-categories`).then((res) => (res.ok ? res.json() : [])),
     ])
       .then(([locationRows, onlineRows, categoryRows]) => {
         setLocations(Array.isArray(locationRows) ? locationRows : []);

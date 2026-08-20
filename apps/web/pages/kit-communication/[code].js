@@ -8,9 +8,9 @@ const WEB_URL = "https://pasdeplaneteb.com";
 export default function KitCommunicationCountryPage({ countryCode, countryName, locale }) {
   const { t } = useT();
 
-  const htmlEndpoint = `${API_URL}/api/kit-communication/html/${countryCode}?lang=${locale}`;
-  const pdfEndpoint = `${API_URL}/api/kit-communication/pdf/${countryCode}?lang=${locale}`;
-  const ogImageUrl = `${API_URL}/api/kit-communication/og-image/${countryCode}?lang=${locale}`;
+  const htmlEndpoint = `/api/kit-communication/html/${countryCode}?lang=${locale}`;
+  const pdfEndpoint = `/api/kit-communication/pdf/${countryCode}?lang=${locale}`;
+  const ogImageUrl = `/api/kit-communication/og-image/${countryCode}?lang=${locale}`;
   const canonicalUrl = `${WEB_URL}${locale === "fr" ? "" : "/" + locale}/kit-communication/${countryCode.toLowerCase()}`;
 
   const pageTitle = `${t("kit.title")} — ${countryName} | Pas de planète B`;

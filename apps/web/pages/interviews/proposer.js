@@ -5,7 +5,6 @@ import ScopeMultiSelect from "../../components/ScopeMultiSelect";
 import { useT } from "../../lib/useT";
 import { IconPlay } from "../../components/icons";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 export default function ProposerInterview() {
   const { t, locale } = useT();
@@ -23,7 +22,7 @@ export default function ProposerInterview() {
     e.preventDefault();
     setStatus("sending");
     setError(null);
-    fetch(`${API_URL}/api/science-relays/submit`, {
+    fetch(`/api/science-relays/submit`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

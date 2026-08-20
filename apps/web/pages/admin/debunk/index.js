@@ -4,7 +4,6 @@ import AdminAuthGate from "../../../components/AdminAuthGate";
 import Pagination from "../../../components/Pagination";
 import ScrollableTable from "../../../components/ScrollableTable";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 const PAGE_SIZE = 20;
 
 const VERDICT_LABELS = { faux: "Faux", trompeur: "Trompeur", confirme: "Confirmé" };
@@ -42,8 +41,8 @@ function AdminDebunkListInner() {
     setLoading(true);
     setError(null);
     Promise.all([
-      fetch(`${API_URL}/api/admin/debunk`, { credentials: "include" }),
-      fetch(`${API_URL}/api/debunk-categories`),
+      fetch(`/api/admin/debunk`, { credentials: "include" }),
+      fetch(`/api/debunk-categories`),
     ])
       .then(async ([resEntries, resCategories]) => {
         if (resEntries.status === 401) throw new Error("Jeton invalide");
@@ -62,7 +61,7 @@ function AdminDebunkListInner() {
   function addCategory(e) {
     e.preventDefault();
     if (!newCategory.trim()) return;
-    fetch(`${API_URL}/api/admin/debunk-categories`, {
+    fetch(`/api/admin/debunk-categories`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -80,7 +79,7 @@ function AdminDebunkListInner() {
   }
 
   function removeCategory(id) {
-    fetch(`${API_URL}/api/admin/debunk-categories/${id}`, {
+    fetch(`/api/admin/debunk-categories/${id}`, {
       method: "DELETE",
       credentials: "include",
     })
@@ -95,7 +94,7 @@ function AdminDebunkListInner() {
 
   function deleteEntry(entry) {
     if (!window.confirm("Supprimer définitivement l'entrée \"" + entry.myth + "\" ? Cette action est irréversible.")) return;
-    fetch(API_URL + "/api/admin/debunk/" + entry.slug, {
+    fetch("/api/admin/debunk/" + entry.slug, {
       method: "DELETE",
       credentials: "include",
     })
@@ -108,7 +107,7 @@ function AdminDebunkListInner() {
   }
 
   function togglePublished(entry) {
-    fetch(`${API_URL}/api/admin/debunk/${entry.slug}/publish`, {
+    fetch(`/api/admin/debunk/${entry.slug}/publish`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -125,7 +124,7 @@ function AdminDebunkListInner() {
   const featuredCount = entries.filter((e) => e.featured_decouverte).length;
 
   function toggleFeatured(entry) {
-    fetch(`${API_URL}/api/admin/debunk/${entry.slug}/featured`, {
+    fetch(`/api/admin/debunk/${entry.slug}/featured`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",

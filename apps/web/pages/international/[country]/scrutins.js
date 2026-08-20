@@ -12,7 +12,6 @@ import { useApiFetch } from "../../../lib/useApiFetch";
 import { chamberLabelKey } from "../../../lib/parliamentChamberLabels";
 import { translateVoteResult } from "../../../lib/voteResultLabels";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 const PAGE_SIZE = 30;
 
 const SOURCE_LINKS = {
@@ -56,7 +55,7 @@ export default function InternationalVotesPage() {
     }
     setSearching(true);
     setSearchError(null);
-    fetch(`${API_URL}/api/parliament/${country}/votes/search?q=${encodeURIComponent(q)}`)
+    fetch(`/api/parliament/${country}/votes/search?q=${encodeURIComponent(q)}`)
       .then((res) => {
         if (!res.ok) throw new Error(t("scrutins.search_error"));
         return res.json();

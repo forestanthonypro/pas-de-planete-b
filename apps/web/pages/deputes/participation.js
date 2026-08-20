@@ -5,7 +5,6 @@ import PageHeader from "../../components/PageHeader";
 import { IconUsers } from "../../components/icons";
 import ScrollableTable from "../../components/ScrollableTable";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 function normalize(str) {
   return (str || "")
@@ -23,7 +22,7 @@ export default function ParticipationPage() {
   const [query, setQuery] = useState("");
 
   useEffect(() => {
-    fetch(`${API_URL}/api/deputies/participation`)
+    fetch(`/api/deputies/participation`)
       .then((res) => {
         if (!res.ok) throw new Error(t("deputes.error_no_data"));
         return res.json();

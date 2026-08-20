@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+// Chemin relatif uniquement — voir next.config.js pour le proxy /api/*.
+// Ne JAMAIS préfixer par NEXT_PUBLIC_API_URL ici : ça romprait le
+// same-origin et ferait rejeter le cookie de session admin en cross-site.
 
 // Hook générique pour les appels GET à l'API : gère loading/error/data et
 // annule la requête si le composant est démonté avant la résolution (évite
@@ -28,7 +30,7 @@ export function useApiFetch(path, { transform, errorMessage = "Erreur de chargem
     const options = {};
     if (headers) options.headers = headers;
     if (credentials) options.credentials = credentials;
-    fetch(`${API_URL}${path}`, Object.keys(options).length > 0 ? options : undefined)
+    fetch(path, Object.keys(options).length > 0 ? options : undefined)
       .then((res) => {
         if (!res.ok) throw new Error(errorMessage);
         return res.json();

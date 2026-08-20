@@ -4,7 +4,6 @@ import PageHeader from "../components/PageHeader";
 import { IconMail } from "../components/icons";
 import { useT } from "../lib/useT";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 export default function ContactPage() {
   const { t } = useT();
@@ -20,7 +19,7 @@ export default function ContactPage() {
     e.preventDefault();
     setStatus("sending");
     setError(null);
-    fetch(`${API_URL}/api/contact`, {
+    fetch(`/api/contact`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name: name || null, email, subject: subject || null, message, website }),

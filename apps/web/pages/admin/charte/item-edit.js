@@ -5,7 +5,6 @@ import ContentTranslationsEditor from "../../../components/ContentTranslationsEd
 import Link from "next/link";
 import { useApiFetch } from "../../../lib/useApiFetch";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 const TRANSLATION_FIELDS = [
   { name: "title", label: "Titre", multiline: false },
@@ -60,7 +59,7 @@ function AdminCharterItemEditInner() {
     setStatus("saving");
     setError(null);
 
-    fetch(`${API_URL}/api/admin/charter-items`, {
+    fetch(`/api/admin/charter-items`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",

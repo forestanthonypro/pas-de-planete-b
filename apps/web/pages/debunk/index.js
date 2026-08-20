@@ -8,7 +8,6 @@ import { IconSearch } from "../../components/icons";
 import { useT } from "../../lib/useT";
 import { localeTag } from "../../lib/dateLocale";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 const VERDICT_COLORS = {
   faux: "#d63e2a",
@@ -28,11 +27,11 @@ export default function DebunkPage() {
   useEffect(() => {
     const scopesParam = scopeFilter.length > 0 ? `&scopes=${scopeFilter.join(",")}` : "";
     Promise.all([
-      fetch(`${API_URL}/api/debunk?locale=${locale}${scopesParam}`).then((res) => {
+      fetch(`/api/debunk?locale=${locale}${scopesParam}`).then((res) => {
         if (!res.ok) throw new Error(t("debunk.error_no_data"));
         return res.json();
       }),
-      fetch(`${API_URL}/api/debunk-categories`).then((res) => (res.ok ? res.json() : [])),
+      fetch(`/api/debunk-categories`).then((res) => (res.ok ? res.json() : [])),
     ])
       .then(([entryRows, categoryRows]) => {
         setEntries(Array.isArray(entryRows) ? entryRows : []);

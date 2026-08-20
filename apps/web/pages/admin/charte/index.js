@@ -4,7 +4,6 @@ import AdminAuthGate from "../../../components/AdminAuthGate";
 import ScrollableTable from "../../../components/ScrollableTable";
 import ContentTranslationsEditor from "../../../components/ContentTranslationsEditor";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 const STATUS_LABELS = { pending: "En attente", published: "Publiée", draft: "Brouillon", rejected: "Rejetée" };
 
@@ -28,9 +27,9 @@ function AdminCharterPageInner() {
     setLoading(true);
     setError(null);
     Promise.all([
-      fetch(`${API_URL}/api/admin/charter-sections`, { credentials: "include" }),
-      fetch(`${API_URL}/api/admin/charter-items`, { credentials: "include" }),
-      fetch(`${API_URL}/api/admin/charter-suggestions`, { credentials: "include" }),
+      fetch(`/api/admin/charter-sections`, { credentials: "include" }),
+      fetch(`/api/admin/charter-items`, { credentials: "include" }),
+      fetch(`/api/admin/charter-suggestions`, { credentials: "include" }),
     ])
       .then(async ([resSections, resItems, resSuggestions]) => {
         if (resSections.status === 401) throw new Error("Jeton invalide");
@@ -50,7 +49,7 @@ function AdminCharterPageInner() {
   function addSection(e) {
     e.preventDefault();
     if (!newSectionName.trim()) return;
-    fetch(`${API_URL}/api/admin/charter-sections`, {
+    fetch(`/api/admin/charter-sections`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -68,7 +67,7 @@ function AdminCharterPageInner() {
   }
 
   function moveSection(id, direction) {
-    fetch(`${API_URL}/api/admin/charter-sections/${id}/move`, {
+    fetch(`/api/admin/charter-sections/${id}/move`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -83,7 +82,7 @@ function AdminCharterPageInner() {
   }
 
   function removeSection(id) {
-    fetch(`${API_URL}/api/admin/charter-sections/${id}`, {
+    fetch(`/api/admin/charter-sections/${id}`, {
       method: "DELETE",
       credentials: "include",
     })
@@ -96,7 +95,7 @@ function AdminCharterPageInner() {
   }
 
   function moveItem(id, direction) {
-    fetch(`${API_URL}/api/admin/charter-items/${id}/move`, {
+    fetch(`/api/admin/charter-items/${id}/move`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -111,7 +110,7 @@ function AdminCharterPageInner() {
   }
 
   function toggleItemPublished(item) {
-    fetch(`${API_URL}/api/admin/charter-items/${item.id}/publish`, {
+    fetch(`/api/admin/charter-items/${item.id}/publish`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -126,7 +125,7 @@ function AdminCharterPageInner() {
   }
 
   function removeItem(id) {
-    fetch(`${API_URL}/api/admin/charter-items/${id}`, {
+    fetch(`/api/admin/charter-items/${id}`, {
       method: "DELETE",
       credentials: "include",
     })
@@ -139,7 +138,7 @@ function AdminCharterPageInner() {
   }
 
   function updateSuggestionStatus(id, status) {
-    fetch(`${API_URL}/api/admin/charter-suggestions/${id}/status`, {
+    fetch(`/api/admin/charter-suggestions/${id}/status`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",

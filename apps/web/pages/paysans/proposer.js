@@ -3,10 +3,12 @@ import Link from "next/link";
 import PageHeader from "../../components/PageHeader";
 import { IconTree } from "../../components/icons";
 import { toYoutubeEmbedUrl, isYoutubeUrl } from "../../lib/youtube";
+import ScopeMultiSelect from "../../components/ScopeMultiSelect";
+import { useT } from "../../lib/useT";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 export default function ProposerRessourcePaysanne() {
+  const { locale } = useT();
   const [categories, setCategories] = useState([]);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -18,9 +20,10 @@ export default function ProposerRessourcePaysanne() {
   const [website, setWebsite] = useState(""); // piège à bots, ne jamais afficher
   const [status, setStatus] = useState("idle"); // idle | sending | done | error
   const [error, setError] = useState(null);
+  const [scopeCodes, setScopeCodes] = useState([]);
 
   useEffect(() => {
-    fetch(`${API_URL}/api/paysan-categories`)
+    fetch(`/api/paysan-categories`)
       .then((res) => (res.ok ? res.json() : []))
       .then(setCategories)
       .catch(() => setCategories([]));
@@ -38,13 +41,13 @@ export default function ProposerRessourcePaysanne() {
     e.preventDefault();
     setStatus("sending");
     setError(null);
-    fetch(`${API_URL}/api/paysan-resources/submit`, {
+    fetch(`/api/paysan-resources/submit`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         title, description, contentType, sourceUrl,
         sourceName: sourceName || null, embedUrl: embedUrl || null,
-        categoryId: categoryId || null, website,
+        categoryId: categoryId || null, website, scopeCodes,
       }),
     })
       .then((res) => {
@@ -142,6 +145,10 @@ export default function ProposerRessourcePaysanne() {
             </select>
           </label>
         )}
+
+        <div style={{ marginBottom: "1rem" }}>
+          <ScopeMultiSelect value={scopeCodes} onChange={setScopeCodes} locale={locale} label="Pays ou région concernés" placeholder="Rechercher un pays…" />
+        </div>
 
         <button type="submit" disabled={status === "sending"}>
           {status === "sending" ? "Envoi..." : "Envoyer ma proposition"}

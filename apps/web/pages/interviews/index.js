@@ -8,7 +8,6 @@ import { IconSearch } from "../../components/icons";
 import { useT } from "../../lib/useT";
 import { toYoutubeThumbnailUrl } from "../../lib/youtube";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 const TYPE_ICONS = { video: "▶", article: "📄", podcast: "🎙" };
 
@@ -25,11 +24,11 @@ export default function InterviewsPage() {
   useEffect(() => {
     const scopesParam = scopeFilter.length > 0 ? `&scopes=${scopeFilter.join(",")}` : "";
     Promise.all([
-      fetch(`${API_URL}/api/science-relays?locale=${locale}${scopesParam}`).then((res) => {
+      fetch(`/api/science-relays?locale=${locale}${scopesParam}`).then((res) => {
         if (!res.ok) throw new Error(t("interviews.error_no_data"));
         return res.json();
       }),
-      fetch(`${API_URL}/api/interview-categories`).then((res) => (res.ok ? res.json() : [])),
+      fetch(`/api/interview-categories`).then((res) => (res.ok ? res.json() : [])),
     ])
       .then(([entryRows, categoryRows]) => {
         setEntries(Array.isArray(entryRows) ? entryRows : []);

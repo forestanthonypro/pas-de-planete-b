@@ -5,7 +5,6 @@ import ScopeMultiSelect from "../../components/ScopeMultiSelect";
 import { useT } from "../../lib/useT";
 import { IconLandmark } from "../../components/icons";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 function LocationForm({ locale, t }) {
   const [categories, setCategories] = useState([]);
@@ -24,7 +23,7 @@ function LocationForm({ locale, t }) {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch(`${API_URL}/api/resource-categories`)
+    fetch(`/api/resource-categories`)
       .then((res) => (res.ok ? res.json() : []))
       .then(setCategories)
       .catch(() => setCategories([]));
@@ -44,7 +43,7 @@ function LocationForm({ locale, t }) {
     e.preventDefault();
     setStatus("sending");
     setError(null);
-    fetch(`${API_URL}/api/resource-locations/submit`, {
+    fetch(`/api/resource-locations/submit`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -178,7 +177,7 @@ function OnlineForm({ locale, t }) {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch(`${API_URL}/api/resource-categories`)
+    fetch(`/api/resource-categories`)
       .then((res) => (res.ok ? res.json() : []))
       .then(setCategories)
       .catch(() => setCategories([]));
@@ -188,7 +187,7 @@ function OnlineForm({ locale, t }) {
     e.preventDefault();
     setStatus("sending");
     setError(null);
-    fetch(`${API_URL}/api/resource-online/submit`, {
+    fetch(`/api/resource-online/submit`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ title, description, url, categoryId: categoryId || null, scopeCodes, submitterEmail: submitterEmail || null, submissionNotes: submissionNotes || null, website }),

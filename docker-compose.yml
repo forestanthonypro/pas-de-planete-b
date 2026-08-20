@@ -40,6 +40,19 @@ services:
       - api-node-modules:/app/node_modules
     command: sh -c "npm install && npm run dev"
 
+  notifications-worker:
+    image: node:24-slim
+    working_dir: /app
+    restart: unless-stopped
+    env_file: .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./apps/api:/app
+      - api-node-modules:/app/node_modules
+    command: sh -c "npm install && npm run push:worker"
+
   web:
     image: node:24-slim
     working_dir: /app

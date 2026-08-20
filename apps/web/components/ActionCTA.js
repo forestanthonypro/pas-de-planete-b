@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useT } from "../lib/useT";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 // Bouton d'action + formulaire d'inscription à la newsletter éco-responsable.
 // La personnalisation (ville/campagne, maison/appartement, enfants) sert à
@@ -26,7 +25,7 @@ export default function ActionCTA() {
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
-    fetch(`${API_URL}/api/settings/newsletter-enabled`)
+    fetch(`/api/settings/newsletter-enabled`)
       .then((res) => (res.ok ? res.json() : { enabled: false }))
       .then((data) => setEnabled(Boolean(data.enabled)))
       .catch(() => setEnabled(false));
@@ -40,7 +39,7 @@ export default function ActionCTA() {
     }
     setStatus("sending");
     setErrorMessage("");
-    fetch(`${API_URL}/api/newsletter/signup`, {
+    fetch(`/api/newsletter/signup`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

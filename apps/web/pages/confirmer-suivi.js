@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 export default function ConfirmerSuivi() {
   const router = useRouter();
@@ -11,7 +10,7 @@ export default function ConfirmerSuivi() {
 
   useEffect(() => {
     if (!token) return;
-    fetch(`${API_URL}/api/deputy-follows/confirm?token=${encodeURIComponent(token)}`)
+    fetch(`/api/deputy-follows/confirm?token=${encodeURIComponent(token)}`)
       .then((res) => (res.ok ? setStatus("ok") : setStatus("error")))
       .catch(() => setStatus("error"));
   }, [token]);

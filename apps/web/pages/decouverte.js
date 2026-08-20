@@ -10,7 +10,6 @@ import { detectDefaultCountry } from "../lib/detectCountry";
 import CountrySelect from "../components/CountrySelect";
 import { IconCloud, IconBolt, IconDroplet, IconTree, IconPaw, IconSmog, IconThermometer, IconSearch, IconPlay, IconLandmark, IconScroll, IconCheck, IconScale, IconUsers, IconLeaf, IconHome, IconBulb } from "../components/icons";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 const VERDICT_COLORS = { faux: "#d63e2a", trompeur: "#f4b400", confirme: "#1baf7a" };
 
 function ObjectionCard({ entry, locale, t }) {
@@ -22,7 +21,7 @@ function ObjectionCard({ entry, locale, t }) {
   function toggle() {
     if (!expanded && !detail && !loadingDetail) {
       setLoadingDetail(true);
-      fetch(`${API_URL}/api/debunk/${entry.slug}?locale=${locale}`)
+      fetch(`/api/debunk/${entry.slug}?locale=${locale}`)
         .then((res) => (res.ok ? res.json() : null))
         .then(setDetail)
         .finally(() => setLoadingDetail(false));

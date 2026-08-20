@@ -4,7 +4,6 @@ import AdminAuthGate from "../../../components/AdminAuthGate";
 import Pagination from "../../../components/Pagination";
 import ScrollableTable from "../../../components/ScrollableTable";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 const PAGE_SIZE = 20;
 const TYPE_LABELS = { video: "Vidéo", article: "Article", podcast: "Podcast", document: "Document" };
 
@@ -57,8 +56,8 @@ function AdminPaysansListInner() {
     setLoading(true);
     setError(null);
     Promise.all([
-      fetch(`${API_URL}/api/admin/paysan-resources`, { credentials: "include" }),
-      fetch(`${API_URL}/api/paysan-categories`),
+      fetch(`/api/admin/paysan-resources`, { credentials: "include" }),
+      fetch(`/api/paysan-categories`),
     ])
       .then(async ([resResources, resCategories]) => {
         if (resResources.status === 401) throw new Error("Jeton invalide");
@@ -76,7 +75,7 @@ function AdminPaysansListInner() {
 
   function deleteEntry(entry) {
     if (!window.confirm("Supprimer définitivement \"" + entry.title + "\" ? Cette action est irréversible.")) return;
-    fetch(API_URL + "/api/admin/paysan-resources/" + entry.slug, {
+    fetch("/api/admin/paysan-resources/" + entry.slug, {
       method: "DELETE",
       credentials: "include",
     })
@@ -89,7 +88,7 @@ function AdminPaysansListInner() {
   }
 
   function togglePublished(entry) {
-    fetch(`${API_URL}/api/admin/paysan-resources/${entry.slug}/publish`, {
+    fetch(`/api/admin/paysan-resources/${entry.slug}/publish`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -106,7 +105,7 @@ function AdminPaysansListInner() {
   function addCategory(e) {
     e.preventDefault();
     if (!newCategory.trim()) return;
-    fetch(`${API_URL}/api/admin/paysan-categories`, {
+    fetch(`/api/admin/paysan-categories`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -124,7 +123,7 @@ function AdminPaysansListInner() {
   }
 
   function removeCategory(id) {
-    fetch(`${API_URL}/api/admin/paysan-categories/${id}`, {
+    fetch(`/api/admin/paysan-categories/${id}`, {
       method: "DELETE",
       credentials: "include",
     })

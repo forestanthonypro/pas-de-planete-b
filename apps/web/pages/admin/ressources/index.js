@@ -4,7 +4,6 @@ import AdminAuthGate from "../../../components/AdminAuthGate";
 import Pagination from "../../../components/Pagination";
 import ScrollableTable from "../../../components/ScrollableTable";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 const PAGE_SIZE = 20;
 
 function slugify(text) {
@@ -56,9 +55,9 @@ function AdminRessourcesListInner() {
     setLoading(true);
     setError(null);
     Promise.all([
-      fetch(`${API_URL}/api/admin/resource-locations`, { credentials: "include" }),
-      fetch(`${API_URL}/api/admin/resource-online`, { credentials: "include" }),
-      fetch(`${API_URL}/api/resource-categories`),
+      fetch(`/api/admin/resource-locations`, { credentials: "include" }),
+      fetch(`/api/admin/resource-online`, { credentials: "include" }),
+      fetch(`/api/resource-categories`),
     ])
       .then(async ([resLocations, resOnline, resCategories]) => {
         if (resLocations.status === 401) throw new Error("Jeton invalide");
@@ -77,7 +76,7 @@ function AdminRessourcesListInner() {
 
   function deleteLocation(entry) {
     if (!window.confirm("Supprimer définitivement le lieu \"" + entry.name + "\" ? Cette action est irréversible.")) return;
-    fetch(API_URL + "/api/admin/resource-locations/" + entry.slug, {
+    fetch("/api/admin/resource-locations/" + entry.slug, {
       method: "DELETE",
       credentials: "include",
     })
@@ -90,7 +89,7 @@ function AdminRessourcesListInner() {
   }
 
   function toggleLocationPublished(entry) {
-    fetch(`${API_URL}/api/admin/resource-locations/${entry.slug}/publish`, {
+    fetch(`/api/admin/resource-locations/${entry.slug}/publish`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -106,7 +105,7 @@ function AdminRessourcesListInner() {
 
   function deleteOnline(entry) {
     if (!window.confirm("Supprimer définitivement \"" + entry.title + "\" ? Cette action est irréversible.")) return;
-    fetch(API_URL + "/api/admin/resource-online/" + entry.slug, {
+    fetch("/api/admin/resource-online/" + entry.slug, {
       method: "DELETE",
       credentials: "include",
     })
@@ -119,7 +118,7 @@ function AdminRessourcesListInner() {
   }
 
   function toggleOnlinePublished(entry) {
-    fetch(`${API_URL}/api/admin/resource-online/${entry.slug}/publish`, {
+    fetch(`/api/admin/resource-online/${entry.slug}/publish`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -136,7 +135,7 @@ function AdminRessourcesListInner() {
   function addCategory(e) {
     e.preventDefault();
     if (!newCategory.trim()) return;
-    fetch(`${API_URL}/api/admin/resource-categories`, {
+    fetch(`/api/admin/resource-categories`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -154,7 +153,7 @@ function AdminRessourcesListInner() {
   }
 
   function removeCategory(id) {
-    fetch(`${API_URL}/api/admin/resource-categories/${id}`, {
+    fetch(`/api/admin/resource-categories/${id}`, {
       method: "DELETE",
       credentials: "include",
     })

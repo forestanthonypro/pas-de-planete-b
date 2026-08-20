@@ -10,7 +10,6 @@ import CountrySelect from "../components/CountrySelect";
 import ShareButtons from "../components/ShareButtons";
 import { IconScroll } from "../components/icons";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 const WEB_URL = "https://pasdeplaneteb.com";
 
 // Mêmes 8 langues, mêmes libellés que le sélecteur du header (Layout.js) —
@@ -66,7 +65,7 @@ export default function KitCommunicationPage() {
   // Pré-remplit pays/langue depuis l'URL si on arrive via un lien partagé
   // (?country=FRA&lang=ja) — sans ça, un lien partagé rouvre toujours sur
   // le pays par défaut, ce qui viderait le partage de son intérêt.
-  const pdfEndpoint = `${API_URL}/api/kit-communication/pdf/${countryCode}?lang=${docLang}`;
+  const pdfEndpoint = `/api/kit-communication/pdf/${countryCode}?lang=${docLang}`;
   // Lien à partager : la page elle-même (jolie URL, aperçu correct sur les
   // réseaux sociaux), jamais le PDF brut de l'API — un PDF binaire n'a pas
   // de titre/description/aperçu et ferait un lien peu engageant à partager.
@@ -134,7 +133,7 @@ export default function KitCommunicationPage() {
 
   const pageTitle = `${t("kit.title")} — ${selectedCountryName} | Pas de planète B`;
   const pageDescription = t("kit.subtitle");
-  const ogImageUrl = `${API_URL}/api/kit-communication/og-image/${countryCode}?lang=${docLang}`;
+  const ogImageUrl = `/api/kit-communication/og-image/${countryCode}?lang=${docLang}`;
 
   return (
     <div style={{ maxWidth: 640, margin: "0 auto", padding: "2.5rem 1.5rem" }}>

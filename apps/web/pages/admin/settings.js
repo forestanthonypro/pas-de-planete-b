@@ -4,7 +4,6 @@ import AdminAuthGate from "../../components/AdminAuthGate";
 import SimpleWysiwygEditor from "../../components/SimpleWysiwygEditor";
 import { useApiFetch } from "../../lib/useApiFetch";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 const LEGAL_PAGES = [
   { key: "mentions_legales_content", label: "Mentions légales", href: "/mentions-legales" },
@@ -62,7 +61,7 @@ function LegalContentEditor({ baseKey, label, href }) {
   function handleSave() {
     setSaving(true);
     setStatus("idle");
-    fetch(`${API_URL}/api/admin/settings/legal-content`, {
+    fetch(`/api/admin/settings/legal-content`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -89,7 +88,7 @@ function LegalContentEditor({ baseKey, label, href }) {
     if (lang === "fr") return;
     setTranslating("current");
     setTranslateError(null);
-    fetch(`${API_URL}/api/admin/translate`, {
+    fetch(`/api/admin/translate`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -116,7 +115,7 @@ function LegalContentEditor({ baseKey, label, href }) {
     setTranslating("all");
     setTranslateError(null);
     const allLangs = LANGUAGE_TABS.filter((l) => l.code !== "fr").map((l) => l.code);
-    fetch(`${API_URL}/api/admin/translate`, {
+    fetch(`/api/admin/translate`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -129,7 +128,7 @@ function LegalContentEditor({ baseKey, label, href }) {
       .then((result) =>
         Promise.all(
           allLangs.map((l) =>
-            fetch(`${API_URL}/api/admin/settings/legal-content`, {
+            fetch(`/api/admin/settings/legal-content`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -316,7 +315,7 @@ function AdminSettingsInner() {
       return;
     }
     setRevoking(true);
-    fetch(`${API_URL}/api/admin/auth/revoke-all`, {
+    fetch(`/api/admin/auth/revoke-all`, {
       method: "POST",
       credentials: "include",
     })
@@ -342,7 +341,7 @@ function AdminSettingsInner() {
     const next = !newsletterEnabled;
     setSaving(true);
     setError(null);
-    fetch(`${API_URL}/api/admin/settings/newsletter-enabled`, {
+    fetch(`/api/admin/settings/newsletter-enabled`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -365,7 +364,7 @@ function AdminSettingsInner() {
   function saveVideoUrl() {
     setVideoUrlSaving(true);
     setVideoUrlStatus("idle");
-    fetch(`${API_URL}/api/admin/settings/decouverte-video-url`, {
+    fetch(`/api/admin/settings/decouverte-video-url`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",

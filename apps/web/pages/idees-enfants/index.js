@@ -8,7 +8,6 @@ import { IconCheck } from "../../components/icons";
 import { useT } from "../../lib/useT";
 import { getAnonymousId } from "../../lib/anonymousId";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 export default function FutureIdeasPage() {
   const { t, locale } = useT();
@@ -27,12 +26,12 @@ export default function FutureIdeasPage() {
   useEffect(() => {
     const anonymousId = getAnonymousId();
     Promise.all([
-      fetch(`${API_URL}/api/future-ideas?locale=${locale}`).then((res) => {
+      fetch(`/api/future-ideas?locale=${locale}`).then((res) => {
         if (!res.ok) throw new Error(t("futureIdeas.error_no_data"));
         return res.json();
       }),
-      anonymousId ? fetch(`${API_URL}/api/future-idea-votes/${anonymousId}`).then((res) => (res.ok ? res.json() : [])) : Promise.resolve([]),
-      fetch(`${API_URL}/api/future-idea-suggestions/published`).then((res) => (res.ok ? res.json() : [])),
+      anonymousId ? fetch(`/api/future-idea-votes/${anonymousId}`).then((res) => (res.ok ? res.json() : [])) : Promise.resolve([]),
+      fetch(`/api/future-idea-suggestions/published`).then((res) => (res.ok ? res.json() : [])),
     ])
       .then(([ideaRows, mySlugs, suggestionRows]) => {
         setIdeas(Array.isArray(ideaRows) ? ideaRows : []);
@@ -66,7 +65,7 @@ export default function FutureIdeasPage() {
       return next;
     });
 
-    fetch(`${API_URL}/api/future-idea-votes`, {
+    fetch(`/api/future-idea-votes`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ anonymousId, ideaSlug: slug }),
@@ -82,7 +81,7 @@ export default function FutureIdeasPage() {
     e.preventDefault();
     if (!suggestionText.trim()) return;
     setSuggestionStatus("sending");
-    fetch(`${API_URL}/api/future-idea-suggestions`, {
+    fetch(`/api/future-idea-suggestions`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useT } from "../lib/useT";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 // Formulaire compact d'inscription au suivi par email d'un élu étranger —
 // double opt-in (RGPD), même principe que FollowDeputyForm.js côté France.
@@ -15,7 +14,7 @@ export default function FollowMemberForm({ country, externalId, memberName }) {
     e.preventDefault();
     setStatus("sending");
     setErrorMessage("");
-    fetch(`${API_URL}/api/parliament/${country}/member-follows`, {
+    fetch(`/api/parliament/${country}/member-follows`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, externalId }),

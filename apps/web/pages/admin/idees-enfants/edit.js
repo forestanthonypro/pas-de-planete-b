@@ -7,7 +7,6 @@ import Link from "next/link";
 import { slugify } from "../../../lib/slugify";
 import { useApiFetch } from "../../../lib/useApiFetch";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 const TRANSLATION_FIELDS = [
   { name: "title", label: "Titre de l'idée", multiline: false },
@@ -60,7 +59,7 @@ function AdminFutureIdeaEditInner() {
     setStatus("saving");
     setError(null);
 
-    fetch(`${API_URL}/api/admin/future-ideas`, {
+    fetch(`/api/admin/future-ideas`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",

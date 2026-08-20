@@ -1,7 +1,6 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 export function saveCitizenVote(anonymousId, legislature, numeroScrutin, position) {
-  return fetch(`${API_URL}/api/citizen-votes`, {
+  return fetch(`/api/citizen-votes`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ anonymousId, legislature, numeroScrutin, position }),
@@ -12,28 +11,28 @@ export function saveCitizenVote(anonymousId, legislature, numeroScrutin, positio
 }
 
 export function fetchCitizenVotes(anonymousId) {
-  return fetch(`${API_URL}/api/citizen-votes/${anonymousId}`).then((res) => {
+  return fetch(`/api/citizen-votes/${anonymousId}`).then((res) => {
     if (!res.ok) throw new Error("Échec du chargement de l'historique");
     return res.json();
   });
 }
 
 export function fetchCitizenAlignment(anonymousId) {
-  return fetch(`${API_URL}/api/citizen-votes/${anonymousId}/alignment`).then((res) => {
+  return fetch(`/api/citizen-votes/${anonymousId}/alignment`).then((res) => {
     if (!res.ok) throw new Error("Échec du calcul d'alignement");
     return res.json();
   });
 }
 
 export function fetchCitizenScrutinStats(legislature, numero) {
-  return fetch(`${API_URL}/api/scrutins/${legislature}/${numero}/citizen-stats`).then((res) => {
+  return fetch(`/api/scrutins/${legislature}/${numero}/citizen-stats`).then((res) => {
     if (!res.ok) throw new Error("Échec du chargement des statistiques citoyennes");
     return res.json();
   });
 }
 
 export function deleteAllCitizenVotes(anonymousId) {
-  return fetch(`${API_URL}/api/citizen-votes/${anonymousId}`, { method: "DELETE" }).then((res) => {
+  return fetch(`/api/citizen-votes/${anonymousId}`, { method: "DELETE" }).then((res) => {
     if (!res.ok) throw new Error("Échec de la suppression");
     return res.json();
   });

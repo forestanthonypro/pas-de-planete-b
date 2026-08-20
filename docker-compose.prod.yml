@@ -61,6 +61,17 @@ services:
       - "traefik.http.middlewares.api-security-headers.headers.stsPreload=true"
       - "traefik.http.middlewares.api-security-headers.headers.forceSTSHeader=true"
 
+  notifications-worker:
+    image: ${REGISTRY}/api:latest
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      NODE_ENV: production
+    command: npm run push:worker
+    depends_on:
+      - postgres
+
   web:
     image: ${REGISTRY}/web:latest
     restart: unless-stopped

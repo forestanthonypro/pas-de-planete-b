@@ -348,6 +348,8 @@ export default function Layout({ children }) {
         <span aria-hidden="true">·</span>
         <Link href="/confidentialite" prefetch={false} style={{ color: "inherit" }}>{t("common.footer_privacy")}</Link>
         <span aria-hidden="true">·</span>
+        <Link href="/notifications" prefetch={false} style={{ color: "inherit" }}>Notifications</Link>
+        <span aria-hidden="true">·</span>
         <Link href="/contact" prefetch={false} style={{ color: "inherit" }}>{t("common.footer_contact")}</Link>
       </footer>
 

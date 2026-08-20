@@ -5,7 +5,6 @@ import Pagination from "../../../components/Pagination";
 import ScrollableTable from "../../../components/ScrollableTable";
 import ScopeBadges from "../../../components/ScopeBadges";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 const PAGE_SIZE = 20;
 
 function AdminFutureIdeasListInner() {
@@ -22,14 +21,14 @@ function AdminFutureIdeasListInner() {
   }, []);
 
   function loadSuggestions() {
-    fetch(`${API_URL}/api/admin/future-idea-suggestions`, { credentials: "include" })
+    fetch(`/api/admin/future-idea-suggestions`, { credentials: "include" })
       .then((res) => (res.ok ? res.json() : []))
       .then((rows) => setSuggestions(Array.isArray(rows) ? rows : []))
       .catch(() => setSuggestions([]));
   }
 
   function updateSuggestionStatus(id, status) {
-    fetch(`${API_URL}/api/admin/future-idea-suggestions/${id}/status`, {
+    fetch(`/api/admin/future-idea-suggestions/${id}/status`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -47,7 +46,7 @@ function AdminFutureIdeasListInner() {
   function loadIdeas() {
     setLoading(true);
     setError(null);
-    fetch(`${API_URL}/api/admin/future-ideas`, { credentials: "include" })
+    fetch(`/api/admin/future-ideas`, { credentials: "include" })
       .then((res) => {
         if (res.status === 401) throw new Error("Jeton invalide");
         if (!res.ok) throw new Error("Erreur de chargement");
@@ -67,7 +66,7 @@ function AdminFutureIdeasListInner() {
 
 
   function togglePublished(idea) {
-    fetch(`${API_URL}/api/admin/future-ideas/${idea.slug}/publish`, {
+    fetch(`/api/admin/future-ideas/${idea.slug}/publish`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -82,7 +81,7 @@ function AdminFutureIdeasListInner() {
   }
 
   function removeIdea(slug) {
-    fetch(`${API_URL}/api/admin/future-ideas/${slug}`, {
+    fetch(`/api/admin/future-ideas/${slug}`, {
       method: "DELETE",
       credentials: "include",
     })

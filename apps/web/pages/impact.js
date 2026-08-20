@@ -4,7 +4,6 @@ import { IconLeaf } from "../components/icons";
 import { useT } from "../lib/useT";
 import { formatDate } from "../lib/useLastUpdated";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 const GRADE_COLORS = {
   A: "#1baf7a", "A+": "#1baf7a", B: "#7fc97f", C: "#cbd423",
@@ -63,7 +62,7 @@ export default function EnvironmentalImpactPage() {
   const chartRef = useRef(null);
 
   useEffect(() => {
-    fetch(`${API_URL}/api/environmental-metrics`)
+    fetch(`/api/environmental-metrics`)
       .then((res) => {
         if (!res.ok) throw new Error("Erreur de chargement");
         return res.json();

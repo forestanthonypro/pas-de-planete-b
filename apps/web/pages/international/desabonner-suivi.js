@@ -3,7 +3,6 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import { useT } from "../../lib/useT";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 export default function DesabonnerSuiviInternational() {
   const { t } = useT();
@@ -13,7 +12,7 @@ export default function DesabonnerSuiviInternational() {
 
   useEffect(() => {
     if (!token) return;
-    fetch(`${API_URL}/api/parliament/member-follows/unsubscribe?token=${encodeURIComponent(token)}`)
+    fetch(`/api/parliament/member-follows/unsubscribe?token=${encodeURIComponent(token)}`)
       .then((res) => {
         if (!res.ok) throw new Error();
         return res.json();

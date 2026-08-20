@@ -6,7 +6,6 @@ import ScopeMultiSelect from "../../../components/ScopeMultiSelect";
 import Link from "next/link";
 import { useApiFetch } from "../../../lib/useApiFetch";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 const TRANSLATION_FIELDS = [
   { name: "title", label: "Titre", multiline: false },
@@ -82,7 +81,7 @@ function AdminPetitionEditInner() {
     e.preventDefault();
     setSaveStatus("saving");
     setError(null);
-    fetch(`${API_URL}/api/admin/petitions`, {
+    fetch(`/api/admin/petitions`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",

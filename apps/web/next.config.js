@@ -10,6 +10,37 @@ const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   output: "standalone",
+  // Proxy /api/* vers le backend, en interne au réseau Docker.
+  //
+  // Pourquoi : le navigateur ne doit JAMAIS appeler l'API directement en
+  // cross-site (ex. site sur localhost:3000, API sur 192.168.1.18:4000,
+  // ou en prod pasdeplaneteb.com / api.pasdeplaneteb.com selon la
+  // config réseau). Le cookie de session admin (SameSite=Strict/Lax,
+  // voir apps/api/src/lib/auth.js) est alors silencieusement rejeté par
+  // le navigateur — ce n'est pas un bug de configuration, c'est le
+  // navigateur qui applique la protection anti-CSRF correctement.
+  //
+  // La solution : le navigateur appelle toujours `/api/...` en relatif,
+  // sur la même origine que la page. C'est Next.js (côté serveur, dans
+  // ce conteneur) qui relaie vers l'API réelle via le nom de service
+  // Docker `api` — jamais via l'IP publique/LAN. Fonctionne quel que
+  // soit l'hôte utilisé pour atteindre le site (localhost, IP réseau,
+  // domaine de prod), sans jamais toucher .env selon le contexte de test.
+  //
+  // API_INTERNAL_URL (sans préfixe NEXT_PUBLIC_) n'est lue que côté
+  // serveur, jamais exposée au navigateur — contrairement à
+  // NEXT_PUBLIC_API_URL qui reste nécessaire pour les appels effectués
+  // pendant le rendu serveur (getStaticProps), lesquels n'ont pas de
+  // notion d'origine navigateur et ne posent donc pas ce problème.
+  async rewrites() {
+    const apiInternalUrl = process.env.API_INTERNAL_URL || "http://api:4000";
+    return [
+      {
+        source: "/api/:path*",
+        destination: `${apiInternalUrl}/api/:path*`,
+      },
+    ];
+  },
   async headers() {
     return [
       {

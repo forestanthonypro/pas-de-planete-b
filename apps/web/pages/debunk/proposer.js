@@ -5,7 +5,6 @@ import ScopeMultiSelect from "../../components/ScopeMultiSelect";
 import { useT } from "../../lib/useT";
 import { IconSearch } from "../../components/icons";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 export default function ProposerDebunk() {
   const { t, locale } = useT();
@@ -22,7 +21,7 @@ export default function ProposerDebunk() {
     e.preventDefault();
     setStatus("sending");
     setError(null);
-    fetch(`${API_URL}/api/debunk/submit`, {
+    fetch(`/api/debunk/submit`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ myth, sourceUrl: sourceUrl || null, notes: notes || null, scopeCodes, submitterEmail: submitterEmail || null, website }),

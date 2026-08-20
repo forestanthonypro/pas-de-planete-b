@@ -7,7 +7,6 @@ import Link from "next/link";
 import { slugify } from "../../../lib/slugify";
 import { useApiFetch } from "../../../lib/useApiFetch";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 const TRANSLATION_FIELDS = [
   { name: "name", label: "Nom du lieu", multiline: false },
@@ -93,7 +92,7 @@ function AdminLocationEditInner() {
     setStatus("saving");
     setError(null);
 
-    fetch(`${API_URL}/api/admin/resource-locations`, {
+    fetch(`/api/admin/resource-locations`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",

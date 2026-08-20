@@ -1,7 +1,6 @@
 import Head from "next/head";
 import { useEffect, useState } from "react";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 // Protège toute page d'administration derrière un code à 6 chiffres généré
 // par une application d'authentification (Google Authenticator, Authy...).
@@ -38,7 +37,7 @@ export default function AdminAuthGate({ children }) {
   const [verifying, setVerifying] = useState(false);
 
   useEffect(() => {
-    fetch(`${API_URL}/api/admin/auth/session`, { credentials: "include" })
+    fetch(`/api/admin/auth/session`, { credentials: "include" })
       .then((res) => setAuthenticated(res.ok))
       .catch(() => setAuthenticated(false));
   }, []);
@@ -47,7 +46,7 @@ export default function AdminAuthGate({ children }) {
     e.preventDefault();
     setVerifying(true);
     setError(null);
-    fetch(`${API_URL}/api/admin/auth/verify-otp`, {
+    fetch(`/api/admin/auth/verify-otp`, {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
@@ -69,7 +68,7 @@ export default function AdminAuthGate({ children }) {
   }
 
   function handleLogout() {
-    fetch(`${API_URL}/api/admin/auth/logout`, { method: "POST", credentials: "include" })
+    fetch(`/api/admin/auth/logout`, { method: "POST", credentials: "include" })
       .catch(() => {})
       .finally(() => setAuthenticated(false));
   }

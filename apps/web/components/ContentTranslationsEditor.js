@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useApiFetch } from "../lib/useApiFetch";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 const LANGUAGE_TABS = [
   { code: "en", label: "English" },
@@ -65,7 +64,7 @@ export default function ContentTranslationsEditor({ contentType, contentId, fiel
     fields.forEach((f) => {
       texts[f.name] = baseValues[f.name] || "";
     });
-    fetch(`${API_URL}/api/admin/translate`, {
+    fetch(`/api/admin/translate`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -99,7 +98,7 @@ export default function ContentTranslationsEditor({ contentType, contentId, fiel
       texts[f.name] = baseValues[f.name] || "";
     });
     const allLangs = LANGUAGE_TABS.map((l) => l.code);
-    fetch(`${API_URL}/api/admin/translate`, {
+    fetch(`/api/admin/translate`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -113,7 +112,7 @@ export default function ContentTranslationsEditor({ contentType, contentId, fiel
         Promise.all(
           allLangs.flatMap((l) =>
             fields.map((f) =>
-              fetch(`${API_URL}/api/admin/content-translations`, {
+              fetch(`/api/admin/content-translations`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",
@@ -149,7 +148,7 @@ export default function ContentTranslationsEditor({ contentType, contentId, fiel
     const toSave = fields.filter((f) => (values[f.name] || "") !== (initialValues[f.name] || ""));
     Promise.all(
       toSave.map((f) =>
-        fetch(`${API_URL}/api/admin/content-translations`, {
+        fetch(`/api/admin/content-translations`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",

@@ -5,7 +5,6 @@ import PageHeader from "../components/PageHeader";
 import { IconScroll } from "../components/icons";
 import { useT } from "../lib/useT";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 // Contenu éditable depuis /admin/settings (site_settings), une variante par
 // langue — mentions_legales_content (français, historique) et
@@ -20,7 +19,7 @@ export default function MentionsLegales() {
   useEffect(() => {
     const locale = router.locale || "fr";
     const key = locale === "fr" ? "mentions_legales_content" : `mentions_legales_content_${locale}`;
-    fetch(`${API_URL}/api/settings/legal-content/${key}`)
+    fetch(`/api/settings/legal-content/${key}`)
       .then((res) => (res.ok ? res.json() : { content: "" }))
       .then((data) => setHtml(data.content))
       .catch(() => setHtml(""));

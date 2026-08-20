@@ -5,7 +5,6 @@ import PageHeader from "../components/PageHeader";
 import { IconScroll } from "../components/icons";
 import { useT } from "../lib/useT";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 export default function Confidentialite() {
   const { t } = useT();
@@ -15,7 +14,7 @@ export default function Confidentialite() {
   useEffect(() => {
     const locale = router.locale || "fr";
     const key = locale === "fr" ? "confidentialite_content" : `confidentialite_content_${locale}`;
-    fetch(`${API_URL}/api/settings/legal-content/${key}`)
+    fetch(`/api/settings/legal-content/${key}`)
       .then((res) => (res.ok ? res.json() : { content: "" }))
       .then((data) => setHtml(data.content))
       .catch(() => setHtml(""));

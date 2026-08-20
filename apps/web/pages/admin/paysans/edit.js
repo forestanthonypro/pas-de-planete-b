@@ -6,8 +6,8 @@ import Link from "next/link";
 import { slugify } from "../../../lib/slugify";
 import { toYoutubeEmbedUrl, isYoutubeUrl } from "../../../lib/youtube";
 import { useApiFetch } from "../../../lib/useApiFetch";
+import ScopeMultiSelect from "../../../components/ScopeMultiSelect";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 const TRANSLATION_FIELDS = [
   { name: "title", label: "Titre", multiline: false },
@@ -29,6 +29,7 @@ function AdminPaysanEditInner() {
   const [imageUrl, setImageUrl] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [published, setPublished] = useState(false);
+  const [scopeCodes, setScopeCodes] = useState([]);
 
   const [error, setError] = useState(null);
   const [status, setStatus] = useState("idle");
@@ -59,6 +60,7 @@ function AdminPaysanEditInner() {
     setImageUrl(paysanData.image_url || "");
     setCategoryId(paysanData.category_id || "");
     setPublished(paysanData.published);
+    setScopeCodes(paysanData.scope_codes || []);
   }, [paysanData]);
 
   useEffect(() => {
@@ -83,7 +85,7 @@ function AdminPaysanEditInner() {
     setStatus("saving");
     setError(null);
 
-    fetch(`${API_URL}/api/admin/paysan-resources`, {
+    fetch(`/api/admin/paysan-resources`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -98,6 +100,7 @@ function AdminPaysanEditInner() {
         imageUrl: imageUrl || null,
         categoryId: categoryId || null,
         published,
+        scopeCodes,
       }),
     })
       .then((res) => {
@@ -226,6 +229,13 @@ function AdminPaysanEditInner() {
           <input type="checkbox" checked={published} onChange={(e) => setPublished(e.target.checked)} />
           Publier (visible sur la page publique)
         </label>
+
+        <div style={{ marginBottom: "1rem" }}>
+          <ScopeMultiSelect value={scopeCodes} onChange={setScopeCodes} locale="fr" label="Pays, continent(s) ou portée mondiale concernés" placeholder="Rechercher un pays…" />
+          <p style={{ fontSize: 12, color: "var(--color-texte-clair)" }}>
+            Sans portée explicite, aucune notification ciblée ne sera envoyée. Choisissez « Monde » pour une publication mondiale.
+          </p>
+        </div>
 
         <button type="submit" disabled={status === "saving"}>
           {status === "saving" ? "Enregistrement..." : "Enregistrer"}

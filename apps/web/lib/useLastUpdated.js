@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 const LOCALE_MAP = {
   fr: "fr-FR", en: "en-GB", es: "es-ES", it: "it-IT",
@@ -10,7 +9,7 @@ const LOCALE_MAP = {
 export function useLastUpdated() {
   const [data, setData] = useState(null);
   useEffect(() => {
-    fetch(`${API_URL}/api/meta/last-updated`)
+    fetch(`/api/meta/last-updated`)
       .then((res) => (res.ok ? res.json() : null))
       .then(setData)
       .catch(() => setData(null));

@@ -19,7 +19,6 @@ import { barEndLabelsPlugin } from "../../lib/barEndLabelsPlugin";
 import { useT } from "../../lib/useT";
 import ScrollableTable from "../../components/ScrollableTable";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 function useCategoryInfo(t) {
   return {
@@ -467,12 +466,12 @@ export default function PaysDashboard() {
     setError(null);
 
     Promise.all([
-      fetch(`${API_URL}/api/country-summary/${code}`).then((res) => {
+      fetch(`/api/country-summary/${code}`).then((res) => {
         if (!res.ok) throw new Error(t("pays.co2_no_data"));
         return res.json();
       }),
-      fetch(`${API_URL}/api/species?country=${code}`).then((res) => (res.ok ? res.json() : [])),
-      fetch(`${API_URL}/api/fires?country=${code}`).then((res) => (res.ok ? res.json() : [])),
+      fetch(`/api/species?country=${code}`).then((res) => (res.ok ? res.json() : [])),
+      fetch(`/api/fires?country=${code}`).then((res) => (res.ok ? res.json() : [])),
     ])
       .then(([summaryData, speciesData, firesData]) => {
         setSummary(summaryData);
@@ -503,9 +502,9 @@ export default function PaysDashboard() {
       return;
     }
     Promise.all([
-      fetch(`${API_URL}/api/country-summary/${compareCode}`).then((res) => (res.ok ? res.json() : null)),
-      fetch(`${API_URL}/api/species?country=${compareCode}`).then((res) => (res.ok ? res.json() : [])),
-      fetch(`${API_URL}/api/fires?country=${compareCode}`).then((res) => (res.ok ? res.json() : [])),
+      fetch(`/api/country-summary/${compareCode}`).then((res) => (res.ok ? res.json() : null)),
+      fetch(`/api/species?country=${compareCode}`).then((res) => (res.ok ? res.json() : [])),
+      fetch(`/api/fires?country=${compareCode}`).then((res) => (res.ok ? res.json() : [])),
     ])
       .then(([summaryData, speciesData, firesData]) => {
         setCompareSummary(summaryData);

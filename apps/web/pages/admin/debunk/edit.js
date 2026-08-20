@@ -6,7 +6,6 @@ import ScopeMultiSelect from "../../../components/ScopeMultiSelect";
 import Link from "next/link";
 import { slugify } from "../../../lib/slugify";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 const TRANSLATION_FIELDS = [
   { name: "myth", label: "Titre / affirmation démontée", multiline: false },
@@ -39,7 +38,7 @@ function AdminDebunkEditInner() {
   const [status, setStatus] = useState("idle"); // idle | saving | done
 
   useEffect(() => {
-    fetch(`${API_URL}/api/debunk-categories`)
+    fetch(`/api/debunk-categories`)
       .then((res) => (res.ok ? res.json() : []))
       .then(setCategories)
       .catch(() => setCategories([]));
@@ -48,7 +47,7 @@ function AdminDebunkEditInner() {
   useEffect(() => {
     if (!editSlug) return;
     setLoading(true);
-    fetch(`${API_URL}/api/admin/debunk/${editSlug}`, {
+    fetch(`/api/admin/debunk/${editSlug}`, {
       credentials: "include",
     })
       .then((res) => {
@@ -100,7 +99,7 @@ function AdminDebunkEditInner() {
     setStatus("saving");
     setError(null);
 
-    fetch(`${API_URL}/api/admin/debunk`, {
+    fetch(`/api/admin/debunk`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",

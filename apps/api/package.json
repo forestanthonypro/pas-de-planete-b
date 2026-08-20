@@ -22,7 +22,9 @@
     "ingest:deputies": "node src/ingest/deputies.js",
     "ingest:scrutins": "node src/ingest/scrutins.js",
     "ingest:deputy-votes": "node src/ingest/deputy_votes.js",
-    "ingest:an-groups": "node src/ingest/an_groups.js"
+    "ingest:an-groups": "node src/ingest/an_groups.js",
+    "push:worker": "node src/workers/pushNotifications.js",
+    "push:once": "node src/workers/pushNotifications.js --once"
   },
   "dependencies": {
     "adm-zip": "^0.6.0",
@@ -36,7 +38,8 @@
     "pg": "^8.23.0",
     "playwright-core": "^1.48.0",
     "qrcode": "^1.5.4",
-    "sanitize-html": "2.17.7"
+    "sanitize-html": "2.17.7",
+    "web-push": "^3.6.7"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

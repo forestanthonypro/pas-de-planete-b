@@ -4,7 +4,6 @@ import AdminAuthGate from "../../../components/AdminAuthGate";
 import Pagination from "../../../components/Pagination";
 import ScrollableTable from "../../../components/ScrollableTable";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 const PAGE_SIZE = 20;
 
 const TYPE_LABELS = { video: "Vidéo", article: "Article", podcast: "Podcast" };
@@ -36,8 +35,8 @@ function AdminInterviewsListInner() {
     setLoading(true);
     setError(null);
     Promise.all([
-      fetch(`${API_URL}/api/admin/science-relays`, { credentials: "include" }),
-      fetch(`${API_URL}/api/interview-categories`),
+      fetch(`/api/admin/science-relays`, { credentials: "include" }),
+      fetch(`/api/interview-categories`),
     ])
       .then(async ([resEntries, resCategories]) => {
         if (resEntries.status === 401) throw new Error("Jeton invalide");
@@ -57,7 +56,7 @@ function AdminInterviewsListInner() {
 
   function deleteEntry(entry) {
     if (!window.confirm("Supprimer définitivement \"" + entry.title + "\" ? Cette action est irréversible.")) return;
-    fetch(API_URL + "/api/admin/science-relays/" + entry.slug, {
+    fetch("/api/admin/science-relays/" + entry.slug, {
       method: "DELETE",
       credentials: "include",
     })
@@ -70,7 +69,7 @@ function AdminInterviewsListInner() {
   }
 
   function togglePublished(entry) {
-    fetch(`${API_URL}/api/admin/science-relays/${entry.slug}/publish`, {
+    fetch(`/api/admin/science-relays/${entry.slug}/publish`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -87,7 +86,7 @@ function AdminInterviewsListInner() {
   function addCategory(e) {
     e.preventDefault();
     if (!newCategory.trim()) return;
-    fetch(`${API_URL}/api/admin/interview-categories`, {
+    fetch(`/api/admin/interview-categories`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -105,7 +104,7 @@ function AdminInterviewsListInner() {
   }
 
   function removeCategory(id) {
-    fetch(`${API_URL}/api/admin/interview-categories/${id}`, {
+    fetch(`/api/admin/interview-categories/${id}`, {
       method: "DELETE",
       credentials: "include",
     })

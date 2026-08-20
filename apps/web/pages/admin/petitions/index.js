@@ -5,7 +5,6 @@ import Pagination from "../../../components/Pagination";
 import ScrollableTable from "../../../components/ScrollableTable";
 import { useApiFetch } from "../../../lib/useApiFetch";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 const PAGE_SIZE = 20;
 const STATUS_LABELS = { ongoing: "En cours", closed: "Clôturée" };
 
@@ -42,7 +41,7 @@ function AdminPetitionsListInner() {
   const entries = data ?? [];
 
   function reload() {
-    fetch(`${API_URL}/api/admin/petitions`, { credentials: "include" })
+    fetch(`/api/admin/petitions`, { credentials: "include" })
       .then((res) => {
         if (!res.ok) throw new Error("Erreur de chargement");
         return res.json();
@@ -53,7 +52,7 @@ function AdminPetitionsListInner() {
 
   function deleteEntry(entry) {
     if (!window.confirm(`Supprimer définitivement la pétition "${entry.title}" ? Cette action est irréversible.`)) return;
-    fetch(`${API_URL}/api/admin/petitions/${entry.slug}`, {
+    fetch(`/api/admin/petitions/${entry.slug}`, {
       method: "DELETE",
       credentials: "include",
     })
@@ -66,7 +65,7 @@ function AdminPetitionsListInner() {
   }
 
   function togglePublished(entry) {
-    fetch(`${API_URL}/api/admin/petitions/${entry.slug}/publish`, {
+    fetch(`/api/admin/petitions/${entry.slug}/publish`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",

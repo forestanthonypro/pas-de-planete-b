@@ -7,7 +7,6 @@ import { useT } from "../../lib/useT";
 import { useSobriety } from "../../lib/SobrietyContext";
 import { toYoutubeThumbnailUrl } from "../../lib/youtube";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 const TYPE_ICONS = { video: "▶", article: "📄", podcast: "🎙", document: "📎" };
 
 export default function PaysansPage() {
@@ -22,11 +21,11 @@ export default function PaysansPage() {
 
   useEffect(() => {
     Promise.all([
-      fetch(`${API_URL}/api/paysan-resources?locale=${locale}`).then((res) => {
+      fetch(`/api/paysan-resources?locale=${locale}`).then((res) => {
         if (!res.ok) throw new Error(t("paysans.error_no_data"));
         return res.json();
       }),
-      fetch(`${API_URL}/api/paysan-categories`).then((res) => (res.ok ? res.json() : [])),
+      fetch(`/api/paysan-categories`).then((res) => (res.ok ? res.json() : [])),
     ])
       .then(([entryRows, categoryRows]) => {
         setEntries(Array.isArray(entryRows) ? entryRows : []);

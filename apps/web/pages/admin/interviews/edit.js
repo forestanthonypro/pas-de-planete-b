@@ -8,7 +8,6 @@ import { slugify } from "../../../lib/slugify";
 import { toYoutubeEmbedUrl, isYoutubeUrl } from "../../../lib/youtube";
 import { useApiFetch } from "../../../lib/useApiFetch";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 const TRANSLATION_FIELDS = [
   { name: "title", label: "Titre", multiline: false },
@@ -99,7 +98,7 @@ function AdminInterviewEditInner() {
     setStatus("saving");
     setError(null);
 
-    fetch(`${API_URL}/api/admin/science-relays`, {
+    fetch(`/api/admin/science-relays`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",

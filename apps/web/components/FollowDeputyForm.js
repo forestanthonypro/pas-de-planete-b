@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useT } from "../lib/useT";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 // Formulaire compact d'inscription au suivi par email d'un député — double
 // opt-in : l'inscription envoie un email de confirmation, rien n'est actif
@@ -16,7 +15,7 @@ export default function FollowDeputyForm({ acteurUid, deputyName }) {
     e.preventDefault();
     setStatus("sending");
     setErrorMessage("");
-    fetch(`${API_URL}/api/deputy-follows`, {
+    fetch(`/api/deputy-follows`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, acteurUid }),

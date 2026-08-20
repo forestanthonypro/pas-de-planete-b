@@ -5,7 +5,6 @@ import ScopeMultiSelect from "../../components/ScopeMultiSelect";
 import { useT } from "../../lib/useT";
 import { IconLandmark } from "../../components/icons";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 export default function ProposerPetition() {
   const { t, locale } = useT();
@@ -24,7 +23,7 @@ export default function ProposerPetition() {
     e.preventDefault();
     setStatus("sending");
     setError(null);
-    fetch(`${API_URL}/api/petitions/submit`, {
+    fetch(`/api/petitions/submit`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ title, description, petitionUrl, sourceName: sourceName || null, scopeCodes, submitterEmail: submitterEmail || null, submissionNotes: submissionNotes || null, website }),

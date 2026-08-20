@@ -6,7 +6,6 @@ import { IconLandmark } from "../../components/icons";
 import { useT } from "../../lib/useT";
 import ScrollableTable from "../../components/ScrollableTable";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 export default function GroupesPage() {
   const { t } = useT();
@@ -17,7 +16,7 @@ export default function GroupesPage() {
   const chartRef = useRef(null);
 
   useEffect(() => {
-    fetch(`${API_URL}/api/an-groups`)
+    fetch(`/api/an-groups`)
       .then((res) => {
         if (!res.ok) throw new Error(t("groupes.error_no_data"));
         return res.json();

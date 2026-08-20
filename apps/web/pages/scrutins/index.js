@@ -11,7 +11,6 @@ import { fetchCitizenVotes } from "../../lib/citizenVotes";
 import ScrollableTable from "../../components/ScrollableTable";
 import { useApiFetch } from "../../lib/useApiFetch";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 const PAGE_SIZE = 30;
 
 export default function ScrutinsPage() {
@@ -47,7 +46,7 @@ export default function ScrutinsPage() {
     }
     setSearching(true);
     setSearchError(null);
-    fetch(`${API_URL}/api/scrutins/search?q=${encodeURIComponent(q)}`)
+    fetch(`/api/scrutins/search?q=${encodeURIComponent(q)}`)
       .then((res) => {
         if (!res.ok) throw new Error(t("scrutins.search_error"));
         return res.json();
