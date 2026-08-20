@@ -27,9 +27,8 @@ Suivi des chantiers en attente. Voir aussi `README.md` pour les points d'archite
 
 ## 🆕 Chantiers ouverts (suite)
 
-- **Notifications Web Push — reste avant diffusion large** : le système est fonctionnel de bout en bout (déclenchement, worker, réception navigateur, testé sur pétitions et votes de député) et intégré à la navigation (icône dans la barre du haut, bannière d'incitation, encart de renvoi vers les fiches élus depuis `/notifications`). Reste :
+- **Notifications Web Push — reste avant diffusion large** : le système est fonctionnel de bout en bout (déclenchement, worker, réception navigateur, testé sur pétitions et votes de député) et intégré à la navigation (icône dans la barre du haut, bannière d'incitation, encart de renvoi vers les fiches élus depuis `/notifications`). Clés VAPID de production générées et déployées le 20 août (rappel technique : `docker compose restart` ne suffit pas après un changement dans `.env`, il faut `docker compose up -d` pour recréer le conteneur avec les nouvelles variables). Reste :
   - Test réel en PWA sur iOS (écran d'accueil) — seul environnement pas encore testé
-  - Génération et sauvegarde des clés VAPID de **production** (celles utilisées en local ne doivent jamais servir en prod)
   - Quelques jours d'observation en conditions réelles avant diffusion large, comme prévu initialement
   - **Capacitor + Firebase Cloud Messaging** (push natif mobile) : reporté à la publication de l'appli sur les stores. La table `notification_events` (événements transactionnels, déduplication) est agnostique du canal d'envoi — un futur worker FCM pourra s'y brancher sans refonte.
 
