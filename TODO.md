@@ -7,7 +7,6 @@ Suivi des chantiers en attente. Voir aussi `README.md` pour les points d'archite
 ## 🔴 Bloquant / infrastructure
 
 - **CSP en mode Report-Only — période d'observation en cours** : déployée suite à l'audit de sécurité du 20 août. Surveiller les logs API (`docker compose -f docker-compose.prod.yml logs api | grep CSP_VIOLATION`) pendant au moins 7 jours, parcourir le site en suivant la checklist de `CSP_ROLLOUT.md`, puis seulement basculer `Content-Security-Policy-Report-Only` en `Content-Security-Policy` dans `apps/web/next.config.js` si aucune violation légitime inexpliquée.
-- **Ingestion des températures bloquée** : Open-Meteo a silencieusement mis l'IP du VPS en liste noire (aucune erreur explicite, requêtes sans réponse — confirmé en testant la même requête depuis un navigateur personnel, qui fonctionne). France notamment n'a aucune donnée. À retenter après un délai (quelques jours), sinon envisager une clé API payante Open-Meteo. Voir `README.md`, section Maintenance, pour la commande de relance ciblée par pays.
 - **Transfert de domaine `.fr` → `.com`** : en attente de la règle des 60 jours ICANN, finalisation prévue autour d'octobre 2026. Rien à faire avant cette date — vérifier ensuite que le nouveau registrar prend le relais avec les mêmes enregistrements DNS.
 - **Vérification de domaine Brevo** : bloquée par le transfert de domaine en cours (DNS toujours géré par l'ancien registrar). Alternative temporaire déjà en place : expéditeur Gmail personnel.
 
