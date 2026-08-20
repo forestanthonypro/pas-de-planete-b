@@ -27,18 +27,34 @@ export function requireIngestToken(req, res, next) {
 // remplace le jeton statique partagé pour toutes les routes d'administration
 // de CONTENU (pas les routes d'ingestion CI/CD, qui restent sur
 // INGEST_TOKEN puisqu'elles tournent sans intervention humaine).
-export const SESSION_DURATION_MS = 12 * 60 * 60 * 1000; // 12h
+//
+// Suite à un audit de sécurité externe (20 août 2026) : la session admin
+// vivait auparavant dans localStorage côté navigateur, lisible par
+// n'importe quel JavaScript exécuté sur la page (XSS). Elle passe
+// maintenant par un cookie HttpOnly (voir routes/auth.js pour la pose du
+// cookie) — inaccessible en JavaScript par construction, seul moyen
+// réellement efficace de corriger ce type de faille (un cookie non-HttpOnly
+// ou localStorage sont strictement équivalents du point de vue de cette
+// vulnérabilité précise). Durée réduite de 12h à 4h au passage, et seul un
+// hachage du jeton est conservé en base — jamais le jeton brut — pour que
+// la table admin_sessions ne soit pas directement exploitable si jamais
+// elle fuitait (ex. sauvegarde mal protégée).
+export const SESSION_DURATION_MS = 4 * 60 * 60 * 1000; // 4h
+export const SESSION_COOKIE_NAME = "pdpb_admin_session";
+
+export function hashSessionToken(token) {
+  return crypto.createHash("sha256").update(token).digest("hex");
+}
 
 export async function requireAdminSession(req, res, next) {
-  const auth = req.header("authorization") || "";
-  const token = auth.startsWith("Bearer ") ? auth.slice(7) : null;
+  const token = req.cookies?.[SESSION_COOKIE_NAME];
   if (!token) {
     return res.status(401).json({ error: "Session admin requise" });
   }
   try {
     const result = await pool.query(
-      "SELECT session_token FROM admin_sessions WHERE session_token = $1 AND expires_at > now()",
-      [token]
+      "SELECT session_token_hash FROM admin_sessions WHERE session_token_hash = $1 AND expires_at > now()",
+      [hashSessionToken(token)]
     );
     if (result.rows.length === 0) {
       return res.status(401).json({ error: "Session expirée ou invalide" });

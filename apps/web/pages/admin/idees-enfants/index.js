@@ -8,7 +8,7 @@ import ScopeBadges from "../../../components/ScopeBadges";
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 const PAGE_SIZE = 20;
 
-function AdminFutureIdeasListInner({ session }) {
+function AdminFutureIdeasListInner() {
   const [ideas, setIdeas] = useState([]);
   const [loaded, setLoaded] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -17,13 +17,13 @@ function AdminFutureIdeasListInner({ session }) {
   const [suggestions, setSuggestions] = useState([]);
 
   useEffect(() => {
-    loadIdeas(session.sessionToken);
+    loadIdeas();
     loadSuggestions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function loadSuggestions() {
-    fetch(`${API_URL}/api/admin/future-idea-suggestions`, { headers: { ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) } })
+    fetch(`${API_URL}/api/admin/future-idea-suggestions`, { credentials: "include" })
       .then((res) => (res.ok ? res.json() : []))
       .then((rows) => setSuggestions(Array.isArray(rows) ? rows : []))
       .catch(() => setSuggestions([]));
@@ -32,7 +32,8 @@ function AdminFutureIdeasListInner({ session }) {
   function updateSuggestionStatus(id, status) {
     fetch(`${API_URL}/api/admin/future-idea-suggestions/${id}/status`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ status }),
     })
       .then((res) => {
@@ -44,10 +45,10 @@ function AdminFutureIdeasListInner({ session }) {
   }
 
 
-  function loadIdeas(currentToken) {
+  function loadIdeas() {
     setLoading(true);
     setError(null);
-    fetch(`${API_URL}/api/admin/future-ideas`, { headers: { ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) } })
+    fetch(`${API_URL}/api/admin/future-ideas`, { credentials: "include" })
       .then((res) => {
         if (res.status === 401) throw new Error("Jeton invalide");
         if (!res.ok) throw new Error("Erreur de chargement");
@@ -69,27 +70,28 @@ function AdminFutureIdeasListInner({ session }) {
   function togglePublished(idea) {
     fetch(`${API_URL}/api/admin/future-ideas/${idea.slug}/publish`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ published: !idea.published }),
     })
       .then((res) => {
         if (!res.ok) throw new Error("Échec de la mise à jour");
         return res.json();
       })
-      .then(() => loadIdeas(session.sessionToken))
+      .then(() => loadIdeas())
       .catch((err) => setError(err.message));
   }
 
   function removeIdea(slug) {
     fetch(`${API_URL}/api/admin/future-ideas/${slug}`, {
       method: "DELETE",
-      headers: { ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
+      credentials: "include",
     })
       .then((res) => {
         if (!res.ok) throw new Error("Échec de la suppression");
         return res.json();
       })
-      .then(() => loadIdeas(session.sessionToken))
+      .then(() => loadIdeas())
       .catch((err) => setError(err.message));
   }
 
@@ -199,7 +201,7 @@ function AdminFutureIdeasListInner({ session }) {
 }
 
 export default function AdminFutureIdeasList() {
-  return <AdminAuthGate>{(session) => <AdminFutureIdeasListInner session={session} />}</AdminAuthGate>;
+  return <AdminAuthGate>{() => <AdminFutureIdeasListInner />}</AdminAuthGate>;
 }
 
 export async function getStaticProps() {

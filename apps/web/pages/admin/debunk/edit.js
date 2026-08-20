@@ -14,7 +14,7 @@ const TRANSLATION_FIELDS = [
   { name: "reality", label: "Ce qu'il en est vraiment", multiline: true },
 ];
 
-function AdminDebunkEditInner({ session }) {
+function AdminDebunkEditInner() {
   const router = useRouter();
   const { slug: editSlug } = router.query;
   const isEditing = Boolean(editSlug);
@@ -49,7 +49,7 @@ function AdminDebunkEditInner({ session }) {
     if (!editSlug) return;
     setLoading(true);
     fetch(`${API_URL}/api/admin/debunk/${editSlug}`, {
-      headers: { ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
+      credentials: "include",
     })
       .then((res) => {
         if (!res.ok) throw new Error("Entrée non trouvée");
@@ -102,7 +102,8 @@ function AdminDebunkEditInner({ session }) {
 
     fetch(`${API_URL}/api/admin/debunk`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({
         slug,
         myth,
@@ -321,14 +322,13 @@ function AdminDebunkEditInner({ session }) {
         contentId={isEditing ? slug : null}
         fields={TRANSLATION_FIELDS}
         baseValues={{ myth, claim_quote: claimQuote, reality }}
-        sessionToken={session.sessionToken}
       />
     </div>
   );
 }
 
 export default function AdminDebunkEdit() {
-  return <AdminAuthGate>{(session) => <AdminDebunkEditInner session={session} />}</AdminAuthGate>;
+  return <AdminAuthGate>{() => <AdminDebunkEditInner />}</AdminAuthGate>;
 }
 
 export async function getStaticProps() {

@@ -1,6 +1,5 @@
 import Head from "next/head";
 import { useEffect, useState } from "react";
-import { getAdminSession, setAdminSession, clearAdminSession } from "../lib/adminAuth";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -9,6 +8,17 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 // Remplace l'ancien jeton statique partagé — un code TOTP change toutes les
 // 30 secondes et ne peut pas être « volé » une fois utilisé, contrairement à
 // un mot de passe fixe.
+//
+// Suite à un audit de sécurité externe (20 août 2026) : la session vit
+// maintenant dans un cookie HttpOnly (posé par l'API), plus dans
+// localStorage. Un cookie HttpOnly n'est par construction pas lisible en
+// JavaScript — impossible donc de savoir localement si on est connecté au
+// chargement de la page, contrairement à avant (simple lecture
+// localStorage). La vérification passe désormais par un aller-retour
+// réseau vers /api/admin/auth/session. Toutes les requêtes vers l'API
+// doivent inclure { credentials: "include" } pour que le navigateur
+// envoie le cookie — plus besoin de construire un en-tête Authorization
+// manuellement nulle part.
 
 // Balise commune : empêche l'indexation et le crawl des pages admin par les
 // moteurs de recherche (évite les faux positifs "page trompeuse" de Google
@@ -22,13 +32,15 @@ function AdminNoIndex() {
 }
 
 export default function AdminAuthGate({ children }) {
-  const [session, setSession] = useState(undefined); // undefined = pas encore vérifié
+  const [authenticated, setAuthenticated] = useState(undefined); // undefined = pas encore vérifié
   const [code, setCode] = useState("");
   const [error, setError] = useState(null);
   const [verifying, setVerifying] = useState(false);
 
   useEffect(() => {
-    setSession(getAdminSession());
+    fetch(`${API_URL}/api/admin/auth/session`, { credentials: "include" })
+      .then((res) => setAuthenticated(res.ok))
+      .catch(() => setAuthenticated(false));
   }, []);
 
   function handleSubmit(e) {
@@ -37,6 +49,7 @@ export default function AdminAuthGate({ children }) {
     setError(null);
     fetch(`${API_URL}/api/admin/auth/verify-otp`, {
       method: "POST",
+      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ code }),
     })
@@ -44,9 +57,8 @@ export default function AdminAuthGate({ children }) {
         if (!res.ok) return res.json().then((d) => Promise.reject(new Error(d.error || "Code invalide")));
         return res.json();
       })
-      .then((data) => {
-        setAdminSession(data.sessionToken, data.expiresAt);
-        setSession({ sessionToken: data.sessionToken, expiresAt: data.expiresAt });
+      .then(() => {
+        setAuthenticated(true);
         setCode("");
         setVerifying(false);
       })
@@ -57,19 +69,16 @@ export default function AdminAuthGate({ children }) {
   }
 
   function handleLogout() {
-    fetch(`${API_URL}/api/admin/auth/logout`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${session.sessionToken}` },
-    }).catch(() => {});
-    clearAdminSession();
-    setSession(null);
+    fetch(`${API_URL}/api/admin/auth/logout`, { method: "POST", credentials: "include" })
+      .catch(() => {})
+      .finally(() => setAuthenticated(false));
   }
 
-  if (session === undefined) {
+  if (authenticated === undefined) {
     return <AdminNoIndex />; // évite un flash du formulaire au premier rendu
   }
 
-  if (!session) {
+  if (!authenticated) {
     return (
       <>
         <AdminNoIndex />
@@ -110,7 +119,7 @@ export default function AdminAuthGate({ children }) {
             Se déconnecter
           </button>
         </div>
-        {children(session)}
+        {children()}
       </div>
     </>
   );

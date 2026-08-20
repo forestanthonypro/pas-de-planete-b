@@ -12,7 +12,8 @@ const VERDICT_COLORS = { faux: "#d63e2a", trompeur: "#f4b400", confirme: "#1baf7
 
 // Interface d'administration protégée par un code TOTP (Google
 // Authenticator, Authy...) — voir components/AdminAuthGate.js. Une session
-// valable 12h est créée après vérification du code, stockée côté serveur.
+// valable 4h est créée après vérification du code, stockée côté serveur
+// (cookie HttpOnly depuis l'audit de sécurité du 20 août 2026).
 function slugify(text) {
   return text
     .normalize("NFD")
@@ -22,7 +23,7 @@ function slugify(text) {
     .replace(/(^-|-$)/g, "");
 }
 
-function AdminDebunkListInner({ session }) {
+function AdminDebunkListInner() {
   const [entries, setEntries] = useState([]);
   const [categories, setCategories] = useState([]);
   const [newCategory, setNewCategory] = useState("");
@@ -33,16 +34,16 @@ function AdminDebunkListInner({ session }) {
 
 
   useEffect(() => {
-    loadEntries(session.sessionToken);
+    loadEntries();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
 
-  function loadEntries(currentToken) {
+  function loadEntries() {
     setLoading(true);
     setError(null);
     Promise.all([
-      fetch(`${API_URL}/api/admin/debunk`, { headers: { ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) } }),
+      fetch(`${API_URL}/api/admin/debunk`, { credentials: "include" }),
       fetch(`${API_URL}/api/debunk-categories`),
     ])
       .then(async ([resEntries, resCategories]) => {
@@ -64,7 +65,8 @@ function AdminDebunkListInner({ session }) {
     if (!newCategory.trim()) return;
     fetch(`${API_URL}/api/admin/debunk-categories`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ name: newCategory.trim(), slug: slugify(newCategory.trim()) }),
     })
       .then((res) => {
@@ -73,7 +75,7 @@ function AdminDebunkListInner({ session }) {
       })
       .then(() => {
         setNewCategory("");
-        loadEntries(session.sessionToken);
+        loadEntries();
       })
       .catch((err) => setError(err.message));
   }
@@ -81,13 +83,13 @@ function AdminDebunkListInner({ session }) {
   function removeCategory(id) {
     fetch(`${API_URL}/api/admin/debunk-categories/${id}`, {
       method: "DELETE",
-      headers: { ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
+      credentials: "include",
     })
       .then((res) => {
         if (!res.ok) throw new Error("Échec de la suppression");
         return res.json();
       })
-      .then(() => loadEntries(session.sessionToken))
+      .then(() => loadEntries())
       .catch((err) => setError(err.message));
   }
 
@@ -96,27 +98,28 @@ function AdminDebunkListInner({ session }) {
     if (!window.confirm("Supprimer définitivement l'entrée \"" + entry.myth + "\" ? Cette action est irréversible.")) return;
     fetch(API_URL + "/api/admin/debunk/" + entry.slug, {
       method: "DELETE",
-      headers: { ...(session ? { Authorization: "Bearer " + session.sessionToken } : {}) },
+      credentials: "include",
     })
       .then((res) => {
         if (!res.ok) throw new Error("Échec de la suppression");
         return res.json();
       })
-      .then(() => loadEntries(session.sessionToken))
+      .then(() => loadEntries())
       .catch((err) => setError(err.message));
   }
 
   function togglePublished(entry) {
     fetch(`${API_URL}/api/admin/debunk/${entry.slug}/publish`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ published: !entry.published }),
     })
       .then((res) => {
         if (!res.ok) throw new Error("Échec de la mise à jour");
         return res.json();
       })
-      .then(() => loadEntries(session.sessionToken))
+      .then(() => loadEntries())
       .catch((err) => setError(err.message));
   }
 
@@ -125,14 +128,15 @@ function AdminDebunkListInner({ session }) {
   function toggleFeatured(entry) {
     fetch(`${API_URL}/api/admin/debunk/${entry.slug}/featured`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ featured: !entry.featured_decouverte }),
     })
       .then((res) => {
         if (!res.ok) return res.json().then((body) => { throw new Error(body.error || "Échec de la mise à jour"); });
         return res.json();
       })
-      .then(() => loadEntries(session.sessionToken))
+      .then(() => loadEntries())
       .catch((err) => setError(err.message));
   }
 
@@ -245,7 +249,7 @@ function AdminDebunkListInner({ session }) {
 }
 
 export default function AdminDebunkList() {
-  return <AdminAuthGate>{(session) => <AdminDebunkListInner session={session} />}</AdminAuthGate>;
+  return <AdminAuthGate>{() => <AdminDebunkListInner />}</AdminAuthGate>;
 }
 
 export async function getStaticProps() {

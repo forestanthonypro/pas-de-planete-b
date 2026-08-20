@@ -16,7 +16,7 @@ const TRANSLATION_FIELDS = [
   { name: "description", label: "Résumé", multiline: true },
 ];
 
-function AdminInterviewEditInner({ session }) {
+function AdminInterviewEditInner() {
   const router = useRouter();
   const { slug: editSlug } = router.query;
   const isEditing = Boolean(editSlug);
@@ -50,7 +50,7 @@ function AdminInterviewEditInner({ session }) {
   const { data: interviewData, loading, error: fetchError } = useApiFetch(
     editSlug ? `/api/admin/science-relays/${editSlug}` : null,
     {
-      headers: session ? { Authorization: `Bearer ${session.sessionToken}` } : undefined,
+      credentials: "include",
       errorMessage: "Entrée non trouvée",
     }
   );
@@ -101,7 +101,8 @@ function AdminInterviewEditInner({ session }) {
 
     fetch(`${API_URL}/api/admin/science-relays`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({
         slug,
         title,
@@ -335,14 +336,13 @@ function AdminInterviewEditInner({ session }) {
         contentId={isEditing ? slug : null}
         fields={TRANSLATION_FIELDS}
         baseValues={{ title, scientist_field: scientistField, description }}
-        sessionToken={session.sessionToken}
       />
     </div>
   );
 }
 
 export default function AdminInterviewEdit() {
-  return <AdminAuthGate>{(session) => <AdminInterviewEditInner session={session} />}</AdminAuthGate>;
+  return <AdminAuthGate>{() => <AdminInterviewEditInner />}</AdminAuthGate>;
 }
 
 export async function getStaticProps() {

@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
+import cookieParser from "cookie-parser";
 import { pool } from "./lib/db.js";
 import { globalLimiter } from "./lib/rateLimits.js";
 
@@ -56,8 +57,10 @@ const allowedOrigins = (process.env.CORS_ORIGIN || "http://localhost:3000")
 app.use(
   cors({
     origin: allowedOrigins,
+    credentials: true,
   })
 );
+app.use(cookieParser());
 
 // Limite explicite (au lieu de la valeur par défaut d'Express) : évite
 // qu'une requête avec un corps JSON énorme ne consomme mémoire/CPU

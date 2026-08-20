@@ -12,7 +12,7 @@ const TRANSLATION_FIELDS = [
   { name: "description", label: "Description", multiline: true },
 ];
 
-function AdminCharterItemEditInner({ session }) {
+function AdminCharterItemEditInner() {
   const router = useRouter();
   const { id: editId, sectionId: presetSectionId } = router.query;
   const isEditing = Boolean(editId);
@@ -25,7 +25,7 @@ function AdminCharterItemEditInner({ session }) {
   const [status, setStatus] = useState("idle");
 
   const { data: sectionRows } = useApiFetch("/api/admin/charter-sections", {
-    headers: session ? { Authorization: `Bearer ${session.sessionToken}` } : undefined,
+    credentials: "include",
     transform: (rows) => (Array.isArray(rows) ? rows : []),
   });
   const sections = sectionRows ?? [];
@@ -38,7 +38,7 @@ function AdminCharterItemEditInner({ session }) {
   const { data: itemData, loading, error: fetchError } = useApiFetch(
     editId ? `/api/admin/charter-items/${editId}` : null,
     {
-      headers: session ? { Authorization: `Bearer ${session.sessionToken}` } : undefined,
+      credentials: "include",
       errorMessage: "Élément non trouvé",
     }
   );
@@ -62,7 +62,8 @@ function AdminCharterItemEditInner({ session }) {
 
     fetch(`${API_URL}/api/admin/charter-items`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({
         id: isEditing ? editId : undefined,
         sectionId,
@@ -141,14 +142,13 @@ function AdminCharterItemEditInner({ session }) {
         contentId={isEditing ? String(editId) : null}
         fields={TRANSLATION_FIELDS}
         baseValues={{ title, description }}
-        sessionToken={session.sessionToken}
       />
     </div>
   );
 }
 
 export default function AdminCharterItemEdit() {
-  return <AdminAuthGate>{(session) => <AdminCharterItemEditInner session={session} />}</AdminAuthGate>;
+  return <AdminAuthGate>{() => <AdminCharterItemEditInner />}</AdminAuthGate>;
 }
 
 export async function getStaticProps() {

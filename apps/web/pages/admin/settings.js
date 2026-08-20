@@ -22,7 +22,7 @@ const LANGUAGE_TABS = [
   { code: "hi", label: "हिन्दी" },
 ];
 
-function LegalContentEditor({ baseKey, label, href, sessionToken }) {
+function LegalContentEditor({ baseKey, label, href }) {
   const [lang, setLang] = useState("fr");
   const [value, setValue] = useState("");
   const [initialValue, setInitialValue] = useState("");
@@ -64,7 +64,8 @@ function LegalContentEditor({ baseKey, label, href, sessionToken }) {
     setStatus("idle");
     fetch(`${API_URL}/api/admin/settings/legal-content`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${sessionToken}` },
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ key: pageKey, content: value }),
     })
       .then((res) => {
@@ -90,7 +91,8 @@ function LegalContentEditor({ baseKey, label, href, sessionToken }) {
     setTranslateError(null);
     fetch(`${API_URL}/api/admin/translate`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${sessionToken}` },
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ texts: { content: latestFrenchContent || "" }, targetLangs: [lang], format: "html" }),
     })
       .then((res) => {
@@ -116,7 +118,8 @@ function LegalContentEditor({ baseKey, label, href, sessionToken }) {
     const allLangs = LANGUAGE_TABS.filter((l) => l.code !== "fr").map((l) => l.code);
     fetch(`${API_URL}/api/admin/translate`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${sessionToken}` },
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ texts: { content: latestFrenchContent || "" }, targetLangs: allLangs, format: "html" }),
     })
       .then((res) => {
@@ -128,7 +131,8 @@ function LegalContentEditor({ baseKey, label, href, sessionToken }) {
           allLangs.map((l) =>
             fetch(`${API_URL}/api/admin/settings/legal-content`, {
               method: "POST",
-              headers: { "Content-Type": "application/json", Authorization: `Bearer ${sessionToken}` },
+              headers: { "Content-Type": "application/json" },
+      credentials: "include",
               body: JSON.stringify({ key: `${baseKey}_${l}`, content: result[l].content }),
             })
           )
@@ -274,7 +278,7 @@ function LegalContentEditor({ baseKey, label, href, sessionToken }) {
   );
 }
 
-function AdminSettingsInner({ session }) {
+function AdminSettingsInner() {
   const [newsletterEnabled, setNewsletterEnabled] = useState(null);
   const [videoUrl, setVideoUrl] = useState("");
   const [videoUrlInitial, setVideoUrlInitial] = useState("");
@@ -287,7 +291,7 @@ function AdminSettingsInner({ session }) {
   const [error, setError] = useState(null);
 
   const { data: settingsData, loading, error: fetchError } = useApiFetch("/api/admin/settings", {
-    headers: { Authorization: `Bearer ${session.sessionToken}` },
+    credentials: "include",
   });
   const { data: videoUrlData } = useApiFetch("/api/settings/decouverte-video-url");
 
@@ -314,7 +318,7 @@ function AdminSettingsInner({ session }) {
     setRevoking(true);
     fetch(`${API_URL}/api/admin/auth/revoke-all`, {
       method: "POST",
-      headers: { Authorization: `Bearer ${session.sessionToken}` },
+      credentials: "include",
     })
       .then((res) => {
         if (!res.ok) throw new Error("Échec de la révocation");
@@ -340,7 +344,8 @@ function AdminSettingsInner({ session }) {
     setError(null);
     fetch(`${API_URL}/api/admin/settings/newsletter-enabled`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.sessionToken}` },
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ enabled: next }),
     })
       .then((res) => {
@@ -362,7 +367,8 @@ function AdminSettingsInner({ session }) {
     setVideoUrlStatus("idle");
     fetch(`${API_URL}/api/admin/settings/decouverte-video-url`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.sessionToken}` },
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ url: videoUrl }),
     })
       .then((res) => {
@@ -482,14 +488,14 @@ function AdminSettingsInner({ session }) {
 
       <h2 style={{ fontSize: 17, marginTop: "2rem" }}>Pages légales</h2>
       {LEGAL_PAGES.map((p) => (
-        <LegalContentEditor key={p.key} baseKey={p.key} label={p.label} href={p.href} sessionToken={session.sessionToken} />
+        <LegalContentEditor key={p.key} baseKey={p.key} label={p.label} href={p.href} />
       ))}
     </div>
   );
 }
 
 export default function AdminSettings() {
-  return <AdminAuthGate>{(session) => <AdminSettingsInner session={session} />}</AdminAuthGate>;
+  return <AdminAuthGate>{() => <AdminSettingsInner />}</AdminAuthGate>;
 }
 
 export async function getStaticProps() {

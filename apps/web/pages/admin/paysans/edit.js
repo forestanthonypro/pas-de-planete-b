@@ -14,7 +14,7 @@ const TRANSLATION_FIELDS = [
   { name: "description", label: "Résumé", multiline: true },
 ];
 
-function AdminPaysanEditInner({ session }) {
+function AdminPaysanEditInner() {
   const router = useRouter();
   const { slug: editSlug } = router.query;
   const isEditing = Boolean(editSlug);
@@ -41,7 +41,7 @@ function AdminPaysanEditInner({ session }) {
   const { data: paysanData, loading, error: fetchError } = useApiFetch(
     editSlug ? `/api/admin/paysan-resources/${editSlug}` : null,
     {
-      headers: session ? { Authorization: `Bearer ${session.sessionToken}` } : undefined,
+      credentials: "include",
       errorMessage: "Entrée non trouvée",
     }
   );
@@ -85,7 +85,8 @@ function AdminPaysanEditInner({ session }) {
 
     fetch(`${API_URL}/api/admin/paysan-resources`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({
         slug,
         title,
@@ -236,14 +237,13 @@ function AdminPaysanEditInner({ session }) {
         contentId={isEditing ? slug : null}
         fields={TRANSLATION_FIELDS}
         baseValues={{ title, description }}
-        sessionToken={session.sessionToken}
       />
     </div>
   );
 }
 
 export default function AdminPaysanEdit() {
-  return <AdminAuthGate>{(session) => <AdminPaysanEditInner session={session} />}</AdminAuthGate>;
+  return <AdminAuthGate>{() => <AdminPaysanEditInner />}</AdminAuthGate>;
 }
 
 export async function getStaticProps() {

@@ -18,7 +18,7 @@ function slugify(text) {
     .replace(/(^-|-$)/g, "");
 }
 
-function AdminInterviewsListInner({ session }) {
+function AdminInterviewsListInner() {
   const [entries, setEntries] = useState([]);
   const [categories, setCategories] = useState([]);
   const [newCategory, setNewCategory] = useState("");
@@ -28,16 +28,16 @@ function AdminInterviewsListInner({ session }) {
   const [page, setPage] = useState(1);
 
   useEffect(() => {
-    loadEntries(session.sessionToken);
+    loadEntries();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
 
-  function loadEntries(currentToken) {
+  function loadEntries() {
     setLoading(true);
     setError(null);
     Promise.all([
-      fetch(`${API_URL}/api/admin/science-relays`, { headers: { ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) } }),
+      fetch(`${API_URL}/api/admin/science-relays`, { credentials: "include" }),
       fetch(`${API_URL}/api/interview-categories`),
     ])
       .then(async ([resEntries, resCategories]) => {
@@ -60,27 +60,28 @@ function AdminInterviewsListInner({ session }) {
     if (!window.confirm("Supprimer définitivement \"" + entry.title + "\" ? Cette action est irréversible.")) return;
     fetch(API_URL + "/api/admin/science-relays/" + entry.slug, {
       method: "DELETE",
-      headers: { ...(session ? { Authorization: "Bearer " + session.sessionToken } : {}) },
+      credentials: "include",
     })
       .then((res) => {
         if (!res.ok) throw new Error("Échec de la suppression");
         return res.json();
       })
-      .then(() => loadEntries(session.sessionToken))
+      .then(() => loadEntries())
       .catch((err) => setError(err.message));
   }
 
   function togglePublished(entry) {
     fetch(`${API_URL}/api/admin/science-relays/${entry.slug}/publish`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ published: !entry.published }),
     })
       .then((res) => {
         if (!res.ok) throw new Error("Échec de la mise à jour");
         return res.json();
       })
-      .then(() => loadEntries(session.sessionToken))
+      .then(() => loadEntries())
       .catch((err) => setError(err.message));
   }
 
@@ -89,7 +90,8 @@ function AdminInterviewsListInner({ session }) {
     if (!newCategory.trim()) return;
     fetch(`${API_URL}/api/admin/interview-categories`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ name: newCategory.trim(), slug: slugify(newCategory.trim()) }),
     })
       .then((res) => {
@@ -98,7 +100,7 @@ function AdminInterviewsListInner({ session }) {
       })
       .then(() => {
         setNewCategory("");
-        loadEntries(session.sessionToken);
+        loadEntries();
       })
       .catch((err) => setError(err.message));
   }
@@ -106,13 +108,13 @@ function AdminInterviewsListInner({ session }) {
   function removeCategory(id) {
     fetch(`${API_URL}/api/admin/interview-categories/${id}`, {
       method: "DELETE",
-      headers: { ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
+      credentials: "include",
     })
       .then((res) => {
         if (!res.ok) throw new Error("Échec de la suppression");
         return res.json();
       })
-      .then(() => loadEntries(session.sessionToken))
+      .then(() => loadEntries())
       .catch((err) => setError(err.message));
   }
 
@@ -208,7 +210,7 @@ function AdminInterviewsListInner({ session }) {
 }
 
 export default function AdminInterviewsList() {
-  return <AdminAuthGate>{(session) => <AdminInterviewsListInner session={session} />}</AdminAuthGate>;
+  return <AdminAuthGate>{() => <AdminInterviewsListInner />}</AdminAuthGate>;
 }
 
 export async function getStaticProps() {

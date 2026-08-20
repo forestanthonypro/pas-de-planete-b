@@ -14,7 +14,7 @@ const TRANSLATION_FIELDS = [
   { name: "description", label: "Description", multiline: true },
 ];
 
-function AdminFutureIdeaEditInner({ session }) {
+function AdminFutureIdeaEditInner() {
   const router = useRouter();
   const { slug: editSlug } = router.query;
   const isEditing = Boolean(editSlug);
@@ -31,7 +31,7 @@ function AdminFutureIdeaEditInner({ session }) {
   const { data: ideaData, loading, error: fetchError } = useApiFetch(
     editSlug ? `/api/admin/future-ideas/${editSlug}` : null,
     {
-      headers: session ? { Authorization: `Bearer ${session.sessionToken}` } : undefined,
+      credentials: "include",
       errorMessage: "Idée non trouvée",
     }
   );
@@ -62,7 +62,8 @@ function AdminFutureIdeaEditInner({ session }) {
 
     fetch(`${API_URL}/api/admin/future-ideas`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ slug, title, description: description || null, published, scopeCodes }),
     })
       .then((res) => {
@@ -152,14 +153,13 @@ function AdminFutureIdeaEditInner({ session }) {
         contentId={isEditing ? slug : null}
         fields={TRANSLATION_FIELDS}
         baseValues={{ title, description }}
-        sessionToken={session.sessionToken}
       />
     </div>
   );
 }
 
 export default function AdminFutureIdeaEdit() {
-  return <AdminAuthGate>{(session) => <AdminFutureIdeaEditInner session={session} />}</AdminAuthGate>;
+  return <AdminAuthGate>{() => <AdminFutureIdeaEditInner />}</AdminAuthGate>;
 }
 
 export async function getStaticProps() {

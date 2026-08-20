@@ -40,7 +40,7 @@ function PublicSubmissionBadge() {
   );
 }
 
-function AdminPaysansListInner({ session }) {
+function AdminPaysansListInner() {
   const [entries, setEntries] = useState([]);
   const [categories, setCategories] = useState([]);
   const [newCategory, setNewCategory] = useState("");
@@ -50,15 +50,15 @@ function AdminPaysansListInner({ session }) {
   const [page, setPage] = useState(1);
 
   useEffect(() => {
-    loadAll(session.sessionToken);
+    loadAll();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  function loadAll(currentToken) {
+  function loadAll() {
     setLoading(true);
     setError(null);
     Promise.all([
-      fetch(`${API_URL}/api/admin/paysan-resources`, { headers: { ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) } }),
+      fetch(`${API_URL}/api/admin/paysan-resources`, { credentials: "include" }),
       fetch(`${API_URL}/api/paysan-categories`),
     ])
       .then(async ([resResources, resCategories]) => {
@@ -79,27 +79,28 @@ function AdminPaysansListInner({ session }) {
     if (!window.confirm("Supprimer définitivement \"" + entry.title + "\" ? Cette action est irréversible.")) return;
     fetch(API_URL + "/api/admin/paysan-resources/" + entry.slug, {
       method: "DELETE",
-      headers: { ...(session ? { Authorization: "Bearer " + session.sessionToken } : {}) },
+      credentials: "include",
     })
       .then((res) => {
         if (!res.ok) throw new Error("Échec de la suppression");
         return res.json();
       })
-      .then(() => loadAll(session.sessionToken))
+      .then(() => loadAll())
       .catch((err) => setError(err.message));
   }
 
   function togglePublished(entry) {
     fetch(`${API_URL}/api/admin/paysan-resources/${entry.slug}/publish`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ published: !entry.published }),
     })
       .then((res) => {
         if (!res.ok) throw new Error("Échec de la mise à jour");
         return res.json();
       })
-      .then(() => loadAll(session.sessionToken))
+      .then(() => loadAll())
       .catch((err) => setError(err.message));
   }
 
@@ -108,7 +109,8 @@ function AdminPaysansListInner({ session }) {
     if (!newCategory.trim()) return;
     fetch(`${API_URL}/api/admin/paysan-categories`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ name: newCategory.trim(), slug: slugify(newCategory.trim()) }),
     })
       .then((res) => {
@@ -117,7 +119,7 @@ function AdminPaysansListInner({ session }) {
       })
       .then(() => {
         setNewCategory("");
-        loadAll(session.sessionToken);
+        loadAll();
       })
       .catch((err) => setError(err.message));
   }
@@ -125,13 +127,13 @@ function AdminPaysansListInner({ session }) {
   function removeCategory(id) {
     fetch(`${API_URL}/api/admin/paysan-categories/${id}`, {
       method: "DELETE",
-      headers: { ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
+      credentials: "include",
     })
       .then((res) => {
         if (!res.ok) throw new Error("Échec de la suppression");
         return res.json();
       })
-      .then(() => loadAll(session.sessionToken))
+      .then(() => loadAll())
       .catch((err) => setError(err.message));
   }
 
@@ -231,7 +233,7 @@ function AdminPaysansListInner({ session }) {
 }
 
 export default function AdminPaysansList() {
-  return <AdminAuthGate>{(session) => <AdminPaysansListInner session={session} />}</AdminAuthGate>;
+  return <AdminAuthGate>{() => <AdminPaysansListInner />}</AdminAuthGate>;
 }
 
 export async function getStaticProps() {

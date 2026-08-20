@@ -32,17 +32,17 @@ function PublicSubmissionBadge() {
   );
 }
 
-function AdminPetitionsListInner({ session }) {
+function AdminPetitionsListInner() {
   const [page, setPage] = useState(1);
   const [error, setError] = useState(null);
 
   const { data, loading, error: fetchError, setData } = useApiFetch("/api/admin/petitions", {
-    headers: { Authorization: `Bearer ${session.sessionToken}` },
+    credentials: "include",
   });
   const entries = data ?? [];
 
   function reload() {
-    fetch(`${API_URL}/api/admin/petitions`, { headers: { Authorization: `Bearer ${session.sessionToken}` } })
+    fetch(`${API_URL}/api/admin/petitions`, { credentials: "include" })
       .then((res) => {
         if (!res.ok) throw new Error("Erreur de chargement");
         return res.json();
@@ -55,7 +55,7 @@ function AdminPetitionsListInner({ session }) {
     if (!window.confirm(`Supprimer définitivement la pétition "${entry.title}" ? Cette action est irréversible.`)) return;
     fetch(`${API_URL}/api/admin/petitions/${entry.slug}`, {
       method: "DELETE",
-      headers: { Authorization: `Bearer ${session.sessionToken}` },
+      credentials: "include",
     })
       .then((res) => {
         if (!res.ok) throw new Error("Échec de la suppression");
@@ -68,7 +68,8 @@ function AdminPetitionsListInner({ session }) {
   function togglePublished(entry) {
     fetch(`${API_URL}/api/admin/petitions/${entry.slug}/publish`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.sessionToken}` },
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ published: !entry.published }),
     })
       .then((res) => {
@@ -148,7 +149,7 @@ function AdminPetitionsListInner({ session }) {
 }
 
 export default function AdminPetitionsList() {
-  return <AdminAuthGate>{(session) => <AdminPetitionsListInner session={session} />}</AdminAuthGate>;
+  return <AdminAuthGate>{() => <AdminPetitionsListInner />}</AdminAuthGate>;
 }
 
 export async function getStaticProps() {

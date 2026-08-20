@@ -1,0 +1,13 @@
+-- Suite à l'audit de sécurité externe du 20 août 2026 : le jeton de
+-- session admin n'est plus stocké en clair en base, seul un hachage
+-- SHA-256 l'est désormais (voir apps/api/src/lib/auth.js,
+-- hashSessionToken). Renommage de la colonne pour que le schéma reflète
+-- honnêtement ce qu'elle contient réellement — une table nommée
+-- "session_token" qui contiendrait en fait un hachage aurait été
+-- trompeuse pour quiconque reprend ce projet.
+--
+-- Conséquence pour les sessions déjà actives au moment du déploiement :
+-- elles deviennent invalides (le format changeant de jeton brut à
+-- hachage, aucune correspondance possible) — reconnexion TOTP nécessaire,
+-- impact mineur et ponctuel.
+ALTER TABLE admin_sessions RENAME COLUMN session_token TO session_token_hash;

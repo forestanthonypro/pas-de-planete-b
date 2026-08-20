@@ -37,7 +37,7 @@ function PublicSubmissionBadge() {
   );
 }
 
-function AdminRessourcesListInner({ session }) {
+function AdminRessourcesListInner() {
   const [locations, setLocations] = useState([]);
   const [online, setOnline] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -49,16 +49,16 @@ function AdminRessourcesListInner({ session }) {
   const [onlinePage, setOnlinePage] = useState(1);
 
   useEffect(() => {
-    loadAll(session.sessionToken);
+    loadAll();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  function loadAll(currentToken) {
+  function loadAll() {
     setLoading(true);
     setError(null);
     Promise.all([
-      fetch(`${API_URL}/api/admin/resource-locations`, { headers: { ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) } }),
-      fetch(`${API_URL}/api/admin/resource-online`, { headers: { ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) } }),
+      fetch(`${API_URL}/api/admin/resource-locations`, { credentials: "include" }),
+      fetch(`${API_URL}/api/admin/resource-online`, { credentials: "include" }),
       fetch(`${API_URL}/api/resource-categories`),
     ])
       .then(async ([resLocations, resOnline, resCategories]) => {
@@ -80,27 +80,28 @@ function AdminRessourcesListInner({ session }) {
     if (!window.confirm("Supprimer définitivement le lieu \"" + entry.name + "\" ? Cette action est irréversible.")) return;
     fetch(API_URL + "/api/admin/resource-locations/" + entry.slug, {
       method: "DELETE",
-      headers: { ...(session ? { Authorization: "Bearer " + session.sessionToken } : {}) },
+      credentials: "include",
     })
       .then((res) => {
         if (!res.ok) throw new Error("Échec de la suppression");
         return res.json();
       })
-      .then(() => loadAll(session.sessionToken))
+      .then(() => loadAll())
       .catch((err) => setError(err.message));
   }
 
   function toggleLocationPublished(entry) {
     fetch(`${API_URL}/api/admin/resource-locations/${entry.slug}/publish`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ published: !entry.published }),
     })
       .then((res) => {
         if (!res.ok) throw new Error("Échec de la mise à jour");
         return res.json();
       })
-      .then(() => loadAll(session.sessionToken))
+      .then(() => loadAll())
       .catch((err) => setError(err.message));
   }
 
@@ -108,27 +109,28 @@ function AdminRessourcesListInner({ session }) {
     if (!window.confirm("Supprimer définitivement \"" + entry.title + "\" ? Cette action est irréversible.")) return;
     fetch(API_URL + "/api/admin/resource-online/" + entry.slug, {
       method: "DELETE",
-      headers: { ...(session ? { Authorization: "Bearer " + session.sessionToken } : {}) },
+      credentials: "include",
     })
       .then((res) => {
         if (!res.ok) throw new Error("Échec de la suppression");
         return res.json();
       })
-      .then(() => loadAll(session.sessionToken))
+      .then(() => loadAll())
       .catch((err) => setError(err.message));
   }
 
   function toggleOnlinePublished(entry) {
     fetch(`${API_URL}/api/admin/resource-online/${entry.slug}/publish`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ published: !entry.published }),
     })
       .then((res) => {
         if (!res.ok) throw new Error("Échec de la mise à jour");
         return res.json();
       })
-      .then(() => loadAll(session.sessionToken))
+      .then(() => loadAll())
       .catch((err) => setError(err.message));
   }
 
@@ -137,7 +139,8 @@ function AdminRessourcesListInner({ session }) {
     if (!newCategory.trim()) return;
     fetch(`${API_URL}/api/admin/resource-categories`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ name: newCategory.trim(), slug: slugify(newCategory.trim()) }),
     })
       .then((res) => {
@@ -146,7 +149,7 @@ function AdminRessourcesListInner({ session }) {
       })
       .then(() => {
         setNewCategory("");
-        loadAll(session.sessionToken);
+        loadAll();
       })
       .catch((err) => setError(err.message));
   }
@@ -154,13 +157,13 @@ function AdminRessourcesListInner({ session }) {
   function removeCategory(id) {
     fetch(`${API_URL}/api/admin/resource-categories/${id}`, {
       method: "DELETE",
-      headers: { ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
+      credentials: "include",
     })
       .then((res) => {
         if (!res.ok) throw new Error("Échec de la suppression");
         return res.json();
       })
-      .then(() => loadAll(session.sessionToken))
+      .then(() => loadAll())
       .catch((err) => setError(err.message));
   }
 
@@ -312,7 +315,7 @@ function AdminRessourcesListInner({ session }) {
 }
 
 export default function AdminRessourcesList() {
-  return <AdminAuthGate>{(session) => <AdminRessourcesListInner session={session} />}</AdminAuthGate>;
+  return <AdminAuthGate>{() => <AdminRessourcesListInner />}</AdminAuthGate>;
 }
 
 export async function getStaticProps() {

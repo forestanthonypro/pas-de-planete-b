@@ -14,7 +14,7 @@ const TRANSLATION_FIELDS = [
   { name: "description", label: "Description", multiline: true },
 ];
 
-function AdminOnlineResourceEditInner({ session }) {
+function AdminOnlineResourceEditInner() {
   const router = useRouter();
   const { slug: editSlug } = router.query;
   const isEditing = Boolean(editSlug);
@@ -41,7 +41,7 @@ function AdminOnlineResourceEditInner({ session }) {
   const { data: onlineData, loading, error: fetchError } = useApiFetch(
     editSlug ? `/api/admin/resource-online/${editSlug}` : null,
     {
-      headers: session ? { Authorization: `Bearer ${session.sessionToken}` } : undefined,
+      credentials: "include",
       errorMessage: "Entrée non trouvée",
     }
   );
@@ -77,7 +77,8 @@ function AdminOnlineResourceEditInner({ session }) {
 
     fetch(`${API_URL}/api/admin/resource-online`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ slug, title, description, url, categoryId: categoryId || null, published, scopeCodes }),
     })
       .then((res) => {
@@ -186,14 +187,13 @@ function AdminOnlineResourceEditInner({ session }) {
         contentId={isEditing ? slug : null}
         fields={TRANSLATION_FIELDS}
         baseValues={{ title, description }}
-        sessionToken={session.sessionToken}
       />
     </div>
   );
 }
 
 export default function AdminOnlineResourceEdit() {
-  return <AdminAuthGate>{(session) => <AdminOnlineResourceEditInner session={session} />}</AdminAuthGate>;
+  return <AdminAuthGate>{() => <AdminOnlineResourceEditInner />}</AdminAuthGate>;
 }
 
 export async function getStaticProps() {

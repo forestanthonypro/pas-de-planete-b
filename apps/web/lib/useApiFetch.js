@@ -8,9 +8,11 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 //
 // path: chemin relatif (ex: "/api/co2") ou null pour ne rien charger.
 // transform: fonction optionnelle appliquée aux données reçues avant setData.
-// headers: en-têtes additionnels (ex: Authorization pour les pages admin).
+// headers: en-têtes additionnels.
+// credentials: "include" pour les pages admin (envoie le cookie de session
+// HttpOnly avec la requête — voir components/AdminAuthGate.js).
 // deps: dépendances supplémentaires qui doivent redéclencher le fetch.
-export function useApiFetch(path, { transform, errorMessage = "Erreur de chargement", skip = false, deps = [], headers } = {}) {
+export function useApiFetch(path, { transform, errorMessage = "Erreur de chargement", skip = false, deps = [], headers, credentials } = {}) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(Boolean(path) && !skip);
   const [error, setError] = useState(null);
@@ -23,7 +25,10 @@ export function useApiFetch(path, { transform, errorMessage = "Erreur de chargem
     let cancelled = false;
     setLoading(true);
     setError(null);
-    fetch(`${API_URL}${path}`, headers ? { headers } : undefined)
+    const options = {};
+    if (headers) options.headers = headers;
+    if (credentials) options.credentials = credentials;
+    fetch(`${API_URL}${path}`, Object.keys(options).length > 0 ? options : undefined)
       .then((res) => {
         if (!res.ok) throw new Error(errorMessage);
         return res.json();

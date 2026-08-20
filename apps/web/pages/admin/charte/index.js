@@ -10,7 +10,7 @@ const STATUS_LABELS = { pending: "En attente", published: "Publiée", draft: "Br
 
 const SECTION_TRANSLATION_FIELDS = [{ name: "name", label: "Nom de la section", multiline: false }];
 
-function AdminCharterPageInner({ session }) {
+function AdminCharterPageInner() {
   const [sections, setSections] = useState([]);
   const [items, setItems] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
@@ -21,17 +21,17 @@ function AdminCharterPageInner({ session }) {
   const [expandedSectionId, setExpandedSectionId] = useState(null);
 
   useEffect(() => {
-    loadAll(session.sessionToken);
+    loadAll();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  function loadAll(currentToken) {
+  function loadAll() {
     setLoading(true);
     setError(null);
     Promise.all([
-      fetch(`${API_URL}/api/admin/charter-sections`, { headers: { ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) } }),
-      fetch(`${API_URL}/api/admin/charter-items`, { headers: { ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) } }),
-      fetch(`${API_URL}/api/admin/charter-suggestions`, { headers: { ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) } }),
+      fetch(`${API_URL}/api/admin/charter-sections`, { credentials: "include" }),
+      fetch(`${API_URL}/api/admin/charter-items`, { credentials: "include" }),
+      fetch(`${API_URL}/api/admin/charter-suggestions`, { credentials: "include" }),
     ])
       .then(async ([resSections, resItems, resSuggestions]) => {
         if (resSections.status === 401) throw new Error("Jeton invalide");
@@ -53,7 +53,8 @@ function AdminCharterPageInner({ session }) {
     if (!newSectionName.trim()) return;
     fetch(`${API_URL}/api/admin/charter-sections`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ name: newSectionName.trim() }),
     })
       .then((res) => {
@@ -62,7 +63,7 @@ function AdminCharterPageInner({ session }) {
       })
       .then(() => {
         setNewSectionName("");
-        loadAll(session.sessionToken);
+        loadAll();
       })
       .catch((err) => setError(err.message));
   }
@@ -70,82 +71,86 @@ function AdminCharterPageInner({ session }) {
   function moveSection(id, direction) {
     fetch(`${API_URL}/api/admin/charter-sections/${id}/move`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ direction }),
     })
       .then((res) => {
         if (!res.ok) throw new Error("Échec du déplacement");
         return res.json();
       })
-      .then(() => loadAll(session.sessionToken))
+      .then(() => loadAll())
       .catch((err) => setError(err.message));
   }
 
   function removeSection(id) {
     fetch(`${API_URL}/api/admin/charter-sections/${id}`, {
       method: "DELETE",
-      headers: { ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
+      credentials: "include",
     })
       .then((res) => {
         if (!res.ok) throw new Error("Échec de la suppression");
         return res.json();
       })
-      .then(() => loadAll(session.sessionToken))
+      .then(() => loadAll())
       .catch((err) => setError(err.message));
   }
 
   function moveItem(id, direction) {
     fetch(`${API_URL}/api/admin/charter-items/${id}/move`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ direction }),
     })
       .then((res) => {
         if (!res.ok) throw new Error("Échec du déplacement");
         return res.json();
       })
-      .then(() => loadAll(session.sessionToken))
+      .then(() => loadAll())
       .catch((err) => setError(err.message));
   }
 
   function toggleItemPublished(item) {
     fetch(`${API_URL}/api/admin/charter-items/${item.id}/publish`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ published: !item.published }),
     })
       .then((res) => {
         if (!res.ok) throw new Error("Échec de la mise à jour");
         return res.json();
       })
-      .then(() => loadAll(session.sessionToken))
+      .then(() => loadAll())
       .catch((err) => setError(err.message));
   }
 
   function removeItem(id) {
     fetch(`${API_URL}/api/admin/charter-items/${id}`, {
       method: "DELETE",
-      headers: { ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
+      credentials: "include",
     })
       .then((res) => {
         if (!res.ok) throw new Error("Échec de la suppression");
         return res.json();
       })
-      .then(() => loadAll(session.sessionToken))
+      .then(() => loadAll())
       .catch((err) => setError(err.message));
   }
 
   function updateSuggestionStatus(id, status) {
     fetch(`${API_URL}/api/admin/charter-suggestions/${id}/status`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ status }),
     })
       .then((res) => {
         if (!res.ok) throw new Error("Échec de la mise à jour");
         return res.json();
       })
-      .then(() => loadAll(session.sessionToken))
+      .then(() => loadAll())
       .catch((err) => setError(err.message));
   }
 
@@ -195,7 +200,6 @@ function AdminCharterPageInner({ session }) {
                       contentId={String(s.id)}
                       fields={SECTION_TRANSLATION_FIELDS}
                       baseValues={{ name: s.name }}
-                      sessionToken={session.sessionToken}
                     />
                   )}
                 </div>
@@ -287,7 +291,7 @@ function AdminCharterPageInner({ session }) {
 }
 
 export default function AdminCharterPage() {
-  return <AdminAuthGate>{(session) => <AdminCharterPageInner session={session} />}</AdminAuthGate>;
+  return <AdminAuthGate>{() => <AdminCharterPageInner />}</AdminAuthGate>;
 }
 
 export async function getStaticProps() {

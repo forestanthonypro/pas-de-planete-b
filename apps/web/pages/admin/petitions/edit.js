@@ -22,7 +22,7 @@ function slugify(text) {
     .replace(/(^-|-$)/g, "");
 }
 
-function AdminPetitionEditInner({ session }) {
+function AdminPetitionEditInner() {
   const router = useRouter();
   const { slug: editSlug } = router.query;
   const isEditing = Boolean(editSlug);
@@ -47,7 +47,7 @@ function AdminPetitionEditInner({ session }) {
   const { data: petitionData, loading, error: fetchError } = useApiFetch(
     editSlug ? `/api/admin/petitions/${editSlug}` : null,
     {
-      headers: { Authorization: `Bearer ${session.sessionToken}` },
+      credentials: "include",
       errorMessage: "Entrée non trouvée",
     }
   );
@@ -84,7 +84,8 @@ function AdminPetitionEditInner({ session }) {
     setError(null);
     fetch(`${API_URL}/api/admin/petitions`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.sessionToken}` },
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({
         slug, title, description, petitionUrl, sourceName: sourceName || null,
         status, imageUrl: imageUrl || null, published, scopeCodes,
@@ -205,7 +206,6 @@ function AdminPetitionEditInner({ session }) {
             contentId={isEditing ? slug : null}
             fields={TRANSLATION_FIELDS}
             baseValues={{ title, description }}
-            sessionToken={session.sessionToken}
           />
         </div>
       )}
@@ -214,7 +214,7 @@ function AdminPetitionEditInner({ session }) {
 }
 
 export default function AdminPetitionEdit() {
-  return <AdminAuthGate>{(session) => <AdminPetitionEditInner session={session} />}</AdminAuthGate>;
+  return <AdminAuthGate>{() => <AdminPetitionEditInner />}</AdminAuthGate>;
 }
 
 export async function getStaticProps() {

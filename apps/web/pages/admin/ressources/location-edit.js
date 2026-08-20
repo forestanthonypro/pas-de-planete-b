@@ -14,7 +14,7 @@ const TRANSLATION_FIELDS = [
   { name: "description", label: "Description", multiline: true },
 ];
 
-function AdminLocationEditInner({ session }) {
+function AdminLocationEditInner() {
   const router = useRouter();
   const { slug: editSlug } = router.query;
   const isEditing = Boolean(editSlug);
@@ -44,7 +44,7 @@ function AdminLocationEditInner({ session }) {
   const { data: locationData, loading, error: fetchError } = useApiFetch(
     editSlug ? `/api/admin/resource-locations/${editSlug}` : null,
     {
-      headers: session ? { Authorization: `Bearer ${session.sessionToken}` } : undefined,
+      credentials: "include",
       errorMessage: "Entrée non trouvée",
     }
   );
@@ -95,7 +95,8 @@ function AdminLocationEditInner({ session }) {
 
     fetch(`${API_URL}/api/admin/resource-locations`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", ...(session ? { Authorization: `Bearer ${session.sessionToken}` } : {}) },
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({
         slug,
         name,
@@ -272,14 +273,13 @@ function AdminLocationEditInner({ session }) {
         contentId={isEditing ? slug : null}
         fields={TRANSLATION_FIELDS}
         baseValues={{ name, description }}
-        sessionToken={session.sessionToken}
       />
     </div>
   );
 }
 
 export default function AdminLocationEdit() {
-  return <AdminAuthGate>{(session) => <AdminLocationEditInner session={session} />}</AdminAuthGate>;
+  return <AdminAuthGate>{() => <AdminLocationEditInner />}</AdminAuthGate>;
 }
 
 export async function getStaticProps() {

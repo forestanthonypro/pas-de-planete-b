@@ -22,7 +22,7 @@ const LANGUAGE_TABS = [
 // Les valeurs françaises (baseValues) servent de repère visuel — un champ
 // de traduction vide affiche le texte français en filigrane, pour que
 // l'admin sache ce qu'il doit traduire sans avoir à jongler entre onglets.
-export default function ContentTranslationsEditor({ contentType, contentId, fields, baseValues, sessionToken }) {
+export default function ContentTranslationsEditor({ contentType, contentId, fields, baseValues }) {
   const [lang, setLang] = useState("en");
   const [values, setValues] = useState({});
   const [initialValues, setInitialValues] = useState({});
@@ -34,7 +34,7 @@ export default function ContentTranslationsEditor({ contentType, contentId, fiel
   const { data: forLang, loading } = useApiFetch(
     contentId ? `/api/admin/content-translations/${contentType}/${contentId}` : null,
     {
-      headers: { Authorization: `Bearer ${sessionToken}` },
+      credentials: "include",
       transform: (rows) => {
         const result = {};
         for (const row of Array.isArray(rows) ? rows : []) {
@@ -42,7 +42,7 @@ export default function ContentTranslationsEditor({ contentType, contentId, fiel
         }
         return result;
       },
-      deps: [lang, sessionToken],
+      deps: [lang],
     }
   );
 
@@ -67,7 +67,8 @@ export default function ContentTranslationsEditor({ contentType, contentId, fiel
     });
     fetch(`${API_URL}/api/admin/translate`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${sessionToken}` },
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ texts, targetLangs: [lang] }),
     })
       .then((res) => {
@@ -100,7 +101,8 @@ export default function ContentTranslationsEditor({ contentType, contentId, fiel
     const allLangs = LANGUAGE_TABS.map((l) => l.code);
     fetch(`${API_URL}/api/admin/translate`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${sessionToken}` },
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ texts, targetLangs: allLangs }),
     })
       .then((res) => {
@@ -113,7 +115,8 @@ export default function ContentTranslationsEditor({ contentType, contentId, fiel
             fields.map((f) =>
               fetch(`${API_URL}/api/admin/content-translations`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json", Authorization: `Bearer ${sessionToken}` },
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
                 body: JSON.stringify({
                   contentType,
                   contentId,
@@ -148,7 +151,8 @@ export default function ContentTranslationsEditor({ contentType, contentId, fiel
       toSave.map((f) =>
         fetch(`${API_URL}/api/admin/content-translations`, {
           method: "POST",
-          headers: { "Content-Type": "application/json", Authorization: `Bearer ${sessionToken}` },
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
           body: JSON.stringify({
             contentType,
             contentId,
