@@ -1,0 +1,41 @@
+name: Backfill historique — Espagne Congreso
+
+# Déclenchement manuel uniquement (onglet Actions de GitHub, bouton "Run
+# workflow") — pas de cron : contrairement au rafraîchissement mensuel
+# habituel (refresh-data.yml), c'est une opération ponctuelle qui n'a pas
+# besoin de tourner régulièrement une fois la législature entièrement
+# couverte. Peut être relancé plus tard sans risque pour rattraper un
+# éventuel retard (session la plus récente non encore couverte) — la
+# reprise se fait automatiquement depuis la base de données.
+on:
+  workflow_dispatch: {}
+
+jobs:
+  backfill-spain-congress:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Backfill par tranches jusqu'à complétion
+        run: |
+          # Chaque appel à la route couvre une tranche bornée en durée
+          # (18 min côté serveur) et reprend automatiquement où la
+          # tranche précédente s'est arrêtée. On rappelle donc la même
+          # route en boucle tant que la réponse ne signale pas
+          # "done": true — jusqu'à 20 tranches (~6h), largement au-dessus
+          # du besoin réel estimé pour la XV législature en cours.
+          for i in $(seq 1 20); do
+            echo "=== Tranche $i/20 ==="
+            RESPONSE=$(curl -f -s -X POST "${{ secrets.API_URL }}/api/admin/ingest/spain-congress-historical" \
+              -H "x-ingest-token: ${{ secrets.INGEST_TOKEN }}" \
+              --max-time 1200)
+            echo "$RESPONSE"
+
+            DONE=$(echo "$RESPONSE" | grep -o '"done":[a-z]*' | cut -d: -f2)
+            if [ "$DONE" = "true" ]; then
+              echo "Backfill terminé — toute la législature en cours a été couverte."
+              exit 0
+            fi
+
+            sleep 5
+          done
+
+          echo "Nombre maximal de tranches atteint sans avoir terminé — relancer ce workflow pour continuer (la reprise est automatique)."

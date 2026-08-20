@@ -7,7 +7,7 @@ import { ingestGroups } from "../ingest/an_groups.js";
 import { ingestScrutins } from "../ingest/scrutins.js";
 import { ingestDeputyVotes } from "../ingest/deputy_votes.js";
 import { ingestUsCongress } from "../scripts/ingest-us-congress.js";
-import { ingestSpainCongress } from "../scripts/ingest-spain-congress.js";
+import { ingestSpainCongress, ingestSpainVotesHistorical } from "../scripts/ingest-spain-congress.js";
 import { ingestItalySenate } from "../scripts/ingest-italy-senate.js";
 import { ingestSpainSenate } from "../scripts/ingest-spain-senate.js";
 import { ingestItalyCamera } from "../scripts/ingest-italy-camera.js";
@@ -293,6 +293,24 @@ router.post("/api/admin/ingest/spain-congress", requireIngestToken, async (_req,
     res.json({ status: "ok", ...result });
   } catch (err) {
     res.status(500).json({ error: "Échec de l'ingestion", detail: errorDetail(err) });
+  }
+});
+
+// Backfill historique des votes de la législature en cours — bornée en
+// durée (18 min, sous les limites habituelles ~20 min des jobs CI) plutôt
+// qu'en nombre de séances : reprend automatiquement depuis la base à
+// chaque appel (voir getHistoricalResumeCursor dans le script), donc
+// appeler cette route plusieurs fois de suite (manuellement ou via un
+// déclenchement CI répété) continue le travail jusqu'à ce que
+// `done: true` soit renvoyé. Usage ponctuel — pas dans le rafraîchissement
+// mensuel habituel, qui reste sur ingestSpainCongress() (dernière séance
+// seulement).
+router.post("/api/admin/ingest/spain-congress-historical", requireIngestToken, async (_req, res) => {
+  try {
+    const result = await ingestSpainVotesHistorical({ maxDurationMs: 18 * 60 * 1000 });
+    res.json({ status: "ok", ...result });
+  } catch (err) {
+    res.status(500).json({ error: "Échec du backfill", detail: errorDetail(err) });
   }
 });
 
