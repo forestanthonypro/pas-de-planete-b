@@ -33,7 +33,6 @@ function DefaultHead({ router }) {
   // canonique règle ça en pointant systématiquement vers l'URL sans
   // paramètres de requête (repéré via Search Console le 9 août 2026).
   const canonicalPath = router?.asPath?.split("?")[0]?.split("#")[0] || "/";
-  const canonicalUrl = `https://pasdeplaneteb.com${canonicalPath}`;
 
   const locales = router?.locales?.length ? router.locales : ["fr"];
   const defaultLocale = router?.defaultLocale || "fr";
@@ -49,6 +48,14 @@ function DefaultHead({ router }) {
     const p = barePath === "/" ? "" : barePath;
     return locale === defaultLocale ? `https://pasdeplaneteb.com${p || "/"}` : `https://pasdeplaneteb.com/${locale}${p}`;
   }
+
+  // Next.js retire le préfixe de langue de router.asPath : sur
+  // /en/decouverte, canonicalPath vaut donc /decouverte. Construire la
+  // canonique directement avec canonicalPath faisait pointer toutes les
+  // traductions vers la page française, ce qui incitait Google à les
+  // considérer comme des doublons. Chaque langue doit au contraire avoir
+  // une canonique autoréférente, cohérente avec ses liens hreflang.
+  const canonicalUrl = urlForLocale(currentLocale);
 
   return (
     <Head>
