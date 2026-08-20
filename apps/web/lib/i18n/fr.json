@@ -1161,6 +1161,19 @@
     "future": "Nouvelles idées pour le futur",
     "saved": "Préférences enregistrées.",
     "ios": "Sur iPhone ou iPad, ajoutez d’abord ce site à l’écran d’accueil depuis le menu Partager, puis ouvrez l’application installée.",
-    "unsupported": "Les notifications push ne sont pas prises en charge par ce navigateur."
+    "unsupported": "Les notifications push ne sont pas prises en charge par ce navigateur.",
+    "reps_note": "Pour être notifié·e des votes d'un député ou d'un élu international en particulier, rendez-vous directement sur sa fiche et cliquez sur « Suivre les votes » :",
+    "reps_link_fr": "Liste des députés français",
+    "reps_link_intl": "Élus internationaux"
+  },
+  "push_follow": {
+    "follow_votes": "Suivre les votes de {name}",
+    "following": "Vous suivez {name}",
+    "saving": "…",
+    "ios_install": "Sur iPhone/iPad, ajoutez d'abord le site à l'écran d'accueil.",
+    "error": "Impossible d'activer les notifications.",
+    "banner_text": "Restez informé·e : recevez une notification pour les nouveautés qui vous intéressent.",
+    "banner_cta": "Activer",
+    "banner_dismiss": "Ne plus afficher"
   }
 }

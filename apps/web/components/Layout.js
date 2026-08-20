@@ -9,6 +9,7 @@ import { useT } from "../lib/useT";
 import { IconLeaf, IconSun, IconMoon, IconScroll, IconHome, IconBulb, IconBell } from "./icons";
 import BackgroundScene from "./BackgroundScene";
 import ScrollTopButton from "./ScrollTopButton";
+import NotificationsPromptBanner from "./NotificationsPromptBanner";
 
 const LANGUAGE_LABELS = {
   fr: "Français",
@@ -58,6 +59,8 @@ export default function Layout({ children }) {
   const { theme, setTheme } = useTheme();
   const { t } = useT();
   const [countrySummary, setCountrySummary] = useState("FRA");
+  const router = useRouter();
+  const showNotificationsBanner = Boolean(router) && !router.pathname.startsWith("/admin") && router.pathname !== "/notifications";
 
   useEffect(() => {
     setCountrySummary(detectDefaultCountry());
@@ -343,7 +346,10 @@ export default function Layout({ children }) {
         </div>
       </header>
 
-      <main style={{ position: "relative", zIndex: 1, flex: 1, width: "100%" }}>{children}</main>
+      <main style={{ position: "relative", zIndex: 1, flex: 1, width: "100%" }}>
+        {showNotificationsBanner && <NotificationsPromptBanner />}
+        {children}
+      </main>
 
       <footer
         style={{

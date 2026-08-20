@@ -84,7 +84,7 @@ export default function InternationalMemberDetailPage() {
           <ShareButtons title={member.full_name} />
 
           <FollowMemberForm country={country} externalId={externalId} memberName={member.full_name} />
-          <PushFollowButton topic="parliament_member_vote" targetType="member_id" targetValue={member.id} name={`Suivre les votes de ${member.full_name}`} />
+          <PushFollowButton topic="parliament_member_vote" targetType="member_id" targetValue={member.id} name={member.full_name} />
 
           <p style={{ color: "var(--color-texte-clair)" }}>
             {member.group_name && <>{t("deputes.group_label")} : <strong style={{ color: member.group_color }}>{translatePartyName(member.group_name, t)}</strong> — </>}

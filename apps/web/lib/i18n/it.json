@@ -1161,6 +1161,19 @@
     "future": "Nuove idee per il futuro",
     "saved": "Preferenze salvate.",
     "ios": "Su iPhone o iPad, aggiungi prima questo sito alla schermata Home dal menu Condividi, poi apri l'app installata.",
-    "unsupported": "Le notifiche push non sono supportate da questo browser."
+    "unsupported": "Le notifiche push non sono supportate da questo browser.",
+    "reps_note": "Per ricevere notifiche sui voti di un deputato o di un rappresentante internazionale in particolare, vai direttamente alla sua scheda e clicca su «Segui i voti»:",
+    "reps_link_fr": "Elenco dei deputati francesi",
+    "reps_link_intl": "Rappresentanti internazionali"
+  },
+  "push_follow": {
+    "follow_votes": "Segui i voti di {name}",
+    "following": "Stai seguendo {name}",
+    "saving": "…",
+    "ios_install": "Su iPhone/iPad, aggiungi prima il sito alla schermata Home.",
+    "error": "Impossibile attivare le notifiche.",
+    "banner_text": "Resta informato: ricevi una notifica sulle novità che ti interessano.",
+    "banner_cta": "Attiva",
+    "banner_dismiss": "Non mostrare più"
   }
 }

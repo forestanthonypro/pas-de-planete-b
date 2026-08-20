@@ -4,7 +4,7 @@ import { isIosNotInstalled, readPushManagement, supportsWebPush, urlBase64ToUint
 
 
 export default function PushFollowButton({ topic, targetType, targetValue, name }) {
-  const { locale } = useT();
+  const { t, locale } = useT();
   const [status, setStatus] = useState("idle");
 
   async function follow() {
@@ -34,12 +34,12 @@ export default function PushFollowButton({ topic, targetType, targetValue, name 
     } catch (error) { setStatus(error.message === "install" ? "install" : "error"); }
   }
 
-  if (status === "done") return <p role="status" style={{ color: "#1baf7a", fontSize: 13 }}>✓ {name}</p>;
+  if (status === "done") return <p role="status" style={{ color: "#1baf7a", fontSize: 13 }}>✓ {t("push_follow.following", { name })}</p>;
   return (
     <div style={{ margin: "0.5rem 0" }}>
-      <button type="button" onClick={follow} disabled={status === "saving"}>🔔 {status === "saving" ? "…" : `Push : ${name}`}</button>
-      {status === "install" && <p role="alert" style={{ fontSize: 12 }}>Sur iPhone/iPad, ajoutez d’abord le site à l’écran d’accueil.</p>}
-      {status === "error" && <p role="alert" style={{ fontSize: 12, color: "#d63e2a" }}>Impossible d’activer les notifications.</p>}
+      <button type="button" onClick={follow} disabled={status === "saving"}>🔔 {status === "saving" ? t("push_follow.saving") : t("push_follow.follow_votes", { name })}</button>
+      {status === "install" && <p role="alert" style={{ fontSize: 12 }}>{t("push_follow.ios_install")}</p>}
+      {status === "error" && <p role="alert" style={{ fontSize: 12, color: "#d63e2a" }}>{t("push_follow.error")}</p>}
     </div>
   );
 }

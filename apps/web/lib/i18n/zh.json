@@ -1161,6 +1161,19 @@
     "future": "面向未来的新想法",
     "saved": "偏好设置已保存。",
     "ios": "在 iPhone 或 iPad 上，请先通过“共享”菜单将此网站添加到主屏幕，然后打开已安装的应用。",
-    "unsupported": "此浏览器不支持推送通知。"
+    "unsupported": "此浏览器不支持推送通知。",
+    "reps_note": "要接收特定议员或国际代表投票的通知，请直接前往其个人资料页面并点击“关注投票”：",
+    "reps_link_fr": "法国议员名单",
+    "reps_link_intl": "国际代表"
+  },
+  "push_follow": {
+    "follow_votes": "关注{name}的投票",
+    "following": "您正在关注{name}",
+    "saving": "…",
+    "ios_install": "在 iPhone/iPad 上，请先将网站添加到主屏幕。",
+    "error": "无法启用通知。",
+    "banner_text": "保持关注：接收您感兴趣的更新通知。",
+    "banner_cta": "启用",
+    "banner_dismiss": "不再显示"
   }
 }

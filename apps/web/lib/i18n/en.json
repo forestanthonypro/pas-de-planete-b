@@ -1161,6 +1161,19 @@
     "future": "New ideas for the future",
     "saved": "Preferences saved.",
     "ios": "On iPhone or iPad, first add this site to your Home Screen from the Share menu, then open the installed app.",
-    "unsupported": "Push notifications are not supported by this browser."
+    "unsupported": "Push notifications are not supported by this browser.",
+    "reps_note": "To be notified about the votes of a specific representative, go directly to their profile page and click \"Follow votes\":",
+    "reps_link_fr": "List of French deputies",
+    "reps_link_intl": "International representatives"
+  },
+  "push_follow": {
+    "follow_votes": "Follow votes by {name}",
+    "following": "You are following {name}",
+    "saving": "…",
+    "ios_install": "On iPhone/iPad, first add the site to your Home Screen.",
+    "error": "Unable to enable notifications.",
+    "banner_text": "Stay informed: get notified about updates that matter to you.",
+    "banner_cta": "Enable",
+    "banner_dismiss": "Dismiss"
   }
 }

@@ -1161,6 +1161,19 @@
     "future": "Nuevas ideas para el futuro",
     "saved": "Preferencias guardadas.",
     "ios": "En iPhone o iPad, añade primero este sitio a la pantalla de inicio desde el menú Compartir, luego abre la aplicación instalada.",
-    "unsupported": "Las notificaciones push no son compatibles con este navegador."
+    "unsupported": "Las notificaciones push no son compatibles con este navegador.",
+    "reps_note": "Para recibir notificaciones sobre las votaciones de un diputado o un representante internacional en particular, ve directamente a su ficha y haz clic en «Seguir las votaciones»:",
+    "reps_link_fr": "Lista de diputados franceses",
+    "reps_link_intl": "Representantes internacionales"
+  },
+  "push_follow": {
+    "follow_votes": "Seguir las votaciones de {name}",
+    "following": "Estás siguiendo a {name}",
+    "saving": "…",
+    "ios_install": "En iPhone/iPad, añade primero el sitio a la pantalla de inicio.",
+    "error": "No se pudieron activar las notificaciones.",
+    "banner_text": "Mantente informado: recibe una notificación sobre las novedades que te interesan.",
+    "banner_cta": "Activar",
+    "banner_dismiss": "No volver a mostrar"
   }
 }

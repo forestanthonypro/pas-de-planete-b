@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import PageHeader from "../components/PageHeader";
 import ScopeMultiSelect from "../components/ScopeMultiSelect";
 import { IconBell } from "../components/icons";
@@ -21,6 +22,9 @@ export default function NotificationsPage() {
     saved: t("notifications.saved"),
     ios: t("notifications.ios"),
     unsupported: t("notifications.unsupported"),
+    reps_note: t("notifications.reps_note"),
+    reps_link_fr: t("notifications.reps_link_fr"),
+    reps_link_intl: t("notifications.reps_link_intl"),
   };
   const [scopes, setScopes] = useState([]);
   const [topics, setTopics] = useState({ petition: true, paysan: true, debunk: true, future_idea: false });
@@ -108,6 +112,13 @@ export default function NotificationsPage() {
           <label key={key} style={{ display: "block", padding: 8 }}><input type="checkbox" checked={topics[key]} onChange={(e) => setTopics({ ...topics, [key]: e.target.checked })} /> {label}</label>
         ))}
       </fieldset>
+      <p style={{ fontSize: 14, padding: "0.75rem 1rem", background: "var(--color-carte)", border: "1px solid var(--color-bordure)", borderRadius: 8, marginBottom: "1.5rem" }}>
+        {c.reps_note}
+        {" "}
+        <Link href="/deputes" prefetch={false}>{c.reps_link_fr}</Link>
+        {" · "}
+        <Link href="/international" prefetch={false}>{c.reps_link_intl}</Link>
+      </p>
       <button type="button" onClick={save} disabled={status === "saving" || scopes.length === 0}>{management ? c.save : c.enable}</button>
       {management && <button type="button" onClick={disable} disabled={status === "saving"} style={{ marginLeft: 12 }}>{c.disable}</button>}
       {message && <p role={status === "error" ? "alert" : "status"}>{message}</p>}

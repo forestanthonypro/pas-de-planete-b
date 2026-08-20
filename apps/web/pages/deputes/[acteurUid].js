@@ -108,7 +108,7 @@ export default function DeputyPage() {
           <ShareButtons title={`${deputy.full_name}`} />
 
           <FollowDeputyForm acteurUid={acteurUid} deputyName={deputy.full_name} />
-          <PushFollowButton topic="deputy_vote" targetType="deputy_uid" targetValue={acteurUid} name={`Suivre les votes de ${deputy.full_name}`} />
+          <PushFollowButton topic="deputy_vote" targetType="deputy_uid" targetValue={acteurUid} name={deputy.full_name} />
 
           <p style={{ color: "var(--color-texte-clair)" }}>
             {deputy.group_abbreviation && <>{t("deputes.group_label")} : <strong>{deputy.group_abbreviation}</strong> ({deputy.group_name}) — </>}
