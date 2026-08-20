@@ -158,7 +158,7 @@ jobs:
           cat ecoindex-requests-debug.json
 
       - name: Publier le détail des requêtes en artefact (diagnostic temporaire)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ecoindex-requests-debug
           path: ecoindex-requests-debug.json
