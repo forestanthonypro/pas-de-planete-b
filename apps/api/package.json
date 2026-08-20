@@ -8,7 +8,7 @@
     "dev": "node --watch src/index.js",
     "start": "node src/index.js",
     "lint": "eslint src eslint.config.js",
-    "test": "node --test src",
+    "test": "node --test test/**/*.test.js",
     "ingest:co2": "node src/ingest/co2.js",
     "ingest:power-plants": "node src/ingest/power_plants.js",
     "ingest:species": "node src/ingest/species.js",

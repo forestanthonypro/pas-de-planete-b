@@ -56,7 +56,7 @@ services:
       # HSTS : demande au navigateur de toujours utiliser HTTPS pour ce
       # domaine pendant 6 mois (15552000s), y compris les sous-domaines —
       # même durée que celle déjà envoyée par Helmet côté API elle-même.
-      - "traefik.http.middlewares.api-security-headers.headers.stsSeconds=15552000"
+      - "traefik.http.middlewares.api-security-headers.headers.stsSeconds=31536000"
       - "traefik.http.middlewares.api-security-headers.headers.stsIncludeSubdomains=true"
       - "traefik.http.middlewares.api-security-headers.headers.stsPreload=true"
       - "traefik.http.middlewares.api-security-headers.headers.forceSTSHeader=true"
@@ -82,10 +82,22 @@ services:
       # jamais appliqué en pratique malgré l'absence d'erreur visible côté
       # utilisateur). Nom différent (web-security-headers) pour éviter toute
       # confusion avec celui de l'API, identique par ailleurs.
-      - "traefik.http.middlewares.web-security-headers.headers.stsSeconds=15552000"
+      - "traefik.http.middlewares.web-security-headers.headers.stsSeconds=31536000"
       - "traefik.http.middlewares.web-security-headers.headers.stsIncludeSubdomains=true"
       - "traefik.http.middlewares.web-security-headers.headers.stsPreload=true"
       - "traefik.http.middlewares.web-security-headers.headers.forceSTSHeader=true"
+      # En-têtes ajoutés suite à un audit de sécurité externe (20 août 2026) :
+      # seul HSTS était configuré jusque-là. Pas de Content-Security-Policy
+      # ici — le site utilise du style inline de façon très étendue
+      # (attribut style={{}} de React sur la quasi-totalité des composants)
+      # et Next.js injecte lui-même des scripts inline au démarrage ; une
+      # CSP mal calibrée casserait l'affichage. À construire séparément,
+      # avec un vrai test contre le site en conditions réelles avant
+      # activation, idéalement d'abord en Content-Security-Policy-Report-Only.
+      - "traefik.http.middlewares.web-security-headers.headers.contentTypeNosniff=true"
+      - "traefik.http.middlewares.web-security-headers.headers.frameDeny=true"
+      - "traefik.http.middlewares.web-security-headers.headers.referrerPolicy=strict-origin-when-cross-origin"
+      - "traefik.http.middlewares.web-security-headers.headers.permissionsPolicy=camera=(), microphone=(), geolocation=()"
       # Redirection www -> domaine nu (repere via Google Search Console le
       # 9 aout 2026 : www.pasdeplaneteb.com renvoyait 404, aucune route
       # Traefik ne le couvrait). Redirection permanente plutot que de
@@ -134,7 +146,7 @@ services:
       - "traefik.http.routers.matomo.entrypoints=websecure"
       - "traefik.http.routers.matomo.tls.certresolver=le"
       - "traefik.http.routers.matomo.middlewares=matomo-security-headers"
-      - "traefik.http.middlewares.matomo-security-headers.headers.stsSeconds=15552000"
+      - "traefik.http.middlewares.matomo-security-headers.headers.stsSeconds=31536000"
       - "traefik.http.middlewares.matomo-security-headers.headers.stsIncludeSubdomains=true"
       - "traefik.http.middlewares.matomo-security-headers.headers.stsPreload=true"
       - "traefik.http.middlewares.matomo-security-headers.headers.forceSTSHeader=true"

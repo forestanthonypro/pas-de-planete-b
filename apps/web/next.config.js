@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  poweredByHeader: false,
   output: "standalone",
   // Génération statique forcée en mono-thread (workerThreads: false, cpus: 1).
   // Sans ça, avec plusieurs workers en parallèle, un bug de concurrence dans

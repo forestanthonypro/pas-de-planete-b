@@ -16,10 +16,22 @@ RUN apk add --no-cache \
     ca-certificates \
     ttf-freefont
 
-COPY package.json ./
-RUN npm install --omit=dev
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev
 COPY src ./src
 ENV NODE_ENV=production
 ENV CHROMIUM_PATH=/usr/bin/chromium-browser
+
+# Utilisateur non-root — Chromium a besoin d'écrire dans son propre HOME
+# (cache, profil temporaire) au moment du rendu PDF : sans ce HOME
+# explicite et accessible en écriture par cet utilisateur, la génération
+# du kit de communication échouerait silencieusement. /app appartient
+# aussi à cet utilisateur, npm ayant déjà tout installé en tant que root
+# à l'étape précédente.
+RUN addgroup -S apiuser && adduser -S apiuser -G apiuser -h /home/apiuser \
+    && mkdir -p /home/apiuser && chown -R apiuser:apiuser /home/apiuser /app
+ENV HOME=/home/apiuser
+USER apiuser
+
 EXPOSE 4000
 CMD ["node", "src/index.js"]
