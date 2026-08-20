@@ -3,6 +3,7 @@ import Link from "next/link";
 import AdminAuthGate from "../../../components/AdminAuthGate";
 import Pagination from "../../../components/Pagination";
 import ScrollableTable from "../../../components/ScrollableTable";
+import ContentTranslationsEditor from "../../../components/ContentTranslationsEditor";
 
 const PAGE_SIZE = 20;
 const TYPE_LABELS = { video: "Vidéo", article: "Article", podcast: "Podcast", document: "Document" };
@@ -43,6 +44,7 @@ function AdminPaysansListInner() {
   const [entries, setEntries] = useState([]);
   const [categories, setCategories] = useState([]);
   const [newCategory, setNewCategory] = useState("");
+  const [translatingCategoryId, setTranslatingCategoryId] = useState(null);
   const [loaded, setLoaded] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -135,6 +137,25 @@ function AdminPaysansListInner() {
       .catch((err) => setError(err.message));
   }
 
+  function renameCategory(id) {
+    if (!editingCategoryName.trim()) return;
+    fetch(`/api/admin/paysan-categories/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ name: editingCategoryName.trim() }),
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Échec de la modification");
+        return res.json();
+      })
+      .then(() => {
+        setEditingCategoryId(null);
+        loadAll();
+      })
+      .catch((err) => setError(err.message));
+  }
+
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 800, margin: "0 auto" }}>
       <p style={{ fontSize: 13, marginBottom: "0.5rem" }}>
@@ -153,7 +174,39 @@ function AdminPaysansListInner() {
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: "0.75rem" }}>
               {categories.map((c) => (
                 <span key={c.id} style={{ display: "flex", alignItems: "center", gap: 6, background: "var(--color-fond)", border: "1px solid var(--color-bordure)", borderRadius: 20, padding: "3px 6px 3px 12px", fontSize: 13 }}>
-                  {c.name}
+                  {editingCategoryId === c.id ? (
+                    <input
+                      type="text"
+                      value={editingCategoryName}
+                      autoFocus
+                      onChange={(e) => setEditingCategoryName(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") renameCategory(c.id);
+                        if (e.key === "Escape") setEditingCategoryId(null);
+                      }}
+                      onBlur={() => renameCategory(c.id)}
+                      style={{ fontSize: 13, border: "1px solid var(--color-bordure)", borderRadius: 4, padding: "1px 4px", width: 120 }}
+                    />
+                  ) : (
+                    <span
+                      onClick={() => {
+                        setEditingCategoryId(c.id);
+                        setEditingCategoryName(c.name);
+                      }}
+                      style={{ cursor: "pointer" }}
+                      title="Cliquer pour renommer"
+                    >
+                      {c.name}
+                    </span>
+                  )}
+                                    <button
+                    type="button"
+                    onClick={() => setTranslatingCategoryId(translatingCategoryId === c.id ? null : c.id)}
+                    style={{ border: "none", background: "transparent", cursor: "pointer", color: "var(--color-lien)", fontSize: 13 }}
+                    title="Traduire"
+                  >
+                    🌐
+                  </button>
                   <button type="button" onClick={() => removeCategory(c.id)} style={{ border: "none", background: "transparent", cursor: "pointer", color: "#d63e2a", fontSize: 13 }} title="Supprimer">
                     ×
                   </button>
@@ -161,6 +214,20 @@ function AdminPaysansListInner() {
               ))}
               {categories.length === 0 && <span style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>Aucune catégorie pour l&apos;instant.</span>}
             </div>
+            {translatingCategoryId && (() => {
+              const c = categories.find((cat) => cat.id === translatingCategoryId);
+              if (!c) return null;
+              return (
+                <div style={{ marginBottom: "0.75rem", padding: "0.75rem", background: "var(--color-fond)", borderRadius: 8 }}>
+                  <ContentTranslationsEditor
+                    contentType="paysan_category"
+                    contentId={c.slug}
+                    fields={[{ name: "name", label: "Nom", multiline: false }]}
+                    baseValues={{ name: c.name }}
+                  />
+                </div>
+              );
+            })()}
             <form onSubmit={addCategory} style={{ display: "flex", gap: "0.5rem" }}>
               <input
                 type="text"

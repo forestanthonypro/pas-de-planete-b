@@ -6,6 +6,8 @@
     "nav_myvotes": "My votes",
     "nav_charter": "Ethical charter",
     "nav_charter_title": "Ethical charter — Today's and tomorrow's children",
+    "nav_notifications": "Notifications",
+    "nav_notifications_title": "Manage my notifications",
     "pagination_label": "Pagination",
     "pagination_first": "First",
     "pagination_last": "Last",
@@ -29,6 +31,7 @@
     "footer_data_status": "Data status",
     "footer_legal": "Legal notice",
     "footer_privacy": "Privacy",
+    "footer_notifications": "Notifications",
     "footer_impact": "Environmental impact",
     "nav_home": "Home",
     "nav_home_title": "Back to the homepage",
@@ -1144,5 +1147,20 @@
     "send_button": "Send",
     "done_message": "Your message has been sent — we'll reply as soon as possible.",
     "back_home": "← Back to home"
+  },
+  "notifications": {
+    "title": "My notifications",
+    "intro": "Choose the countries and topics you want to follow.",
+    "countries": "Countries or regions followed",
+    "enable": "Enable notifications",
+    "save": "Save my choices",
+    "disable": "Disable notifications",
+    "petition": "New petitions",
+    "paysan": "New articles — We can all become farmers",
+    "debunk": "New fact-checks",
+    "future": "New ideas for the future",
+    "saved": "Preferences saved.",
+    "ios": "On iPhone or iPad, first add this site to your Home Screen from the Share menu, then open the installed app.",
+    "unsupported": "Push notifications are not supported by this browser."
   }
 }

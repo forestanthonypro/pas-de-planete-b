@@ -25,7 +25,7 @@ export default function PaysansPage() {
         if (!res.ok) throw new Error(t("paysans.error_no_data"));
         return res.json();
       }),
-      fetch(`/api/paysan-categories`).then((res) => (res.ok ? res.json() : [])),
+      fetch(`/api/paysan-categories?locale=${locale}`).then((res) => (res.ok ? res.json() : [])),
     ])
       .then(([entryRows, categoryRows]) => {
         setEntries(Array.isArray(entryRows) ? entryRows : []);

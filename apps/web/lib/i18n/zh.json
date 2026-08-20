@@ -6,6 +6,8 @@
     "nav_myvotes": "我的投票",
     "nav_charter": "道德宪章",
     "nav_charter_title": "道德宪章 — 今天与明天的孩子",
+    "nav_notifications": "通知",
+    "nav_notifications_title": "管理我的通知",
     "pagination_label": "分页",
     "pagination_first": "开始",
     "pagination_last": "结束",
@@ -29,6 +31,7 @@
     "footer_data_status": "数据状态",
     "footer_legal": "法律声明",
     "footer_privacy": "隐私政策",
+    "footer_notifications": "通知",
     "footer_impact": "环境影响",
     "nav_home": "首页",
     "nav_home_title": "返回网站首页",
@@ -1144,5 +1147,20 @@
     "send_button": "发送",
     "done_message": "您的留言已成功发送，我们会尽快回复。",
     "back_home": "← 返回首页"
+  },
+  "notifications": {
+    "title": "我的通知",
+    "intro": "选择您感兴趣的国家和主题。",
+    "countries": "已关注的国家或地区",
+    "enable": "启用通知",
+    "save": "保存我的选择",
+    "disable": "关闭通知",
+    "petition": "新请愿书",
+    "paysan": "新文章 — 我们都能成为农民",
+    "debunk": "新辟谣内容",
+    "future": "面向未来的新想法",
+    "saved": "偏好设置已保存。",
+    "ios": "在 iPhone 或 iPad 上，请先通过“共享”菜单将此网站添加到主屏幕，然后打开已安装的应用。",
+    "unsupported": "此浏览器不支持推送通知。"
   }
 }

@@ -23,11 +23,11 @@ function LocationForm({ locale, t }) {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch(`/api/resource-categories`)
+    fetch(`/api/resource-categories?locale=${locale}`)
       .then((res) => (res.ok ? res.json() : []))
       .then(setCategories)
       .catch(() => setCategories([]));
-  }, []);
+  }, [locale]);
 
   function updateLink(index, field, value) {
     setLinks((prev) => prev.map((l, i) => (i === index ? { ...l, [field]: value } : l)));
@@ -177,11 +177,11 @@ function OnlineForm({ locale, t }) {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch(`/api/resource-categories`)
+    fetch(`/api/resource-categories?locale=${locale}`)
       .then((res) => (res.ok ? res.json() : []))
       .then(setCategories)
       .catch(() => setCategories([]));
-  }, []);
+  }, [locale]);
 
   function handleSubmit(e) {
     e.preventDefault();

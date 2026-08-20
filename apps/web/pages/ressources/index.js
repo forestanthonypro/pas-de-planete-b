@@ -32,7 +32,7 @@ export default function RessourcesPage() {
     Promise.all([
       fetch(`/api/resource-locations?locale=${locale}${scopesParam}`).then((res) => (res.ok ? res.json() : [])),
       fetch(`/api/resource-online?locale=${locale}${scopesParam}`).then((res) => (res.ok ? res.json() : [])),
-      fetch(`/api/resource-categories`).then((res) => (res.ok ? res.json() : [])),
+      fetch(`/api/resource-categories?locale=${locale}`).then((res) => (res.ok ? res.json() : [])),
     ])
       .then(([locationRows, onlineRows, categoryRows]) => {
         setLocations(Array.isArray(locationRows) ? locationRows : []);

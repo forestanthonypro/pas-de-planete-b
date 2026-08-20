@@ -5,14 +5,23 @@ import { IconBell } from "../components/icons";
 import { useT } from "../lib/useT";
 import { clearPushManagement, isIosNotInstalled, readPushManagement, supportsWebPush, urlBase64ToUint8Array, writePushManagement } from "../lib/pushNotifications";
 
-const COPY = {
-  fr: { title: "Mes notifications", intro: "Choisissez les pays et les sujets qui vous intéressent.", countries: "Pays ou régions suivis", enable: "Activer les notifications", save: "Enregistrer mes choix", disable: "Désactiver les notifications", petition: "Nouvelles pétitions", paysan: "Nouveaux articles — On devient tous paysans", debunk: "Nouveaux débunks", future: "Nouvelles idées pour le futur", saved: "Préférences enregistrées.", ios: "Sur iPhone ou iPad, ajoutez d’abord ce site à l’écran d’accueil depuis le menu Partager, puis ouvrez l’application installée.", unsupported: "Les notifications push ne sont pas prises en charge par ce navigateur." },
-  en: { title: "My notifications", intro: "Choose the countries and topics you want to follow.", countries: "Countries or regions followed", enable: "Enable notifications", save: "Save my choices", disable: "Disable notifications", petition: "New petitions", paysan: "New articles — We can all become farmers", debunk: "New fact-checks", future: "New ideas for the future", saved: "Preferences saved.", ios: "On iPhone or iPad, first add this site to your Home Screen from the Share menu, then open the installed app.", unsupported: "Push notifications are not supported by this browser." },
-};
-
 export default function NotificationsPage() {
-  const { locale } = useT();
-  const c = COPY[locale] || COPY.en;
+  const { t, locale } = useT();
+  const c = {
+    title: t("notifications.title"),
+    intro: t("notifications.intro"),
+    countries: t("notifications.countries"),
+    enable: t("notifications.enable"),
+    save: t("notifications.save"),
+    disable: t("notifications.disable"),
+    petition: t("notifications.petition"),
+    paysan: t("notifications.paysan"),
+    debunk: t("notifications.debunk"),
+    future: t("notifications.future"),
+    saved: t("notifications.saved"),
+    ios: t("notifications.ios"),
+    unsupported: t("notifications.unsupported"),
+  };
   const [scopes, setScopes] = useState([]);
   const [topics, setTopics] = useState({ petition: true, paysan: true, debunk: true, future_idea: false });
   const [management, setManagement] = useState(null);

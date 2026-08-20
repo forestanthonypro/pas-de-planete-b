@@ -31,7 +31,7 @@ export default function DebunkPage() {
         if (!res.ok) throw new Error(t("debunk.error_no_data"));
         return res.json();
       }),
-      fetch(`/api/debunk-categories`).then((res) => (res.ok ? res.json() : [])),
+      fetch(`/api/debunk-categories?locale=${locale}`).then((res) => (res.ok ? res.json() : [])),
     ])
       .then(([entryRows, categoryRows]) => {
         setEntries(Array.isArray(entryRows) ? entryRows : []);

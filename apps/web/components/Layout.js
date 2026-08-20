@@ -6,7 +6,7 @@ import { useSobriety } from "../lib/SobrietyContext";
 import { useDiscoveryMode } from "../lib/DiscoveryModeContext";
 import { useTheme } from "../lib/ThemeContext";
 import { useT } from "../lib/useT";
-import { IconLeaf, IconSun, IconMoon, IconScroll, IconHome, IconBulb } from "./icons";
+import { IconLeaf, IconSun, IconMoon, IconScroll, IconHome, IconBulb, IconBell } from "./icons";
 import BackgroundScene from "./BackgroundScene";
 import ScrollTopButton from "./ScrollTopButton";
 
@@ -272,6 +272,29 @@ export default function Layout({ children }) {
         </Link>
 
         <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+          <Link
+            href="/notifications"
+            prefetch={false}
+            aria-label={t("common.nav_notifications_title")}
+            title={t("common.nav_notifications_title")}
+            style={
+              sobriety
+                ? { display: "flex", alignItems: "center", color: "var(--color-forest)" }
+                : {
+                    display: "flex",
+                    alignItems: "center",
+                    background: "var(--color-carte)",
+                    border: "1px solid var(--color-bordure)",
+                    borderRadius: "var(--radius)",
+                    padding: "6px 10px",
+                    color: "var(--color-texte)",
+                    textDecoration: "none",
+                  }
+            }
+          >
+            <IconBell size={16} />
+          </Link>
+
           <LanguageSwitcher />
 
           <button
@@ -348,7 +371,7 @@ export default function Layout({ children }) {
         <span aria-hidden="true">·</span>
         <Link href="/confidentialite" prefetch={false} style={{ color: "inherit" }}>{t("common.footer_privacy")}</Link>
         <span aria-hidden="true">·</span>
-        <Link href="/notifications" prefetch={false} style={{ color: "inherit" }}>Notifications</Link>
+        <Link href="/notifications" prefetch={false} style={{ color: "inherit" }}>{t("common.footer_notifications")}</Link>
         <span aria-hidden="true">·</span>
         <Link href="/contact" prefetch={false} style={{ color: "inherit" }}>{t("common.footer_contact")}</Link>
       </footer>

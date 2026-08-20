@@ -6,6 +6,8 @@
     "nav_myvotes": "Mes votes",
     "nav_charter": "Charte éthique",
     "nav_charter_title": "Charte éthique — Les enfants d'aujourd'hui et de demain",
+    "nav_notifications": "Notifications",
+    "nav_notifications_title": "Gérer mes notifications",
     "pagination_label": "Pagination",
     "pagination_first": "Début",
     "pagination_last": "Fin",
@@ -29,6 +31,7 @@
     "footer_data_status": "État des données",
     "footer_legal": "Mentions légales",
     "footer_privacy": "Confidentialité",
+    "footer_notifications": "Notifications",
     "footer_impact": "Impact environnemental",
     "nav_home": "Accueil",
     "nav_home_title": "Retour à l'accueil du site",
@@ -1144,5 +1147,20 @@
     "send_button": "Envoyer",
     "done_message": "Votre message a bien été envoyé, nous vous répondrons dès que possible.",
     "back_home": "← Retour à l'accueil"
+  },
+  "notifications": {
+    "title": "Mes notifications",
+    "intro": "Choisissez les pays et les sujets qui vous intéressent.",
+    "countries": "Pays ou régions suivis",
+    "enable": "Activer les notifications",
+    "save": "Enregistrer mes choix",
+    "disable": "Désactiver les notifications",
+    "petition": "Nouvelles pétitions",
+    "paysan": "Nouveaux articles — On devient tous paysans",
+    "debunk": "Nouveaux débunks",
+    "future": "Nouvelles idées pour le futur",
+    "saved": "Préférences enregistrées.",
+    "ios": "Sur iPhone ou iPad, ajoutez d’abord ce site à l’écran d’accueil depuis le menu Partager, puis ouvrez l’application installée.",
+    "unsupported": "Les notifications push ne sont pas prises en charge par ce navigateur."
   }
 }

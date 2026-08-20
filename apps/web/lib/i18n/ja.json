@@ -6,6 +6,8 @@
     "nav_myvotes": "自分の投票",
     "nav_charter": "倫理憲章",
     "nav_charter_title": "倫理憲章 — 今日と未来の子どもたち",
+    "nav_notifications": "通知",
+    "nav_notifications_title": "通知を管理",
     "pagination_label": "ページネーション",
     "pagination_first": "最初",
     "pagination_last": "最後",
@@ -29,6 +31,7 @@
     "footer_data_status": "データの状態",
     "footer_legal": "法的表示",
     "footer_privacy": "プライバシー",
+    "footer_notifications": "通知",
     "footer_impact": "環境への影響",
     "nav_home": "ホーム",
     "nav_home_title": "サイトのトップページに戻る",
@@ -1144,5 +1147,20 @@
     "send_button": "送信",
     "done_message": "メッセージを送信しました。できるだけ早くご返信いたします。",
     "back_home": "← ホームに戻る"
+  },
+  "notifications": {
+    "title": "通知設定",
+    "intro": "興味のある国とトピックを選択してください。",
+    "countries": "フォロー中の国・地域",
+    "enable": "通知を有効にする",
+    "save": "設定を保存",
+    "disable": "通知を無効にする",
+    "petition": "新しい署名活動",
+    "paysan": "新しい記事 — みんな農家になろう",
+    "debunk": "新しいファクトチェック",
+    "future": "未来への新しいアイデア",
+    "saved": "設定を保存しました。",
+    "ios": "iPhoneまたはiPadでは、まず共有メニューからこのサイトをホーム画面に追加し、インストールしたアプリを開いてください。",
+    "unsupported": "このブラウザではプッシュ通知はサポートされていません。"
   }
 }

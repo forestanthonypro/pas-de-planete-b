@@ -6,6 +6,8 @@
     "nav_myvotes": "I miei voti",
     "nav_charter": "Carta etica",
     "nav_charter_title": "Carta etica — I bambini di oggi e di domani",
+    "nav_notifications": "Notifiche",
+    "nav_notifications_title": "Gestisci le mie notifiche",
     "pagination_label": "Paginazione",
     "pagination_first": "Inizio",
     "pagination_last": "Fine",
@@ -29,6 +31,7 @@
     "footer_data_status": "Stato dei dati",
     "footer_legal": "Note legali",
     "footer_privacy": "Privacy",
+    "footer_notifications": "Notifiche",
     "footer_impact": "Impatto ambientale",
     "nav_home": "Home",
     "nav_home_title": "Torna alla home page",
@@ -1144,5 +1147,20 @@
     "send_button": "Invia",
     "done_message": "Il tuo messaggio è stato inviato, ti risponderemo il prima possibile.",
     "back_home": "← Torna alla home"
+  },
+  "notifications": {
+    "title": "Le mie notifiche",
+    "intro": "Scegli i paesi e gli argomenti che ti interessano.",
+    "countries": "Paesi o regioni seguiti",
+    "enable": "Attiva le notifiche",
+    "save": "Salva le mie preferenze",
+    "disable": "Disattiva le notifiche",
+    "petition": "Nuove petizioni",
+    "paysan": "Nuovi articoli — Diventiamo tutti contadini",
+    "debunk": "Nuovi debunk",
+    "future": "Nuove idee per il futuro",
+    "saved": "Preferenze salvate.",
+    "ios": "Su iPhone o iPad, aggiungi prima questo sito alla schermata Home dal menu Condividi, poi apri l'app installata.",
+    "unsupported": "Le notifiche push non sono supportate da questo browser."
   }
 }

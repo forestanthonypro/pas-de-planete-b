@@ -28,7 +28,7 @@ export default function InterviewsPage() {
         if (!res.ok) throw new Error(t("interviews.error_no_data"));
         return res.json();
       }),
-      fetch(`/api/interview-categories`).then((res) => (res.ok ? res.json() : [])),
+      fetch(`/api/interview-categories?locale=${locale}`).then((res) => (res.ok ? res.json() : [])),
     ])
       .then(([entryRows, categoryRows]) => {
         setEntries(Array.isArray(entryRows) ? entryRows : []);

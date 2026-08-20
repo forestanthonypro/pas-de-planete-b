@@ -10,10 +10,12 @@ import { EMAIL_RE } from "../lib/validators.js";
 
 const router = Router();
 
-router.get("/api/debunk-categories", async (_req, res) => {
+router.get("/api/debunk-categories", async (req, res) => {
+  const { locale } = req.query;
   try {
     const result = await pool.query("SELECT id, name, slug FROM debunk_categories ORDER BY name");
-    res.json(result.rows);
+    const rows = await mergeTranslations(result.rows, "debunk_category", locale);
+    res.json(rows);
   } catch (err) {
     res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
@@ -109,6 +111,25 @@ router.post("/api/admin/debunk-categories", requireAdminSession, async (req, res
     res.json(result.rows[0]);
   } catch (err) {
     res.status(500).json({ error: "Échec de l'enregistrement", detail: errorDetail(err) });
+  }
+});
+
+router.put("/api/admin/debunk-categories/:id", requireAdminSession, async (req, res) => {
+  const { name } = req.body || {};
+  if (!name || !name.trim()) {
+    return res.status(400).json({ error: "name est requis" });
+  }
+  try {
+    const result = await pool.query(
+      "UPDATE debunk_categories SET name = $1 WHERE id = $2 RETURNING id, name, slug",
+      [name.trim(), req.params.id]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Catégorie introuvable" });
+    }
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: "Échec de la modification", detail: errorDetail(err) });
   }
 });
 

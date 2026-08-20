@@ -23,11 +23,11 @@ export default function ProposerRessourcePaysanne() {
   const [scopeCodes, setScopeCodes] = useState([]);
 
   useEffect(() => {
-    fetch(`/api/paysan-categories`)
+    fetch(`/api/paysan-categories?locale=${locale}`)
       .then((res) => (res.ok ? res.json() : []))
       .then(setCategories)
       .catch(() => setCategories([]));
-  }, []);
+  }, [locale]);
 
   function handleSourceUrlChange(value) {
     setSourceUrl(value);

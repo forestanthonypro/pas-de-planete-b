@@ -2,7 +2,15 @@ import { pool } from "./db.js";
 
 // Le français reste la donnée "source" dans les tables existantes ; cette
 // table ne stocke que les variantes dans les autres langues, en overlay.
-export const TRANSLATABLE_CONTENT_TYPES = ["debunk", "interview", "paysan", "resource_location", "resource_online", "charter_section", "charter_item", "future_idea", "petition"];
+export const TRANSLATABLE_CONTENT_TYPES = [
+  "debunk", "interview", "paysan", "resource_location", "resource_online",
+  "charter_section", "charter_item", "future_idea", "petition",
+  // Catégories : un seul champ ("name"), content_id = leur propre slug.
+  // interview_category couvre à la fois "Relais scientifique" (le nom
+  // technique du contenu est "interview" dans ce fichier, voir plus haut)
+  // et les Interviews classiques — les deux partagent interview_categories.
+  "debunk_category", "interview_category", "paysan_category", "resource_category",
+];
 export const TRANSLATABLE_FIELDS = {
   debunk: ["myth", "reality", "claim_quote"],
   interview: ["title", "description", "scientist_field"],
@@ -13,6 +21,10 @@ export const TRANSLATABLE_FIELDS = {
   charter_item: ["title", "description"],
   future_idea: ["title", "description"],
   petition: ["title", "description"],
+  debunk_category: ["name"],
+  interview_category: ["name"],
+  paysan_category: ["name"],
+  resource_category: ["name"],
 };
 
 // Fusionne les traductions disponibles dans une liste de lignes déjà
