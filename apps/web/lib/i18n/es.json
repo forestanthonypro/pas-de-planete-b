@@ -1000,7 +1000,8 @@
     "chart_stripes_title_world": "Calentamiento mundial",
     "deviation_stat_label": "Desviación respecto a la referencia {period}: {value} °C",
     "show_more_details": "Ver más detalles",
-    "show_simplified": "Volver a la vista simplificada"
+    "show_simplified": "Volver a la vista simplificada",
+    "reference_period_note": "Es posible que hayas visto una cifra distinta en otra parte para el mismo país: normalmente se debe a que el período de referencia elegido no es el mismo — cuanto más antiguo sea (era preindustrial, 1961-1990...), mayor parece la diferencia medida, aunque el calentamiento sea idéntico. Aquí, la referencia es {period}, la normal climatológica actual de la Organización Meteorológica Mundial."
   },
   "decouverte": {
     "hero_label": "de calentamiento medio en el mundo desde 1991-2020",

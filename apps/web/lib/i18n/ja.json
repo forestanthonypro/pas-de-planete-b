@@ -1000,7 +1000,8 @@
     "chart_stripes_title_world": "世界の温暖化",
     "deviation_stat_label": "基準期間（{period}）からの偏差：{value} °C",
     "show_more_details": "詳細を見る",
-    "show_simplified": "簡易表示に戻る"
+    "show_simplified": "簡易表示に戻る",
+    "reference_period_note": "同じ国について、他のサイトで異なる数値を見たことがあるかもしれません。これは多くの場合、選ばれた基準期間が異なるためです——基準期間が古いほど（産業革命以前、1961〜1990年など）、実際の温暖化が同じでも、測定される差は大きく見えます。当サイトでは{period}を基準としており、これは世界気象機関（WMO）が現在採用している気候平年値です。"
   },
   "decouverte": {
     "hero_label": "1991〜2020年基準からの世界平均の温暖化",

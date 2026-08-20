@@ -1000,7 +1000,8 @@
     "chart_stripes_title_world": "Riscaldamento del mondo",
     "deviation_stat_label": "Scarto rispetto al riferimento {period}: {value} °C",
     "show_more_details": "Vedi più dettagli",
-    "show_simplified": "Torna alla vista semplificata"
+    "show_simplified": "Torna alla vista semplificata",
+    "reference_period_note": "Potresti aver visto una cifra diversa altrove per lo stesso paese: di solito è perché il periodo di riferimento scelto non è lo stesso — più è antico (epoca preindustriale, 1961-1990...), più lo scarto misurato appare grande, anche per un riscaldamento identico. Qui il riferimento è {period}, la normale climatica attuale dell'Organizzazione Meteorologica Mondiale."
   },
   "decouverte": {
     "hero_label": "di riscaldamento medio nel mondo dal 1991-2020",

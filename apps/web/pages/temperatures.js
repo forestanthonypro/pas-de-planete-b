@@ -266,6 +266,15 @@ export default function TemperaturesPage() {
           })}
         </p>
       )}
+      {/* Toujours visible (même en mode simplifié) : un chiffre de
+          réchauffement isolé, sans sa période de référence, induit
+          facilement en erreur — un visiteur qui a déjà vu un autre chiffre
+          ailleurs (Météo-France, GIEC...) pourrait croire à une erreur ou à
+          une minimisation de notre part, alors que c'est un choix de
+          référence différent qui explique l'essentiel de l'écart. */}
+      <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginBottom: 12, fontStyle: "italic" }}>
+        {t("temperatures.reference_period_note", { period: worldReferencePeriod })}
+      </p>
       {!worldLoading && worldData.length > 0 && (
         <div style={{ position: "relative", height: 70, marginBottom: "1.5rem" }}>
           <canvas ref={worldStripesCanvasRef} role="img" aria-label={t("temperatures.chart_stripes_title_world")} />

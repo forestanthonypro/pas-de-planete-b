@@ -1000,7 +1000,8 @@
     "chart_stripes_title_world": "全球变暖",
     "deviation_stat_label": "与{period}基准期的偏差：{value} °C",
     "show_more_details": "查看更多详情",
-    "show_simplified": "返回简化视图"
+    "show_simplified": "返回简化视图",
+    "reference_period_note": "您可能在其他地方看到过同一国家的不同数字：这通常是因为所选的基准期不同——基准期越早（工业化前、1961-1990年等），即使实际变暖幅度相同，测得的差值看起来也会越大。本站采用的基准期是{period}，即世界气象组织当前使用的气候常年值。"
   },
   "decouverte": {
     "hero_label": "自1991-2020年以来的全球平均变暖幅度",

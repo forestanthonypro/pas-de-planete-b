@@ -1000,7 +1000,8 @@
     "chart_stripes_title_world": "World warming",
     "deviation_stat_label": "Deviation from the {period} reference: {value} °C",
     "show_more_details": "Show more details",
-    "show_simplified": "Back to simplified view"
+    "show_simplified": "Back to simplified view",
+    "reference_period_note": "You may have seen a different figure elsewhere for the same country: this is usually because the chosen reference period differs — the older it is (pre-industrial era, 1961-1990...), the bigger the measured gap looks, even for identical warming. Here, the reference is {period}, the World Meteorological Organization's current climate normal."
   },
   "decouverte": {
     "hero_label": "average warming worldwide since 1991-2020",
