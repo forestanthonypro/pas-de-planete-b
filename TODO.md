@@ -11,10 +11,6 @@ Suivi des chantiers en attente. Voir aussi `README.md` pour les points d'archite
 - **Transfert de domaine `.fr` → `.com`** : en attente de la règle des 60 jours ICANN, finalisation prévue autour d'octobre 2026. Rien à faire avant cette date — vérifier ensuite que le nouveau registrar prend le relais avec les mêmes enregistrements DNS.
 - **Vérification de domaine Brevo** : bloquée par le transfert de domaine en cours (DNS toujours géré par l'ancien registrar). Alternative temporaire déjà en place : expéditeur Gmail personnel.
 
-## 🟢 Dette technique
-
-- **Revalider l'application mobile (Capacitor)** sur un vrai appareil/émulateur — plusieurs montées de version majeures (Next.js, React, Express, ESLint) depuis le dernier test.
-
 ## 🆕 Chantiers ouverts
 
 - **EcoIndex bloqué à B** : Performance Lighthouse remontée à 96 (bug d'hydratation React corrigé), mais DOM/requêtes déjà sous les cibles — pas de gain facile identifié. Une tentative de chargement différé (`next/dynamic`) sur `/decouverte` a été essayée puis **annulée** (dégradait la Performance au lieu de l'améliorer). Piste non essayée : chargement conditionné au défilement réel (`IntersectionObserver`), plus complexe, à réserver si vraiment nécessaire.
