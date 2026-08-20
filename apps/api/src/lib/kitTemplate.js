@@ -1,5 +1,29 @@
 import { buildWarmingStripes } from "./kitWarmingStripes.js";
 
+// Échappement HTML centralisé — suite à l'audit de sécurité du 20 août
+// 2026, qui a trouvé un vrai point d'injection exploitable sans
+// authentification : countryName vient de localizeCountryName(country,
+// lang), où "country" est le paramètre d'URL brut (route
+// /api/kit-communication/html/:code) — si le code ne correspond à aucun
+// pays connu, la fonction retombe sur ce paramètre brut, non filtré,
+// injecté ensuite tel quel à plusieurs endroits de ce gabarit. Un lien du
+// type pasdeplaneteb.com/kit-communication/<script>... exécutait alors du
+// JavaScript arbitraire, sans connexion admin requise — bien plus grave
+// que le contenu légal (qui exige un accès admin compromis). Toutes les
+// chaînes assemblées dans ce fichier passent maintenant par cette
+// fonction, y compris celles jugées sûres aujourd'hui (noms de pays venant
+// de la base) — coût nul, protège aussi contre une source qui deviendrait
+// un jour moins fiable sans qu'on y pense.
+function escapeHtml(str) {
+  if (str === null || str === undefined) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 const CSS = `
 
   :root {
@@ -246,7 +270,7 @@ function renderComparisonRow(row, labels, countryName) {
     const mergedNote = entry.mergedRoles && entry.mergedRoles.includes("france") && entry.role !== "france" ? "" : "";
     return `
       <div class="cc-cell ${entry.role}">
-        <span class="cc-country">${name}${mergedNote}</span>
+        <span class="cc-country">${escapeHtml(name)}${mergedNote}</span>
         <span class="cc-value">${formatNumber(entry.value, row.decimals)}${row.unit ? " " + row.unit : ""}</span>
       </div>`;
   };
@@ -273,6 +297,7 @@ function renderComparisonRow(row, labels, countryName) {
 }
 
 function buildPage1Html(data, countryName, labels, qrCodeDataUrl) {
+  const safeCountryName = escapeHtml(countryName);
   const worldTemp = data.worldTemperatureDeviation;
   const franceTemp = data.temperatureDeviation;
   const hasHeatwaveData = data.heatwaves && (data.heatwaves.recent > 0 || data.heatwaves.past > 0);
@@ -285,12 +310,12 @@ function buildPage1Html(data, countryName, labels, qrCodeDataUrl) {
     const rawRatio = franceTemp / worldTemp;
     const faster = rawRatio >= 1;
     const displayRatio = formatNumber(faster ? rawRatio : 1 / rawRatio, 1);
-    worldTempNoteHtml = `<p class="note">${labels.worldTempNote(displayRatio, faster, countryName)}</p>`;
+    worldTempNoteHtml = `<p class="note">${labels.worldTempNote(displayRatio, faster, safeCountryName)}</p>`;
   }
 
   return `
 <div class="page">
-  <div class="topbar"><span>PAS DE PLANÈTE B</span><span class="right">${countryName.toUpperCase()} • ${labels.page1Eyebrow}</span></div>
+  <div class="topbar"><span>PAS DE PLANÈTE B</span><span class="right">${safeCountryName.toUpperCase()} • ${labels.page1Eyebrow}</span></div>
   ${data.temperatureHistory && data.temperatureHistory.length > 0 ? renderWarmingStripesHtml(data.temperatureHistory) : ""}
   <div class="content">
     <h1>${labels.page1TitleLine1}<span class="accent">${labels.page1TitleLine2}</span></h1>
@@ -298,7 +323,7 @@ function buildPage1Html(data, countryName, labels, qrCodeDataUrl) {
 
     <div class="number-pair">
       <div class="number-block fr">
-        <p class="eyebrow">${countryName.toUpperCase()} • ${labels.referenceLabel}</p>
+        <p class="eyebrow">${safeCountryName.toUpperCase()} • ${labels.referenceLabel}</p>
         <p class="num">${franceTemp !== null ? (franceTemp > 0 ? "+" : "") + formatNumber(franceTemp, 2) + " °C" : "—"}</p>
         <p class="note">${labels.franceTempNote}</p>
       </div>
@@ -325,7 +350,7 @@ function buildPage1Html(data, countryName, labels, qrCodeDataUrl) {
         : ""
     }
 
-    ${data.energyTop3 && data.energyTop3.length > 0 ? `<p class="energy-title">${labels.energyTitle(countryName)}</p>${renderEnergyCards(data.energyTop3, labels)}` : ""}
+    ${data.energyTop3 && data.energyTop3.length > 0 ? `<p class="energy-title">${labels.energyTitle(safeCountryName)}</p>${renderEnergyCards(data.energyTop3, labels)}` : ""}
 
     <div class="retenir"><b>${labels.retenirLabel} —</b> ${labels.retenirText}</div>
   </div>
@@ -337,19 +362,23 @@ function buildPage1Html(data, countryName, labels, qrCodeDataUrl) {
 }
 
 function buildPage2Html(data, countryName, labels, qrCodeDataUrl) {
+  const safeCountryName = escapeHtml(countryName);
   const rows = ["co2", "electricite", "eau", "foret", "pollution", "especes"];
+  // countryName brut (pas safeCountryName) transmis ici : renderComparisonRow
+  // échappe déjà en interne au point d'insertion réel — l'échapper aussi
+  // ici doublerait l'échappement (ex: & -> &amp; -> &amp;amp;).
   const rowsHtml = rows.map((key) => renderComparisonRow(data.comparisons[key], labels, countryName)).join("");
   const qrHtml = qrCodeDataUrl ? `<img src="${qrCodeDataUrl}" alt="QR" style="width:15mm;height:15mm;display:block" />` : `<div class="qr"></div>`;
 
   return `
 <div class="page">
-  <div class="topbar"><span>PAS DE PLANÈTE B</span><span class="right">${countryName.toUpperCase()} • ${labels.page2Eyebrow}</span></div>
+  <div class="topbar"><span>PAS DE PLANÈTE B</span><span class="right">${safeCountryName.toUpperCase()} • ${labels.page2Eyebrow}</span></div>
   <div class="content" style="padding-top:10mm">
     <h1 style="margin-top:0">${labels.page2TitleLine1}<span class="accent">${labels.page2TitleLine2}</span></h1>
     <p class="subtitle">${labels.page2Subtitle}</p>
 
     <div class="range-list">${rowsHtml}</div>
-    <p class="rr-legend"><span class="legend-dot"></span> ${labels.legendFrance(countryName)} <span class="legend-bar"></span> ${labels.legendWorld}</p>
+    <p class="rr-legend"><span class="legend-dot"></span> ${labels.legendFrance(safeCountryName)} <span class="legend-bar"></span> ${labels.legendWorld}</p>
 
     <p class="narrative" style="margin-top:5mm">${labels.narrativeCaveat}</p>
 
@@ -372,7 +401,7 @@ function buildKitHtml(data, countryName, labels, qrCodeDataUrl) {
 <html lang="${labels.lang || "fr"}">
 <head>
 <meta charset="UTF-8">
-<title>Pas de planète B — ${countryName}</title>
+<title>Pas de planète B — ${escapeHtml(countryName)}</title>
 <style>
   body { margin: 0; background: #fff; font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
   ${CSS}

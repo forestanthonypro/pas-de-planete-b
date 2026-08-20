@@ -464,8 +464,29 @@ router.get("/api/kit-communication/html/:code", async (req, res) => {
     // du point de vue du navigateur. On neutralise ça uniquement ici (pas
     // touché ailleurs sur l'API) via frame-ancestors, la version moderne
     // qui remplace X-Frame-Options.
+    //
+    // CSP resserrée suite à l'audit de sécurité du 20 août 2026 : cette
+    // page n'a besoin d'aucun JavaScript ni d'aucune ressource externe —
+    // juste un peu de style inline (bloc <style> du gabarit) et une image
+    // en data: (QR code). tout le reste est explicitement bloqué. Avant ce
+    // correctif, seul frame-ancestors était défini, ce qui remplaçait
+    // entièrement la CSP par défaut d'Helmet (res.set() écrase, ne
+    // fusionne pas) et laissait toutes les autres catégories permissives
+    // par défaut.
     res.removeHeader("X-Frame-Options");
-    res.set("Content-Security-Policy", "frame-ancestors 'self' https://pasdeplaneteb.com https://*.pasdeplaneteb.com");
+    res.set(
+      "Content-Security-Policy",
+      [
+        "default-src 'none'",
+        "style-src 'unsafe-inline'",
+        "img-src data:",
+        "frame-ancestors https://pasdeplaneteb.com",
+        "base-uri 'none'",
+        "form-action 'none'",
+        "object-src 'none'",
+        "script-src 'none'",
+      ].join("; ")
+    );
     res.set("Content-Type", "text/html; charset=utf-8");
     res.send(html);
   } catch (err) {

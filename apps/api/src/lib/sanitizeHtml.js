@@ -1,43 +1,38 @@
-// Nettoyeur HTML léger pour le contenu des pages légales — volontairement
-// basé sur des expressions régulières plutôt qu'une vraie librairie de
-// parsing (jsdom, sanitize-html...), cohérent avec le choix du projet
-// d'éviter les dépendances lourdes. Ce n'est PAS un parseur HTML complet :
-// c'est un filet de sécurité en plus du nettoyage déjà fait côté client au
-// moment du collage (SimpleWysiwygEditor.js) — l'admin est protégé par TOTP,
-// donc l'objectif ici est surtout d'empêcher qu'un appel API direct (hors
-// de l'éditeur) ne réintroduise des styles en ligne ou des balises
-// dangereuses, pas de défendre contre un attaquant sophistiqué.
+import sanitizeHtml from "sanitize-html";
 
-const ALLOWED_TAGS = new Set(["h2", "h3", "p", "strong", "b", "em", "i", "ul", "ol", "li", "a", "br"]);
-// Tags dont on retire aussi tout le contenu (pas juste la balise) —
-// dangereux ou inutiles dans ce contexte.
-const STRIP_WITH_CONTENT = ["script", "style", "iframe", "object", "embed"];
+// Nettoyeur HTML pour le contenu des pages légales (mentions légales,
+// confidentialité), affiché via dangerouslySetInnerHTML côté front.
+//
+// Suite à un audit de sécurité externe (20 août 2026) : l'ancien nettoyeur
+// artisanal (expressions régulières) vérifiait le protocole d'un lien sur
+// la chaîne BRUTE, avant tout décodage d'entités HTML — un lien du type
+// href="&#106;avascript:..." passait donc inaperçu, alors qu'un navigateur
+// le décode et l'exécute normalement au clic. Démontré avec un vrai
+// navigateur avant correction (voir test unitaire associé). sanitize-html
+// est un vrai parseur HTML (pas des regex sur du texte), largement utilisé
+// et maintenu, qui décode correctement les entités avant toute vérification.
+//
+// L'admin est protégé par TOTP — ce nettoyeur reste un filet de sécurité
+// en plus du nettoyage déjà fait côté client au moment du collage
+// (SimpleWysiwygEditor.js), pas la seule ligne de défense.
+const OPTIONS = {
+  allowedTags: ["h2", "h3", "p", "strong", "b", "em", "i", "ul", "ol", "li", "a", "br"],
+  allowedAttributes: {
+    // rel/target : pas fournis par l'admin, ajoutés automatiquement par
+    // transformTags ci-dessous — doivent quand même figurer ici, sinon la
+    // liste blanche d'attributs les retire après coup.
+    a: ["href", "rel", "target"],
+  },
+  allowedSchemes: ["https", "http", "mailto"],
+  // Sans protocole du tout (lien relatif comme "/mentions-legales") reste
+  // autorisé par défaut par la bibliothèque — cohérent avec l'usage réel
+  // de ces pages (liens internes fréquents entre pages légales).
+  transformTags: {
+    a: sanitizeHtml.simpleTransform("a", { rel: "noopener noreferrer", target: "_blank" }),
+  },
+};
 
 export function sanitizeLegalHtml(html) {
   if (!html || typeof html !== "string") return html;
-
-  let out = html;
-
-  for (const tag of STRIP_WITH_CONTENT) {
-    out = out.replace(new RegExp(`<${tag}[^>]*>[\\s\\S]*?</${tag}>`, "gi"), "");
-    out = out.replace(new RegExp(`<${tag}[^>]*/?>`, "gi"), "");
-  }
-
-  // Reconstruit chaque balise restante : la supprime si elle n'est pas dans
-  // la liste blanche (en gardant le texte/les enfants), sinon ne conserve
-  // que les attributs explicitement autorisés (seul href sur <a>).
-  out = out.replace(/<(\/?)([a-zA-Z0-9]+)([^>]*)>/g, (match, closing, tagRaw, attrs) => {
-    const tag = tagRaw.toLowerCase();
-    if (!ALLOWED_TAGS.has(tag)) return "";
-    if (closing) return `</${tag}>`;
-    if (tag === "a") {
-      const hrefMatch = attrs.match(/href\s*=\s*"([^"]*)"/i) || attrs.match(/href\s*=\s*'([^']*)'/i);
-      const href = hrefMatch ? hrefMatch[1] : "";
-      if (!href || /^\s*javascript:/i.test(href)) return "<a>";
-      return `<a href="${href.replace(/"/g, "&quot;")}">`;
-    }
-    return `<${tag}>`;
-  });
-
-  return out;
+  return sanitizeHtml(html, OPTIONS);
 }
