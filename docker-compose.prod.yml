@@ -88,12 +88,9 @@ services:
       - "traefik.http.middlewares.web-security-headers.headers.forceSTSHeader=true"
       # En-têtes ajoutés suite à un audit de sécurité externe (20 août 2026) :
       # seul HSTS était configuré jusque-là. Pas de Content-Security-Policy
-      # ici — le site utilise du style inline de façon très étendue
-      # (attribut style={{}} de React sur la quasi-totalité des composants)
-      # et Next.js injecte lui-même des scripts inline au démarrage ; une
-      # CSP mal calibrée casserait l'affichage. À construire séparément,
-      # avec un vrai test contre le site en conditions réelles avant
-      # activation, idéalement d'abord en Content-Security-Policy-Report-Only.
+      # ici — elle est générée par Next.js en mode Report-Only afin de
+      # collecter les violations sans bloquer l'affichage. Voir
+      # CSP_ROLLOUT.md avant toute activation en mode bloquant.
       - "traefik.http.middlewares.web-security-headers.headers.contentTypeNosniff=true"
       - "traefik.http.middlewares.web-security-headers.headers.frameDeny=true"
       - "traefik.http.middlewares.web-security-headers.headers.referrerPolicy=strict-origin-when-cross-origin"

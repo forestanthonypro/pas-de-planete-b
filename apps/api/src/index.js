@@ -66,7 +66,14 @@ app.use(cookieParser());
 // qu'une requête avec un corps JSON énorme ne consomme mémoire/CPU
 // inutilement — 1 Mo est largement suffisant pour tous les formulaires
 // du site (le plus gros contenu, les pages légales en HTML, reste petit).
-app.use(express.json({ limit: "1mb" }));
+app.use(
+  express.json({
+    limit: "1mb",
+    // Les navigateurs utilisent ces deux types pour report-uri (ancien
+    // format) et Reporting API/report-to (format moderne).
+    type: ["application/json", "application/csp-report", "application/reports+json"],
+  })
+);
 
 // Limite générale sur toute l'API : protège contre le scraping massif ou les
 // scripts mal intentionnés, sans gêner un usage normal (une personne qui
@@ -74,6 +81,20 @@ app.use(express.json({ limit: "1mb" }));
 // publiques d'écriture (newsletter, suggestions, votes) ont en plus leur
 // propre limite, plus stricte, définie dans lib/rateLimits.js.
 app.use(globalLimiter);
+
+// Collecte CSP sans donnée métier et sans réponse détaillée. Le JSON est
+// sérialisé sur une seule ligne pour éviter l'injection de lignes de log.
+// Les rapports sont observables via les logs du conteneur API pendant la
+// phase Report-Only, puis servent à resserrer la politique avant blocage.
+app.post("/api/csp-report", (req, res) => {
+  const reports = Array.isArray(req.body) ? req.body : [req.body];
+  for (const report of reports.slice(0, 20)) {
+    if (report && typeof report === "object") {
+      console.warn("CSP_VIOLATION", JSON.stringify(report));
+    }
+  }
+  res.status(204).end();
+});
 
 // Vérifie aussi la connexion à la base : un simple "res.json ok" répondrait
 // toujours positivement même si Postgres est injoignable, ce qui fausserait
