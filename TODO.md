@@ -27,8 +27,10 @@ Suivi des chantiers en attente. Voir aussi `README.md` pour les points d'archite
 
 ## 🆕 Chantiers ouverts (suite)
 
-- **Notifications Web Push (VAPID)** — décidé le 20 août, intégration en cours : Web Push standard côté site/PWA (nouvelle page `/notifications`, ciblage géographique pétitions/débunks/idées/paysans, suivi individuel des votes de députés français et élus internationaux, worker Docker séparé avec dédup/verrouillage `SKIP LOCKED`/reprises exponentielles/révocation auto des abonnements expirés). Couvre dès maintenant tous les visiteurs du site sans attendre l'appli native. Voir `PUSH_NOTIFICATIONS.md`.
-  - **À faire** : tests réels navigateur (Chrome/Firefox + iOS en PWA écran d'accueil), génération et sauvegarde des clés VAPID prod, quelques jours d'observation avant diffusion large.
+- **Notifications Web Push — reste avant diffusion large** : le système est fonctionnel de bout en bout (déclenchement, worker, réception navigateur, testé sur pétitions et votes de député) et intégré à la navigation (icône dans la barre du haut, bannière d'incitation, encart de renvoi vers les fiches élus depuis `/notifications`). Reste :
+  - Test réel en PWA sur iOS (écran d'accueil) — seul environnement pas encore testé
+  - Génération et sauvegarde des clés VAPID de **production** (celles utilisées en local ne doivent jamais servir en prod)
+  - Quelques jours d'observation en conditions réelles avant diffusion large, comme prévu initialement
   - **Capacitor + Firebase Cloud Messaging** (push natif mobile) : reporté à la publication de l'appli sur les stores. La table `notification_events` (événements transactionnels, déduplication) est agnostique du canal d'envoi — un futur worker FCM pourra s'y brancher sans refonte.
 
 ## 💡 Idées en suspens
