@@ -19,7 +19,6 @@ function AdminFutureIdeasListInner() {
   useEffect(() => {
     loadIdeas();
     loadSuggestions();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function loadSuggestions() {

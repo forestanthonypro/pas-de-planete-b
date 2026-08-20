@@ -50,7 +50,6 @@ function AdminRessourcesListInner() {
 
   useEffect(() => {
     loadAll();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function loadAll() {

@@ -1,6 +1,12 @@
 const API_ORIGIN = "https://api.pasdeplaneteb.com";
 const REPORTING_ENDPOINT = `${API_ORIGIN}/api/csp-report`;
 
+// Les entrées localhost ne servent qu'au serveur de développement Next.js
+// (HMR en WebSocket, API locale) — les inclure inconditionnellement les
+// aurait expédiées telles quelles dans la CSP livrée aux vrais visiteurs en
+// production, une CSP qui n'a rien à voir avec leur propre machine.
+const isProduction = process.env.NODE_ENV === "production";
+
 // Politique volontairement déployée d'abord en Report-Only. Le site utilise
 // encore des styles React inline et Next.js injecte des scripts d'amorçage
 // inline : les retirer de la CSP avant une migration vers des nonces
@@ -24,8 +30,7 @@ const directives = {
     "'self'",
     API_ORIGIN,
     "https://stats.pasdeplaneteb.com",
-    "http://localhost:4000",
-    "ws://localhost:3000",
+    ...(isProduction ? [] : ["http://localhost:4000", "ws://localhost:3000"]),
   ],
   "frame-src": [
     "'self'",

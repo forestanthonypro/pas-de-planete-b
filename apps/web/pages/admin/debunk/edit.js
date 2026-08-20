@@ -43,7 +43,7 @@ function AdminDebunkEditInner() {
       .then((res) => (res.ok ? res.json() : []))
       .then(setCategories)
       .catch(() => setCategories([]));
-  }, [session]);
+  }, []);
 
   useEffect(() => {
     if (!editSlug) return;
@@ -76,7 +76,7 @@ function AdminDebunkEditInner() {
         setError(err.message);
         setLoading(false);
       });
-  }, [editSlug, session]);
+  }, [editSlug]);
 
   function handleMythChange(value) {
     setMyth(value);
