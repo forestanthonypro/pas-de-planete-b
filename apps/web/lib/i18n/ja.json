@@ -130,7 +130,8 @@
     "source_latest_year": "— 出典がカバーする最新年：{year}",
     "source_last_updated": "· 当データベースの最終更新：{date}",
     "source_refresh": "。毎月自動更新。",
-    "error_no_data": "この国のデータは利用できません"
+    "error_no_data": "この国のデータは利用できません",
+    "table_consumption_per_capita": "消費に関連（t/人）"
   },
   "newsletter": {
     "consent_required": "これらのメールを受け取ることに同意することを確認してください。",
@@ -518,7 +519,7 @@
     "species_share_summary": "{name}には{count}種の絶滅危惧種（哺乳類/鳥類/魚類の合計）がおり、これは集計された世界総数（{worldTotal}）の約{share}%に相当します。",
     "pollution_summary": "{name}の大気汚染：{value} µg/m³——WHO推奨基準値（5 µg/m³）の{ratio}倍です。",
     "co2_latest": "最新の利用可能データ（{year}年）：{value}百万トン",
-    "co2_per_capita_suffix": " — 一人当たり{value}トンに相当",
+    "co2_per_capita_suffix": " — 一人当たり{value} tのCO₂（領域内排出量、輸入品を除く）",
     "co2_no_data": "この国のCO2データはありません。",
     "co2_footer_note": "国際航空と海運の排出量はいずれの数字にも含まれていません。",
     "co2_footer_year": " カバーされる最新年：{year}。",
@@ -586,7 +587,10 @@
     "table_species_cell": "{count}種（世界全体の約{share}%）",
     "table_pollution_cell": "{value} µg/m³（WHO基準の{ratio}倍）",
     "table_world_average_note": "世界平均（気温）：{value}",
-    "world_comparison_normalization_note": "CO2、電力、取水量は一人当たりで示され、水ストレスと森林減少はその国自身の資源に対する割合で示されています——そのため、これら5つの指標の読み方は国の大きさによって偏ることはありません。"
+    "world_comparison_normalization_note": "CO2、電力、取水量は一人当たりで示され、水ストレスと森林減少はその国自身の資源に対する割合で示されています——そのため、これら5つの指標の読み方は国の大きさによって偏ることはありません。",
+    "co2_footprint_note": "輸入品を含めると（消費ベースの炭素フットプリント）、この数値は一人当たり{value} tまで上がります。",
+    "co2_footprint_unavailable": "この国の消費ベースの炭素フットプリントは利用できません。",
+    "co2_footprint_note_year": "{year}年（この計算で利用可能な最新の年）、輸入品を含めると（消費ベースの炭素フットプリント）、この数値は一人当たり{value} tに達していました。"
   },
   "citizenVote": {
     "question": "あなたならどう投票しましたか？",
@@ -1015,7 +1019,7 @@
     "objections_see_sources": "出典を見る",
     "comparisons_title": "2つの国、7つの現実",
     "comparisons_intro": "2つの国を選んで、テーマごとに比較してみましょう。",
-    "theme_co2": "一人当たりCO2排出量",
+    "theme_co2": "領域内CO2排出量（一人当たり）",
     "theme_energie": "一人当たり電力消費量",
     "theme_eau": "一人当たり取水量",
     "theme_vegetation": "その年に失われた森林",

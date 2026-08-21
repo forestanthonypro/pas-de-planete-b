@@ -130,7 +130,8 @@
     "source_latest_year": "— 来源覆盖的最新年份：{year}",
     "source_last_updated": "· 我们数据库的最后更新时间：{date}",
     "source_refresh": "。每月自动更新。",
-    "error_no_data": "该国数据不可用"
+    "error_no_data": "该国数据不可用",
+    "table_consumption_per_capita": "与消费相关（吨/人）"
   },
   "newsletter": {
     "consent_required": "请确认您同意接收这些邮件。",
@@ -518,7 +519,7 @@
     "species_share_summary": "{name}共有{count}种受威胁物种（哺乳动物/鸟类/鱼类合计），约占已统计世界总数（{worldTotal}）的{share}%。",
     "pollution_summary": "{name}的空气污染：{value}微克/立方米，是世卫组织推荐阈值（5微克/立方米）的{ratio}倍。",
     "co2_latest": "最新可用数据（{year}年）：{value}百万吨",
-    "co2_per_capita_suffix": " — 即人均{value}吨",
+    "co2_per_capita_suffix": " — 即人均{value}吨CO₂（境内排放，不含进口商品）",
     "co2_no_data": "该国无二氧化碳数据。",
     "co2_footer_note": "国际航空和海运排放均未计入这两项数据。",
     "co2_footer_year": " 覆盖的最新年份：{year}。",
@@ -586,7 +587,10 @@
     "table_species_cell": "{count}种（约占世界总数的{share}%）",
     "table_pollution_cell": "{value} µg/m³（WHO标准的{ratio}倍）",
     "table_world_average_note": "世界平均值（气温）：{value}",
-    "world_comparison_normalization_note": "人均CO2排放、人均用电量和人均取水量均按人均计算；水资源压力和森林砍伐则按该国自身资源的占比计算——因此国家规模不会使这五项指标产生偏差。"
+    "world_comparison_normalization_note": "人均CO2排放、人均用电量和人均取水量均按人均计算；水资源压力和森林砍伐则按该国自身资源的占比计算——因此国家规模不会使这五项指标产生偏差。",
+    "co2_footprint_note": "算上进口商品（消费端碳足迹），这个数字将升至人均{value}吨。",
+    "co2_footprint_unavailable": "该国的消费端碳足迹数据不可用。",
+    "co2_footprint_note_year": "在{year}年（该计算可用的最新年份），算上进口商品（消费端碳足迹），这个数字达到了人均{value}吨。"
   },
   "citizenVote": {
     "question": "那么你会怎么投票？",
@@ -1015,7 +1019,7 @@
     "objections_see_sources": "查看来源",
     "comparisons_title": "两国对比，七个维度",
     "comparisons_intro": "选择两个国家，按主题逐一比较。",
-    "theme_co2": "人均CO2排放",
+    "theme_co2": "人均境内CO2排放",
     "theme_energie": "人均用电量",
     "theme_eau": "人均取水量",
     "theme_vegetation": "当年损失的森林",

@@ -148,6 +148,14 @@ export default function VegetationPage() {
           maintainAspectRatio: false,
           plugins: { legend: { display: true } },
           scales: {
+            x: {
+              ticks: { maxRotation: 0, autoSkip: false },
+              afterBuildTicks: (axis) => {
+                const total = axis.ticks.length;
+                const step = Math.max(1, Math.ceil(total / 10));
+                axis.ticks = axis.ticks.filter((t, i) => i % step === 0 || i === total - 1);
+              },
+            },
             y: { type: "linear", position: "left", title: { display: true, text: t("vegetation.axis_loss_ha") } },
             y1: {
               type: "linear",

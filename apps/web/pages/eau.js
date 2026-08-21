@@ -71,6 +71,15 @@ export default function EauPage() {
           maintainAspectRatio: false,
           plugins: { legend: { display: true } },
           scales: {
+            x: {
+              ticks: { maxRotation: 0, autoSkip: false },
+              // Force l'affichage du dernier repère (voir même correctif co2.js, 21 août).
+              afterBuildTicks: (axis) => {
+                const total = axis.ticks.length;
+                const step = Math.max(1, Math.ceil(total / 10));
+                axis.ticks = axis.ticks.filter((t, i) => i % step === 0 || i === total - 1);
+              },
+            },
             y: { type: "linear", position: "left", title: { display: true, text: t("eau.axis_per_capita") } },
             y1: { type: "linear", position: "right", title: { display: true, text: t("eau.axis_mm_year") }, grid: { drawOnChartArea: false } },
           },
@@ -109,6 +118,14 @@ export default function EauPage() {
           maintainAspectRatio: false,
           plugins: { legend: { display: false } },
           scales: {
+            x: {
+              ticks: { maxRotation: 0, autoSkip: false },
+              afterBuildTicks: (axis) => {
+                const total = axis.ticks.length;
+                const step = Math.max(1, Math.ceil(total / 10));
+                axis.ticks = axis.ticks.filter((t, i) => i % step === 0 || i === total - 1);
+              },
+            },
             y: { title: { display: true, text: t("eau.axis_billion_m3") } },
           },
         },

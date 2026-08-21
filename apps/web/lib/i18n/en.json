@@ -130,7 +130,8 @@
     "source_latest_year": "— latest year covered by the source: {year}",
     "source_last_updated": "· our database was last updated: {date}",
     "source_refresh": ". Automatic monthly refresh.",
-    "error_no_data": "Data unavailable for this country"
+    "error_no_data": "Data unavailable for this country",
+    "table_consumption_per_capita": "Linked to consumption (t/capita)"
   },
   "newsletter": {
     "consent_required": "Please confirm that you agree to receive these emails.",
@@ -518,7 +519,7 @@
     "species_share_summary": "{name} has {count} threatened species (mammals/birds/fish combined), or about {share}% of the counted world total ({worldTotal}).",
     "pollution_summary": "Air pollution in {name}: {value} µg/m³, or {ratio}× the WHO recommended threshold (5 µg/m³).",
     "co2_latest": "Latest available data ({year}): {value} Mt",
-    "co2_per_capita_suffix": " — or {value} t per capita",
+    "co2_per_capita_suffix": " — that's {value} t of CO2 per capita (territorial emissions, excluding imported goods)",
     "co2_no_data": "No CO2 data for this country.",
     "co2_footer_note": "International aviation and shipping aren't counted in either.",
     "co2_footer_year": " Latest year covered: {year}.",
@@ -586,7 +587,10 @@
     "table_species_cell": "{count} (~{share}% of world total)",
     "table_pollution_cell": "{value} µg/m³ ({ratio}× WHO threshold)",
     "table_world_average_note": "World average (temperature): {value}",
-    "world_comparison_normalization_note": "CO2, electricity and water withdrawn are shown per capita; water stress and deforestation are shown as a share of the country's own resources — so a country's size doesn't bias how these five indicators read."
+    "world_comparison_normalization_note": "CO2, electricity and water withdrawn are shown per capita; water stress and deforestation are shown as a share of the country's own resources — so a country's size doesn't bias how these five indicators read.",
+    "co2_footprint_note": "Counting imported goods (consumption-based carbon footprint), this figure rises to {value} t per capita.",
+    "co2_footprint_unavailable": "Consumption-based carbon footprint not available for this country.",
+    "co2_footprint_note_year": "In {year} (the latest year available for this calculation), counting imported goods (consumption-based carbon footprint), this figure reached {value} t per capita."
   },
   "citizenVote": {
     "question": "How would you have voted?",
@@ -1015,7 +1019,7 @@
     "objections_see_sources": "See the source",
     "comparisons_title": "Two countries, seven realities",
     "comparisons_intro": "Pick two countries and compare them, theme by theme.",
-    "theme_co2": "CO2 per capita",
+    "theme_co2": "Territorial CO2 per capita",
     "theme_energie": "Electricity per capita",
     "theme_eau": "Water withdrawn per capita",
     "theme_vegetation": "Forest lost that year",

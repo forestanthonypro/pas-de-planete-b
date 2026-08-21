@@ -130,7 +130,8 @@
     "source_latest_year": "— último año cubierto por la fuente: {year}",
     "source_last_updated": "· última actualización de nuestra base: {date}",
     "source_refresh": ". Actualización automática mensual.",
-    "error_no_data": "Datos no disponibles para este país"
+    "error_no_data": "Datos no disponibles para este país",
+    "table_consumption_per_capita": "Vinculado al consumo (t/hab.)"
   },
   "newsletter": {
     "consent_required": "Por favor confirma que aceptas recibir estos correos.",
@@ -518,7 +519,7 @@
     "species_share_summary": "{name} tiene {count} especies amenazadas (mamíferos/aves/peces combinados), es decir, alrededor del {share} % del total mundial contabilizado ({worldTotal}).",
     "pollution_summary": "Contaminación del aire en {name}: {value} µg/m³, es decir {ratio}× el umbral recomendado por la OMS (5 µg/m³).",
     "co2_latest": "Último dato disponible ({year}): {value} Mt",
-    "co2_per_capita_suffix": " — es decir {value} t por habitante",
+    "co2_per_capita_suffix": " — es decir, {value} t de CO₂ por habitante (emisiones territoriales, sin contar los productos importados)",
     "co2_no_data": "Sin datos de CO2 para este país.",
     "co2_footer_note": "Aviación y transporte marítimo internacionales no contados en ninguna de las dos.",
     "co2_footer_year": " Último año cubierto: {year}.",
@@ -586,7 +587,10 @@
     "table_species_cell": "{count} (~{share}% del total mundial)",
     "table_pollution_cell": "{value} µg/m³ ({ratio}× umbral OMS)",
     "table_world_average_note": "Media mundial (temperatura): {value}",
-    "world_comparison_normalization_note": "El CO2, la electricidad y el agua extraída se expresan por habitante; el estrés hídrico y la deforestación se expresan como parte de los recursos propios del país — el tamaño del país no sesga, por tanto, la lectura de estos cinco indicadores."
+    "world_comparison_normalization_note": "El CO2, la electricidad y el agua extraída se expresan por habitante; el estrés hídrico y la deforestación se expresan como parte de los recursos propios del país — el tamaño del país no sesga, por tanto, la lectura de estos cinco indicadores.",
+    "co2_footprint_note": "Contando los productos importados (huella de carbono de consumo), esta cifra sube a {value} t por habitante.",
+    "co2_footprint_unavailable": "Huella de carbono de consumo no disponible para este país.",
+    "co2_footprint_note_year": "En {year} (último año disponible para este cálculo), contando los productos importados (huella de carbono de consumo), esta cifra alcanzaba {value} t por habitante."
   },
   "citizenVote": {
     "question": "¿Y tú, cómo habrías votado?",
@@ -1015,7 +1019,7 @@
     "objections_see_sources": "Ver la fuente",
     "comparisons_title": "Dos países, siete realidades",
     "comparisons_intro": "Elija dos países y compárelos, tema por tema.",
-    "theme_co2": "CO2 por habitante",
+    "theme_co2": "CO2 territorial por habitante",
     "theme_energie": "Electricidad por habitante",
     "theme_eau": "Agua extraída por habitante",
     "theme_vegetation": "Bosque perdido ese año",

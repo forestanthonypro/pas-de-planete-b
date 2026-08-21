@@ -130,7 +130,8 @@
     "source_latest_year": "— dernière année couverte par la source : {year}",
     "source_last_updated": "· dernière mise à jour de notre base : {date}",
     "source_refresh": ". Rafraîchissement automatique mensuel.",
-    "error_no_data": "Données indisponibles pour ce pays"
+    "error_no_data": "Données indisponibles pour ce pays",
+    "table_consumption_per_capita": "Lié à ce qu'on achète (t/hab.)"
   },
   "newsletter": {
     "consent_required": "Merci de confirmer que tu acceptes de recevoir ces emails.",
@@ -518,7 +519,7 @@
     "species_share_summary": "{name} compte {count} espèces menacées (mammifères/oiseaux/poissons confondus), soit environ {share} % du total mondial comptabilisé ({worldTotal}).",
     "pollution_summary": "Pollution de l'air à {name} : {value} µg/m³, soit {ratio}× le seuil recommandé par l'OMS (5 µg/m³).",
     "co2_latest": "Dernière donnée disponible ({year}) : {value} Mt",
-    "co2_per_capita_suffix": " — soit {value} t par habitant",
+    "co2_per_capita_suffix": " — soit {value} t de CO₂ par habitant (émissions territoriales, hors produits importés)",
     "co2_no_data": "Aucune donnée CO2 pour ce pays.",
     "co2_footer_note": "Aviation et transport maritime internationaux non comptés dans aucune des deux.",
     "co2_footer_year": " Dernière année couverte : {year}.",
@@ -586,7 +587,10 @@
     "table_species_cell": "{count} (~{share} % du total mondial)",
     "table_pollution_cell": "{value} µg/m³ ({ratio}× seuil OMS)",
     "table_world_average_note": "Moyenne mondiale (température) : {value}",
-    "world_comparison_normalization_note": "CO2, électricité et eau prélevée sont exprimés par habitant ; le stress hydrique et la déforestation sont exprimés en part des ressources propres du pays — la taille du pays ne biaise donc pas la lecture de ces cinq indicateurs."
+    "world_comparison_normalization_note": "CO2, électricité et eau prélevée sont exprimés par habitant ; le stress hydrique et la déforestation sont exprimés en part des ressources propres du pays — la taille du pays ne biaise donc pas la lecture de ces cinq indicateurs.",
+    "co2_footprint_note": "En comptant les produits importés (empreinte carbone de consommation), ce chiffre grimpe à {value} t par habitant.",
+    "co2_footprint_unavailable": "Empreinte carbone de consommation non disponible pour ce pays.",
+    "co2_footprint_note_year": "En {year} (dernière année disponible pour ce calcul), en comptant les produits importés (empreinte carbone de consommation), ce chiffre atteignait {value} t par habitant."
   },
   "citizenVote": {
     "question": "Et vous, comment auriez-vous voté ?",
@@ -1015,7 +1019,7 @@
     "objections_see_sources": "Voir la source",
     "comparisons_title": "Deux pays, sept réalités",
     "comparisons_intro": "Choisissez deux pays et comparez-les, thème par thème.",
-    "theme_co2": "CO2 par habitant",
+    "theme_co2": "CO2 territorial par habitant",
     "theme_energie": "Électricité par habitant",
     "theme_eau": "Eau prélevée par habitant",
     "theme_vegetation": "Forêt perdue cette année-là",

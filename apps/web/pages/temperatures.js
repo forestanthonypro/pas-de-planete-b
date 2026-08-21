@@ -120,7 +120,17 @@ export default function TemperaturesPage() {
           responsive: true,
           maintainAspectRatio: false,
           scales: {
-            x: { grid: { display: false }, ticks: { maxRotation: 0, autoSkip: true } },
+            x: {
+              grid: { display: false },
+              ticks: { maxRotation: 0, autoSkip: false },
+            // Force l'affichage du dernier repère (voir même correctif co2.js,
+            // 21 août — sinon Chart.js peut le sauter en espaçant les étiquettes).
+              afterBuildTicks: (axis) => {
+                const total = axis.ticks.length;
+                const step = Math.max(1, Math.ceil(total / 10));
+                axis.ticks = axis.ticks.filter((t, i) => i % step === 0 || i === total - 1);
+              },
+            },
             y: { display: false },
           },
           plugins: {
@@ -173,7 +183,17 @@ export default function TemperaturesPage() {
           responsive: true,
           maintainAspectRatio: false,
           scales: {
-            x: { grid: { display: false }, ticks: { maxRotation: 0, autoSkip: true } },
+            x: {
+              grid: { display: false },
+              ticks: { maxRotation: 0, autoSkip: false },
+            // Force l'affichage du dernier repère (voir même correctif co2.js,
+            // 21 août — sinon Chart.js peut le sauter en espaçant les étiquettes).
+              afterBuildTicks: (axis) => {
+                const total = axis.ticks.length;
+                const step = Math.max(1, Math.ceil(total / 10));
+                axis.ticks = axis.ticks.filter((t, i) => i % step === 0 || i === total - 1);
+              },
+            },
             y: { display: false },
           },
           plugins: {
@@ -228,7 +248,17 @@ export default function TemperaturesPage() {
           responsive: true,
           maintainAspectRatio: false,
           scales: {
-            x: { grid: { display: false }, ticks: { maxRotation: 0, autoSkip: true } },
+            x: {
+              grid: { display: false },
+              ticks: { maxRotation: 0, autoSkip: false },
+            // Force l'affichage du dernier repère (voir même correctif co2.js,
+            // 21 août — sinon Chart.js peut le sauter en espaçant les étiquettes).
+              afterBuildTicks: (axis) => {
+                const total = axis.ticks.length;
+                const step = Math.max(1, Math.ceil(total / 10));
+                axis.ticks = axis.ticks.filter((t, i) => i % step === 0 || i === total - 1);
+              },
+            },
             y: { beginAtZero: true, ticks: { precision: 0 } },
           },
           plugins: { legend: { display: true } },

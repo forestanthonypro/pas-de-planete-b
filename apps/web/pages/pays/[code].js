@@ -1118,6 +1118,13 @@ export default function PaysDashboard() {
 
   const countryName = localizedCountryName(code, locale);
   const latestCo2 = summary?.co2?.[summary.co2.length - 1];
+  // L'empreinte carbone de consommation (calcul plus lourd, flux commerciaux)
+  // accuse souvent un an de retard sur les émissions territoriales chez
+  // Our World in Data — on prend la dernière année où elle existe plutôt
+  // que de systématiquement retomber sur "non disponible" pour l'année la
+  // plus récente (repéré le 21 août : 2024 disponible en territorial pour
+  // la France, mais seulement 2023 pour l'empreinte de consommation).
+  const latestFootprint = summary?.co2 ? [...summary.co2].reverse().find((d) => d.consumption_co2_per_capita != null) : null;
   const totalCapacity = summary?.energyMix?.reduce(
     (sum, r) => sum + Number(r.total_capacity_mw || 0),
     0
@@ -1303,6 +1310,17 @@ export default function PaysDashboard() {
               </p>
             ) : (
               <p>{t("pays.co2_no_data")}</p>
+            )}
+            {latestFootprint?.consumption_co2_per_capita ? (
+              <p style={{ fontSize: 13 }}>
+                {latestFootprint.year === latestCo2?.year
+                  ? t("pays.co2_footprint_note", { value: latestFootprint.consumption_co2_per_capita })
+                  : t("pays.co2_footprint_note_year", { value: latestFootprint.consumption_co2_per_capita, year: latestFootprint.year })}
+              </p>
+            ) : (
+              latestCo2?.emissions_per_capita && (
+                <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>{t("pays.co2_footprint_unavailable")}</p>
+              )
             )}
             <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>{t("co2.explain_p1")}</p>
             <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>{t("co2.explain_p2")}</p>

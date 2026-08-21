@@ -150,7 +150,15 @@ export default function EnergiePage() {
           maintainAspectRatio: false,
           plugins: { legend: { display: true, position: "bottom" } },
           scales: {
-            x: { stacked: true },
+            x: {
+              stacked: true,
+              ticks: { maxRotation: 0, autoSkip: false },
+              afterBuildTicks: (axis) => {
+                const total = axis.ticks.length;
+                const step = Math.max(1, Math.ceil(total / 10));
+                axis.ticks = axis.ticks.filter((t, i) => i % step === 0 || i === total - 1);
+              },
+            },
             y: { stacked: true, title: { display: true, text: t("energie.axis_twh_year") } },
           },
         },

@@ -75,6 +75,24 @@ export default function Co2Page() {
           responsive: true,
           maintainAspectRatio: false,
           plugins: { legend: { display: hasConsumptionData } },
+          scales: {
+            x: {
+              ticks: { maxRotation: 0, autoSkip: false },
+              // Chart.js peut sinon "sauter" la toute dernière année lors
+              // de l'auto-espacement des étiquettes, laissant croire à
+              // tort que le graphique s'arrête plus tôt qu'en réalité
+              // (signalé par un visiteur le 21 août — la courbe allait
+              // bien jusqu'à 2024, mais le dernier repère visible était
+              // 2018). On garde un espacement régulier pour la lisibilité,
+              // mais on force systématiquement l'affichage du dernier
+              // repère, quel que soit le nombre d'années.
+              afterBuildTicks: (axis) => {
+                const total = axis.ticks.length;
+                const step = Math.max(1, Math.ceil(total / 10));
+                axis.ticks = axis.ticks.filter((tick, i) => i % step === 0 || i === total - 1);
+              },
+            },
+          },
         },
       });
     });
@@ -137,6 +155,7 @@ export default function Co2Page() {
                 <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("co2.table_territorial_mt")}</th>
                 <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("co2.table_territorial_per_capita")}</th>
                 <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("co2.table_consumption_mt")}</th>
+                <th scope="col" style={{ textAlign: "right", padding: 8 }}>{t("co2.table_consumption_per_capita")}</th>
               </tr>
             </thead>
             <tbody>
@@ -146,6 +165,7 @@ export default function Co2Page() {
                   <td style={{ textAlign: "right", padding: 8 }}>{d.emissions_mt ?? "—"}</td>
                   <td style={{ textAlign: "right", padding: 8 }}>{d.emissions_per_capita ?? "—"}</td>
                   <td style={{ textAlign: "right", padding: 8 }}>{d.consumption_co2 ?? "—"}</td>
+                  <td style={{ textAlign: "right", padding: 8 }}>{d.consumption_co2_per_capita ?? "—"}</td>
                 </tr>
               ))}
             </tbody>
