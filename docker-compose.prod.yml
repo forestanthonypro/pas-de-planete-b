@@ -126,10 +126,15 @@ services:
     restart: unless-stopped
     volumes:
       - ./games/eco-ville:/usr/share/nginx/html:ro
-    # Masque la version nginx dans l'en-tête Server (fuite d'info mineure,
-    # relevée pendant l'audit du 21 août — même logique que le reste du
-    # projet, qui évite déjà d'exposer des détails techniques inutiles).
-    command: ["nginx", "-g", "daemon off; server_tokens off;"]
+      # Masque la version nginx dans l'en-tête Server (fuite d'info mineure,
+      # relevée pendant l'audit du 21 août). Correction du 21 août : la
+      # directive server_tokens n'est PAS autorisée en ligne de commande
+      # (`nginx -g`), seulement dans un fichier de config chargé côté
+      # `http {}` — la première tentative via `command:` faisait planter
+      # nginx en boucle ("server_tokens directive is not allowed here in
+      # command line"), d'où le 404 Traefik observé (plus personne à qui
+      # router). Fichier minimal monté dans conf.d à la place.
+      - ./games/nginx-server-tokens-off.conf:/etc/nginx/conf.d/server-tokens-off.conf:ro
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.jeu.rule=Host(`jeu.pasdeplaneteb.com`)"
