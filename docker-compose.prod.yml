@@ -120,6 +120,23 @@ services:
       - "traefik.http.middlewares.web-www-redirect.redirectregex.replacement=https://pasdeplaneteb.com/$1"
       - "traefik.http.middlewares.web-www-redirect.redirectregex.permanent=true"
 
+  # --- Mini-jeu Éco-Ville : fichier HTML autonome, servi tel quel ---
+  jeu:
+    image: nginx:alpine
+    restart: unless-stopped
+    volumes:
+      - ./games/eco-ville:/usr/share/nginx/html:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.jeu.rule=Host(`jeu.pasdeplaneteb.com`)"
+      - "traefik.http.routers.jeu.entrypoints=websecure"
+      - "traefik.http.routers.jeu.tls.certresolver=le"
+      - "traefik.http.routers.jeu.middlewares=jeu-security-headers"
+      - "traefik.http.middlewares.jeu-security-headers.headers.stsSeconds=31536000"
+      - "traefik.http.middlewares.jeu-security-headers.headers.stsIncludeSubdomains=true"
+      - "traefik.http.middlewares.jeu-security-headers.headers.stsPreload=true"
+      - "traefik.http.middlewares.jeu-security-headers.headers.forceSTSHeader=true"
+
   # --- Matomo (analytics auto-hébergé) ---
   # Base de données séparée de celle du site : Matomo exige MySQL/MariaDB,
   # incompatible avec le PostgreSQL/PostGIS déjà utilisé par l'API.
