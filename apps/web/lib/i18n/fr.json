@@ -1116,7 +1116,9 @@
     "profiling_action_logement_projet_proprietaire": "Faites établir un devis d'isolation ou de panneaux solaires — plusieurs aides existent (MaPrimeRénov').",
     "section_progress": "Rubrique {current} sur {total}",
     "more_title": "Envie d'aller plus loin ?",
-    "profiling_more_hint": "Envie d'aller plus loin ?"
+    "profiling_more_hint": "Envie d'aller plus loin ?",
+    "game_teaser": "Envie de tester vos décisions climatiques en jouant ? Essayez notre mini-jeu Éco-Ville.",
+    "game_cta": "Essayer le jeu"
   },
   "kit": {
     "title": "Kit de communication",

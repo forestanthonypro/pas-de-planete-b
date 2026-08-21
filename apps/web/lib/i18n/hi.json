@@ -1116,7 +1116,9 @@
     "profiling_action_logement_projet_proprietaire": "इन्सुलेशन या सोलर पैनल के लिए एक अनुमान प्राप्त करें — कई सहायता योजनाएं उपलब्ध हैं।",
     "section_progress": "खंड {current} में से {total}",
     "more_title": "और आगे बढ़ना चाहते हैं?",
-    "profiling_more_hint": "और आगे बढ़ना चाहते हैं?"
+    "profiling_more_hint": "और आगे बढ़ना चाहते हैं?",
+    "game_teaser": "खेल-खेल में अपने जलवायु फैसलों को परखना चाहते हैं? हमारा इको-टाउन मिनी-गेम आज़माएं।",
+    "game_cta": "गेम खेलें"
   },
   "kit": {
     "title": "संचार किट",

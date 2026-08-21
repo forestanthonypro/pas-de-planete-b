@@ -988,6 +988,33 @@ export default function DecouvertePage() {
         )}
       </section>
 
+      {/* --- Encart : essayer le mini-jeu Éco-Ville --- */}
+      <section style={{ padding: "0 0 2rem" }}>
+        <div
+          style={
+            sobriety
+              ? { textAlign: "center", borderTop: "1px solid var(--color-bordure)", borderBottom: "1px solid var(--color-bordure)", padding: "1rem 0" }
+              : { textAlign: "center", background: "var(--color-carte)", border: "1px solid var(--color-bordure)", borderRadius: 12, padding: "1.25rem 1.5rem" }
+          }
+        >
+          <p style={{ fontSize: 14, fontWeight: 600, color: "var(--color-texte)", margin: "0 0 10px" }}>
+            {t("decouverte.game_teaser")}
+          </p>
+          <a
+            href="https://jeu.pasdeplaneteb.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={
+              sobriety
+                ? { display: "inline-block", color: "var(--color-forest)", textDecoration: "underline", fontWeight: 600, fontSize: 14 }
+                : { display: "inline-block", background: "var(--color-forest)", color: "white", padding: "10px 22px", borderRadius: 999, textDecoration: "none", fontWeight: 600, fontSize: 14 }
+            }
+          >
+            🎮 {t("decouverte.game_cta")}
+          </a>
+        </div>
+      </section>
+
       {/* --- Section 1bis : C'est quoi le changement climatique ? --- */}
       <section id="explication" style={{ padding: "1rem 0 2rem" }}>
         <SectionDivider Icon={IconBulb} index={2} t={t} />

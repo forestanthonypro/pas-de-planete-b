@@ -1116,7 +1116,9 @@
     "profiling_action_logement_projet_proprietaire": "Pida un presupuesto de aislamiento o placas solares — existen varias ayudas.",
     "section_progress": "Sección {current} de {total}",
     "more_title": "¿Quiere ir más lejos?",
-    "profiling_more_hint": "¿Quiere ir más lejos?"
+    "profiling_more_hint": "¿Quiere ir más lejos?",
+    "game_teaser": "¿Quieres poner a prueba tus decisiones climáticas jugando? Prueba nuestro minijuego Eco-Ciudad.",
+    "game_cta": "Probar el juego"
   },
   "kit": {
     "title": "Kit de comunicación",

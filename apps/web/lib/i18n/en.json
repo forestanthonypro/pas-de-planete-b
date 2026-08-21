@@ -1116,7 +1116,9 @@
     "profiling_action_logement_projet_proprietaire": "Get a quote for insulation or solar panels — several support schemes exist.",
     "section_progress": "Section {current} of {total}",
     "more_title": "Want to go further?",
-    "profiling_more_hint": "Want to go further?"
+    "profiling_more_hint": "Want to go further?",
+    "game_teaser": "Want to test your climate decisions while playing? Try our Eco-Town mini-game.",
+    "game_cta": "Try the game"
   },
   "kit": {
     "title": "Communication kit",

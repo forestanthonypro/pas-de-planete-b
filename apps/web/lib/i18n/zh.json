@@ -1116,7 +1116,9 @@
     "profiling_action_logement_projet_proprietaire": "获取保温或太阳能板的报价——有多项补贴可用。",
     "section_progress": "第 {current}/{total} 部分",
     "more_title": "想更进一步了解吗？",
-    "profiling_more_hint": "想更进一步了解吗？"
+    "profiling_more_hint": "想更进一步了解吗？",
+    "game_teaser": "想在游戏中检验你的气候决策吗？来试试我们的「生态小镇」小游戏。",
+    "game_cta": "试玩游戏"
   },
   "kit": {
     "title": "宣传资料包",

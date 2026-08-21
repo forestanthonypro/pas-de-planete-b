@@ -1116,7 +1116,9 @@
     "profiling_action_logement_projet_proprietaire": "Fatti fare un preventivo per isolamento o pannelli solari — esistono diversi incentivi.",
     "section_progress": "Sezione {current} di {total}",
     "more_title": "Vuoi andare oltre?",
-    "profiling_more_hint": "Vuoi andare oltre?"
+    "profiling_more_hint": "Vuoi andare oltre?",
+    "game_teaser": "Vuoi mettere alla prova le tue decisioni climatiche giocando? Prova il nostro minigioco Eco-Città.",
+    "game_cta": "Prova il gioco"
   },
   "kit": {
     "title": "Kit di comunicazione",
