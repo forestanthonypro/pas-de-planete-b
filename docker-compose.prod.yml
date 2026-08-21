@@ -126,6 +126,10 @@ services:
     restart: unless-stopped
     volumes:
       - ./games/eco-ville:/usr/share/nginx/html:ro
+    # Masque la version nginx dans l'en-tête Server (fuite d'info mineure,
+    # relevée pendant l'audit du 21 août — même logique que le reste du
+    # projet, qui évite déjà d'exposer des détails techniques inutiles).
+    command: ["nginx", "-g", "daemon off; server_tokens off;"]
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.jeu.rule=Host(`jeu.pasdeplaneteb.com`)"
@@ -136,6 +140,10 @@ services:
       - "traefik.http.middlewares.jeu-security-headers.headers.stsIncludeSubdomains=true"
       - "traefik.http.middlewares.jeu-security-headers.headers.stsPreload=true"
       - "traefik.http.middlewares.jeu-security-headers.headers.forceSTSHeader=true"
+      - "traefik.http.middlewares.jeu-security-headers.headers.contentTypeNosniff=true"
+      - "traefik.http.middlewares.jeu-security-headers.headers.frameDeny=true"
+      - "traefik.http.middlewares.jeu-security-headers.headers.referrerPolicy=strict-origin-when-cross-origin"
+      - "traefik.http.middlewares.jeu-security-headers.headers.permissionsPolicy=camera=(), microphone=(), geolocation=()"
 
   # --- Matomo (analytics auto-hébergé) ---
   # Base de données séparée de celle du site : Matomo exige MySQL/MariaDB,

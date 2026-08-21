@@ -7,6 +7,7 @@ import { errorDetail } from "../lib/errors.js";
 import { buildKitHtml } from "../lib/kitTemplate.js";
 import { buildOgImageHtml } from "../lib/ogImageTemplate.js";
 import { getKitLabels } from "../lib/kitLabels.js";
+import { requireAdminSession } from "../lib/auth.js";
 import { pdfGenerationLimiter } from "../lib/rateLimits.js";
 
 // Les tables du site stockent les noms de pays en anglais (langue de la
@@ -166,7 +167,7 @@ async function computeAllExtremes(lang) {
   return out;
 }
 
-router.get("/api/admin/kit-communication/extremes", async (req, res) => {
+router.get("/api/admin/kit-communication/extremes", requireAdminSession, async (req, res) => {
   const lang = req.query.lang || "fr";
   try {
     res.json(await computeAllExtremes(lang));
