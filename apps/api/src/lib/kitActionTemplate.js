@@ -48,7 +48,7 @@ const ACTION_CSS = `
   }
 `;
 
-function renderBars(bars, labels) {
+function renderBars(bars) {
   return `<div class="bars">${bars
     .map(
       (b) => `
@@ -87,7 +87,7 @@ function buildActionPage1Html(countryName, gridTier, labels, qrCodeDataUrl) {
     <p class="section-title">${labels.transportTitle}</p>
     <p class="section-headline">${labels.transportHeadline}</p>
     <p class="narrative" style="margin-bottom:3mm">${labels.transportText}</p>
-    ${renderBars(labels.transportBars, labels)}
+    ${renderBars(labels.transportBars)}
     <p class="action-source">${labels.transportSource}</p>
     <div class="grid-note">${labels.gridNoteTransport(safeCountryName, gridTier)}</div>
 
@@ -114,9 +114,8 @@ function buildActionPage1Html(countryName, gridTier, labels, qrCodeDataUrl) {
 </div>`;
 }
 
-function buildActionPage2Html(countryName, labels, qrCodeDataUrl) {
+function buildActionPage2Html(countryName, labels) {
   const safeCountryName = escapeHtml(countryName);
-  const qrHtml = qrCodeDataUrl ? `<img src="${qrCodeDataUrl}" alt="QR" style="width:15mm;height:15mm;display:block" />` : `<div class="qr"></div>`;
 
   return `
 <div class="page">
@@ -220,7 +219,7 @@ export function buildKitActionHtml(countryName, gridTier, labels, qrCodeDataUrl,
 </head>
 <body>
 ${buildActionPage1Html(countryName, gridTier, labels, qrCodeDataUrl)}
-${buildActionPage2Html(countryName, labels, qrCodeDataUrl)}
+${buildActionPage2Html(countryName, labels)}
 ${buildActionPage3Html(countryName, labels, industryShare, franceIndustryShare)}
 </body>
 </html>`;

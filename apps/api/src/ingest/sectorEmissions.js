@@ -78,7 +78,6 @@ export async function ingestSectorEmissions(pool) {
 
   let inserted = 0;
   let skipped = 0;
-  let page = 1;
   const MAX_PAGES = 50; // garde-fou : ne jamais boucler indéfiniment si la pagination se comporte différemment de ce qui est documenté
 
   const client = await pool.connect();
@@ -87,13 +86,12 @@ export async function ingestSectorEmissions(pool) {
 
     for (const sector of sectors) {
       console.log(`Secteur "${sector.name}" (id ${sector.id})...`);
-      page = 1;
       // Fenêtre volontairement récente (15 dernières années) : au-delà,
       // l'intérêt pour "la part actuelle de l'industrie" est marginal, et
       // ça limite le volume de la première ingestion.
       const startYear = new Date().getFullYear() - 15;
 
-      while (page <= MAX_PAGES) {
+      for (let page = 1; page <= MAX_PAGES; page++) {
         const url = `${API_BASE}?sector_ids[]=${sector.id}&gas_ids[]=${gasId}&start_year=${startYear}&page=${page}`;
         const data = await fetchJson(url);
         const records = Array.isArray(data) ? data : data.data || [];
@@ -119,7 +117,6 @@ export async function ingestSectorEmissions(pool) {
             inserted += 1;
           }
         }
-        page += 1;
       }
     }
 
