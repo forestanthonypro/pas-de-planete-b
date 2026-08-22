@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import Link from "next/link";
 import AdminAuthGate from "../../../components/AdminAuthGate";
 import Pagination from "../../../components/Pagination";
@@ -14,6 +14,7 @@ function AdminFutureIdeasListInner() {
   const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
   const [suggestions, setSuggestions] = useState([]);
+  const [viewingSuggestionId, setViewingSuggestionId] = useState(null);
 
   useEffect(() => {
     loadIdeas();
@@ -168,26 +169,63 @@ function AdminFutureIdeasListInner() {
             </thead>
             <tbody>
               {suggestions.map((s) => (
-                <tr key={s.id}>
-                  <td style={{ padding: 8, fontSize: 13 }}>
-                    {s.text} {s.scope_codes && s.scope_codes.length > 0 && <ScopeBadges codes={s.scope_codes} locale="fr" />}
-                  </td>
-                  <td style={{ padding: 8, fontSize: 13 }}>
-                    {{ pending: "En attente", published: "Publiée", draft: "Brouillon", rejected: "Rejetée" }[s.status] || s.status}
-                  </td>
-                  <td style={{ padding: 8, whiteSpace: "nowrap" }}>
-                    <select
-                      value={s.status}
-                      onChange={(e) => updateSuggestionStatus(s.id, e.target.value)}
-                      style={{ fontSize: 12, padding: "4px 6px" }}
-                    >
-                      <option value="pending">En attente</option>
-                      <option value="published">Publiée</option>
-                      <option value="draft">Brouillon</option>
-                      <option value="rejected">Rejetée</option>
-                    </select>
-                  </td>
-                </tr>
+                <Fragment key={s.id}>
+                  <tr key={s.id}>
+                    <td style={{ padding: 8, fontSize: 13, maxWidth: 320, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      {s.text} {s.scope_codes && s.scope_codes.length > 0 && <ScopeBadges codes={s.scope_codes} locale="fr" />}
+                    </td>
+                    <td style={{ padding: 8, fontSize: 13 }}>
+                      {{ pending: "En attente", published: "Publiée", draft: "Brouillon", rejected: "Rejetée" }[s.status] || s.status}
+                    </td>
+                    <td style={{ padding: 8, whiteSpace: "nowrap" }}>
+                      <button
+                        type="button"
+                        onClick={() => setViewingSuggestionId(viewingSuggestionId === s.id ? null : s.id)}
+                        style={{ fontSize: 12, marginRight: 8 }}
+                      >
+                        {viewingSuggestionId === s.id ? "Masquer" : "Voir"}
+                      </button>
+                      <select
+                        value={s.status}
+                        onChange={(e) => updateSuggestionStatus(s.id, e.target.value)}
+                        style={{ fontSize: 12, padding: "4px 6px" }}
+                      >
+                        <option value="pending">En attente</option>
+                        <option value="published">Publiée</option>
+                        <option value="draft">Brouillon</option>
+                        <option value="rejected">Rejetée</option>
+                      </select>
+                    </td>
+                  </tr>
+                  {viewingSuggestionId === s.id && (
+                    <tr key={`${s.id}-detail`}>
+                      <td colSpan={3} style={{ padding: "0 8px 12px" }}>
+                        <div style={{ padding: "0.75rem 1rem", background: "var(--color-fond)", borderRadius: 8, border: "1px solid var(--color-bordure)" }}>
+                          <p style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.03em", margin: "0 0 6px", color: "var(--color-texte-clair)" }}>
+                            Texte intégral
+                          </p>
+                          <p style={{ fontSize: 13, margin: "0 0 10px", whiteSpace: "pre-wrap" }}>{s.text}</p>
+                          {s.submitter_email && (
+                            <p style={{ fontSize: 13, margin: "0 0 6px" }}>
+                              Email : <a href={`mailto:${s.submitter_email}`}>{s.submitter_email}</a>
+                            </p>
+                          )}
+                          {s.submission_notes && (
+                            <>
+                              <p style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.03em", margin: "0 0 4px", color: "var(--color-texte-clair)" }}>
+                                Notes du proposant
+                              </p>
+                              <p style={{ fontSize: 13, margin: 0, whiteSpace: "pre-wrap" }}>{s.submission_notes}</p>
+                            </>
+                          )}
+                          {!s.submitter_email && !s.submission_notes && (
+                            <p style={{ fontSize: 12, color: "var(--color-texte-clair)", margin: 0 }}>Aucune information complémentaire fournie.</p>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </Fragment>
               ))}
             </tbody>
           </table>
