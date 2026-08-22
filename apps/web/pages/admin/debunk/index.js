@@ -7,6 +7,27 @@ import ContentTranslationsEditor from "../../../components/ContentTranslationsEd
 
 const PAGE_SIZE = 20;
 
+function PublicSubmissionBadge() {
+  return (
+    <span
+      style={{
+        display: "inline-block",
+        fontSize: 11,
+        fontWeight: 600,
+        color: "#a86b0a",
+        background: "#fdf1d6",
+        borderRadius: 10,
+        padding: "2px 8px",
+        marginLeft: 6,
+        whiteSpace: "nowrap",
+      }}
+      title="Proposé via le formulaire public, en attente de relecture"
+    >
+      Proposé par le public
+    </span>
+  );
+}
+
 const VERDICT_LABELS = { faux: "Faux", trompeur: "Trompeur", confirme: "Confirmé" };
 const VERDICT_COLORS = { faux: "#d63e2a", trompeur: "#f4b400", confirme: "#1baf7a" };
 
@@ -268,7 +289,7 @@ function AdminDebunkListInner() {
               <tbody>
                 {entries.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE).map((e) => (
                   <tr key={e.slug}>
-                    <td style={{ padding: 8 }}>{e.myth}</td>
+                    <td style={{ padding: 8 }}>{e.myth}{e.submitted_publicly && <PublicSubmissionBadge />}</td>
                     <td style={{ padding: 8 }}>{e.category_name || "—"}</td>
                     <td style={{ padding: 8 }}>
                       <span style={{ background: VERDICT_COLORS[e.verdict] || "var(--color-texte-clair)", color: e.verdict === "trompeur" ? "var(--color-texte)" : "white", fontSize: 11, fontWeight: 600, padding: "2px 8px", borderRadius: 20 }}>

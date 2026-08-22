@@ -30,6 +30,9 @@ function AdminPaysanEditInner() {
   const [categoryId, setCategoryId] = useState("");
   const [published, setPublished] = useState(false);
   const [scopeCodes, setScopeCodes] = useState([]);
+  const [submissionNotes, setSubmissionNotes] = useState(null);
+  const [submitterEmail, setSubmitterEmail] = useState(null);
+  const [submittedPublicly, setSubmittedPublicly] = useState(false);
 
   const [error, setError] = useState(null);
   const [status, setStatus] = useState("idle");
@@ -61,6 +64,9 @@ function AdminPaysanEditInner() {
     setCategoryId(paysanData.category_id || "");
     setPublished(paysanData.published);
     setScopeCodes(paysanData.scope_codes || []);
+    setSubmissionNotes(paysanData.submission_notes || null);
+    setSubmitterEmail(paysanData.submitter_email || null);
+    setSubmittedPublicly(paysanData.submitted_publicly || false);
   }, [paysanData]);
 
   useEffect(() => {
@@ -136,6 +142,20 @@ function AdminPaysanEditInner() {
 
       {loading && <p>Chargement...</p>}
       {error && <p role="alert" style={{ color: "#d63e2a" }}>{error}</p>}
+
+      {submittedPublicly && (submissionNotes || submitterEmail) && (
+        <div style={{ background: "#fff8e1", border: "1px solid #f4b400", borderRadius: 8, padding: "0.75rem 1rem", marginBottom: "1rem" }}>
+          <p style={{ fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.03em", margin: "0 0 6px", color: "#8a6d00" }}>
+            Proposition d&apos;un visiteur — à vérifier avant publication
+          </p>
+          {submitterEmail && (
+            <p style={{ fontSize: 13, margin: "0 0 6px" }}>
+              Email : <a href={`mailto:${submitterEmail}`}>{submitterEmail}</a>
+            </p>
+          )}
+          {submissionNotes && <p style={{ fontSize: 13, margin: 0, whiteSpace: "pre-wrap" }}>{submissionNotes}</p>}
+        </div>
+      )}
 
       <form onSubmit={handleSubmit}>
         <label style={{ display: "block", marginBottom: "0.75rem" }}>

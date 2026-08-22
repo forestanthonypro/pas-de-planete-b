@@ -7,6 +7,7 @@ import { isAllowedEmbedUrl } from "../lib/embedValidation.js";
 import { generateUniqueSlug } from "../lib/slug.js";
 import { mergeTranslations, applyTranslations } from "../lib/translations.js";
 import { sanitizeScopeCodes, parseScopesQueryParam } from "../lib/scopeCodes.js";
+import { EMAIL_RE } from "../lib/validators.js";
 
 const router = Router();
 
@@ -128,7 +129,7 @@ router.get("/api/admin/paysan-resources", requireAdminSession, async (_req, res)
       `SELECT r.slug, r.title, r.content_type, r.published, r.submitted_publicly, r.scope_codes, r.updated_at, c.name AS category_name
        FROM paysan_resources r
        LEFT JOIN paysan_categories c ON c.id = r.category_id
-       ORDER BY r.updated_at DESC`
+       ORDER BY r.submitted_publicly DESC, r.updated_at DESC`
     );
     res.json(result.rows);
   } catch (err) {
@@ -200,7 +201,7 @@ router.post("/api/admin/paysan-resources/:slug/publish", requireAdminSession, as
 });
 
 router.post("/api/paysan-resources/submit", publicWriteLimiter, async (req, res) => {
-  const { title, description, contentType, sourceUrl, sourceName, embedUrl, imageUrl, categoryId, website, scopeCodes } = req.body || {};
+  const { title, description, contentType, sourceUrl, sourceName, embedUrl, imageUrl, categoryId, website, scopeCodes, notes, submitterEmail } = req.body || {};
   if (website) {
     // Piège à bots rempli : on répond succès sans rien enregistrer, pour
     // ne pas révéler à un robot que sa soumission a été repérée.
@@ -215,13 +216,14 @@ router.post("/api/paysan-resources/submit", publicWriteLimiter, async (req, res)
   if (embedUrl && !isAllowedEmbedUrl(embedUrl)) {
     return res.status(400).json({ error: "embedUrl doit provenir de YouTube, Spotify ou Apple Podcasts" });
   }
+  const cleanEmail = submitterEmail && EMAIL_RE.test(submitterEmail.trim()) ? submitterEmail.trim() : null;
   try {
     const slug = await generateUniqueSlug(title, "paysan_resources");
     await pool.query(
       `INSERT INTO paysan_resources
-         (slug, title, description, content_type, source_url, source_name, embed_url, image_url, category_id, published, submitted_publicly, scope_codes, updated_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, false, true, $10, now())`,
-      [slug, title, description, contentType, sourceUrl, sourceName || null, embedUrl || null, imageUrl || null, categoryId || null, sanitizeScopeCodes(scopeCodes)]
+         (slug, title, description, content_type, source_url, source_name, embed_url, image_url, category_id, published, submitted_publicly, scope_codes, submission_notes, submitter_email, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, false, true, $10, $11, $12, now())`,
+      [slug, title, description, contentType, sourceUrl, sourceName || null, embedUrl || null, imageUrl || null, categoryId || null, sanitizeScopeCodes(scopeCodes), notes ? notes.trim() : null, cleanEmail]
     );
     res.json({ status: "pending" });
   } catch (err) {

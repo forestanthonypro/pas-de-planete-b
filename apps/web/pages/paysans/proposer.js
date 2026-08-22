@@ -18,6 +18,8 @@ export default function ProposerRessourcePaysanne() {
   const [embedUrl, setEmbedUrl] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [website, setWebsite] = useState(""); // piège à bots, ne jamais afficher
+  const [notes, setNotes] = useState("");
+  const [submitterEmail, setSubmitterEmail] = useState("");
   const [status, setStatus] = useState("idle"); // idle | sending | done | error
   const [error, setError] = useState(null);
   const [scopeCodes, setScopeCodes] = useState([]);
@@ -48,6 +50,7 @@ export default function ProposerRessourcePaysanne() {
         title, description, contentType, sourceUrl,
         sourceName: sourceName || null, embedUrl: embedUrl || null,
         categoryId: categoryId || null, website, scopeCodes,
+        notes: notes || null, submitterEmail: submitterEmail || null,
       }),
     })
       .then((res) => {
@@ -149,6 +152,16 @@ export default function ProposerRessourcePaysanne() {
         <div style={{ marginBottom: "1rem" }}>
           <ScopeMultiSelect value={scopeCodes} onChange={setScopeCodes} locale={locale} label="Pays ou région concernés" placeholder="Rechercher un pays…" />
         </div>
+
+        <label style={{ display: "block", marginBottom: "0.75rem" }}>
+          <span style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>Contexte ou précisions (optionnel)</span>
+          <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} style={{ width: "100%", padding: "8px 10px", fontFamily: "inherit" }} />
+        </label>
+
+        <label style={{ display: "block", marginBottom: "0.75rem" }}>
+          <span style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>Votre email (optionnel)</span>
+          <input type="email" value={submitterEmail} onChange={(e) => setSubmitterEmail(e.target.value)} placeholder="pour vous recontacter si besoin" style={{ width: "100%", padding: "8px 10px" }} />
+        </label>
 
         <button type="submit" disabled={status === "sending"}>
           {status === "sending" ? "Envoi..." : "Envoyer ma proposition"}
