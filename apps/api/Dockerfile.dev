@@ -1,0 +1,27 @@
+# Dockerfile de développement local — distinct du Dockerfile de production
+# (qui embarque le code source et tourne en utilisateur non-root, adapté à
+# un déploiement figé). Ici, seul Chromium est installé au moment du build
+# (mis en cache par Docker, pas réinstallé à chaque démarrage) ; le code
+# source reste monté en volume depuis docker-compose.yml pour le rechargement
+# à chaud, exactement comme avant l'ajout de ce fichier.
+#
+# Repéré le 22 août : la génération PDF du kit de communication (Constats
+# ET Actions) échouait en local avec "browserType.launch: Executable
+# doesn't exist" — playwright-core ne télécharge jamais son propre
+# Chromium, il attend un binaire système, présent uniquement dans l'image
+# de production (via apk) mais jamais dans l'image node:24-slim brute
+# utilisée en local.
+FROM node:24-slim
+
+# node:24-slim est basé sur Debian, contrairement à l'image alpine de
+# production — le paquet et le chemin du binaire diffèrent donc
+# légèrement (apt/chromium ici, apk/chromium-browser côté prod).
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    chromium \
+    fonts-freefont-ttf \
+    ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
+
+ENV CHROMIUM_PATH=/usr/bin/chromium
+
+WORKDIR /app

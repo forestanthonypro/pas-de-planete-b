@@ -1140,7 +1140,14 @@
     "regenerate_hint": "复制的链接每次都会重新生成最新版本——内容不会过时。",
     "download_pdf_button": "下载PDF",
     "always_fresh_hint": "每次访问本页面都会自动更新——绝不会是过时的版本。",
-    "view_web_version": "查看网页版"
+    "view_web_version": "查看网页版",
+    "title_actions": "从我做起",
+    "subtitle_actions": "生成一份2页的PDF文件，包含具体、有据可查的行动杠杆——从个人习惯到公民推动。",
+    "card_constats_title": "现状",
+    "card_constats_desc": "各国数据对比。",
+    "card_actions_title": "行动",
+    "card_actions_desc": "从我们自身做起能做的事。",
+    "currently_here": "当前位置"
   },
   "contact": {
     "title": "联系我们",

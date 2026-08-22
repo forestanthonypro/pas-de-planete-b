@@ -417,4 +417,4 @@ ${buildPage2Html(data, countryName, labels, qrCodeDataUrl)}
 
 
 
-export { buildKitHtml, formatNumber, renderIcon };
+export { buildKitHtml, formatNumber, renderIcon, escapeHtml, CSS };

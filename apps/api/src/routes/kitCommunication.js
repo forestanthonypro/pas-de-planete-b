@@ -7,6 +7,9 @@ import { errorDetail } from "../lib/errors.js";
 import { buildKitHtml } from "../lib/kitTemplate.js";
 import { buildOgImageHtml } from "../lib/ogImageTemplate.js";
 import { getKitLabels } from "../lib/kitLabels.js";
+import { buildKitActionHtml } from "../lib/kitActionTemplate.js";
+import { getKitActionLabels } from "../lib/kitActionLabels.js";
+import { computeGridIntensity, gridIntensityTier } from "../lib/gridIntensity.js";
 import { requireAdminSession } from "../lib/auth.js";
 import { pdfGenerationLimiter } from "../lib/rateLimits.js";
 
@@ -489,6 +492,124 @@ router.get("/api/kit-communication/html/:code", async (req, res) => {
       ].join("; ")
     );
     res.set("Content-Type", "text/html; charset=utf-8");
+    res.send(html);
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
+  }
+});
+
+// ============================================================================
+// Kit "Actions" — rubrique indépendante du kit "Constats" ci-dessus (carte
+// distincte sur /kit-communication, PDF/page web séparés). Contenu très
+// majoritairement générique et sourcé (ADEME, GIEC) car universel par
+// nature (un litre d'eau économisé compte pareil partout) ; les deux seuls
+// points personnalisés par pays sont le commentaire sur la voiture
+// électrique et sur le solaire résidentiel, nuancés selon l'intensité
+// carbone réelle du réseau électrique local (voir lib/gridIntensity.js) —
+// même donnée electricity_generation que le mix énergétique du kit
+// Constats, pas de nouvelle ingestion nécessaire.
+async function getCountryActionData(country, lang) {
+  const elecMixRow = await pool.query(
+    `SELECT coal_twh::float AS coal_twh, gas_twh::float AS gas_twh, oil_twh::float AS oil_twh, nuclear_twh::float AS nuclear_twh,
+            hydro_twh::float AS hydro_twh, wind_twh::float AS wind_twh, solar_twh::float AS solar_twh,
+            biofuel_twh::float AS biofuel_twh, other_renewable_twh::float AS other_renewable_twh, total_generation_twh::float AS total_generation_twh
+     FROM electricity_generation WHERE country_code = $1 ORDER BY year DESC LIMIT 1`,
+    [country]
+  );
+
+  const gCo2PerKwh = computeGridIntensity(elecMixRow.rows[0]);
+  return {
+    country,
+    countryName: localizeCountryName(country, lang),
+    gridTier: gridIntensityTier(gCo2PerKwh),
+  };
+}
+
+router.get("/api/kit-communication-actions/country/:code", async (req, res) => {
+  const country = req.params.code.toUpperCase();
+  const lang = req.query.lang || "fr";
+  try {
+    res.json(await getCountryActionData(country, lang));
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
+  }
+});
+
+router.get("/api/kit-communication-actions/pdf/:code", pdfGenerationLimiter, async (req, res) => {
+  const country = req.params.code.toUpperCase();
+  const lang = req.query.lang || "fr";
+  let browser;
+  try {
+    const data = await getCountryActionData(country, lang);
+
+    const qrCodeDataUrl = await QRCode.toDataURL(`https://pasdeplaneteb.com/pays/${country.toLowerCase()}`, {
+      margin: 1,
+      width: 200,
+    });
+
+    const html = buildKitActionHtml(data.countryName, data.gridTier, getKitActionLabels(lang), qrCodeDataUrl);
+
+    browser = await chromium.launch({
+      executablePath: process.env.CHROMIUM_PATH || undefined,
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    });
+    const page = await browser.newPage();
+    await page.setContent(html, { waitUntil: "networkidle0" });
+    const pdfBuffer = await page.pdf({ format: "A4", printBackground: true });
+
+    res.set({
+      "Content-Type": "application/pdf",
+      "Content-Disposition": `attachment; filename="pasdeplaneteb-actions-${country.toLowerCase()}.pdf"`,
+    });
+    res.send(pdfBuffer);
+  } catch (err) {
+    res.status(503).json({ error: "Génération PDF impossible", detail: errorDetail(err) });
+  } finally {
+    if (browser) await browser.close();
+  }
+});
+
+// Image de prévisualisation (og:image) — réutilise buildOgImageHtml tel
+// quel (kit Constats) : appelée sans valeur de température (tempDeviation
+// = null), elle retombe automatiquement sur son mode générique
+// (ogFallbackTitle + ogTagline), déjà présents dans les 8 fichiers
+// kitActionLabels*.js. Rien à dupliquer.
+router.get("/api/kit-communication-actions/og-image/:code", pdfGenerationLimiter, async (req, res) => {
+  const country = req.params.code.toUpperCase();
+  const lang = req.query.lang || "fr";
+  let browser;
+  try {
+    const labels = getKitActionLabels(lang);
+    const countryName = localizeCountryName(country, lang);
+    const html = buildOgImageHtml(countryName, null, labels);
+
+    browser = await chromium.launch({
+      executablePath: process.env.CHROMIUM_PATH || undefined,
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    });
+    const page = await browser.newPage({ viewport: { width: 1200, height: 630 } });
+    await page.setContent(html, { waitUntil: "networkidle" });
+    const pngBuffer = await page.screenshot({ type: "png" });
+
+    res.set({
+      "Content-Type": "image/png",
+      "Cache-Control": "public, max-age=3600",
+    });
+    res.send(pngBuffer);
+  } catch (err) {
+    res.status(503).json({ error: "Génération de l'image impossible", detail: errorDetail(err) });
+  } finally {
+    if (browser) await browser.close();
+  }
+});
+
+router.get("/api/kit-communication-actions/html/:code", async (req, res) => {
+  const country = req.params.code.toUpperCase();
+  const lang = req.query.lang || "fr";
+  try {
+    const data = await getCountryActionData(country, lang);
+    const html = buildKitActionHtml(data.countryName, data.gridTier, getKitActionLabels(lang));
+    res.set({ "Content-Type": "text/html; charset=utf-8" });
     res.send(html);
   } catch (err) {
     res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });

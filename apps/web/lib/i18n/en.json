@@ -1140,7 +1140,14 @@
     "regenerate_hint": "The copied link always regenerates an up-to-date version — nothing is frozen in time.",
     "download_pdf_button": "Download as PDF",
     "always_fresh_hint": "This page updates automatically on every visit — never a frozen version.",
-    "view_web_version": "View web version"
+    "view_web_version": "View web version",
+    "title_actions": "Taking action",
+    "subtitle_actions": "Generate a 2-page PDF with concrete, sourced levers — from individual habits to civic pressure.",
+    "card_constats_title": "The facts",
+    "card_constats_desc": "The numbers, compared country by country.",
+    "card_actions_title": "Actions",
+    "card_actions_desc": "What we can do, at our own scale.",
+    "currently_here": "you are here"
   },
   "contact": {
     "title": "Contact us",

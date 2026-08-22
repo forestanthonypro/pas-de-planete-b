@@ -1140,7 +1140,14 @@
     "regenerate_hint": "El enlace copiado siempre regenera una versión actualizada — nada queda fijo en el tiempo.",
     "download_pdf_button": "Descargar en PDF",
     "always_fresh_hint": "Esta página se actualiza automáticamente en cada visita — nunca una versión congelada.",
-    "view_web_version": "Ver versión web"
+    "view_web_version": "Ver versión web",
+    "title_actions": "Actuar a nuestra escala",
+    "subtitle_actions": "Genera una ficha PDF de 2 páginas con palancas concretas y con fuentes — del gesto individual a la presión ciudadana.",
+    "card_constats_title": "El diagnóstico",
+    "card_constats_desc": "Las cifras, comparadas país por país.",
+    "card_actions_title": "Acciones",
+    "card_actions_desc": "Lo que podemos hacer, a nuestra escala.",
+    "currently_here": "estás aquí"
   },
   "contact": {
     "title": "Contáctanos",

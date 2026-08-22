@@ -21,7 +21,9 @@ services:
       retries: 10
 
   api:
-    image: node:24-slim
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile.dev
     working_dir: /app
     restart: unless-stopped
     env_file: .env

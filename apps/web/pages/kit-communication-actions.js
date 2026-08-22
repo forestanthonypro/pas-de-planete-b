@@ -27,7 +27,7 @@ const LANGUAGE_LABELS = {
   hi: "हिन्दी",
 };
 
-export default function KitCommunicationPage() {
+export default function KitCommunicationActionsPage() {
   const { t, locale } = useT();
   const router = useRouter();
   const { sobriety } = useSobriety();
@@ -66,7 +66,7 @@ export default function KitCommunicationPage() {
   // Pré-remplit pays/langue depuis l'URL si on arrive via un lien partagé
   // (?country=FRA&lang=ja) — sans ça, un lien partagé rouvre toujours sur
   // le pays par défaut, ce qui viderait le partage de son intérêt.
-  const pdfEndpoint = `/api/kit-communication/pdf/${countryCode}?lang=${docLang}`;
+  const pdfEndpoint = `/api/kit-communication-actions/pdf/${countryCode}?lang=${docLang}`;
   // Lien à partager : la page elle-même (jolie URL, aperçu correct sur les
   // réseaux sociaux), jamais le PDF brut de l'API — un PDF binaire n'a pas
   // de titre/description/aperçu et ferait un lien peu engageant à partager.
@@ -75,10 +75,14 @@ export default function KitCommunicationPage() {
   // Next.js (i18n natif : pas de préfixe pour le français, "/xx/" pour les
   // 7 autres) — jamais cette page-sélecteur elle-même, ni le PDF brut.
   const localePrefix = docLang === "fr" ? "" : `/${docLang}`;
-  // Voir le même correctif sur kit-communication-actions.js (22 août) :
-  // og:url/ShareButtons gardent la vraie URL publique, le bouton "Voir la
-  // version web" reste relatif pour fonctionner aussi en local.
-  const localSharePath = `${localePrefix}/kit-communication/${countryCode.toLowerCase()}`;
+  // Deux usages différents : og:url / ShareButtons doivent toujours
+  // pointer vers le vrai domaine public (un lien partagé doit fonctionner
+  // pour n'importe qui, peu importe où on le génère) — mais le bouton "Voir
+  // la version web" ci-dessous, lui, doit rester relatif pour fonctionner
+  // aussi en local/preview, pas seulement en production. Corrigé le 22
+  // août (repéré en testant en local : le bouton renvoyait à tort vers
+  // pasdeplaneteb.com même en développement).
+  const localSharePath = `${localePrefix}/kit-communication-actions/${countryCode.toLowerCase()}`;
   const sharePageUrl = `${WEB_URL}${localSharePath}`;
 
   function resetResult() {
@@ -136,9 +140,9 @@ export default function KitCommunicationPage() {
           cursor: disabled ? "default" : "pointer",
         };
 
-  const pageTitle = `${t("kit.title")} — ${selectedCountryName} | Pas de planète B`;
-  const pageDescription = t("kit.subtitle");
-  const ogImageUrl = `/api/kit-communication/og-image/${countryCode}?lang=${docLang}`;
+  const pageTitle = `${t("kit.title_actions")} — ${selectedCountryName} | Pas de planète B`;
+  const pageDescription = t("kit.subtitle_actions");
+  const ogImageUrl = `/api/kit-communication-actions/og-image/${countryCode}?lang=${docLang}`;
 
   return (
     <div style={{ maxWidth: 640, margin: "0 auto", padding: "2.5rem 1.5rem" }}>
@@ -159,26 +163,13 @@ export default function KitCommunicationPage() {
       </Head>
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
         {!sobriety && <IconScroll size={22} style={{ color: "var(--color-forest)" }} />}
-        <h1 style={{ fontSize: 24, fontWeight: 700, margin: 0 }}>{t("kit.title")}</h1>
+        <h1 style={{ fontSize: 24, fontWeight: 700, margin: 0 }}>{t("kit.title_actions")}</h1>
       </div>
-      <p style={{ fontSize: 14, color: "var(--color-texte-clair)", marginBottom: "1.75rem" }}>{t("kit.subtitle")}</p>
+      <p style={{ fontSize: 14, color: "var(--color-texte-clair)", marginBottom: "1.75rem" }}>{t("kit.subtitle_actions")}</p>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12, marginBottom: "1.75rem" }}>
-        <div
-          style={{
-            border: "2px solid var(--color-forest)",
-            background: "var(--color-carte)",
-            borderRadius: 12,
-            padding: "1rem 1.25rem",
-          }}
-        >
-          <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.03em", textTransform: "uppercase", color: "var(--color-forest)", margin: "0 0 4px" }}>
-            {t("kit.card_constats_title")} · {t("kit.currently_here")}
-          </p>
-          <p style={{ fontSize: 13, color: "var(--color-texte-clair)", margin: 0 }}>{t("kit.card_constats_desc")}</p>
-        </div>
         <Link
-          href="/kit-communication-actions"
+          href="/kit-communication"
           style={{
             display: "block",
             border: "2px solid var(--color-bordure)",
@@ -190,10 +181,23 @@ export default function KitCommunicationPage() {
           }}
         >
           <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.03em", textTransform: "uppercase", color: "var(--color-texte)", margin: "0 0 4px" }}>
-            {t("kit.card_actions_title")} →
+            ← {t("kit.card_constats_title")}
+          </p>
+          <p style={{ fontSize: 13, color: "var(--color-texte-clair)", margin: 0 }}>{t("kit.card_constats_desc")}</p>
+        </Link>
+        <div
+          style={{
+            border: "2px solid var(--color-forest)",
+            background: "var(--color-carte)",
+            borderRadius: 12,
+            padding: "1rem 1.25rem",
+          }}
+        >
+          <p style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.03em", textTransform: "uppercase", color: "var(--color-forest)", margin: "0 0 4px" }}>
+            {t("kit.card_actions_title")} · {t("kit.currently_here")}
           </p>
           <p style={{ fontSize: 13, color: "var(--color-texte-clair)", margin: 0 }}>{t("kit.card_actions_desc")}</p>
-        </Link>
+        </div>
       </div>
 
       <div style={{ ...cardStyle, marginBottom: "1.5rem" }}>
@@ -255,7 +259,7 @@ export default function KitCommunicationPage() {
             </a>
             <a
               href={pdfBlobUrl}
-              download={`pasdeplaneteb-${countryCode.toLowerCase()}-${docLang}.pdf`}
+              download={`pasdeplaneteb-actions-${countryCode.toLowerCase()}-${docLang}.pdf`}
               style={{
                 display: "inline-block",
                 background: "none",

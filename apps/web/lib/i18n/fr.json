@@ -1140,7 +1140,14 @@
     "regenerate_hint": "Le lien copié régénère toujours une version à jour — rien n'est figé dans le temps.",
     "download_pdf_button": "Télécharger en PDF",
     "always_fresh_hint": "Cette page se met à jour automatiquement à chaque visite — jamais de version figée.",
-    "view_web_version": "Voir la version web"
+    "view_web_version": "Voir la version web",
+    "title_actions": "Agir à son échelle",
+    "subtitle_actions": "Générez une fiche PDF de 2 pages avec des leviers concrets et chiffrés — du geste individuel à la pression citoyenne.",
+    "card_constats_title": "Constats",
+    "card_constats_desc": "Les chiffres, comparés pays par pays.",
+    "card_actions_title": "Actions",
+    "card_actions_desc": "Ce qu'on peut faire, à notre échelle.",
+    "currently_here": "vous êtes ici"
   },
   "contact": {
     "title": "Contactez-nous",

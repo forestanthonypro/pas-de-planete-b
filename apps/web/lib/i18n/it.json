@@ -1140,7 +1140,14 @@
     "regenerate_hint": "Il link copiato rigenera sempre una versione aggiornata — nulla resta fisso nel tempo.",
     "download_pdf_button": "Scarica in PDF",
     "always_fresh_hint": "Questa pagina si aggiorna automaticamente a ogni visita — mai una versione bloccata.",
-    "view_web_version": "Vedi versione web"
+    "view_web_version": "Vedi versione web",
+    "title_actions": "Agire su scala personale",
+    "subtitle_actions": "Genera una scheda PDF di 2 pagine con leve concrete e documentate — dal gesto individuale alla pressione civica.",
+    "card_constats_title": "La diagnosi",
+    "card_constats_desc": "I numeri, confrontati paese per paese.",
+    "card_actions_title": "Azioni",
+    "card_actions_desc": "Cosa possiamo fare, su scala personale.",
+    "currently_here": "sei qui"
   },
   "contact": {
     "title": "Contattaci",

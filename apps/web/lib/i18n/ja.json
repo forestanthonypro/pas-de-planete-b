@@ -1140,7 +1140,14 @@
     "regenerate_hint": "コピーしたリンクは常に最新版を再生成します — 内容が古くなることはありません。",
     "download_pdf_button": "PDFをダウンロード",
     "always_fresh_hint": "このページは訪問のたびに自動的に更新されます — 古い情報のまま固定されることはありません。",
-    "view_web_version": "ウェブ版を見る"
+    "view_web_version": "ウェブ版を見る",
+    "title_actions": "自分にできる行動",
+    "subtitle_actions": "個人の習慣から市民の声まで、具体的で出典のある手段をまとめた2ページのPDFを作成します。",
+    "card_constats_title": "現状",
+    "card_constats_desc": "国ごとに比較した数値。",
+    "card_actions_title": "行動",
+    "card_actions_desc": "自分にできる規模でできること。",
+    "currently_here": "現在地"
   },
   "contact": {
     "title": "お問い合わせ",
