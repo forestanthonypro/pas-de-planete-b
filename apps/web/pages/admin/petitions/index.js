@@ -39,6 +39,8 @@ function AdminPetitionsListInner() {
     credentials: "include",
   });
   const entries = data ?? [];
+  const pendingEntries = entries.filter((e) => e.submitted_publicly && !e.published);
+  const mainEntries = entries.filter((e) => !(e.submitted_publicly && !e.published));
 
   function reload() {
     fetch(`/api/admin/petitions`, { credentials: "include" })
@@ -95,7 +97,7 @@ function AdminPetitionsListInner() {
           <p style={{ marginBottom: "0.75rem" }}>
             <Link href="/admin/petitions/edit">+ Nouvelle pétition</Link>
           </p>
-          {entries.length === 0 ? (
+          {mainEntries.length === 0 ? (
             <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>Aucune pétition pour l&apos;instant.</p>
           ) : (
             <ScrollableTable>
@@ -109,15 +111,14 @@ function AdminPetitionsListInner() {
                   </tr>
                 </thead>
                 <tbody>
-                  {entries.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE).map((e) => (
+                  {mainEntries.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE).map((e) => (
                     <tr key={e.slug}>
                       <td style={{ padding: 8 }}>
                         {e.title}
-                        {e.submitted_publicly && <PublicSubmissionBadge />}
                       </td>
                       <td style={{ padding: 8 }}>{STATUS_LABELS[e.status] || e.status}</td>
-                      <td style={{ padding: 8, fontSize: 13, color: e.published ? "#1baf7a" : e.submitted_publicly ? "#8a6d00" : "var(--color-texte-clair)" }}>
-                        {e.published ? "Publié" : e.submitted_publicly ? "⏳ Proposition à examiner" : "Brouillon"}
+                      <td style={{ padding: 8, fontSize: 13, color: e.published ? "#1baf7a" : "var(--color-texte-clair)" }}>
+                        {e.published ? "Publié" : "Brouillon"}
                       </td>
                       <td style={{ padding: 8 }}>
                         <button type="button" onClick={() => togglePublished(e)} style={{ fontSize: 12, marginRight: 8 }}>
@@ -138,9 +139,45 @@ function AdminPetitionsListInner() {
               </table>
             </ScrollableTable>
           )}
-          {entries.length > PAGE_SIZE && (
-            <Pagination page={page} totalPages={Math.max(1, Math.ceil(entries.length / PAGE_SIZE))} onChange={setPage} />
+          {mainEntries.length > PAGE_SIZE && (
+            <Pagination page={page} totalPages={Math.max(1, Math.ceil(mainEntries.length / PAGE_SIZE))} onChange={setPage} />
           )}
+
+          <section style={{ marginTop: "2rem" }}>
+            <h2 style={{ fontSize: 16 }}>Modération — propositions du public</h2>
+            {pendingEntries.length === 0 ? (
+              <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>Aucune proposition en attente.</p>
+            ) : (
+              <ScrollableTable>
+                <table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
+                  <thead>
+                    <tr>
+                      <th scope="col" style={{ textAlign: "left", padding: 8 }}>Titre</th>
+                      <th scope="col" style={{ textAlign: "left", padding: 8 }}>Statut de la pétition</th>
+                      <th scope="col" style={{ textAlign: "left", padding: 8 }}></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {pendingEntries.map((e) => (
+                      <tr key={e.slug}>
+                        <td style={{ padding: 8 }}>{e.title}</td>
+                        <td style={{ padding: 8 }}>{STATUS_LABELS[e.status] || e.status}</td>
+                        <td style={{ padding: 8, whiteSpace: "nowrap" }}>
+                          <button type="button" onClick={() => togglePublished(e)} style={{ fontSize: 12, marginRight: 8 }}>
+                            Publier
+                          </button>
+                          <Link href={`/admin/petitions/edit?slug=${e.slug}`} style={{ marginRight: 8 }}>Modifier</Link>
+                          <button type="button" onClick={() => deleteEntry(e)} style={{ fontSize: 12, color: "#d63e2a" }}>
+                            Rejeter
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </ScrollableTable>
+            )}
+          </section>
         </>
       )}
     </div>

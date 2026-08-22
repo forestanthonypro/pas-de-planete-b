@@ -46,6 +46,11 @@ function slugify(text) {
 
 function AdminDebunkListInner() {
   const [entries, setEntries] = useState([]);
+  // Section "Modération" toujours visible séparément (même principe
+  // qu'idees-enfants), plutôt qu'un badge noyé dans la liste générale —
+  // demandé le 22 août pour homogénéiser toutes les rubriques.
+  const pendingEntries = entries.filter((e) => e.submitted_publicly && !e.published);
+  const mainEntries = entries.filter((e) => !(e.submitted_publicly && !e.published));
   const [categories, setCategories] = useState([]);
   const [newCategory, setNewCategory] = useState("");
   const [translatingCategoryId, setTranslatingCategoryId] = useState(null);
@@ -271,7 +276,7 @@ function AdminDebunkListInner() {
               {featuredCount}/6 sélectionnées pour la page découverte
             </span>
           </p>
-          {entries.length === 0 ? (
+          {mainEntries.length === 0 ? (
             <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>Aucune entrée pour l&apos;instant.</p>
           ) : (
             <ScrollableTable>
@@ -287,7 +292,7 @@ function AdminDebunkListInner() {
                 </tr>
               </thead>
               <tbody>
-                {entries.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE).map((e) => (
+                {mainEntries.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE).map((e) => (
                   <tr key={e.slug}>
                     <td style={{ padding: 8 }}>{e.myth}{e.submitted_publicly && <PublicSubmissionBadge />}</td>
                     <td style={{ padding: 8 }}>{e.category_name || "—"}</td>
@@ -327,9 +332,45 @@ function AdminDebunkListInner() {
             </table>
 </ScrollableTable>
           )}
-          {entries.length > PAGE_SIZE && (
-            <Pagination page={page} totalPages={Math.max(1, Math.ceil(entries.length / PAGE_SIZE))} onChange={setPage} />
+          {mainEntries.length > PAGE_SIZE && (
+            <Pagination page={page} totalPages={Math.max(1, Math.ceil(mainEntries.length / PAGE_SIZE))} onChange={setPage} />
           )}
+
+          <section style={{ marginTop: "2rem" }}>
+            <h2 style={{ fontSize: 16 }}>Modération — propositions du public</h2>
+            {pendingEntries.length === 0 ? (
+              <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>Aucune proposition en attente.</p>
+            ) : (
+              <ScrollableTable>
+<table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
+                <thead>
+                  <tr>
+                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>Titre</th>
+                    <th scope="col" style={{ textAlign: "left", padding: 8 }}>Catégorie</th>
+                    <th scope="col" style={{ textAlign: "left", padding: 8 }}></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {pendingEntries.map((e) => (
+                    <tr key={e.slug}>
+                      <td style={{ padding: 8 }}>{e.myth}</td>
+                      <td style={{ padding: 8 }}>{e.category_name || "—"}</td>
+                      <td style={{ padding: 8, whiteSpace: "nowrap" }}>
+                        <button type="button" onClick={() => togglePublished(e)} style={{ fontSize: 12, marginRight: 8 }}>
+                          Publier
+                        </button>
+                        <Link href={`/admin/debunk/edit?slug=${e.slug}`} style={{ marginRight: 8 }}>Modifier</Link>
+                        <button type="button" onClick={() => deleteEntry(e)} style={{ fontSize: 12, color: "#d63e2a" }}>
+                          Rejeter
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+</ScrollableTable>
+            )}
+          </section>
         </>
       )}
     </div>
