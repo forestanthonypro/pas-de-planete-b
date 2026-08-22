@@ -91,6 +91,13 @@ export const labelsActionJa = {
   ],
   arbresQuestionsWho: "こうしたサービスは、新しい干ばつデータが得られるたびに毎年推奨内容を更新しています——植える前に地域の窓口に確認してください。",
 
+  consoIndustryDynamicIntro: "単発の比較ではなく、実際の測定値",
+  // countryName/year/pct fournis à l'appel (voir kitActionTemplate.js) —
+  // year/pct viennent de sector_emissions (calcul réel), jamais inventés.
+  consoIndustryDynamicText: (countryName, year, pct) => `${countryName}（${year}年）では、産業プロセス（セメント、鉄鋼、化学など）が国の温室効果ガス総排出量の${pct}％を占めていました——残りはエネルギー、農業、廃棄物、土地利用によるものです。`,
+  consoIndustryFallbackPrefix: "この国のデータはまだありません。参考として、",
+  consoIndustrySource: "出典：Climate Watch（世界資源研究所）。",
+
   consoTitle: "消費",
   consoIndustryHeadline: "重工業と地元商店――規模の問題",
   consoIndustryText: "フランス最大の産業施設ひとつだけで、数万の小規模店舗を合わせたのと同じ量を排出しています。",

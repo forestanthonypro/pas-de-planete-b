@@ -91,6 +91,13 @@ export const labelsActionZh = {
   ],
   arbresQuestionsWho: "这些部门每年都会根据最新的干旱数据更新建议——种植前请咨询当地相关部门。",
 
+  consoIndustryDynamicIntro: "真实的数据，而非孤立的比较",
+  // countryName/year/pct fournis à l'appel (voir kitActionTemplate.js) —
+  // year/pct viennent de sector_emissions (calcul réel), jamais inventés.
+  consoIndustryDynamicText: (countryName, year, pct) => `在${countryName}（${year}年），工业过程排放（水泥、钢铁、化工等）占该国温室气体总排放量的${pct}%——其余来自能源、农业、废弃物处理和土地利用。`,
+  consoIndustryFallbackPrefix: "该国数据暂不可用。作为参考，",
+  consoIndustrySource: "来源：Climate Watch（世界资源研究所）。",
+
   consoTitle: "消费",
   consoIndustryHeadline: "重工业与本地商店：规模问题",
   consoIndustryText: "法国最大的单一工业基地，其排放量相当于数万家小商店的总和。",

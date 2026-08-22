@@ -10,6 +10,7 @@ import { getKitLabels } from "../lib/kitLabels.js";
 import { buildKitActionHtml } from "../lib/kitActionTemplate.js";
 import { getKitActionLabels } from "../lib/kitActionLabels.js";
 import { computeGridIntensity, gridIntensityTier } from "../lib/gridIntensity.js";
+import { computeIndustryProcessShare } from "../lib/sectorShare.js";
 import { requireAdminSession } from "../lib/auth.js";
 import { pdfGenerationLimiter } from "../lib/rateLimits.js";
 
@@ -518,10 +519,24 @@ async function getCountryActionData(country, lang) {
   );
 
   const gCo2PerKwh = computeGridIntensity(elecMixRow.rows[0]);
+
+  // Part des procédés industriels dans les émissions totales — calculée
+  // pour le pays demandé, avec repli sur la France (elle aussi calculée
+  // dynamiquement, jamais codée en dur) si absente. Les deux appels sont
+  // volontairement indépendants : la France n'est PAS toujours calculée
+  // uniquement quand needed, mais son coût est négligeable (une requête
+  // indexée) comparé à la clarté du code.
+  const [industryShare, franceIndustryShare] = await Promise.all([
+    computeIndustryProcessShare(pool, country),
+    country === "FRA" ? Promise.resolve(null) : computeIndustryProcessShare(pool, "FRA"),
+  ]);
+
   return {
     country,
     countryName: localizeCountryName(country, lang),
     gridTier: gridIntensityTier(gCo2PerKwh),
+    industryShare,
+    franceIndustryShare,
   };
 }
 
@@ -547,7 +562,7 @@ router.get("/api/kit-communication-actions/pdf/:code", pdfGenerationLimiter, asy
       width: 200,
     });
 
-    const html = buildKitActionHtml(data.countryName, data.gridTier, getKitActionLabels(lang), qrCodeDataUrl);
+    const html = buildKitActionHtml(data.countryName, data.gridTier, getKitActionLabels(lang), qrCodeDataUrl, data.industryShare, data.franceIndustryShare);
 
     browser = await chromium.launch({
       executablePath: process.env.CHROMIUM_PATH || undefined,
@@ -608,7 +623,7 @@ router.get("/api/kit-communication-actions/html/:code", async (req, res) => {
   const lang = req.query.lang || "fr";
   try {
     const data = await getCountryActionData(country, lang);
-    const html = buildKitActionHtml(data.countryName, data.gridTier, getKitActionLabels(lang));
+    const html = buildKitActionHtml(data.countryName, data.gridTier, getKitActionLabels(lang), undefined, data.industryShare, data.franceIndustryShare);
     res.set({ "Content-Type": "text/html; charset=utf-8" });
     res.send(html);
   } catch (err) {

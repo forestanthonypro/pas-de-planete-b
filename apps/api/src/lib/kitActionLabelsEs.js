@@ -91,6 +91,13 @@ export const labelsActionEs = {
   ],
   arbresQuestionsWho: "Estos servicios actualizan sus recomendaciones cada año con los nuevos datos de sequía — consulta al de tu zona antes de plantar.",
 
+  consoIndustryDynamicIntro: "Una medida real, no una comparación aislada",
+  // countryName/year/pct fournis à l'appel (voir kitActionTemplate.js) —
+  // year/pct viennent de sector_emissions (calcul réel), jamais inventés.
+  consoIndustryDynamicText: (countryName, year, pct) => `En ${countryName} (${year}), los procesos industriales (cemento, acero, química...) representaron el ${pct} % de las emisiones totales de gases de efecto invernadero del país — el resto proviene de la energía, la agricultura, los residuos y el uso del suelo.`,
+  consoIndustryFallbackPrefix: "Dato aún no disponible para este país. Como referencia:",
+  consoIndustrySource: "Fuente: Climate Watch (World Resources Institute).",
+
   consoTitle: "CONSUMO",
   consoIndustryHeadline: "Industria pesada vs comercio local: una cuestión de escala",
   consoIndustryText: "El mayor sitio industrial de Francia emite, él solo, el equivalente a decenas de miles de pequeños comercios juntos.",

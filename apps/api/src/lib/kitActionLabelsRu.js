@@ -91,6 +91,13 @@ export const labelsActionRu = {
   ],
   arbresQuestionsWho: "Эти службы каждый год обновляют свои рекомендации по мере поступления новых данных о засухах — обратитесь в местную службу перед посадкой.",
 
+  consoIndustryDynamicIntro: "Реальный показатель, а не изолированное сравнение",
+  // countryName/year/pct fournis à l'appel (voir kitActionTemplate.js) —
+  // year/pct viennent de sector_emissions (calcul réel), jamais inventés.
+  consoIndustryDynamicText: (countryName, year, pct) => `В ${countryName} (${year}) промышленные процессы (цемент, сталь, химия...) составили ${pct} % от общих выбросов парниковых газов страны — остальное приходится на энергетику, сельское хозяйство, отходы и землепользование.`,
+  consoIndustryFallbackPrefix: "Данные для этой страны пока недоступны. Для ориентира:",
+  consoIndustrySource: "Источник: Climate Watch (World Resources Institute).",
+
   consoTitle: "ПОТРЕБЛЕНИЕ",
   consoIndustryHeadline: "Тяжёлая промышленность против местной торговли: вопрос масштаба",
   consoIndustryText: "Крупнейший промышленный объект Франции сам по себе выбрасывает столько же, сколько десятки тысяч малых предприятий вместе взятых.",

@@ -91,6 +91,13 @@ export const labelsActionEn = {
   ],
   arbresQuestionsWho: "These services update their recommendations every year as new drought data comes in — check with your local one before planting.",
 
+  consoIndustryDynamicIntro: "A real measurement, not an isolated comparison",
+  // countryName/year/pct fournis à l'appel (voir kitActionTemplate.js) —
+  // year/pct viennent de sector_emissions (calcul réel), jamais inventés.
+  consoIndustryDynamicText: (countryName, year, pct) => `In ${countryName} (${year}), industrial processes (cement, steel, chemicals...) accounted for ${pct}% of the country's total greenhouse gas emissions — the rest coming from energy, agriculture, waste and land use.`,
+  consoIndustryFallbackPrefix: "Data not yet available for this country. As a reference point:",
+  consoIndustrySource: "Source: Climate Watch (World Resources Institute).",
+
   consoTitle: "CONSUMPTION",
   consoIndustryHeadline: "Heavy industry vs local shops: a matter of scale",
   consoIndustryText: "France's single biggest industrial site alone emits the equivalent of tens of thousands of small shops combined.",

@@ -91,6 +91,13 @@ export const labelsActionHi = {
   ],
   arbresQuestionsWho: "ये विभाग हर साल नए सूखे के आंकड़ों के साथ अपनी सिफारिशें अपडेट करते हैं — पौधा लगाने से पहले अपने स्थानीय विभाग से सलाह लें।",
 
+  consoIndustryDynamicIntro: "एक अलग-थलग तुलना नहीं, बल्कि एक वास्तविक माप",
+  // countryName/year/pct fournis à l'appel (voir kitActionTemplate.js) —
+  // year/pct viennent de sector_emissions (calcul réel), jamais inventés.
+  consoIndustryDynamicText: (countryName, year, pct) => `${countryName} (${year}) में, औद्योगिक प्रक्रियाओं (सीमेंट, स्टील, रसायन...) का हिस्सा देश के कुल ग्रीनहाउस गैस उत्सर्जन का ${pct}% था — बाकी हिस्सा ऊर्जा, कृषि, कचरे और भूमि उपयोग से आता है।`,
+  consoIndustryFallbackPrefix: "इस देश के लिए डेटा अभी उपलब्ध नहीं है। संदर्भ के लिए,",
+  consoIndustrySource: "स्रोत: Climate Watch (World Resources Institute)।",
+
   consoTitle: "उपभोग",
   consoIndustryHeadline: "भारी उद्योग बनाम स्थानीय दुकानें: पैमाने का सवाल",
   consoIndustryText: "फ्रांस की सबसे बड़ी औद्योगिक इकाई अकेले उतना उत्सर्जन करती है जितना हज़ारों छोटी दुकानें मिलकर करती हैं।",

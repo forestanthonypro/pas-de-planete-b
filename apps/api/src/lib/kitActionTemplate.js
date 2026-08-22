@@ -1,4 +1,4 @@
-import { escapeHtml, CSS as BASE_CSS } from "./kitTemplate.js";
+import { escapeHtml, formatNumber, CSS as BASE_CSS } from "./kitTemplate.js";
 
 // Styles propres au kit "Actions" — s'appuient sur les variables de
 // couleur déjà définies dans BASE_CSS (:root), sans les redéfinir.
@@ -147,8 +147,21 @@ function buildActionPage2Html(countryName, labels, qrCodeDataUrl) {
 // interne échappe elle-même au point d'insertion, comme dans
 // kitTemplate.js, pour ne jamais échapper deux fois).
 // gridTier : "low" | "medium" | "high" | null, voir lib/gridIntensity.js.
-function buildActionPage3Html(countryName, labels) {
+// industryShare : { year, sharePct } pour ce pays, ou null si absent —
+// dans ce cas, repli automatique sur la France (elle aussi calculée en
+// temps réel, jamais codée en dur), fournie séparément.
+function buildActionPage3Html(countryName, labels, industryShare, franceIndustryShare) {
   const safeCountryName = escapeHtml(countryName);
+
+  let industryShareHtml;
+  if (industryShare) {
+    industryShareHtml = labels.consoIndustryDynamicText(safeCountryName, industryShare.year, formatNumber(industryShare.sharePct, 1));
+  } else if (franceIndustryShare) {
+    const franceText = labels.consoIndustryDynamicText("France", franceIndustryShare.year, formatNumber(franceIndustryShare.sharePct, 1));
+    industryShareHtml = `${labels.consoIndustryFallbackPrefix} ${franceText}`;
+  } else {
+    industryShareHtml = labels.consoIndustryFallbackPrefix;
+  }
 
   return `
 <div class="page">
@@ -174,10 +187,9 @@ function buildActionPage3Html(countryName, labels) {
     </div>
 
     <p class="section-title" style="margin-top:3mm">${labels.consoTitle}</p>
-    <p class="section-headline">${labels.consoIndustryHeadline}</p>
-    <p class="narrative" style="margin-bottom:2mm">${labels.consoIndustryText}</p>
-    ${renderFactGrid(labels.consoIndustryFacts)}
-    <p class="action-source" style="margin-bottom:3mm">${labels.consoIndustryNote}</p>
+    <p class="section-headline">${labels.consoIndustryDynamicIntro}</p>
+    <p class="narrative" style="margin-bottom:2mm">${industryShareHtml}</p>
+    <p class="action-source" style="margin-bottom:3mm">${labels.consoIndustrySource}</p>
 
     <p class="section-headline" style="margin-top:2mm">${labels.consoGardenHeadline}</p>
     <div class="myth-box">
@@ -193,7 +205,7 @@ function buildActionPage3Html(countryName, labels) {
 </div>`;
 }
 
-export function buildKitActionHtml(countryName, gridTier, labels, qrCodeDataUrl) {
+export function buildKitActionHtml(countryName, gridTier, labels, qrCodeDataUrl, industryShare, franceIndustryShare) {
   return `<!DOCTYPE html>
 <html lang="${labels.lang || "fr"}">
 <head>
@@ -209,7 +221,7 @@ export function buildKitActionHtml(countryName, gridTier, labels, qrCodeDataUrl)
 <body>
 ${buildActionPage1Html(countryName, gridTier, labels, qrCodeDataUrl)}
 ${buildActionPage2Html(countryName, labels, qrCodeDataUrl)}
-${buildActionPage3Html(countryName, labels)}
+${buildActionPage3Html(countryName, labels, industryShare, franceIndustryShare)}
 </body>
 </html>`;
 }

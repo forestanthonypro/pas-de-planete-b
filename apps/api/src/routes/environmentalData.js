@@ -3,6 +3,7 @@ import { pool } from "../lib/db.js";
 import { errorDetail } from "../lib/errors.js";
 import { requireIngestToken } from "../lib/auth.js";
 import { ingestCo2 } from "../ingest/co2.js";
+import { ingestSectorEmissions } from "../ingest/sectorEmissions.js";
 import { ingestPowerPlants } from "../ingest/power_plants.js";
 import { ingestSpecies } from "../ingest/species.js";
 import { ingestFires } from "../ingest/fires.js";
@@ -49,6 +50,15 @@ router.get("/api/co2/:country", async (req, res) => {
 router.post("/api/admin/ingest/co2", requireIngestToken, async (_req, res) => {
   try {
     const { inserted, skipped } = await ingestCo2(pool);
+    res.json({ status: "ok", inserted, skipped });
+  } catch (err) {
+    res.status(500).json({ error: "Échec de l'ingestion", detail: errorDetail(err) });
+  }
+});
+
+router.post("/api/admin/ingest/sector-emissions", requireIngestToken, async (_req, res) => {
+  try {
+    const { inserted, skipped } = await ingestSectorEmissions(pool);
     res.json({ status: "ok", inserted, skipped });
   } catch (err) {
     res.status(500).json({ error: "Échec de l'ingestion", detail: errorDetail(err) });

@@ -91,6 +91,13 @@ export const labelsActionFr = {
   ],
   arbresQuestionsWho: "En France : ONF ou CNPF. Ailleurs : l'équivalent local — ces services évoluent leurs recommandations chaque année avec les nouvelles données de sécheresse.",
 
+  consoIndustryDynamicIntro: "Une vraie mesure, pas une comparaison isolée",
+  // countryName/year/pct fournis à l'appel (voir kitActionTemplate.js) —
+  // year/pct viennent de sector_emissions (calcul réel), jamais inventés.
+  consoIndustryDynamicText: (countryName, year, pct) => `En ${countryName} (${year}), les procédés industriels (ciment, acier, chimie...) représentaient ${pct} % des émissions totales de gaz à effet de serre du pays — le reste venant de l'énergie, l'agriculture, les déchets et l'usage des terres.`,
+  consoIndustryFallbackPrefix: "Donnée non encore disponible pour ce pays. À titre de repère :",
+  consoIndustrySource: "Source : Climate Watch (World Resources Institute).",
+
   consoTitle: "CONSOMMATION",
   consoIndustryHeadline: "Industrie lourde vs commerce local : une question d'échelle",
   consoIndustryText: "Le plus gros site industriel français émet, à lui seul, l'équivalent de dizaines de milliers de petits commerces réunis.",

@@ -91,6 +91,13 @@ export const labelsActionIt = {
   ],
   arbresQuestionsWho: "Questi servizi aggiornano le loro raccomandazioni ogni anno con i nuovi dati sulla siccità — consulta quello della tua zona prima di piantare.",
 
+  consoIndustryDynamicIntro: "Una misura reale, non un confronto isolato",
+  // countryName/year/pct fournis à l'appel (voir kitActionTemplate.js) —
+  // year/pct viennent de sector_emissions (calcul réel), jamais inventés.
+  consoIndustryDynamicText: (countryName, year, pct) => `In ${countryName} (${year}), i processi industriali (cemento, acciaio, chimica...) rappresentavano il ${pct} % delle emissioni totali di gas serra del paese — il resto proviene da energia, agricoltura, rifiuti e uso del suolo.`,
+  consoIndustryFallbackPrefix: "Dato non ancora disponibile per questo paese. Come riferimento:",
+  consoIndustrySource: "Fonte: Climate Watch (World Resources Institute).",
+
   consoTitle: "CONSUMO",
   consoIndustryHeadline: "Industria pesante vs commercio locale: una questione di scala",
   consoIndustryText: "Il più grande sito industriale francese emette, da solo, l'equivalente di decine di migliaia di piccoli negozi messi insieme.",
