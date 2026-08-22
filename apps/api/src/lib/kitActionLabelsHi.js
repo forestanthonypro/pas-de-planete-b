@@ -98,6 +98,15 @@ export const labelsActionHi = {
   consoIndustryFallbackPrefix: "इस देश के लिए डेटा अभी उपलब्ध नहीं है। संदर्भ के लिए,",
   consoIndustrySource: "स्रोत: Climate Watch (World Resources Institute)।",
 
+  sectorBreakdownTitle: "क्षेत्र के अनुसार उत्सर्जन विभाजन",
+  sectorNames: {
+    "Energy": "ऊर्जा",
+    "Industrial Processes": "औद्योगिक प्रक्रियाएं",
+    "Agriculture": "कृषि",
+    "Waste": "कचरा",
+    "Land-Use Change and Forestry": "भूमि उपयोग और वन"
+  },
+
   consoTitle: "उपभोग",
   consoIndustryHeadline: "भारी उद्योग बनाम स्थानीय दुकानें: पैमाने का सवाल",
   consoIndustryText: "फ्रांस की सबसे बड़ी औद्योगिक इकाई अकेले उतना उत्सर्जन करती है जितना हज़ारों छोटी दुकानें मिलकर करती हैं।",

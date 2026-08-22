@@ -10,7 +10,7 @@ import { getKitLabels } from "../lib/kitLabels.js";
 import { buildKitActionHtml } from "../lib/kitActionTemplate.js";
 import { getKitActionLabels } from "../lib/kitActionLabels.js";
 import { computeGridIntensity, gridIntensityTier } from "../lib/gridIntensity.js";
-import { computeIndustryProcessShare } from "../lib/sectorShare.js";
+import { computeSectorBreakdown } from "../lib/sectorShare.js";
 import { requireAdminSession } from "../lib/auth.js";
 import { pdfGenerationLimiter } from "../lib/rateLimits.js";
 
@@ -526,17 +526,17 @@ async function getCountryActionData(country, lang) {
   // volontairement indépendants : la France n'est PAS toujours calculée
   // uniquement quand needed, mais son coût est négligeable (une requête
   // indexée) comparé à la clarté du code.
-  const [industryShare, franceIndustryShare] = await Promise.all([
-    computeIndustryProcessShare(pool, country),
-    country === "FRA" ? Promise.resolve(null) : computeIndustryProcessShare(pool, "FRA"),
+  const [industryBreakdown, franceIndustryBreakdown] = await Promise.all([
+    computeSectorBreakdown(pool, country),
+    country === "FRA" ? Promise.resolve(null) : computeSectorBreakdown(pool, "FRA"),
   ]);
 
   return {
     country,
     countryName: localizeCountryName(country, lang),
     gridTier: gridIntensityTier(gCo2PerKwh),
-    industryShare,
-    franceIndustryShare,
+    industryBreakdown,
+    franceIndustryBreakdown,
   };
 }
 
@@ -562,7 +562,7 @@ router.get("/api/kit-communication-actions/pdf/:code", pdfGenerationLimiter, asy
       width: 200,
     });
 
-    const html = buildKitActionHtml(data.countryName, data.gridTier, getKitActionLabels(lang), qrCodeDataUrl, data.industryShare, data.franceIndustryShare);
+    const html = buildKitActionHtml(data.countryName, data.gridTier, getKitActionLabels(lang), qrCodeDataUrl, data.industryBreakdown, data.franceIndustryBreakdown);
 
     browser = await chromium.launch({
       executablePath: process.env.CHROMIUM_PATH || undefined,
@@ -623,7 +623,7 @@ router.get("/api/kit-communication-actions/html/:code", async (req, res) => {
   const lang = req.query.lang || "fr";
   try {
     const data = await getCountryActionData(country, lang);
-    const html = buildKitActionHtml(data.countryName, data.gridTier, getKitActionLabels(lang), undefined, data.industryShare, data.franceIndustryShare);
+    const html = buildKitActionHtml(data.countryName, data.gridTier, getKitActionLabels(lang), undefined, data.industryBreakdown, data.franceIndustryBreakdown);
     res.set({ "Content-Type": "text/html; charset=utf-8" });
     res.send(html);
   } catch (err) {

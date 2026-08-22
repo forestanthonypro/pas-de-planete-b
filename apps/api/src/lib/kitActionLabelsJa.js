@@ -98,6 +98,15 @@ export const labelsActionJa = {
   consoIndustryFallbackPrefix: "この国のデータはまだありません。参考として、",
   consoIndustrySource: "出典：Climate Watch（世界資源研究所）。",
 
+  sectorBreakdownTitle: "セクター別排出量の内訳",
+  sectorNames: {
+    "Energy": "エネルギー",
+    "Industrial Processes": "産業プロセス",
+    "Agriculture": "農業",
+    "Waste": "廃棄物",
+    "Land-Use Change and Forestry": "土地利用・森林"
+  },
+
   consoTitle: "消費",
   consoIndustryHeadline: "重工業と地元商店――規模の問題",
   consoIndustryText: "フランス最大の産業施設ひとつだけで、数万の小規模店舗を合わせたのと同じ量を排出しています。",

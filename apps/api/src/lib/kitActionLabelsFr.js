@@ -98,6 +98,15 @@ export const labelsActionFr = {
   consoIndustryFallbackPrefix: "Donnée non encore disponible pour ce pays. À titre de repère :",
   consoIndustrySource: "Source : Climate Watch (World Resources Institute).",
 
+  sectorBreakdownTitle: "Répartition des émissions par secteur",
+  sectorNames: {
+    "Energy": "Énergie",
+    "Industrial Processes": "Procédés industriels",
+    "Agriculture": "Agriculture",
+    "Waste": "Déchets",
+    "Land-Use Change and Forestry": "Usage des terres & forêts"
+  },
+
   consoTitle: "CONSOMMATION",
   consoIndustryHeadline: "Industrie lourde vs commerce local : une question d'échelle",
   consoIndustryText: "Le plus gros site industriel français émet, à lui seul, l'équivalent de dizaines de milliers de petits commerces réunis.",

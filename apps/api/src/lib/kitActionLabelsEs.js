@@ -98,6 +98,15 @@ export const labelsActionEs = {
   consoIndustryFallbackPrefix: "Dato aún no disponible para este país. Como referencia:",
   consoIndustrySource: "Fuente: Climate Watch (World Resources Institute).",
 
+  sectorBreakdownTitle: "Desglose de emisiones por sector",
+  sectorNames: {
+    "Energy": "Energía",
+    "Industrial Processes": "Procesos industriales",
+    "Agriculture": "Agricultura",
+    "Waste": "Residuos",
+    "Land-Use Change and Forestry": "Uso del suelo y bosques"
+  },
+
   consoTitle: "CONSUMO",
   consoIndustryHeadline: "Industria pesada vs comercio local: una cuestión de escala",
   consoIndustryText: "El mayor sitio industrial de Francia emite, él solo, el equivalente a decenas de miles de pequeños comercios juntos.",

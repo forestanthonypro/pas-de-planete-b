@@ -98,6 +98,15 @@ export const labelsActionRu = {
   consoIndustryFallbackPrefix: "Данные для этой страны пока недоступны. Для ориентира:",
   consoIndustrySource: "Источник: Climate Watch (World Resources Institute).",
 
+  sectorBreakdownTitle: "Распределение выбросов по секторам",
+  sectorNames: {
+    "Energy": "Энергетика",
+    "Industrial Processes": "Промышленные процессы",
+    "Agriculture": "Сельское хозяйство",
+    "Waste": "Отходы",
+    "Land-Use Change and Forestry": "Землепользование и леса"
+  },
+
   consoTitle: "ПОТРЕБЛЕНИЕ",
   consoIndustryHeadline: "Тяжёлая промышленность против местной торговли: вопрос масштаба",
   consoIndustryText: "Крупнейший промышленный объект Франции сам по себе выбрасывает столько же, сколько десятки тысяч малых предприятий вместе взятых.",

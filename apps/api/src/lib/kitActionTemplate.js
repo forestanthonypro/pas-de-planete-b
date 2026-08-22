@@ -12,6 +12,8 @@ const ACTION_CSS = `
   .bar-fill.amber { background: var(--amber-fg, #854f0b); }
   .bar-fill.forest-medium { background: var(--forest-medium); }
   .bar-fill.forest { background: var(--forest); }
+  .bar-fill.mauve { background: var(--mauve-fg, #5c3d7a); }
+  .bar-fill.teal { background: var(--teal-fg, #0f6e56); }
   .bar-row .bar-value { font-size: 10px; font-weight: 700; color: var(--ink-light); text-align: right; }
 
   .myth-box { background: var(--amber-bg); border-radius: 8px; padding: 4mm 6mm; margin-bottom: 3mm; }
@@ -146,17 +148,44 @@ function buildActionPage2Html(countryName, labels) {
 // interne échappe elle-même au point d'insertion, comme dans
 // kitTemplate.js, pour ne jamais échapper deux fois).
 // gridTier : "low" | "medium" | "high" | null, voir lib/gridIntensity.js.
-// industryShare : { year, sharePct } pour ce pays, ou null si absent —
-// dans ce cas, repli automatique sur la France (elle aussi calculée en
-// temps réel, jamais codée en dur), fournie séparément.
-function buildActionPage3Html(countryName, labels, industryShare, franceIndustryShare) {
+const SECTOR_COLORS = {
+  "Energy": "coral",
+  "Industrial Processes": "amber",
+  "Agriculture": "forest-medium",
+  "Waste": "mauve",
+  "Land-Use Change and Forestry": "teal",
+};
+
+function renderSectorBars(breakdown, labels) {
+  return `<div class="bars">${breakdown.sectors
+    .map((s) => {
+      const label = escapeHtml(labels.sectorNames[s.sector] || s.sector);
+      const colorVar = SECTOR_COLORS[s.sector] || "forest";
+      return `
+    <div class="bar-row">
+      <span class="bar-label">${label}</span>
+      <div class="bar-track"><div class="bar-fill ${colorVar}" style="width:${Math.max(s.sharePct, 2)}%"></div></div>
+      <span class="bar-value">${formatNumber(s.sharePct, 1)} %</span>
+    </div>`;
+    })
+    .join("")}</div>`;
+}
+
+// industryBreakdown : { year, totalMtco2e, sectors: [...] } pour ce pays,
+// ou null si absent — dans ce cas, repli automatique sur la France (elle
+// aussi calculée en temps réel, jamais codée en dur), fournie séparément.
+function buildActionPage3Html(countryName, labels, industryBreakdown, franceIndustryBreakdown) {
   const safeCountryName = escapeHtml(countryName);
 
+  const breakdown = industryBreakdown || franceIndustryBreakdown;
+  const breakdownIsFallback = !industryBreakdown && !!franceIndustryBreakdown;
+  const industrial = breakdown ? breakdown.sectors.find((s) => s.sector === "Industrial Processes") : null;
+
   let industryShareHtml;
-  if (industryShare) {
-    industryShareHtml = labels.consoIndustryDynamicText(safeCountryName, industryShare.year, formatNumber(industryShare.sharePct, 1));
-  } else if (franceIndustryShare) {
-    const franceText = labels.consoIndustryDynamicText("France", franceIndustryShare.year, formatNumber(franceIndustryShare.sharePct, 1));
+  if (industrial && !breakdownIsFallback) {
+    industryShareHtml = labels.consoIndustryDynamicText(safeCountryName, breakdown.year, formatNumber(industrial.sharePct, 1));
+  } else if (industrial && breakdownIsFallback) {
+    const franceText = labels.consoIndustryDynamicText("France", breakdown.year, formatNumber(industrial.sharePct, 1));
     industryShareHtml = `${labels.consoIndustryFallbackPrefix} ${franceText}`;
   } else {
     industryShareHtml = labels.consoIndustryFallbackPrefix;
@@ -188,6 +217,7 @@ function buildActionPage3Html(countryName, labels, industryShare, franceIndustry
     <p class="section-title" style="margin-top:3mm">${labels.consoTitle}</p>
     <p class="section-headline">${labels.consoIndustryDynamicIntro}</p>
     <p class="narrative" style="margin-bottom:2mm">${industryShareHtml}</p>
+    ${breakdown ? `<p class="section-title" style="margin-top:0">${labels.sectorBreakdownTitle}${breakdownIsFallback ? " (France)" : ""}</p>${renderSectorBars(breakdown, labels)}` : ""}
     <p class="action-source" style="margin-bottom:3mm">${labels.consoIndustrySource}</p>
 
     <p class="section-headline" style="margin-top:2mm">${labels.consoGardenHeadline}</p>
@@ -204,7 +234,7 @@ function buildActionPage3Html(countryName, labels, industryShare, franceIndustry
 </div>`;
 }
 
-export function buildKitActionHtml(countryName, gridTier, labels, qrCodeDataUrl, industryShare, franceIndustryShare) {
+export function buildKitActionHtml(countryName, gridTier, labels, qrCodeDataUrl, industryBreakdown, franceIndustryBreakdown) {
   return `<!DOCTYPE html>
 <html lang="${labels.lang || "fr"}">
 <head>
@@ -220,7 +250,7 @@ export function buildKitActionHtml(countryName, gridTier, labels, qrCodeDataUrl,
 <body>
 ${buildActionPage1Html(countryName, gridTier, labels, qrCodeDataUrl)}
 ${buildActionPage2Html(countryName, labels)}
-${buildActionPage3Html(countryName, labels, industryShare, franceIndustryShare)}
+${buildActionPage3Html(countryName, labels, industryBreakdown, franceIndustryBreakdown)}
 </body>
 </html>`;
 }

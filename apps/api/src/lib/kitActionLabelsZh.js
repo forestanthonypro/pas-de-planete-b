@@ -98,6 +98,15 @@ export const labelsActionZh = {
   consoIndustryFallbackPrefix: "该国数据暂不可用。作为参考，",
   consoIndustrySource: "来源：Climate Watch（世界资源研究所）。",
 
+  sectorBreakdownTitle: "按部门划分的排放构成",
+  sectorNames: {
+    "Energy": "能源",
+    "Industrial Processes": "工业过程",
+    "Agriculture": "农业",
+    "Waste": "废弃物",
+    "Land-Use Change and Forestry": "土地利用与林业"
+  },
+
   consoTitle: "消费",
   consoIndustryHeadline: "重工业与本地商店：规模问题",
   consoIndustryText: "法国最大的单一工业基地，其排放量相当于数万家小商店的总和。",

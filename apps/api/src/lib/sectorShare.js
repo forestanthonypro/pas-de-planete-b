@@ -1,20 +1,15 @@
-// Calcule la part des émissions de "procédés industriels" (au sens
-// Climate Watch : ciment, acier, chimie... — les émissions directes de la
-// fabrication, pas l'électricité qu'elle consomme) dans le total national
-// tous secteurs confondus, pour la dernière année où les deux valeurs
-// existent pour un pays donné.
-//
-// Volontairement limité à cette définition précise plutôt qu'à "toute
-// l'industrie" au sens large : Climate Watch regroupe l'énergie utilisée
-// par l'industrie dans son secteur "Energy", mélangée au transport et au
-// bâtiment — impossible de l'isoler proprement à ce niveau d'agrégation
-// sans une ingestion plus fine (sous-secteurs), pas faite ici. Mieux vaut
-// un chiffre précis et vérifiable qu'une approximation présentée comme
-// plus large qu'elle ne l'est.
+// Calcule la répartition des émissions de gaz à effet de serre par
+// secteur pour un pays donné, pour la dernière année où au moins 3 des 5
+// secteurs sont renseignés (sinon le total serait trompeur — mieux vaut
+// ne rien afficher). Source : Climate Watch (World Resources Institute),
+// voir ingest/sectorEmissions.js.
 
 const TOTAL_SECTORS = ["Energy", "Industrial Processes", "Agriculture", "Waste", "Land-Use Change and Forestry"];
 
-export async function computeIndustryProcessShare(pool, countryCode) {
+// Calcule la répartition complète (les 5 secteurs, triés du plus gros au
+// plus petit) — utilisée à la fois pour l'histogramme et pour extraire la
+// part spécifique de l'industrie, sans dupliquer la requête SQL.
+export async function computeSectorBreakdown(pool, countryCode) {
   const result = await pool.query(
     `SELECT sector, year, value_mtco2e FROM sector_emissions
      WHERE country_code = $1 AND sector = ANY($2::text[])
@@ -23,9 +18,6 @@ export async function computeIndustryProcessShare(pool, countryCode) {
   );
   if (result.rows.length === 0) return null;
 
-  // Regroupe par année, ne garde que la plus récente où l'industriel ET
-  // au moins un autre secteur sont tous deux renseignés (sinon la part
-  // calculée serait trompeuse — mieux vaut ne rien afficher).
   const byYear = new Map();
   for (const row of result.rows) {
     if (!byYear.has(row.year)) byYear.set(row.year, {});
@@ -35,13 +27,35 @@ export async function computeIndustryProcessShare(pool, countryCode) {
   const years = [...byYear.keys()].sort((a, b) => b - a);
   for (const year of years) {
     const bySection = byYear.get(year);
-    const industrial = bySection["Industrial Processes"];
-    const total = TOTAL_SECTORS.reduce((sum, s) => (bySection[s] != null ? sum + bySection[s] : sum), 0);
     const sectorsPresent = TOTAL_SECTORS.filter((s) => bySection[s] != null).length;
-    // Exige au moins 3 des 5 secteurs pour que le total soit représentatif.
-    if (industrial != null && total > 0 && sectorsPresent >= 3) {
-      return { year, industrialMtco2e: industrial, totalMtco2e: total, sharePct: Math.round((industrial / total) * 1000) / 10 };
-    }
+    if (sectorsPresent < 3) continue;
+
+    const total = TOTAL_SECTORS.reduce((sum, s) => (bySection[s] != null ? sum + bySection[s] : sum), 0);
+    if (total <= 0) continue;
+
+    const sectors = TOTAL_SECTORS
+      .filter((s) => bySection[s] != null)
+      .map((s) => ({
+        sector: s,
+        valueMtco2e: bySection[s],
+        sharePct: Math.round((bySection[s] / total) * 1000) / 10,
+      }))
+      .sort((a, b) => b.valueMtco2e - a.valueMtco2e);
+
+    return { year, totalMtco2e: total, sectors };
   }
   return null;
+}
+
+// Part spécifique des "procédés industriels" (au sens Climate Watch :
+// ciment, acier, chimie... — pas l'énergie que l'industrie consomme,
+// mélangée avec transport/bâtiment dans le secteur "Energy", impossible à
+// isoler proprement à ce niveau d'agrégation). Dérivée de
+// computeSectorBreakdown() pour ne faire qu'une seule requête SQL.
+export async function computeIndustryProcessShare(pool, countryCode) {
+  const breakdown = await computeSectorBreakdown(pool, countryCode);
+  if (!breakdown) return null;
+  const industrial = breakdown.sectors.find((s) => s.sector === "Industrial Processes");
+  if (!industrial) return null;
+  return { year: breakdown.year, industrialMtco2e: industrial.valueMtco2e, totalMtco2e: breakdown.totalMtco2e, sharePct: industrial.sharePct };
 }
