@@ -146,15 +146,15 @@ jobs:
             -H "x-ingest-token: ${{ secrets.INGEST_TOKEN }}" \
             --max-time 600
 
-  # --- Sénat espagnol (schéma générique parliament_*) ---
-  refresh-spain-senate:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Ré-ingérer les sénateurs et votes du Sénat espagnol
-        run: |
-          curl -f -X POST "${{ secrets.API_URL }}/api/admin/ingest/spain-senate" \
-            -H "x-ingest-token: ${{ secrets.INGEST_TOKEN }}" \
-            --max-time 600
+  # --- Sénat espagnol : volontairement absent d'ici ---
+  # senado.es bloque (Akamai) les requêtes venant d'IP de datacenter —
+  # donc aussi celles de GitHub Actions. Un job ici échouerait en rouge
+  # chaque mois pour rien (retiré le 22 août, il existait et échouait
+  # silencieusement depuis sa création). Le vrai rafraîchissement se fait
+  # à la main, une fois par mois, via refresh-spain-senate-prod.ps1
+  # (racine du dépôt) — lancé depuis une connexion résidentielle, qui
+  # contourne le blocage en important directement en base de production.
+  # Voir TODO.md pour le suivi.
 
   # --- Chambre des députés italienne (schéma générique parliament_*) ---
   refresh-italy-camera:
