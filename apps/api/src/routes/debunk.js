@@ -5,7 +5,7 @@ import { requireAdminSession } from "../lib/auth.js";
 import { publicWriteLimiter } from "../lib/rateLimits.js";
 import { generateUniqueSlug } from "../lib/slug.js";
 import { mergeTranslations, applyTranslations } from "../lib/translations.js";
-import { sanitizeScopeCodes, parseScopesQueryParam } from "../lib/scopeCodes.js";
+import { sanitizeScopeCodes, parseScopesQueryParam, expandScopeFilterForSearch, worldSelected } from "../lib/scopeCodes.js";
 import { EMAIL_RE } from "../lib/validators.js";
 import { validateCharts } from "../lib/chartValidation.js";
 
@@ -35,8 +35,8 @@ router.get("/api/debunk", async (req, res) => {
       where += " AND d.featured_decouverte = true";
     }
     const scopeCodes = parseScopesQueryParam(scopes);
-    if (scopeCodes.length > 0) {
-      params.push(scopeCodes);
+    if (scopeCodes.length > 0 && !worldSelected(scopeCodes)) {
+      params.push(expandScopeFilterForSearch(scopeCodes));
       where += ` AND d.scope_codes && $${params.length}`;
     }
     const result = await pool.query(

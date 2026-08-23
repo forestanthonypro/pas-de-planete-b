@@ -1,4 +1,5 @@
 import countriesLib from "i18n-iso-countries";
+import { COUNTRY_TO_CONTINENT, CONTINENT_TO_COUNTRIES } from "./countryContinents.js";
 
 // Les 8 codes fixes pour une portée plus large qu'un seul pays — voir
 // db/migrations/046_scope_codes.sql pour le détail. Distincts des codes
@@ -34,4 +35,57 @@ export function sanitizeScopeCodes(input) {
 export function parseScopesQueryParam(value) {
   if (!value || typeof value !== "string") return [];
   return sanitizeScopeCodes(value.split(","));
+}
+
+// Complète une liste de portées avec la hiérarchie géographique implicite
+// dans LES DEUX SENS (pays <-> continent) — un pays ajoute son continent,
+// un continent ajoute chacun de ses pays membres. Utilisée UNIQUEMENT
+// pour le déclenchement des notifications (workers/pushNotifications.js) :
+// un abonné pays doit être notifié d'un contenu continent, et
+// réciproquement un abonné continent doit être notifié d'un contenu pays
+// précis — les deux sont pertinents pour un abonnement (bidirectionnel).
+// Ne PAS utiliser pour les filtres de recherche : voir
+// expandScopeFilterForSearch ci-dessous, qui suit une logique différente
+// (à sens unique) plus adaptée à une recherche.
+export function expandScopeHierarchy(scopeCodes) {
+  const expanded = new Set(scopeCodes);
+  for (const code of scopeCodes) {
+    if (CONTINENT_TO_COUNTRIES[code]) {
+      for (const country of CONTINENT_TO_COUNTRIES[code]) expanded.add(country);
+    } else if (COUNTRY_TO_CONTINENT[code]) {
+      expanded.add(COUNTRY_TO_CONTINENT[code]);
+    }
+  }
+  return [...expanded];
+}
+
+// Complète une liste de portées pour un FILTRE DE RECHERCHE — à sens
+// unique, du plus large vers le plus précis uniquement (jamais l'inverse) :
+//   - filtrer par un PAYS reste strict, aucune extension (on cherche du
+//     contenu qui concerne précisément ce pays, pas toute l'Europe) ;
+//   - filtrer par un CONTINENT ajoute chacun de ses pays membres (on
+//     cherche tout ce qui concerne l'Europe, y compris le contenu propre
+//     à la France, l'Allemagne...) ;
+//   - filtrer par WORLD doit renvoyer tout, sans exception — géré à part
+//     par worldSelected() ci-dessous plutôt qu'ici, car "tout" inclut
+//     aussi le contenu sans scope_codes du tout, qu'aucune liste de codes
+//     ne peut représenter par un simple chevauchement de tableaux.
+export function expandScopeFilterForSearch(scopeCodes) {
+  const expanded = new Set(scopeCodes);
+  for (const code of scopeCodes) {
+    if (CONTINENT_TO_COUNTRIES[code]) {
+      for (const country of CONTINENT_TO_COUNTRIES[code]) expanded.add(country);
+    }
+    // Un code pays reste tel quel, volontairement — pas d'ajout de son
+    // continent : filtrer par un pays doit rester strict.
+  }
+  return [...expanded];
+}
+
+// true si la sélection de l'utilisateur inclut WORLD — dans ce cas, le
+// filtre par portée doit être ignoré entièrement (voir usage dans les
+// routes), pour renvoyer tout le contenu, y compris celui sans
+// scope_codes renseigné.
+export function worldSelected(scopeCodes) {
+  return scopeCodes.includes("WORLD");
 }

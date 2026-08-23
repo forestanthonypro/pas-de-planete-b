@@ -5,7 +5,7 @@ import { requireAdminSession } from "../lib/auth.js";
 import { publicWriteLimiter } from "../lib/rateLimits.js";
 import { UUID_RE, EMAIL_RE } from "../lib/validators.js";
 import { mergeTranslations } from "../lib/translations.js";
-import { sanitizeScopeCodes, parseScopesQueryParam } from "../lib/scopeCodes.js";
+import { sanitizeScopeCodes, parseScopesQueryParam, expandScopeFilterForSearch, worldSelected } from "../lib/scopeCodes.js";
 
 const router = Router();
 
@@ -19,8 +19,8 @@ router.get("/api/future-ideas", async (req, res) => {
     const params = [];
     let where = "WHERE i.published = true";
     const scopeCodes = parseScopesQueryParam(scopes);
-    if (scopeCodes.length > 0) {
-      params.push(scopeCodes);
+    if (scopeCodes.length > 0 && !worldSelected(scopeCodes)) {
+      params.push(expandScopeFilterForSearch(scopeCodes));
       where += ` AND i.scope_codes && $${params.length}`;
     }
     const result = await pool.query(
@@ -183,8 +183,8 @@ router.get("/api/future-idea-suggestions/published", async (req, res) => {
     const params = [];
     let where = "WHERE status = 'published'";
     const scopeCodes = parseScopesQueryParam(scopes);
-    if (scopeCodes.length > 0) {
-      params.push(scopeCodes);
+    if (scopeCodes.length > 0 && !worldSelected(scopeCodes)) {
+      params.push(expandScopeFilterForSearch(scopeCodes));
       where += ` AND scope_codes && $${params.length}`;
     }
     const result = await pool.query(

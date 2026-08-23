@@ -5,7 +5,7 @@ import { requireAdminSession } from "../lib/auth.js";
 import { publicWriteLimiter } from "../lib/rateLimits.js";
 import { generateUniqueSlug } from "../lib/slug.js";
 import { mergeTranslations } from "../lib/translations.js";
-import { sanitizeScopeCodes, parseScopesQueryParam } from "../lib/scopeCodes.js";
+import { sanitizeScopeCodes, parseScopesQueryParam, expandScopeFilterForSearch, worldSelected } from "../lib/scopeCodes.js";
 import { EMAIL_RE } from "../lib/validators.js";
 
 const router = Router();
@@ -84,8 +84,8 @@ router.get("/api/resource-locations", async (req, res) => {
       where += ` AND c.slug = $${params.length}`;
     }
     const scopeCodes = parseScopesQueryParam(scopes);
-    if (scopeCodes.length > 0) {
-      params.push(scopeCodes);
+    if (scopeCodes.length > 0 && !worldSelected(scopeCodes)) {
+      params.push(expandScopeFilterForSearch(scopeCodes));
       where += ` AND l.scope_codes && $${params.length}`;
     }
     const locations = await pool.query(
@@ -227,8 +227,8 @@ router.get("/api/resource-online", async (req, res) => {
       where += ` AND c.slug = $${params.length}`;
     }
     const scopeCodes = parseScopesQueryParam(scopes);
-    if (scopeCodes.length > 0) {
-      params.push(scopeCodes);
+    if (scopeCodes.length > 0 && !worldSelected(scopeCodes)) {
+      params.push(expandScopeFilterForSearch(scopeCodes));
       where += ` AND o.scope_codes && $${params.length}`;
     }
     const result = await pool.query(
