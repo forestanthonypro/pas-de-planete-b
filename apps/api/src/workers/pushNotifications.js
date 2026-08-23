@@ -1,5 +1,6 @@
 import { pool } from "../lib/db.js";
 import { buildPushPayload, configureWebPush, EVENT_TOPIC, webpush } from "../lib/pushNotifications.js";
+import { COUNTRY_TO_CONTINENT, CONTINENT_TO_COUNTRIES } from "../lib/countryContinents.js";
 
 const BATCH_SIZE = 100;
 const MAX_ATTEMPTS = 6;
@@ -12,6 +13,29 @@ function targetFor(event) {
   return { type: "scope_code", values: event.scope_codes || [] };
 }
 
+// Complète la liste de portées d'un événement avec la hiérarchie
+// géographique implicite, pour qu'un contenu marqué "EUR" atteigne aussi
+// les abonnés d'un pays membre (ex. FRA) — et réciproquement, qu'un
+// contenu marqué "FRA" atteigne un abonné qui a choisi "EUR" au sens
+// large. Le cas WORLD (dans les deux sens) reste géré à part dans la
+// requête SQL, il n'a pas de "pays membres" au sens de
+// countryContinents.js.
+function expandScopeHierarchy(scopeCodes) {
+  const expanded = new Set(scopeCodes);
+  for (const code of scopeCodes) {
+    if (CONTINENT_TO_COUNTRIES[code]) {
+      // Portée continent -> ajoute chaque pays membre (un abonné pays
+      // matche alors directement).
+      for (const country of CONTINENT_TO_COUNTRIES[code]) expanded.add(country);
+    } else if (COUNTRY_TO_CONTINENT[code]) {
+      // Portée pays -> ajoute son continent (un abonné continent matche
+      // alors directement).
+      expanded.add(COUNTRY_TO_CONTINENT[code]);
+    }
+  }
+  return [...expanded];
+}
+
 async function expandEvent(event) {
   const topic = EVENT_TOPIC[event.event_type];
   const target = targetFor(event);
@@ -19,6 +43,7 @@ async function expandEvent(event) {
     await pool.query("UPDATE notification_events SET processed_at=now() WHERE id=$1::bigint", [event.id]);
     return;
   }
+  const matchValues = target.type === "scope_code" ? expandScopeHierarchy(target.values) : target.values;
   await pool.query(
     `INSERT INTO push_deliveries (event_id, subscription_id)
      SELECT DISTINCT $1::bigint, p.subscription_id
@@ -26,9 +51,13 @@ async function expandEvent(event) {
      JOIN push_subscriptions s ON s.id=p.subscription_id
      WHERE p.enabled=true AND s.revoked_at IS NULL
        AND p.topic=$2 AND p.target_type=$3
-       AND (p.target_value=ANY($4::text[]) OR ($3='scope_code' AND 'WORLD'=ANY($4::text[])))
+       AND (
+         p.target_value=ANY($4::text[])
+         OR ($3='scope_code' AND 'WORLD'=ANY($4::text[]))
+         OR ($3='scope_code' AND p.target_value='WORLD')
+       )
      ON CONFLICT DO NOTHING`,
-    [event.id, topic, target.type, target.values]
+    [event.id, topic, target.type, matchValues]
   );
   await pool.query("UPDATE notification_events SET processed_at=now() WHERE id=$1::bigint", [event.id]);
 }
