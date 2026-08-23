@@ -827,7 +827,8 @@
     "source_italySenateVotes": "Голосования Сената Италии",
     "source_italyCameraMembers": "Депутаты Италии",
     "source_italyCameraVotes": "Голосования Палаты депутатов Италии",
-    "source_temperatures": "Температуры по странам (средние, отклонения, волны жары/холода)"
+    "source_temperatures": "Температуры по странам (средние, отклонения, волны жары/холода)",
+    "freq_annual": "Ежегодно (автоматически)"
   },
   "environmentalImpact": {
     "title": "Экологическое воздействие",
