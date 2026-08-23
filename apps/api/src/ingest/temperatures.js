@@ -367,23 +367,25 @@ async function ingestOneCountry(pool, country) {
   return yearlyMetrics.length;
 }
 
-export async function ingestTemperatures(pool) {
+// Traite UN seul lot (jusqu'à BATCH_WEIGHT_BUDGET de poids, ~20 pays avec
+// START_YEAR=1990) puis rend la main immédiatement — sans l'attente d'une
+// heure entre lots. Pensée pour être appelée depuis une route HTTP bornée
+// en durée (voir /api/admin/ingest/temperatures-batch), elle-même rappelée
+// en boucle par un workflow planifié (même principe que le backfill
+// historique Espagne Congreso, avec l'espacement d'une heure géré côté
+// orchestrateur plutôt qu'en sommeil interne — un job GitHub Actions est
+// plafonné à 6h, largement sous les ~11h nécessaires pour rattraper les
+// 214 pays en une seule exécution).
+export async function ingestTemperaturesOneBatch(pool) {
   const { covered, skippedNoCapital } = await getCoveredCountries(pool);
   const alreadyDone = await getAlreadyIngestedCountryCodes(pool);
   let remaining = covered.filter((c) => !alreadyDone.has(c.code));
   if (COUNTRY_CODE) {
     remaining = remaining.filter((c) => c.code === COUNTRY_CODE);
-    console.log(`TEMPERATURES_COUNTRY_CODE actif : uniquement ${COUNTRY_CODE} (${remaining.length} pays trouvé${remaining.length > 1 ? "s" : ""}).`);
   }
   if (COUNTRY_LIMIT !== null && COUNTRY_LIMIT >= 0) {
     remaining = remaining.slice(0, COUNTRY_LIMIT);
-    console.log(`TEMPERATURES_COUNTRY_LIMIT actif : limité à ${remaining.length} pays pour cette exécution.`);
   }
-
-  console.log(
-    `${covered.length} pays couverts au total, ${alreadyDone.size} déjà complets, ` +
-      `${remaining.length} restant à traiter.`
-  );
 
   let inserted = 0;
   let countriesProcessed = 0;
@@ -391,61 +393,94 @@ export async function ingestTemperatures(pool) {
   const sampleErrors = [];
 
   let cursor = 0;
-  for (let batch = 1; batch <= MAX_BATCHES && cursor < remaining.length; batch += 1) {
-    const batchStart = Date.now();
-    let batchWeight = 0;
-    let batchCount = 0;
+  let batchWeight = 0;
 
+  while (cursor < remaining.length && batchWeight < BATCH_WEIGHT_BUDGET) {
+    const country = remaining[cursor];
+    cursor += 1;
+
+    try {
+      inserted += await ingestOneCountry(pool, country);
+      countriesProcessed += 1;
+    } catch (err) {
+      countriesFailed += 1;
+      if (sampleErrors.length < 8) sampleErrors.push(`${country.code} : ${err.message}`);
+    }
+
+    batchWeight += estimatedWeight(START_YEAR, lastCompleteYear());
+
+    if (cursor < remaining.length && batchWeight < BATCH_WEIGHT_BUDGET) {
+      await sleep(REQUEST_DELAY_MS);
+    }
+  }
+
+  return {
+    done: cursor >= remaining.length,
+    inserted,
+    countriesProcessed,
+    countriesFailed,
+    remainingCount: remaining.length - cursor,
+    totalCovered: covered.length,
+    skippedNoCapital,
+    sampleErrors,
+  };
+}
+
+// Version CLI (comportement historique inchangé) : enchaîne des lots avec
+// une pause d'une heure entre chacun, jusqu'à épuisement ou MAX_BATCHES —
+// pensée pour tourner sans surveillance sur plusieurs heures (voir
+// exécution directe en bas de fichier). Réutilise ingestTemperaturesOneBatch
+// pour ne pas dupliquer la logique d'un lot.
+export async function ingestTemperatures(pool) {
+  const { covered } = await getCoveredCountries(pool);
+  console.log(`${covered.length} pays couverts au total.`);
+
+  let totalInserted = 0;
+  let totalProcessed = 0;
+  let totalFailed = 0;
+  let allSkippedNoCapital = [];
+  const allSampleErrors = [];
+
+  for (let batch = 1; batch <= MAX_BATCHES; batch += 1) {
+    const batchStart = Date.now();
     console.log(`--- Lot ${batch} : démarrage ---`);
 
-    while (cursor < remaining.length && batchWeight < BATCH_WEIGHT_BUDGET) {
-      const country = remaining[cursor];
-      cursor += 1;
-      batchCount += 1;
+    const result = await ingestTemperaturesOneBatch(pool);
+    totalInserted += result.inserted;
+    totalProcessed += result.countriesProcessed;
+    totalFailed += result.countriesFailed;
+    allSkippedNoCapital = result.skippedNoCapital;
+    allSampleErrors.push(...result.sampleErrors);
 
+    console.log(
+      `--- Lot ${batch} terminé : ${result.countriesProcessed} pays traités dans ce lot, ` +
+        `${result.remainingCount} restants au total ---`
+    );
+
+    if (result.done) break;
+
+    const elapsed = Date.now() - batchStart;
+    const waitMs = Math.max(0, BATCH_INTERVAL_MS - elapsed);
+    if (waitMs > 0) {
+      console.log(`Pause de ${formatDuration(waitMs)} avant le lot suivant (respect du quota horaire)...`);
+      await sleep(waitMs);
+    }
+
+    if (batch === MAX_BATCHES) {
       console.log(
-        `[${cursor}/${remaining.length}] ${country.code} (${country.capital}) — lot ${batch}...`
+        `Nombre maximal de lots (${MAX_BATCHES}) atteint avant la fin — ${result.remainingCount} ` +
+          `pays restants. Relancer le script plus tard reprendra automatiquement là où il s'est arrêté.`
       );
-
-      try {
-        inserted += await ingestOneCountry(pool, country);
-        countriesProcessed += 1;
-      } catch (err) {
-        countriesFailed += 1;
-        if (sampleErrors.length < 8) sampleErrors.push(`${country.code} : ${err.message}`);
-        console.log(`  échec (${country.code}) : ${err.message}`);
-      }
-
-      batchWeight += estimatedWeight(START_YEAR, lastCompleteYear());
-
-      if (cursor < remaining.length && batchWeight < BATCH_WEIGHT_BUDGET) {
-        await sleep(REQUEST_DELAY_MS);
-      }
-    }
-
-    console.log(
-      `--- Lot ${batch} terminé : ${batchCount} pays traités dans ce lot, ` +
-        `${remaining.length - cursor} restants au total ---`
-    );
-
-    if (cursor < remaining.length) {
-      const elapsed = Date.now() - batchStart;
-      const waitMs = Math.max(0, BATCH_INTERVAL_MS - elapsed);
-      if (waitMs > 0) {
-        console.log(`Pause de ${formatDuration(waitMs)} avant le lot suivant (respect du quota horaire)...`);
-        await sleep(waitMs);
-      }
     }
   }
 
-  if (cursor < remaining.length) {
-    console.log(
-      `Nombre maximal de lots (${MAX_BATCHES}) atteint avant la fin — ${remaining.length - cursor} ` +
-        `pays restants. Relancer le script plus tard reprendra automatiquement là où il s'est arrêté.`
-    );
-  }
-
-  return { inserted, countriesProcessed, countriesFailed, skippedNoCapital, sampleErrors };
+  return {
+    inserted: totalInserted,
+    countriesProcessed: totalProcessed,
+    countriesFailed: totalFailed,
+    skippedNoCapital: allSkippedNoCapital,
+    sampleErrors: allSampleErrors,
+  };
 }
 
 // Exécution directe en CLI : node src/ingest/temperatures.js

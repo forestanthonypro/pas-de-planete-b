@@ -3,6 +3,7 @@ import { pool } from "../lib/db.js";
 import { errorDetail } from "../lib/errors.js";
 import { requireIngestToken } from "../lib/auth.js";
 import { ingestCo2 } from "../ingest/co2.js";
+import { ingestTemperaturesOneBatch } from "../ingest/temperatures.js";
 import { ingestSectorEmissions } from "../ingest/sectorEmissions.js";
 import { ingestPowerPlants } from "../ingest/power_plants.js";
 import { ingestSpecies } from "../ingest/species.js";
@@ -60,6 +61,20 @@ router.post("/api/admin/ingest/sector-emissions", requireIngestToken, async (_re
   try {
     const { inserted, skipped } = await ingestSectorEmissions(pool);
     res.json({ status: "ok", inserted, skipped });
+  } catch (err) {
+    res.status(500).json({ error: "Échec de l'ingestion", detail: errorDetail(err) });
+  }
+});
+
+// Un seul lot borné en durée (~10-15 min, ~20 pays) — voir
+// ingestTemperaturesOneBatch (ingest/temperatures.js) pour le détail du
+// cadencement. Appelée en boucle par un workflow planifié plutôt qu'en une
+// seule requête de plusieurs heures, pour rester sous la limite de 6h d'un
+// job GitHub Actions.
+router.post("/api/admin/ingest/temperatures-batch", requireIngestToken, async (_req, res) => {
+  try {
+    const result = await ingestTemperaturesOneBatch(pool);
+    res.json({ status: "ok", ...result });
   } catch (err) {
     res.status(500).json({ error: "Échec de l'ingestion", detail: errorDetail(err) });
   }

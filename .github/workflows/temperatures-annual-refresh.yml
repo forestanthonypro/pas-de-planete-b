@@ -1,0 +1,51 @@
+name: Rafraîchissement annuel — Températures
+
+# Contrairement au backfill historique Espagne Congreso (déclenchement
+# manuel uniquement), celui-ci tourne automatiquement : un cron quotidien
+# suffit très largement, la plupart des jours ne trouvent rien à faire
+# (les 214 pays sont déjà complets jusqu'à la dernière année disponible —
+# voir lastCompleteYear(), ingest/temperatures.js) et le job se termine en
+# quelques secondes. Ce n'est qu'une fois par an, quand une nouvelle année
+# devient disponible côté Open-Meteo (à partir de mi-janvier environ), que
+# les 214 pays deviennent tous "incomplets" en même temps et que le vrai
+# rattrapage démarre — étalé sur 2 à 3 exécutions quotidiennes
+# consécutives (~5 lots/jour, ~11 lots nécessaires au total), sans jamais
+# dépasser la limite de 6h d'un job GitHub Actions.
+on:
+  schedule:
+    - cron: "0 3 * * *" # 3h UTC chaque jour
+  workflow_dispatch: {}
+
+jobs:
+  refresh-temperatures:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330 # 5h30, marge sous la limite de 6h de GitHub Actions
+    steps:
+      - name: Lots successifs jusqu'à complétion ou fin de journée
+        run: |
+          # Chaque appel à la route traite un lot borné (~20 pays,
+          # quelques minutes) puis rend la main. On respecte ensuite une
+          # heure avant le lot suivant, pour rester sous le quota horaire
+          # d'Open-Meteo (voir BATCH_INTERVAL_MS, ingest/temperatures.js)
+          # — jusqu'à 5 lots par exécution, largement suffisant pour
+          # rattraper les ~11 lots nécessaires en 2-3 jours consécutifs.
+          for i in $(seq 1 5); do
+            echo "=== Lot $i/5 ==="
+            RESPONSE=$(curl -f -s -X POST "${{ secrets.API_URL }}/api/admin/ingest/temperatures-batch" \
+              -H "x-ingest-token: ${{ secrets.INGEST_TOKEN }}" \
+              --max-time 900)
+            echo "$RESPONSE"
+
+            DONE=$(echo "$RESPONSE" | grep -o '"done":[a-z]*' | cut -d: -f2)
+            if [ "$DONE" = "true" ]; then
+              echo "Tous les pays sont à jour jusqu'à la dernière année disponible."
+              exit 0
+            fi
+
+            if [ "$i" -lt 5 ]; then
+              echo "Pause d'une heure avant le lot suivant (respect du quota horaire)..."
+              sleep 3600
+            fi
+          done
+
+          echo "5 lots traités pour aujourd'hui, il reste des pays à traiter — le cron de demain reprendra automatiquement."
