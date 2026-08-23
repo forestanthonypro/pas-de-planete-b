@@ -41,7 +41,15 @@ function DefaultHead({ router }) {
   // Chemin "nu" — sans le préfixe de langue courant — pour pouvoir
   // réappliquer le bon préfixe (ou aucun, pour le français) à chaque
   // langue ci-dessous.
-  let barePath = currentPrefix && canonicalPath.startsWith(currentPrefix) ? canonicalPath.slice(currentPrefix.length) : canonicalPath;
+  // startsWith() seul ne suffit pas : "/especes" commence par "/es" (code
+  // langue espagnol) sans que ce soit un préfixe de langue — il faut que
+  // le préfixe soit suivi de la fin de chaîne ou d'une vraie barre oblique
+  // de segment, sinon "/especes" vu en espagnol perd à tort ses 3 premiers
+  // caractères et devient "peces" (repéré via Search Console le 22 août :
+  // hreflang cassé sur /especes ET /energie, qui a la même collision avec
+  // le code langue anglais "en").
+  const hasLocalePrefix = currentPrefix && (canonicalPath === currentPrefix || canonicalPath.startsWith(`${currentPrefix}/`));
+  let barePath = hasLocalePrefix ? canonicalPath.slice(currentPrefix.length) : canonicalPath;
   if (barePath === "") barePath = "/";
 
   function urlForLocale(locale) {
