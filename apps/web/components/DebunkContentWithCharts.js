@@ -39,7 +39,10 @@ function splitContent(reality, charts) {
 
 // reality : le texte brut (peut contenir des repères [[chart:N]] ou non).
 // charts : le tableau déjà validé (voir chartValidation.js côté API).
-export default function DebunkContentWithCharts({ reality, charts }) {
+// textStyle : style optionnel appliqué aux paragraphes de texte, pour
+// s'adapter au contexte d'affichage (ex. aperçu compact sur /decouverte,
+// avec une police plus petite que sur la page de détail complète).
+export default function DebunkContentWithCharts({ reality, charts, textStyle }) {
   const { segments, usedIndices } = splitContent(reality, charts);
   const remainingCharts = Array.isArray(charts) ? charts.filter((_, i) => !usedIndices.has(i)) : [];
 
@@ -47,7 +50,7 @@ export default function DebunkContentWithCharts({ reality, charts }) {
     <>
       {segments.map((seg, i) =>
         seg.type === "text" ? (
-          <p key={i} style={{ whiteSpace: "pre-wrap" }}>
+          <p key={i} style={{ whiteSpace: "pre-wrap", ...textStyle }}>
             {seg.content}
           </p>
         ) : (

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useT } from "../lib/useT";
+import DebunkContentWithCharts from "../components/DebunkContentWithCharts";
 import { localeTag } from "../lib/dateLocale";
 import { useSobriety } from "../lib/SobrietyContext";
 import { useApiFetch } from "../lib/useApiFetch";
@@ -97,9 +98,11 @@ function ObjectionCard({ entry, locale, t }) {
               >
                 {verdictLabel(detail.entry.verdict).toUpperCase()}
               </span>
-              <p style={{ fontSize: 13, color: "var(--color-texte)", lineHeight: 1.6, whiteSpace: "pre-wrap", margin: "8px 0" }}>
-                {detail.entry.reality}
-              </p>
+              <DebunkContentWithCharts
+                reality={detail.entry.reality}
+                charts={detail.entry.charts}
+                textStyle={{ fontSize: 13, color: "var(--color-texte)", lineHeight: 1.6, margin: "8px 0" }}
+              />
               {detail.sources?.length > 0 && (
                 <p style={{ margin: 0 }}>
                   <a href={detail.sources[0].url} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, color: "var(--color-forest)" }}>
