@@ -3,6 +3,8 @@ import { useRouter } from "next/router";
 import AdminAuthGate from "../../../components/AdminAuthGate";
 import ContentTranslationsEditor from "../../../components/ContentTranslationsEditor";
 import ScopeMultiSelect from "../../../components/ScopeMultiSelect";
+import DebunkContentWithCharts from "../../../components/DebunkContentWithCharts";
+import ErrorBoundary from "../../../components/ErrorBoundary";
 import Link from "next/link";
 import { slugify } from "../../../lib/slugify";
 
@@ -11,6 +13,13 @@ const TRANSLATION_FIELDS = [
   { name: "myth", label: "Titre / affirmation démontée", multiline: false },
   { name: "claim_quote", label: "Citation exacte de l'affirmation", multiline: true },
   { name: "reality", label: "Ce qu'il en est vraiment", multiline: true },
+  // autoTranslate: false — un JSON de graphiques envoyé tel quel à l'API
+  // de traduction automatique casserait sa syntaxe (guillemets, clés
+  // "type"/"labels"/"data" traduites comme si c'était de la prose). La
+  // traduction reste possible, mais seulement collée manuellement langue
+  // par langue (traduire les libellés affichés, garder data/colors tels
+  // quels).
+  { name: "charts", label: "Graphiques (JSON — coller la version traduite, pas d'auto-traduction)", multiline: true, autoTranslate: false },
 ];
 
 function AdminDebunkEditInner() {
@@ -23,6 +32,9 @@ function AdminDebunkEditInner() {
   const [claimQuote, setClaimQuote] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [reality, setReality] = useState("");
+  const [chartsJson, setChartsJson] = useState("");
+  const [chartsPreview, setChartsPreview] = useState(null);
+  const [chartsError, setChartsError] = useState(null);
   const [categoryId, setCategoryId] = useState("");
   const [categories, setCategories] = useState([]);
   const [verdict, setVerdict] = useState("faux");
@@ -61,6 +73,11 @@ function AdminDebunkEditInner() {
         setClaimQuote(data.entry.claim_quote || "");
         setImageUrl(data.entry.image_url || "");
         setReality(data.entry.reality);
+        if (data.entry.charts) {
+          const formatted = JSON.stringify(data.entry.charts, null, 2);
+          setChartsJson(formatted);
+          setChartsPreview(data.entry.charts);
+        }
         setCategoryId(data.entry.category_id || "");
         setVerdict(data.entry.verdict || "faux");
         setPublished(data.entry.published);
@@ -94,8 +111,44 @@ function AdminDebunkEditInner() {
     setSources((prev) => prev.filter((_, i) => i !== index));
   }
 
+  function previewCharts() {
+    if (!chartsJson.trim()) {
+      setChartsPreview(null);
+      setChartsError(null);
+      return;
+    }
+    try {
+      const parsed = JSON.parse(chartsJson);
+      if (!Array.isArray(parsed)) {
+        setChartsError("Le JSON doit être un tableau (même pour un seul graphique) : [ { ... } ]");
+        setChartsPreview(null);
+        return;
+      }
+      setChartsPreview(parsed);
+      setChartsError(null);
+    } catch (err) {
+      setChartsError(`JSON invalide : ${err.message}`);
+      setChartsPreview(null);
+    }
+  }
+
   function handleSubmit(e) {
     e.preventDefault();
+
+    let chartsToSend = null;
+    if (chartsJson.trim()) {
+      try {
+        chartsToSend = JSON.parse(chartsJson);
+        if (!Array.isArray(chartsToSend)) {
+          setChartsError("Le JSON doit être un tableau (même pour un seul graphique) : [ { ... } ]");
+          return;
+        }
+      } catch (err) {
+        setChartsError(`JSON invalide : ${err.message}`);
+        return;
+      }
+    }
+
     setStatus("saving");
     setError(null);
 
@@ -114,11 +167,12 @@ function AdminDebunkEditInner() {
         published,
         scopeCodes,
         sources: sources.filter((s) => s.label && s.url),
+        charts: chartsToSend,
       }),
     })
       .then((res) => {
         if (res.status === 401) throw new Error("Jeton invalide");
-        if (!res.ok) return res.json().then((d) => Promise.reject(new Error(d.error || "Erreur")));
+        if (!res.ok) return res.json().then((d) => Promise.reject(new Error(d.detail ? `${d.error} — ${d.detail}` : d.error || "Erreur")));
         return res.json();
       })
       .then(() => setStatus("done"))
@@ -242,6 +296,52 @@ function AdminDebunkEditInner() {
           />
         </label>
 
+        <div style={{ marginBottom: "1rem", border: "1px solid var(--color-bordure)", borderRadius: 8, padding: "0.75rem 1rem" }}>
+          <p style={{ fontSize: 13, fontWeight: 600, marginBottom: 4 }}>Graphiques (optionnel)</p>
+          <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginBottom: 8 }}>
+            Collez une configuration JSON — jamais de code. Un tableau, même pour un seul graphique. Types
+            possibles : <code>bar</code>, <code>bar-horizontal</code>, <code>line</code>, <code>pie</code>,{" "}
+            <code>doughnut</code>. Par défaut, les graphiques s&apos;affichent à la fin du texte — pour en placer
+            un au milieu, insérez <code>[[chart:0]]</code> (0 = premier graphique du tableau, 1 = deuxième...)
+            directement dans le champ &laquo;&nbsp;Ce qu&apos;il en est vraiment&nbsp;&raquo; ci-dessus, à
+            l&apos;endroit voulu.
+          </p>
+          <textarea
+            value={chartsJson}
+            onChange={(e) => setChartsJson(e.target.value)}
+            placeholder={`[\n  {\n    "type": "bar",\n    "title": "Titre affiché",\n    "unit": "g CO2e/km",\n    "labels": ["Thermique", "Électrique"],\n    "datasets": [{ "data": [235, 63], "colors": ["#2a78d6", "#1baf7a"] }]\n  }\n]`}
+            rows={8}
+            style={{ width: "100%", padding: "8px 10px", fontFamily: "monospace", fontSize: 12 }}
+          />
+          <button type="button" onClick={previewCharts} style={{ fontSize: 12, marginTop: 6 }}>
+            Valider et prévisualiser
+          </button>
+          {chartsError && (
+            <p role="alert" style={{ color: "#d63e2a", fontSize: 12, marginTop: 6 }}>
+              {chartsError}
+            </p>
+          )}
+          {chartsPreview && (
+            <div style={{ marginTop: 12, background: "#fff", padding: "0.75rem", borderRadius: 6 }}>
+              <p style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.03em", color: "var(--color-texte-clair)", marginBottom: 8 }}>
+                Aperçu — texte et graphiques tels qu&apos;affichés sur la page publique
+              </p>
+              <ErrorBoundary
+                resetKey={chartsJson + reality}
+                fallback={
+                  <p style={{ color: "#d63e2a", fontSize: 12 }}>
+                    Le JSON est syntaxiquement valide mais sa structure ne correspond pas à ce qu&apos;attend un
+                    graphique (champ manquant, tableaux de tailles différentes...). Vérifiez le format ci-dessus —
+                    l&apos;enregistrement final sera de toute façon revalidé et refusé s&apos;il reste incorrect.
+                  </p>
+                }
+              >
+                <DebunkContentWithCharts reality={reality} charts={chartsPreview} />
+              </ErrorBoundary>
+            </div>
+          )}
+        </div>
+
         <div style={{ display: "flex", gap: "1rem", marginBottom: "0.75rem", flexWrap: "wrap" }}>
           <label style={{ flex: 1, minWidth: 180 }}>
             <span style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>Catégorie</span>
@@ -320,7 +420,7 @@ function AdminDebunkEditInner() {
         contentType="debunk"
         contentId={isEditing ? slug : null}
         fields={TRANSLATION_FIELDS}
-        baseValues={{ myth, claim_quote: claimQuote, reality }}
+        baseValues={{ myth, claim_quote: claimQuote, reality, charts: chartsJson }}
       />
     </div>
   );

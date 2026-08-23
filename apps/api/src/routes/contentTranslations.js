@@ -3,6 +3,7 @@ import { pool } from "../lib/db.js";
 import { errorDetail } from "../lib/errors.js";
 import { requireAdminSession } from "../lib/auth.js";
 import { TRANSLATABLE_CONTENT_TYPES, TRANSLATABLE_FIELDS } from "../lib/translations.js";
+import { validateCharts } from "../lib/chartValidation.js";
 
 // Routes génériques de gestion des traductions, communes à tous les types
 // de contenu (débunk, interviews, paysans, ressources, charte, idées
@@ -36,6 +37,22 @@ router.post("/api/admin/content-translations", requireAdminSession, async (req, 
   }
   if (!contentId || !locale || typeof value !== "string") {
     return res.status(400).json({ error: "contentId, locale et value sont requis" });
+  }
+  // Champ "charts" (debunk) : valider la structure JSON avant d'enregistrer,
+  // pour un retour d'erreur immédiat à la saisie plutôt qu'un repli
+  // silencieux sur le français au moment de l'affichage (voir
+  // applyTranslations, lib/translations.js).
+  if (fieldName === "charts" && value.trim() !== "") {
+    let parsed;
+    try {
+      parsed = JSON.parse(value);
+    } catch (err) {
+      return res.status(400).json({ error: "JSON invalide pour charts", detail: err.message });
+    }
+    const chartsResult = validateCharts(parsed);
+    if (!chartsResult.valid) {
+      return res.status(400).json({ error: "charts invalide", detail: chartsResult.errors.join(" · ") });
+    }
   }
   try {
     if (value.trim() === "") {

@@ -7,6 +7,7 @@ import { generateUniqueSlug } from "../lib/slug.js";
 import { mergeTranslations, applyTranslations } from "../lib/translations.js";
 import { sanitizeScopeCodes, parseScopesQueryParam } from "../lib/scopeCodes.js";
 import { EMAIL_RE } from "../lib/validators.js";
+import { validateCharts } from "../lib/chartValidation.js";
 
 const router = Router();
 
@@ -213,25 +214,29 @@ router.post("/api/admin/debunk/:slug/featured", requireAdminSession, async (req,
 });
 
 router.post("/api/admin/debunk", requireAdminSession, async (req, res) => {
-  const { slug, myth, reality, categoryId, verdict, claimQuote, imageUrl, published, sources, scopeCodes } = req.body || {};
+  const { slug, myth, reality, categoryId, verdict, claimQuote, imageUrl, published, sources, scopeCodes, charts } = req.body || {};
   if (!slug || !myth || !reality) {
     return res.status(400).json({ error: "slug, myth et reality sont requis" });
   }
   if (verdict && !["faux", "trompeur", "confirme"].includes(verdict)) {
     return res.status(400).json({ error: "verdict doit être 'faux', 'trompeur' ou 'confirme'" });
   }
+  const chartsResult = validateCharts(charts);
+  if (!chartsResult.valid) {
+    return res.status(400).json({ error: "charts invalide", detail: chartsResult.errors.join(" · ") });
+  }
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
     await client.query(
-      `INSERT INTO debunk_entries (slug, myth, reality, category_id, verdict, claim_quote, image_url, published, scope_codes, updated_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, now())
+      `INSERT INTO debunk_entries (slug, myth, reality, category_id, verdict, claim_quote, image_url, published, scope_codes, charts, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, now())
        ON CONFLICT (slug)
        DO UPDATE SET myth = EXCLUDED.myth, reality = EXCLUDED.reality, category_id = EXCLUDED.category_id,
                      verdict = EXCLUDED.verdict, claim_quote = EXCLUDED.claim_quote,
                      image_url = EXCLUDED.image_url, published = EXCLUDED.published,
-                     scope_codes = EXCLUDED.scope_codes, updated_at = now()`,
-      [slug, myth, reality, categoryId || null, verdict || "faux", claimQuote || null, imageUrl || null, published === true, sanitizeScopeCodes(scopeCodes)]
+                     scope_codes = EXCLUDED.scope_codes, charts = EXCLUDED.charts, updated_at = now()`,
+      [slug, myth, reality, categoryId || null, verdict || "faux", claimQuote || null, imageUrl || null, published === true, sanitizeScopeCodes(scopeCodes), chartsResult.charts ? JSON.stringify(chartsResult.charts) : null]
     );
     if (Array.isArray(sources)) {
       await client.query("DELETE FROM debunk_sources WHERE debunk_slug = $1", [slug]);

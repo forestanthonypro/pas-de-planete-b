@@ -94,7 +94,11 @@ export default function ContentTranslationsEditor({ contentType, contentId, fiel
     setTranslating("all");
     setTranslateError(null);
     const texts = {};
-    fields.forEach((f) => {
+    // Les champs marqués autoTranslate:false (ex. le JSON des graphiques)
+    // ne passent jamais par l'API de traduction automatique — un JSON
+    // envoyé comme texte libre en ressortirait cassé (guillemets et clés
+    // altérés). Ils restent traduisibles, mais uniquement à la main.
+    fields.filter((f) => f.autoTranslate !== false).forEach((f) => {
       texts[f.name] = baseValues[f.name] || "";
     });
     const allLangs = LANGUAGE_TABS.map((l) => l.code);
@@ -111,7 +115,7 @@ export default function ContentTranslationsEditor({ contentType, contentId, fiel
       .then((result) =>
         Promise.all(
           allLangs.flatMap((l) =>
-            fields.map((f) =>
+            fields.filter((f) => f.autoTranslate !== false).map((f) =>
               fetch(`/api/admin/content-translations`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },

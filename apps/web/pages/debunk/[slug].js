@@ -1,6 +1,7 @@
 import { useRouter } from "next/router";
 import Link from "next/link";
 import ShareButtons from "../../components/ShareButtons";
+import DebunkContentWithCharts from "../../components/DebunkContentWithCharts";
 import { formatDate } from "../../lib/useLastUpdated";
 import { useT } from "../../lib/useT";
 import { useApiFetch } from "../../lib/useApiFetch";
@@ -74,7 +75,7 @@ export default function DebunkEntryPage() {
           )}
 
           <h2 style={{ fontSize: 16, marginTop: "1.5rem", color: "var(--color-forest)" }}>{t("debunk.reality_title")}</h2>
-          <p style={{ whiteSpace: "pre-wrap" }}>{entry.reality}</p>
+          <DebunkContentWithCharts reality={entry.reality} charts={entry.charts} />
 
           {sources.length > 0 && (
             <>

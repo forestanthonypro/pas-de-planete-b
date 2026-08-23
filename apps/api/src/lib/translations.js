@@ -12,7 +12,7 @@ export const TRANSLATABLE_CONTENT_TYPES = [
   "debunk_category", "interview_category", "paysan_category", "resource_category",
 ];
 export const TRANSLATABLE_FIELDS = {
-  debunk: ["myth", "reality", "claim_quote"],
+  debunk: ["myth", "reality", "claim_quote", "charts"],
   interview: ["title", "description", "scientist_field"],
   paysan: ["title", "description"],
   resource_location: ["name", "description"],
@@ -58,6 +58,21 @@ export async function applyTranslations(entry, contentType, contentId, locale) {
     [contentType, contentId, locale]
   );
   for (const r of trResult.rows) {
+    // Cas particulier : "charts" (debunk) est stocké en JSONB en base
+    // (déjà un tableau une fois lu par node-pg), mais toute traduction
+    // survolée reste du texte brut dans content_translations — il faut la
+    // re-parser en JSON, sinon le champ traduit devient une chaîne au
+    // lieu d'un tableau et casse le rendu des graphiques côté site.
+    if (r.field_name === "charts") {
+      try {
+        entry.charts = JSON.parse(r.value);
+      } catch {
+        // Traduction JSON invalide (ne devrait pas arriver, la saisie
+        // admin est validée à l'enregistrement) — on garde la version
+        // française plutôt que de casser l'affichage.
+      }
+      continue;
+    }
     entry[r.field_name] = r.value;
   }
   return entry;
