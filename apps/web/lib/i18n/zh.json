@@ -786,12 +786,14 @@
     "suggestions_title": "社区提出的想法",
     "propose_title": "那么您希望增加哪些价值观或行动？",
     "propose_intro": "分享您的想法、您的坚定态度、您不可妥协的原则。让我们一起把这份宪章打造成一份有力且具有变革性的宣言！",
-    "propose_placeholder": "您的想法...",
+    "propose_placeholder": "详情(可选)...",
     "propose_button": "提交",
     "propose_sending": "发送中...",
     "propose_done": "谢谢！您的建议将在发布前接受审核。",
     "propose_error": "提交失败，请稍后重试。",
-    "error_no_data": "数据不可用"
+    "error_no_data": "数据不可用",
+    "title_label": "你的建议标题",
+    "title_placeholder": "简短描述..."
   },
   "futureIdeas": {
     "title": "今天与明天的孩子",
@@ -803,7 +805,7 @@
     "suggestions_title": "社区提出的想法",
     "propose_title": "那么您希望增加哪些想法？",
     "propose_intro": "分享您为今天与明天的孩子创造更美好世界的想法。这些想法将在发布前接受审核。",
-    "propose_placeholder": "您的想法...",
+    "propose_placeholder": "详情(可选)...",
     "propose_button": "提交",
     "propose_sending": "发送中...",
     "propose_done": "谢谢！您的建议将在发布前接受审核。",
@@ -813,7 +815,9 @@
     "scope_label": "相关国家或地区（可选）",
     "email_label": "您的邮箱（可选）",
     "email_placeholder": "如需联系您时使用",
-    "notes_label": "给我们的留言？（可选）"
+    "notes_label": "给我们的留言？（可选）",
+    "title_label": "你的想法标题",
+    "title_placeholder": "简短描述..."
   },
   "dataStatus": {
     "title": "数据状态",

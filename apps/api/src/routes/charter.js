@@ -3,7 +3,7 @@ import { pool } from "../lib/db.js";
 import { errorDetail } from "../lib/errors.js";
 import { requireAdminSession } from "../lib/auth.js";
 import { publicWriteLimiter } from "../lib/rateLimits.js";
-import { UUID_RE } from "../lib/validators.js";
+import { UUID_RE, EMAIL_RE } from "../lib/validators.js";
 
 const router = Router();
 
@@ -134,6 +134,60 @@ router.post("/api/charter-suggestions", publicWriteLimiter, async (req, res) => 
   }
 });
 
+// Soumission publique directe — même principe que débunk/paysans/
+// pétitions/ressources : la proposition devient un vrai élément de charte
+// (published=false, submitted_publicly=true) plutôt qu'un texte libre à
+// part qui resterait une simple ligne de liste une fois publié. Comme
+// section_id est obligatoire et qu'un visiteur ne peut pas raisonnablement
+// choisir parmi les sections éditoriales existantes, tout atterrit dans
+// la section "Boîte à idées (à trier)" créée par la migration 061 —
+// l'admin la déplace ensuite si besoin via la page d'édition.
+router.post("/api/charter-items/submit", publicWriteLimiter, async (req, res) => {
+  const { title, description, website, submitterEmail, submissionNotes } = req.body || {};
+  if (website) {
+    return res.json({ status: "pending" });
+  }
+  if (!title || !title.trim()) {
+    return res.status(400).json({ error: "title est requis" });
+  }
+  if (title.length > 300) {
+    return res.status(400).json({ error: "Titre trop long (300 caractères max)" });
+  }
+  if (description && description.length > 2000) {
+    return res.status(400).json({ error: "Description trop longue (2000 caractères max)" });
+  }
+  const cleanEmail = submitterEmail && EMAIL_RE.test(submitterEmail.trim()) ? submitterEmail.trim() : null;
+  try {
+    const defaultSection = await pool.query(
+      "SELECT id FROM charter_sections WHERE name = 'Boîte à idées (à trier)' LIMIT 1"
+    );
+    if (defaultSection.rows.length === 0) {
+      throw new Error("Section par défaut introuvable — la migration 061 a-t-elle été appliquée ?");
+    }
+    const sectionId = defaultSection.rows[0].id;
+    const maxOrder = await pool.query(
+      "SELECT COALESCE(MAX(display_order), 0) AS max FROM charter_items WHERE section_id = $1",
+      [sectionId]
+    );
+    await pool.query(
+      `INSERT INTO charter_items
+         (section_id, title, description, display_order, published, submitted_publicly, submitter_email, submission_notes, updated_at)
+       VALUES ($1, $2, $3, $4, false, true, $5, $6, now())`,
+      [
+        sectionId,
+        title.trim(),
+        description ? description.trim() : null,
+        parseInt(maxOrder.rows[0].max, 10) + 1,
+        cleanEmail,
+        submissionNotes ? submissionNotes.trim().slice(0, 2000) : null,
+      ]
+    );
+    res.json({ status: "pending" });
+  } catch (err) {
+    res.status(500).json({ error: "Erreur serveur", detail: errorDetail(err) });
+  }
+});
+
 // -- Administration : sections --
 
 router.get("/api/admin/charter-sections", requireAdminSession, async (_req, res) => {
@@ -211,7 +265,7 @@ router.post("/api/admin/charter-sections/:id/move", requireAdminSession, async (
 router.get("/api/admin/charter-items", requireAdminSession, async (_req, res) => {
   try {
     const result = await pool.query(
-      `SELECT i.id, i.title, i.published, i.display_order, i.section_id, s.name AS section_name
+      `SELECT i.id, i.title, i.published, i.submitted_publicly, i.display_order, i.section_id, s.name AS section_name
        FROM charter_items i
        JOIN charter_sections s ON s.id = i.section_id
        ORDER BY s.display_order, i.display_order`

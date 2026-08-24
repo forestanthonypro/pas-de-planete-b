@@ -7,6 +7,27 @@ import ScopeBadges from "../../../components/ScopeBadges";
 
 const PAGE_SIZE = 20;
 
+function PublicSubmissionBadge() {
+  return (
+    <span
+      style={{
+        display: "inline-block",
+        fontSize: 11,
+        fontWeight: 600,
+        color: "#a86b0a",
+        background: "#fdf1d6",
+        borderRadius: 10,
+        padding: "2px 8px",
+        marginLeft: 6,
+        whiteSpace: "nowrap",
+      }}
+      title="Proposé via le formulaire public, en attente de relecture"
+    >
+      Proposition du public
+    </span>
+  );
+}
+
 function AdminFutureIdeasListInner() {
   const [ideas, setIdeas] = useState([]);
   const [loaded, setLoaded] = useState(false);
@@ -154,7 +175,8 @@ function AdminFutureIdeasListInner() {
               <thead>
                 <tr>
                   <th scope="col" style={{ textAlign: "left", padding: 8 }}>Titre</th>
-                  <th scope="col" style={{ textAlign: "right", padding: 8 }}>Soutiens</th>
+                  <th scope="col" style={{ textAlign: "right", padding: 8 }}>J&apos;adhère</th>
+                  <th scope="col" style={{ textAlign: "right", padding: 8 }}>À nuancer</th>
                   <th scope="col" style={{ textAlign: "left", padding: 8 }}>Statut</th>
                   <th scope="col" style={{ textAlign: "left", padding: 8 }}></th>
                 </tr>
@@ -163,9 +185,12 @@ function AdminFutureIdeasListInner() {
                 {ideas.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE).map((idea) => (
                   <tr key={idea.slug}>
                     <td style={{ padding: 8 }}>
-                      {idea.title} {idea.scope_codes && idea.scope_codes.length > 0 && <ScopeBadges codes={idea.scope_codes} locale="fr" />}
+                      {idea.title}
+                      {idea.submitted_publicly && !idea.published && <PublicSubmissionBadge />}{" "}
+                      {idea.scope_codes && idea.scope_codes.length > 0 && <ScopeBadges codes={idea.scope_codes} locale="fr" />}
                     </td>
-                    <td style={{ padding: 8, textAlign: "right", fontWeight: 600 }}>{idea.support_count}</td>
+                    <td style={{ padding: 8, textAlign: "right", fontWeight: 600 }}>{idea.adhere_count}</td>
+                    <td style={{ padding: 8, textAlign: "right", fontWeight: 600 }}>{idea.nuance_count}</td>
                     <td style={{ padding: 8, fontSize: 13, color: idea.published ? "#1baf7a" : "var(--color-texte-clair)" }}>
                       {idea.published ? "Publiée" : "Brouillon"}
                     </td>

@@ -786,12 +786,14 @@
     "suggestions_title": "Ideas propuestas por la comunidad",
     "propose_title": "¿Y tú, qué valores o acciones te gustaría añadir?",
     "propose_intro": "Comparte tus ideas, tus palabras fuertes, tus líneas rojas. ¡Juntos, hagamos de esta carta un manifiesto poderoso y transformador!",
-    "propose_placeholder": "Tu idea...",
+    "propose_placeholder": "Detalles (opcional)...",
     "propose_button": "Enviar",
     "propose_sending": "Enviando...",
     "propose_done": "¡Gracias! Tu sugerencia será revisada antes de su publicación.",
     "propose_error": "Error al enviar, inténtalo de nuevo más tarde.",
-    "error_no_data": "Datos no disponibles"
+    "error_no_data": "Datos no disponibles",
+    "title_label": "Título de tu propuesta",
+    "title_placeholder": "En pocas palabras..."
   },
   "futureIdeas": {
     "title": "Los niños de hoy y de mañana",
@@ -803,7 +805,7 @@
     "suggestions_title": "Ideas propuestas por la comunidad",
     "propose_title": "¿Y tú, qué ideas te gustaría añadir?",
     "propose_intro": "Comparte tus ideas para un mundo mejor para los niños de hoy y de mañana. Serán revisadas antes de su publicación.",
-    "propose_placeholder": "Tu idea...",
+    "propose_placeholder": "Detalles (opcional)...",
     "propose_button": "Enviar",
     "propose_sending": "Enviando...",
     "propose_done": "¡Gracias! Tu sugerencia será revisada antes de su publicación.",
@@ -813,7 +815,9 @@
     "scope_label": "País o zona concernida (opcional)",
     "email_label": "Tu email (opcional)",
     "email_placeholder": "para contactarte si es necesario",
-    "notes_label": "¿Un mensaje para nosotros? (opcional)"
+    "notes_label": "¿Un mensaje para nosotros? (opcional)",
+    "title_label": "Título de tu idea",
+    "title_placeholder": "En pocas palabras..."
   },
   "dataStatus": {
     "title": "Estado de los datos",

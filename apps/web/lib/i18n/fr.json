@@ -786,12 +786,14 @@
     "suggestions_title": "Idées proposées par la communauté",
     "propose_title": "Et vous, quelles valeurs ou actions voudriez-vous ajouter ?",
     "propose_intro": "Partagez vos idées, vos mots forts, vos non-négociables. Ensemble, faisons de cette charte un manifeste puissant et transformateur !",
-    "propose_placeholder": "Votre idée...",
+    "propose_placeholder": "Détails (optionnel)...",
     "propose_button": "Envoyer",
     "propose_sending": "Envoi...",
     "propose_done": "Merci ! Ta suggestion sera examinée avant publication.",
     "propose_error": "Échec de l'envoi, réessaie plus tard.",
-    "error_no_data": "Données indisponibles"
+    "error_no_data": "Données indisponibles",
+    "title_label": "Titre de votre proposition",
+    "title_placeholder": "En quelques mots..."
   },
   "futureIdeas": {
     "title": "Les enfants d'aujourd'hui et de demain",
@@ -803,7 +805,7 @@
     "suggestions_title": "Idées proposées par la communauté",
     "propose_title": "Et vous, quelles idées voudriez-vous ajouter ?",
     "propose_intro": "Partagez vos idées pour un monde meilleur pour les enfants d'aujourd'hui et de demain. Elles seront examinées avant publication.",
-    "propose_placeholder": "Votre idée...",
+    "propose_placeholder": "Détails (optionnel)...",
     "propose_button": "Envoyer",
     "propose_sending": "Envoi...",
     "propose_done": "Merci ! Ta suggestion sera examinée avant publication.",
@@ -813,7 +815,9 @@
     "scope_label": "Pays ou zone concernée (optionnel)",
     "email_label": "Votre email (optionnel)",
     "email_placeholder": "pour vous recontacter si besoin",
-    "notes_label": "Un message pour nous ? (optionnel)"
+    "notes_label": "Un message pour nous ? (optionnel)",
+    "title_label": "Titre de votre idée",
+    "title_placeholder": "En quelques mots..."
   },
   "dataStatus": {
     "title": "État des données",

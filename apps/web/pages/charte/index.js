@@ -14,7 +14,11 @@ export default function CharterPage() {
   const [myVotes, setMyVotes] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [suggestionTitle, setSuggestionTitle] = useState("");
   const [suggestionText, setSuggestionText] = useState("");
+  const [suggestionEmail, setSuggestionEmail] = useState("");
+  const [suggestionNotes, setSuggestionNotes] = useState("");
+  const [website, setWebsite] = useState("");
   const [suggestionStatus, setSuggestionStatus] = useState("idle"); // idle | sending | done | error
   const [nuancePromptItemId, setNuancePromptItemId] = useState(null);
   const [nuanceAlternative, setNuanceAlternative] = useState("");
@@ -128,12 +132,20 @@ export default function CharterPage() {
 
   function handleSuggestionSubmit(e) {
     e.preventDefault();
-    if (!suggestionText.trim()) return;
+    if (!suggestionTitle.trim()) return;
     setSuggestionStatus("sending");
-    fetch(`/api/charter-suggestions`, {
+    // Envoyée directement comme un vrai élément de charte (non publié, en
+    // attente de relecture, dans la section "Boîte à idées (à trier)")
+    // plutôt qu'un texte libre à part — une fois approuvée par l'admin,
+    // elle apparaît comme un vrai bloc votable (👍/🤔). Même principe que
+    // débunk, paysans, pétitions et ressources.
+    fetch(`/api/charter-items/submit`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text: suggestionText.trim() }),
+      body: JSON.stringify({
+        title: suggestionTitle.trim(), description: suggestionText.trim() || null,
+        submitterEmail: suggestionEmail || null, submissionNotes: suggestionNotes || null, website,
+      }),
     })
       .then((res) => {
         if (!res.ok) throw new Error();
@@ -141,7 +153,10 @@ export default function CharterPage() {
       })
       .then(() => {
         setSuggestionStatus("done");
+        setSuggestionTitle("");
         setSuggestionText("");
+        setSuggestionEmail("");
+        setSuggestionNotes("");
       })
       .catch(() => setSuggestionStatus("error"));
   }
@@ -271,6 +286,22 @@ export default function CharterPage() {
           <p style={{ fontSize: 14, fontWeight: 600 }}>{t("charter.propose_done")}</p>
         ) : (
           <form onSubmit={handleSuggestionSubmit}>
+            <div aria-hidden="true" style={{ position: "absolute", left: "-9999px", top: "-9999px" }}>
+              <label htmlFor="website-charter">{t("common.honeypot_label")}</label>
+              <input id="website-charter" type="text" tabIndex={-1} autoComplete="off" value={website} onChange={(e) => setWebsite(e.target.value)} />
+            </div>
+            <label style={{ display: "block", marginBottom: "0.5rem" }}>
+              <span style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>{t("charter.title_label")}</span>
+              <input
+                type="text"
+                required
+                maxLength={300}
+                value={suggestionTitle}
+                onChange={(e) => setSuggestionTitle(e.target.value)}
+                placeholder={t("charter.title_placeholder")}
+                style={{ width: "100%", padding: "8px 10px" }}
+              />
+            </label>
             <textarea
               value={suggestionText}
               onChange={(e) => setSuggestionText(e.target.value)}
@@ -279,7 +310,26 @@ export default function CharterPage() {
               maxLength={2000}
               style={{ width: "100%", padding: "8px 10px", fontFamily: "inherit", marginBottom: "0.5rem" }}
             />
-            <button type="submit" disabled={suggestionStatus === "sending" || !suggestionText.trim()}>
+            <label style={{ display: "block", marginBottom: "0.5rem" }}>
+              <span style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>{t("futureIdeas.email_label")}</span>
+              <input
+                type="email"
+                value={suggestionEmail}
+                onChange={(e) => setSuggestionEmail(e.target.value)}
+                placeholder={t("futureIdeas.email_placeholder")}
+                style={{ width: "100%", padding: "8px 10px" }}
+              />
+            </label>
+            <label style={{ display: "block", marginBottom: "0.75rem" }}>
+              <span style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>{t("futureIdeas.notes_label")}</span>
+              <textarea
+                value={suggestionNotes}
+                onChange={(e) => setSuggestionNotes(e.target.value)}
+                rows={2}
+                style={{ width: "100%", padding: "8px 10px", fontFamily: "inherit" }}
+              />
+            </label>
+            <button type="submit" disabled={suggestionStatus === "sending" || !suggestionTitle.trim()}>
               {suggestionStatus === "sending" ? t("charter.propose_sending") : t("charter.propose_button")}
             </button>
             {suggestionStatus === "error" && (

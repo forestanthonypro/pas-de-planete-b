@@ -786,12 +786,14 @@
     "suggestions_title": "Idee proposte dalla comunità",
     "propose_title": "E tu, quali valori o azioni vorresti aggiungere?",
     "propose_intro": "Condividi le tue idee, le tue parole forti, i tuoi punti non negoziabili. Insieme, facciamo di questa carta un manifesto potente e trasformativo!",
-    "propose_placeholder": "La tua idea...",
+    "propose_placeholder": "Dettagli (facoltativo)...",
     "propose_button": "Invia",
     "propose_sending": "Invio...",
     "propose_done": "Grazie! Il tuo suggerimento sarà esaminato prima della pubblicazione.",
     "propose_error": "Invio fallito, riprova più tardi.",
-    "error_no_data": "Dati non disponibili"
+    "error_no_data": "Dati non disponibili",
+    "title_label": "Titolo della tua proposta",
+    "title_placeholder": "In poche parole..."
   },
   "futureIdeas": {
     "title": "I bambini di oggi e di domani",
@@ -803,7 +805,7 @@
     "suggestions_title": "Idee proposte dalla comunità",
     "propose_title": "E tu, quali idee vorresti aggiungere?",
     "propose_intro": "Condividi le tue idee per un mondo migliore per i bambini di oggi e di domani. Saranno esaminate prima della pubblicazione.",
-    "propose_placeholder": "La tua idea...",
+    "propose_placeholder": "Dettagli (facoltativo)...",
     "propose_button": "Invia",
     "propose_sending": "Invio...",
     "propose_done": "Grazie! Il tuo suggerimento sarà esaminato prima della pubblicazione.",
@@ -813,7 +815,9 @@
     "scope_label": "Paese o zona interessata (opzionale)",
     "email_label": "La tua email (opzionale)",
     "email_placeholder": "per ricontattarti se necessario",
-    "notes_label": "Un messaggio per noi? (opzionale)"
+    "notes_label": "Un messaggio per noi? (opzionale)",
+    "title_label": "Titolo della tua idea",
+    "title_placeholder": "In poche parole..."
   },
   "dataStatus": {
     "title": "Stato dei dati",

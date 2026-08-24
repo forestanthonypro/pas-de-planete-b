@@ -786,12 +786,14 @@
     "suggestions_title": "Ideas proposed by the community",
     "propose_title": "What values or actions would you like to add?",
     "propose_intro": "Share your ideas, your strong words, your non-negotiables. Together, let's make this charter a powerful, transformative manifesto!",
-    "propose_placeholder": "Your idea...",
+    "propose_placeholder": "Details (optional)...",
     "propose_button": "Send",
     "propose_sending": "Sending...",
     "propose_done": "Thank you! Your suggestion will be reviewed before publication.",
     "propose_error": "Failed to send, try again later.",
-    "error_no_data": "Data unavailable"
+    "error_no_data": "Data unavailable",
+    "title_label": "Title of your proposal",
+    "title_placeholder": "In a few words..."
   },
   "futureIdeas": {
     "title": "Today's and tomorrow's children",
@@ -803,7 +805,7 @@
     "suggestions_title": "Ideas proposed by the community",
     "propose_title": "What ideas would you like to add?",
     "propose_intro": "Share your ideas for a better world for today's and tomorrow's children. They'll be reviewed before publication.",
-    "propose_placeholder": "Your idea...",
+    "propose_placeholder": "Details (optional)...",
     "propose_button": "Send",
     "propose_sending": "Sending...",
     "propose_done": "Thank you! Your suggestion will be reviewed before publication.",
@@ -813,7 +815,9 @@
     "scope_label": "Country or region concerned (optional)",
     "email_label": "Your email (optional)",
     "email_placeholder": "so we can contact you if needed",
-    "notes_label": "A message for us? (optional)"
+    "notes_label": "A message for us? (optional)",
+    "title_label": "Title of your idea",
+    "title_placeholder": "In a few words..."
   },
   "dataStatus": {
     "title": "Data status",

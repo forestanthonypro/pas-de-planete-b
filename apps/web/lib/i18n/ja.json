@@ -786,12 +786,14 @@
     "suggestions_title": "コミュニティから提案されたアイデア",
     "propose_title": "あなたが追加したい価値観や行動は何ですか？",
     "propose_intro": "あなたのアイデア、強い言葉、譲れない原則を共有してください。一緒にこの憲章を力強く変革的な宣言にしましょう！",
-    "propose_placeholder": "あなたのアイデア...",
+    "propose_placeholder": "詳細(任意)...",
     "propose_button": "送信",
     "propose_sending": "送信中...",
     "propose_done": "ありがとうございます！あなたの提案は公開前に審査されます。",
     "propose_error": "送信に失敗しました。後でもう一度お試しください。",
-    "error_no_data": "データは利用できません"
+    "error_no_data": "データは利用できません",
+    "title_label": "提案のタイトル",
+    "title_placeholder": "一言で..."
   },
   "futureIdeas": {
     "title": "今日と未来の子どもたち",
@@ -803,7 +805,7 @@
     "suggestions_title": "コミュニティから提案されたアイデア",
     "propose_title": "あなたが追加したいアイデアは何ですか？",
     "propose_intro": "今日と未来の子どもたちのためのより良い世界のためのアイデアを共有してください。公開前に審査されます。",
-    "propose_placeholder": "あなたのアイデア...",
+    "propose_placeholder": "詳細(任意)...",
     "propose_button": "送信",
     "propose_sending": "送信中...",
     "propose_done": "ありがとうございます！あなたの提案は公開前に審査されます。",
@@ -813,7 +815,9 @@
     "scope_label": "関係する国・地域（任意）",
     "email_label": "メールアドレス（任意）",
     "email_placeholder": "必要な場合にご連絡するため",
-    "notes_label": "メッセージ（任意）"
+    "notes_label": "メッセージ（任意）",
+    "title_label": "アイデアのタイトル",
+    "title_placeholder": "一言で..."
   },
   "dataStatus": {
     "title": "データの状態",

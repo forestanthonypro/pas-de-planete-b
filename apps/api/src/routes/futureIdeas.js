@@ -5,6 +5,7 @@ import { requireAdminSession } from "../lib/auth.js";
 import { publicWriteLimiter } from "../lib/rateLimits.js";
 import { UUID_RE, EMAIL_RE } from "../lib/validators.js";
 import { mergeTranslations } from "../lib/translations.js";
+import { generateUniqueSlug } from "../lib/slug.js";
 import { sanitizeScopeCodes, parseScopesQueryParam, expandScopeFilterForSearch, worldSelected } from "../lib/scopeCodes.js";
 
 const router = Router();
@@ -43,6 +44,49 @@ router.get("/api/future-ideas", async (req, res) => {
     res.json(rows);
   } catch (err) {
     res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
+  }
+});
+
+// Soumission publique directe — même principe que débunk/paysans/
+// pétitions/ressources : la proposition devient une entrée réelle
+// (published=false, submitted_publicly=true), modifiable via la page
+// d'édition existante avant publication, plutôt qu'un texte libre à part
+// qui resterait une simple ligne de liste une fois publié.
+router.post("/api/future-ideas/submit", publicWriteLimiter, async (req, res) => {
+  const { title, description, website, scopeCodes, submitterEmail, submissionNotes } = req.body || {};
+  if (website) {
+    // Piège à bots rempli — même principe que les autres rubriques : on
+    // répond succès sans rien enregistrer, sans révéler la détection.
+    return res.json({ status: "pending" });
+  }
+  if (!title || !title.trim()) {
+    return res.status(400).json({ error: "title est requis" });
+  }
+  if (title.length > 300) {
+    return res.status(400).json({ error: "Titre trop long (300 caractères max)" });
+  }
+  if (description && description.length > 2000) {
+    return res.status(400).json({ error: "Description trop longue (2000 caractères max)" });
+  }
+  const cleanEmail = submitterEmail && EMAIL_RE.test(submitterEmail.trim()) ? submitterEmail.trim() : null;
+  try {
+    const slug = await generateUniqueSlug(title, "future_ideas");
+    await pool.query(
+      `INSERT INTO future_ideas
+         (slug, title, description, published, submitted_publicly, scope_codes, submitter_email, submission_notes, updated_at)
+       VALUES ($1, $2, $3, false, true, $4, $5, $6, now())`,
+      [
+        slug,
+        title.trim(),
+        description ? description.trim() : null,
+        sanitizeScopeCodes(scopeCodes),
+        cleanEmail,
+        submissionNotes ? submissionNotes.trim().slice(0, 2000) : null,
+      ]
+    );
+    res.json({ status: "pending" });
+  } catch (err) {
+    res.status(500).json({ error: "Erreur serveur", detail: errorDetail(err) });
   }
 });
 
@@ -92,13 +136,17 @@ router.get("/api/future-idea-votes/:anonymousId", async (req, res) => {
 router.get("/api/admin/future-ideas", requireAdminSession, async (_req, res) => {
   try {
     const result = await pool.query(
-      `SELECT i.slug, i.title, i.published, i.updated_at, COUNT(v.anonymous_id) AS support_count
+      `SELECT i.slug, i.title, i.published, i.submitted_publicly, i.scope_codes, i.updated_at,
+              COUNT(*) FILTER (WHERE v.vote_type = 'adhere') AS adhere_count,
+              COUNT(*) FILTER (WHERE v.vote_type = 'nuance') AS nuance_count
        FROM future_ideas i
        LEFT JOIN future_idea_votes v ON v.idea_slug = i.slug
        GROUP BY i.slug
-       ORDER BY i.updated_at DESC`
+       ORDER BY i.submitted_publicly DESC, i.updated_at DESC`
     );
-    res.json(result.rows.map((r) => ({ ...r, support_count: parseInt(r.support_count, 10) })));
+    res.json(
+      result.rows.map((r) => ({ ...r, adhere_count: parseInt(r.adhere_count, 10), nuance_count: parseInt(r.nuance_count, 10) }))
+    );
   } catch (err) {
     res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }

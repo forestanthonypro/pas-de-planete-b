@@ -17,6 +17,7 @@ export default function FutureIdeasPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [publishedSuggestions, setPublishedSuggestions] = useState([]);
+  const [suggestionTitle, setSuggestionTitle] = useState("");
   const [suggestionText, setSuggestionText] = useState("");
   const [suggestionScopeCodes, setSuggestionScopeCodes] = useState([]);
   const [suggestionEmail, setSuggestionEmail] = useState("");
@@ -132,13 +133,18 @@ export default function FutureIdeasPage() {
 
   function handleSuggestionSubmit(e) {
     e.preventDefault();
-    if (!suggestionText.trim()) return;
+    if (!suggestionTitle.trim()) return;
     setSuggestionStatus("sending");
-    fetch(`/api/future-idea-suggestions`, {
+    // Envoyée directement comme un vrai élément (non publié, en attente de
+    // relecture) plutôt qu'un texte libre à part — une fois approuvée par
+    // l'admin, elle apparaît comme un vrai bloc votable (👍/🤔), pas
+    // seulement une ligne dans une liste. Même principe que débunk,
+    // paysans, pétitions et ressources.
+    fetch(`/api/future-ideas/submit`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        text: suggestionText.trim(), scopeCodes: suggestionScopeCodes,
+        title: suggestionTitle.trim(), description: suggestionText.trim() || null, scopeCodes: suggestionScopeCodes,
         submitterEmail: suggestionEmail || null, submissionNotes: suggestionNotes || null, website,
       }),
     })
@@ -148,6 +154,7 @@ export default function FutureIdeasPage() {
       })
       .then(() => {
         setSuggestionStatus("done");
+        setSuggestionTitle("");
         setSuggestionText("");
         setSuggestionScopeCodes([]);
         setSuggestionEmail("");
@@ -284,6 +291,18 @@ export default function FutureIdeasPage() {
               <label htmlFor="website-future-idea">{t("common.honeypot_label")}</label>
               <input id="website-future-idea" type="text" tabIndex={-1} autoComplete="off" value={website} onChange={(e) => setWebsite(e.target.value)} />
             </div>
+            <label style={{ display: "block", marginBottom: "0.5rem" }}>
+              <span style={{ display: "block", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>{t("futureIdeas.title_label")}</span>
+              <input
+                type="text"
+                required
+                maxLength={300}
+                value={suggestionTitle}
+                onChange={(e) => setSuggestionTitle(e.target.value)}
+                placeholder={t("futureIdeas.title_placeholder")}
+                style={{ width: "100%", padding: "8px 10px" }}
+              />
+            </label>
             <textarea
               value={suggestionText}
               onChange={(e) => setSuggestionText(e.target.value)}
@@ -320,7 +339,7 @@ export default function FutureIdeasPage() {
                 style={{ width: "100%", padding: "8px 10px", fontFamily: "inherit" }}
               />
             </label>
-            <button type="submit" disabled={suggestionStatus === "sending" || !suggestionText.trim()}>
+            <button type="submit" disabled={suggestionStatus === "sending" || !suggestionTitle.trim()}>
               {suggestionStatus === "sending" ? t("futureIdeas.propose_sending") : t("futureIdeas.propose_button")}
             </button>
             {suggestionStatus === "error" && (

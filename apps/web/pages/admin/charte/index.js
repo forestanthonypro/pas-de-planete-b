@@ -5,6 +5,28 @@ import ScrollableTable from "../../../components/ScrollableTable";
 import ContentTranslationsEditor from "../../../components/ContentTranslationsEditor";
 
 
+function PublicSubmissionBadge() {
+  return (
+    <span
+      style={{
+        display: "inline-block",
+        fontSize: 11,
+        fontWeight: 600,
+        color: "#a86b0a",
+        background: "#fdf1d6",
+        borderRadius: 10,
+        padding: "2px 8px",
+        marginLeft: 6,
+        whiteSpace: "nowrap",
+      }}
+      title="Proposé via le formulaire public, en attente de relecture"
+    >
+      Proposition du public
+    </span>
+  );
+}
+
+
 const STATUS_LABELS = { pending: "En attente", published: "Publiée", draft: "Brouillon", rejected: "Rejetée" };
 
 const SECTION_TRANSLATION_FIELDS = [{ name: "name", label: "Nom de la section", multiline: false }];
@@ -263,7 +285,10 @@ function AdminCharterPageInner() {
                     <div key={item.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 0", borderBottom: "1px solid var(--color-bordure)" }}>
                       <button type="button" onClick={() => moveItem(item.id, "up")} disabled={i === 0} style={{ fontSize: 12 }}>↑</button>
                       <button type="button" onClick={() => moveItem(item.id, "down")} disabled={i === itemsBySection[s.id].length - 1} style={{ fontSize: 12 }}>↓</button>
-                      <span style={{ flex: 1 }}>{item.title}</span>
+                      <span style={{ flex: 1 }}>
+                        {item.title}
+                        {item.submitted_publicly && !item.published && <PublicSubmissionBadge />}
+                      </span>
                       <span style={{ fontSize: 12, color: item.published ? "#1baf7a" : "var(--color-texte-clair)" }}>
                         {item.published ? "Publié" : "Brouillon"}
                       </span>
