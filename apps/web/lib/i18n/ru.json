@@ -263,7 +263,9 @@
       "source_last_updated": "Последнее обновление нашей базы: {date}.",
       "table_common_name": "Народное название",
       "name_unavailable": "Народное название недоступно",
-      "no_place_for_country": "Пока нет пилотного места для {country} — ниже показана другая зона."
+      "no_place_for_country": "Пока нет пилотного места для {country} — ниже показана другая зона.",
+      "legend_in_gts": "В GlobalTreeSearch",
+      "legend_not_in_gts": "Не в GlobalTreeSearch"
     }
   },
   "especes": {

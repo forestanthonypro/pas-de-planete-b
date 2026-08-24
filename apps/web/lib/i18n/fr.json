@@ -263,7 +263,9 @@
       "source_last_updated": "Dernière mise à jour de notre base : {date}.",
       "table_common_name": "Nom commun",
       "name_unavailable": "Nom commun non disponible",
-      "no_place_for_country": "Aucun lieu pilote pour {country} pour le moment — aperçu d'une autre zone ci-dessous."
+      "no_place_for_country": "Aucun lieu pilote pour {country} pour le moment — aperçu d'une autre zone ci-dessous.",
+      "legend_in_gts": "Dans GlobalTreeSearch",
+      "legend_not_in_gts": "Pas dans GlobalTreeSearch"
     }
   },
   "especes": {

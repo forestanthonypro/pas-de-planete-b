@@ -75,14 +75,14 @@ async function fetchJson(url) {
 // espèce très commune (ex. Hedera helix, la plus observée en France) peut
 // perdre son nom commun pour toute l'exécution si un seul appel échoue au
 // mauvais moment — d'où ce petit retry avant d'abandonner.
-async function fetchJsonWithRetry(url, attempts = 2) {
+async function fetchJsonWithRetry(url, attempts = 3) {
   let lastErr;
   for (let i = 0; i < attempts; i++) {
     try {
       return await fetchJson(url);
     } catch (err) {
       lastErr = err;
-      if (i < attempts - 1) await sleep(500);
+      if (i < attempts - 1) await sleep(500 * (i + 1)); // 500ms, puis 1000ms
     }
   }
   throw lastErr;
@@ -162,6 +162,7 @@ async function fetchCommonNames(scientificName) {
     const matchUrl = `${GBIF_BASE}/species/match?name=${encodeURIComponent(scientificName)}&kingdom=Plantae`;
     const match = await fetchJsonWithRetry(matchUrl);
     if (!match.usageKey) return { names: {}, ok: true }; // réponse valide, juste aucune correspondance GBIF
+    await sleep(300); // pas de rafale sans pause entre les deux appels species/* — cause identifiée d'échecs 429
     const vernUrl = `${GBIF_BASE}/species/${match.usageKey}/vernacularNames?limit=50`;
     const vern = await fetchJsonWithRetry(vernUrl);
     return { names: resolveCommonNames(scientificName, vern.results || []), ok: true };

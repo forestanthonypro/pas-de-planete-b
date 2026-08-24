@@ -263,7 +263,9 @@
       "source_last_updated": "हमारे डेटाबेस का अंतिम अपडेट: {date}।",
       "table_common_name": "सामान्य नाम",
       "name_unavailable": "सामान्य नाम उपलब्ध नहीं",
-      "no_place_for_country": "फिलहाल {country} के लिए कोई पायलट स्थान नहीं है — नीचे किसी अन्य क्षेत्र की जानकारी दिखाई गई है।"
+      "no_place_for_country": "फिलहाल {country} के लिए कोई पायलट स्थान नहीं है — नीचे किसी अन्य क्षेत्र की जानकारी दिखाई गई है।",
+      "legend_in_gts": "GlobalTreeSearch में",
+      "legend_not_in_gts": "GlobalTreeSearch में नहीं"
     }
   },
   "especes": {

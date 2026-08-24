@@ -263,7 +263,9 @@
       "source_last_updated": "当データベースの最終更新:{date}。",
       "table_common_name": "通称",
       "name_unavailable": "通称は利用できません",
-      "no_place_for_country": "現時点で{country}のパイロット地点はありません — 以下は別のエリアを表示しています。"
+      "no_place_for_country": "現時点で{country}のパイロット地点はありません — 以下は別のエリアを表示しています。",
+      "legend_in_gts": "GlobalTreeSearch掲載",
+      "legend_not_in_gts": "GlobalTreeSearch未掲載"
     }
   },
   "especes": {

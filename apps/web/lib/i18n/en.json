@@ -263,7 +263,9 @@
       "source_last_updated": "Our database was last updated on {date}.",
       "table_common_name": "Common name",
       "name_unavailable": "Common name unavailable",
-      "no_place_for_country": "No pilot location for {country} yet — showing another area below."
+      "no_place_for_country": "No pilot location for {country} yet — showing another area below.",
+      "legend_in_gts": "In GlobalTreeSearch",
+      "legend_not_in_gts": "Not in GlobalTreeSearch"
     }
   },
   "especes": {

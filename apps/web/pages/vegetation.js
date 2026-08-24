@@ -54,8 +54,20 @@ function ObservedSpeciesChart({ topSpecies, canvasRef, chartRef, t, locale, titl
 
   if (!topSpecies || topSpecies.length === 0) return null;
   return (
-    <div style={{ position: "relative", height: 260, marginBottom: "0.75rem" }}>
-      <canvas ref={canvasRef} role="img" aria-label={t("vegetation.observedSpecies.chart_count")} />
+    <div>
+      <div style={{ display: "flex", gap: "1rem", fontSize: 12, color: "var(--color-texte-clair)", marginBottom: "0.4rem" }}>
+        <span>
+          <span style={{ display: "inline-block", width: 10, height: 10, borderRadius: 2, backgroundColor: "#1baf7a", marginRight: 4 }} />
+          {t("vegetation.observedSpecies.legend_in_gts")}
+        </span>
+        <span>
+          <span style={{ display: "inline-block", width: 10, height: 10, borderRadius: 2, backgroundColor: "#4285f4", marginRight: 4 }} />
+          {t("vegetation.observedSpecies.legend_not_in_gts")}
+        </span>
+      </div>
+      <div style={{ position: "relative", height: 260, marginBottom: "0.75rem" }}>
+        <canvas ref={canvasRef} role="img" aria-label={t("vegetation.observedSpecies.chart_count")} />
+      </div>
     </div>
   );
 }

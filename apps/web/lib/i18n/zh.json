@@ -263,7 +263,9 @@
       "source_last_updated": "我们数据库的最后更新时间:{date}。",
       "table_common_name": "俗名",
       "name_unavailable": "暂无俗名",
-      "no_place_for_country": "目前没有{country}的试点地点 — 以下显示的是另一个区域。"
+      "no_place_for_country": "目前没有{country}的试点地点 — 以下显示的是另一个区域。",
+      "legend_in_gts": "在GlobalTreeSearch中",
+      "legend_not_in_gts": "不在GlobalTreeSearch中"
     }
   },
   "especes": {
