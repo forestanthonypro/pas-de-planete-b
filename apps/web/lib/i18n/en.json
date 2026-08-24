@@ -853,7 +853,8 @@
     "source_italyCameraMembers": "Italian MPs",
     "source_italyCameraVotes": "Italian Chamber votes",
     "source_temperatures": "Temperatures by country (averages, deviations, heatwaves/cold waves)",
-    "freq_annual": "Annual (automated)"
+    "freq_annual": "Annual (automated)",
+    "source_speciesObservations": "Observed species (field data)"
   },
   "environmentalImpact": {
     "title": "Environmental impact",

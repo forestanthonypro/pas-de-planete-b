@@ -192,6 +192,57 @@ async function enrichSpecies(scientificName, cache) {
   return result;
 }
 
+const COUNTRIES_DEV_BASE = "https://countries.dev";
+
+// Trouve la capitale d'un pays via countries.dev (gratuit, sans clé,
+// données GeoNames CC BY 4.0 — vérifié en réel : identifie correctement
+// la capitale même quand ce n'est pas la ville la plus peuplée, ex. Berne
+// pour la Suisse malgré Zurich plus grande). On demande les 20 premières
+// villes par population et on cherche featureCode=PPLC (Populated Place,
+// Capital) plutôt que de supposer que la plus peuplée est la capitale.
+async function fetchCapitalCity(iso2) {
+  try {
+    const url = `${COUNTRIES_DEV_BASE}/cities?country=${iso2}&limit=20`;
+    const cities = await fetchJsonWithRetry(url);
+    if (!Array.isArray(cities) || cities.length === 0) return null;
+    const capital = cities.find((c) => c.featureCode === "PPLC") || cities[0];
+    if (!capital || typeof capital.latitude !== "number" || typeof capital.longitude !== "number") return null;
+    return { name: capital.name, lat: capital.latitude, lon: capital.longitude };
+  } catch (err) {
+    console.error(`[speciesObservations] erreur capitale pour "${iso2}" (abandon après retry):`, err.message);
+    return null;
+  }
+}
+
+// Complète les 4 lieux pilotes choisis à la main par la capitale de
+// chaque pays déjà suivi par le site qui n'a pas encore de lieu pilote —
+// pour ne jamais dupliquer un lieu déjà couvert (ex. la France a déjà
+// Paris et la Lozère, pas besoin d'ajouter Paris une seconde fois via ce
+// mécanisme automatique).
+async function buildPlacesList(countryCodes3) {
+  const seedCountryCodes = new Set(PLACES_SEED.map((p) => p.countryCode));
+  const autoPlaces = [];
+  for (const iso3 of countryCodes3) {
+    if (seedCountryCodes.has(iso3)) continue;
+    const iso2 = toAlpha2(iso3);
+    if (!iso2) continue;
+    const capital = await fetchCapitalCity(iso2);
+    await sleep(300);
+    if (!capital) continue;
+    autoPlaces.push({
+      slug: `capital-${iso3.toLowerCase()}`,
+      name: `${capital.name}, ${localizeCountryNameFr(iso3) || iso3}`,
+      countryCode: iso3,
+      contexte: null, // pas de contexte rédigé pour les lieux auto-générés — voir isAuto côté UI
+      lat: capital.lat,
+      lon: capital.lon,
+      demiCoteDeg: 0.15, // échelle ville, cohérent avec Paris (0.12) et Mumbai (0.15)
+      isAuto: true,
+    });
+  }
+  return [...PLACES_SEED.map((p) => ({ ...p, isAuto: false })), ...autoPlaces];
+}
+
 export async function ingestSpeciesObservations(pool) {
   const countryRows = await pool.query(`
     SELECT DISTINCT country_code FROM co2_emissions
@@ -273,7 +324,10 @@ export async function ingestSpeciesObservations(pool) {
       countriesProcessed += 1;
     }
 
-    for (const place of PLACES_SEED) {
+    const placesList = await buildPlacesList(countryCodes3);
+    console.log(`[speciesObservations] ${placesList.length} lieux à traiter (${PLACES_SEED.length} pilotes + ${placesList.length - PLACES_SEED.length} capitales auto-générées).`);
+
+    for (const place of placesList) {
       const wkt = buildBBoxWKT(place.lat, place.lon, place.demiCoteDeg);
       const zoneFilter = `geometry=${encodeURIComponent(wkt)}`;
 
@@ -290,14 +344,14 @@ export async function ingestSpeciesObservations(pool) {
       }
 
       const placeResult = await client.query(
-        `INSERT INTO species_observation_places (slug, name, country_code, contexte, lat, lon, demi_cote_deg)
-         VALUES ($1, $2, $3, $4, $5, $6, $7)
+        `INSERT INTO species_observation_places (slug, name, country_code, contexte, lat, lon, demi_cote_deg, is_auto)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
          ON CONFLICT (slug)
          DO UPDATE SET name = EXCLUDED.name, country_code = EXCLUDED.country_code,
            contexte = EXCLUDED.contexte, lat = EXCLUDED.lat, lon = EXCLUDED.lon,
-           demi_cote_deg = EXCLUDED.demi_cote_deg
+           demi_cote_deg = EXCLUDED.demi_cote_deg, is_auto = EXCLUDED.is_auto
          RETURNING id`,
-        [place.slug, place.name, place.countryCode, place.contexte, place.lat, place.lon, place.demiCoteDeg]
+        [place.slug, place.name, place.countryCode, place.contexte, place.lat, place.lon, place.demiCoteDeg, place.isAuto]
       );
       const placeId = placeResult.rows[0].id;
 

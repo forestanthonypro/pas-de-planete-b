@@ -853,7 +853,8 @@
     "source_italyCameraMembers": "イタリア下院議員",
     "source_italyCameraVotes": "イタリア下院の採決",
     "source_temperatures": "国別気温（平均、基準との差、熱波・寒波）",
-    "freq_annual": "年次（自動化済み）"
+    "freq_annual": "年次（自動化済み）",
+    "source_speciesObservations": "観察された種(現地データ)"
   },
   "environmentalImpact": {
     "title": "環境への影響",

@@ -16,6 +16,7 @@ const SOURCE_KEYS = [
   { key: "electricity", labelKey: "source_electricity", source: "Ember / Our World in Data", page: "/energie", frequencyKey: "freq_monthly" },
   { key: "species", labelKey: "source_species", source: "IUCN Red List", page: "/especes", frequencyKey: "freq_monthly" },
   { key: "speciesThreatened", labelKey: "source_speciesThreatened", source: "IUCN Red List", page: "/especes", frequencyKey: "freq_monthly" },
+  { key: "speciesObservations", labelKey: "source_speciesObservations", source: "GBIF, GlobalTreeSearch (BGCI), countries.dev", page: "/vegetation", frequencyKey: "freq_monthly" },
   { key: "vegetation", labelKey: "source_vegetation", source: "Global Forest Watch", page: "/vegetation", frequencyKey: "freq_monthly" },
   { key: "fires", labelKey: "source_fires", source: "NASA FIRMS", page: "/incendies", frequencyKey: "freq_6h" },
   { key: "water", labelKey: "source_water", source: "Aqueduct / FAO", page: "/eau", frequencyKey: "freq_monthly" },

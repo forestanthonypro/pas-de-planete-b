@@ -853,7 +853,8 @@
     "source_italyCameraMembers": "इतालवी सांसद",
     "source_italyCameraVotes": "इतालवी चैंबर के मतदान",
     "source_temperatures": "देश के अनुसार तापमान (औसत, अंतर, गर्मी/ठंड की लहरें)",
-    "freq_annual": "वार्षिक (स्वचालित)"
+    "freq_annual": "वार्षिक (स्वचालित)",
+    "source_speciesObservations": "देखी गई प्रजातियाँ (क्षेत्रीय डेटा)"
   },
   "environmentalImpact": {
     "title": "पर्यावरणीय प्रभाव",

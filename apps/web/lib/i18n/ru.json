@@ -853,7 +853,8 @@
     "source_italyCameraMembers": "Депутаты Италии",
     "source_italyCameraVotes": "Голосования Палаты депутатов Италии",
     "source_temperatures": "Температуры по странам (средние, отклонения, волны жары/холода)",
-    "freq_annual": "Ежегодно (автоматически)"
+    "freq_annual": "Ежегодно (автоматически)",
+    "source_speciesObservations": "Наблюдаемые виды (полевые данные)"
   },
   "environmentalImpact": {
     "title": "Экологическое воздействие",

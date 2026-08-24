@@ -853,7 +853,8 @@
     "source_italyCameraMembers": "Deputati italiani",
     "source_italyCameraVotes": "Votazioni della Camera italiana",
     "source_temperatures": "Temperature per paese (medie, scarti, ondate di calore/freddo)",
-    "freq_annual": "Annuale (automatizzata)"
+    "freq_annual": "Annuale (automatizzata)",
+    "source_speciesObservations": "Specie osservate (sul campo)"
   },
   "environmentalImpact": {
     "title": "Impatto ambientale",
