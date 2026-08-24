@@ -740,7 +740,9 @@
     "remove_link_button": "削除",
     "add_link_button": "+ リンクを追加",
     "title_label": "タイトル",
-    "url_label": "URL"
+    "url_label": "URL",
+    "choose_filter_prompt": "上で国/地域またはカテゴリーを選択すると場所が表示されます — 世界中に66,000か所以上あるため、一度に全て読み込まないようにしています。",
+    "truncated_note": "結果が多すぎて全て表示できません(3000件以上)— 国/地域またはカテゴリーを絞り込むと全て表示されます。"
   },
   "petitions": {
     "title": "署名活動",

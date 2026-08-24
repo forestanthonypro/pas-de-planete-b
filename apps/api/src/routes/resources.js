@@ -76,6 +76,12 @@ router.delete("/api/admin/resource-categories/:id", requireAdminSession, async (
 // un aller-retour supplémentaire (une carte affiche tout d'un coup).
 router.get("/api/resource-locations", async (req, res) => {
   const { category, locale, scopes } = req.query;
+  // Sans plafond, un filtre trop large (ou aucun filtre — "le monde entier")
+  // peut renvoyer les ~66 000 lieux d'un coup, ce qui rend la carte
+  // inutilisable côté navigateur (voir /ressources) — filet de sécurité
+  // même quand le frontend est censé toujours filtrer avant d'appeler
+  // cette route.
+  const RESOURCE_LOCATIONS_LIMIT = 3000;
   try {
     const params = [];
     let where = "WHERE l.published = true";
@@ -88,15 +94,19 @@ router.get("/api/resource-locations", async (req, res) => {
       params.push(expandScopeFilterForSearch(scopeCodes));
       where += ` AND l.scope_codes && $${params.length}`;
     }
+    params.push(RESOURCE_LOCATIONS_LIMIT + 1); // +1 pour détecter la troncature sans un COUNT(*) séparé coûteux
     const locations = await pool.query(
       `SELECT l.slug, l.name, l.description, l.address, l.latitude, l.longitude, l.scope_codes,
               c.name AS category_name, c.slug AS category_slug
        FROM resource_locations l
        LEFT JOIN resource_categories c ON c.id = l.category_id
        ${where}
-       ORDER BY l.name`,
+       ORDER BY l.name
+       LIMIT $${params.length}`,
       params
     );
+    const truncated = locations.rows.length > RESOURCE_LOCATIONS_LIMIT;
+    if (truncated) locations.rows.length = RESOURCE_LOCATIONS_LIMIT;
     const links = await pool.query(
       `SELECT location_slug, label, url FROM resource_location_links
        WHERE location_slug = ANY($1::text[]) ORDER BY id`,
@@ -109,7 +119,7 @@ router.get("/api/resource-locations", async (req, res) => {
     }
     const rowsWithLinks = locations.rows.map((l) => ({ ...l, links: linksBySlug[l.slug] || [] }));
     const rows = await mergeTranslations(rowsWithLinks, "resource_location", locale);
-    res.json(rows);
+    res.json({ results: rows, truncated });
   } catch (err) {
     res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }

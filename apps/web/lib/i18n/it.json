@@ -740,7 +740,9 @@
     "remove_link_button": "Rimuovi",
     "add_link_button": "+ Aggiungi un link",
     "title_label": "Titolo",
-    "url_label": "URL"
+    "url_label": "URL",
+    "choose_filter_prompt": "Scegli un paese/zona o una categoria qui sopra per mostrare i luoghi — con oltre 66.000 luoghi nel mondo, evitiamo di caricare tutto in una volta.",
+    "truncated_note": "Troppi risultati per mostrarli tutti (oltre 3000) — affina la scelta di paese/zona o categoria per vederli tutti."
   },
   "petitions": {
     "title": "Petizioni",

@@ -16,6 +16,7 @@ export default function RessourcesPage() {
   const { sobriety } = useSobriety();
   const [tab, setTab] = useState("map");
   const [locations, setLocations] = useState([]);
+  const [locationsTruncated, setLocationsTruncated] = useState(false);
   const [online, setOnline] = useState([]);
   const [categories, setCategories] = useState([]);
   const [categoryFilter, setCategoryFilter] = useState("");
@@ -27,29 +28,58 @@ export default function RessourcesPage() {
   const mapRef = useRef(null);
   const markersLayerRef = useRef(null);
 
+  // Catégories toujours chargées (petite liste, nécessaire pour le
+  // sélecteur de filtre lui-même, indépendamment de tout filtre choisi).
   useEffect(() => {
+    fetch(`/api/resource-categories?locale=${locale}`)
+      .then((res) => (res.ok ? res.json() : []))
+      .then((rows) => setCategories(Array.isArray(rows) ? rows : []))
+      .catch(() => setCategories([]));
+  }, [locale]);
+
+  // Lieux (carte) : volontairement PAS chargés tant qu'aucun filtre n'est
+  // choisi. Sans ça, la page charge par défaut les ~66 000 lieux du monde
+  // entier d'un coup (import en masse OSM/DATAtourisme, 24/08/2026) —
+  // aucune optimisation côté navigateur ne rend ça instantané, il faut
+  // réduire ce qui est demandé, pas seulement comment c'est affiché.
+  // Même principe que /energie.js, qui ne charge jamais les ~35 000
+  // centrales du monde entier d'un coup non plus.
+  const hasLocationFilter = scopeFilter.length > 0 || categoryFilter !== "";
+
+  useEffect(() => {
+    if (!hasLocationFilter) {
+      setLocations([]);
+      setLocationsTruncated(false);
+      setOnline([]);
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
     const scopesParam = scopeFilter.length > 0 ? `&scopes=${scopeFilter.join(",")}` : "";
+    const categoryParam = categoryFilter ? `&category=${categoryFilter}` : "";
     Promise.all([
-      fetch(`/api/resource-locations?locale=${locale}${scopesParam}`).then((res) => (res.ok ? res.json() : [])),
+      fetch(`/api/resource-locations?locale=${locale}${scopesParam}${categoryParam}`).then((res) =>
+        res.ok ? res.json() : { results: [], truncated: false }
+      ),
       fetch(`/api/resource-online?locale=${locale}${scopesParam}`).then((res) => (res.ok ? res.json() : [])),
-      fetch(`/api/resource-categories?locale=${locale}`).then((res) => (res.ok ? res.json() : [])),
     ])
-      .then(([locationRows, onlineRows, categoryRows]) => {
-        setLocations(Array.isArray(locationRows) ? locationRows : []);
+      .then(([locationData, onlineRows]) => {
+        setLocations(Array.isArray(locationData?.results) ? locationData.results : []);
+        setLocationsTruncated(Boolean(locationData?.truncated));
         setOnline(Array.isArray(onlineRows) ? onlineRows : []);
-        setCategories(Array.isArray(categoryRows) ? categoryRows : []);
         setLoading(false);
       })
       .catch((err) => {
         setError(err.message);
         setLoading(false);
       });
-  }, [locale, scopeFilter]);
+  }, [locale, scopeFilter, categoryFilter, hasLocationFilter]);
 
-  const filteredLocations = useMemo(() => {
-    if (!categoryFilter) return locations;
-    return locations.filter((l) => l.category_slug === categoryFilter);
-  }, [locations, categoryFilter]);
+  // Le filtre catégorie est maintenant appliqué côté serveur (voir
+  // categoryParam ci-dessus) — filteredLocations ne fait donc plus que
+  // repasser les données telles quelles, gardé pour ne pas devoir
+  // renommer partout ailleurs dans le fichier.
+  const filteredLocations = locations;
 
   const filteredOnline = useMemo(() => {
     if (!categoryFilter) return online;
@@ -57,7 +87,7 @@ export default function RessourcesPage() {
   }, [online, categoryFilter]);
 
   useEffect(() => {
-    if (tab !== "map" || sobriety || !mapContainerRef.current) return;
+    if (tab !== "map" || sobriety || !hasLocationFilter || !mapContainerRef.current) return;
     let cancelled = false;
 
     // Le CSS de Leaflet n'est plus chargé globalement pour toutes les pages
@@ -170,7 +200,7 @@ export default function RessourcesPage() {
       }
       markersLayerRef.current = null;
     };
-  }, [tab, sobriety, filteredLocations]);
+  }, [tab, sobriety, filteredLocations, hasLocationFilter]);
 
   return (
     <div style={{ fontFamily: "sans-serif", padding: "2rem", maxWidth: 900, margin: "0 auto" }}>
@@ -262,11 +292,19 @@ export default function RessourcesPage() {
       {error && <p role="alert">{t("common.error_prefix")} {error}</p>}
 
       <div style={{ display: !loading && !error && tab === "map" ? "block" : "none" }}>
-        {sobriety ? (
+        {!hasLocationFilter ? (
+          <p>{t("ressources.choose_filter_prompt")}</p>
+        ) : sobriety ? (
           filteredLocations.length === 0 ? (
             <p>{t("ressources.no_locations")}</p>
           ) : (
-            <ScrollableTable>
+            <>
+              {locationsTruncated && (
+                <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginBottom: "0.5rem" }}>
+                  {t("ressources.truncated_note")}
+                </p>
+              )}
+              <ScrollableTable>
               <table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
                 <thead>
                   <tr>
@@ -299,9 +337,15 @@ export default function RessourcesPage() {
                 </tbody>
               </table>
             </ScrollableTable>
+            </>
           )
         ) : (
           <>
+            {locationsTruncated && (
+              <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginBottom: "0.5rem" }}>
+                {t("ressources.truncated_note")}
+              </p>
+            )}
             {filteredLocations.length === 0 && <p>{t("ressources.no_locations")}</p>}
             <div ref={mapContainerRef} style={{ height: 480, borderRadius: 8 }} />
           </>

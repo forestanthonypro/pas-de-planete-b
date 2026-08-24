@@ -740,7 +740,9 @@
     "remove_link_button": "Remove",
     "add_link_button": "+ Add a link",
     "title_label": "Title",
-    "url_label": "URL"
+    "url_label": "URL",
+    "choose_filter_prompt": "Choose a country/area or a category above to show locations — with over 66,000 places worldwide, we avoid loading everything at once.",
+    "truncated_note": "Too many results to show them all (over 3,000) — narrow your country/area or category choice to see everything."
   },
   "petitions": {
     "title": "Petitions",

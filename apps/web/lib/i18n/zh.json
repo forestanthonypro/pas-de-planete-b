@@ -740,7 +740,9 @@
     "remove_link_button": "移除",
     "add_link_button": "+ 添加链接",
     "title_label": "标题",
-    "url_label": "URL"
+    "url_label": "URL",
+    "choose_filter_prompt": "请在上方选择国家/地区或类别以显示地点——全球有超过66,000个地点，我们避免一次性全部加载。",
+    "truncated_note": "结果过多无法全部显示(超过3000个)——请缩小国家/地区或类别范围以查看全部。"
   },
   "petitions": {
     "title": "请愿活动",
