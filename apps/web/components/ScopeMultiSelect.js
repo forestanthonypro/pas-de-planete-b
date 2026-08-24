@@ -92,7 +92,12 @@ export default function ScopeMultiSelect({ value = [], onChange, locale, label, 
         <ul
           style={{
             position: "absolute",
-            zIndex: 10,
+            // Leaflet place ses propres panneaux internes entre 200 et 700
+            // de z-index (jusqu'à 1000 pour ses contrôles) — 10 ne suffit
+            // pas dès que ce composant est utilisé au-dessus d'une carte
+            // (ex. /ressources). 2000 reste largement au-dessus dans tous
+            // les cas, sans effet sur les pages qui n'ont pas de carte.
+            zIndex: 2000,
             top: "100%",
             left: 0,
             right: 0,
