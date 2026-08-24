@@ -9,6 +9,9 @@ import { IconLandmark } from "../../components/icons";
 import { useSobriety } from "../../lib/SobrietyContext";
 import { useT } from "../../lib/useT";
 import ScrollableTable from "../../components/ScrollableTable";
+import Pagination from "../../components/Pagination";
+
+const ONLINE_PAGE_SIZE = 20;
 
 
 export default function RessourcesPage() {
@@ -18,6 +21,7 @@ export default function RessourcesPage() {
   const [locations, setLocations] = useState([]);
   const [locationsTruncated, setLocationsTruncated] = useState(false);
   const [online, setOnline] = useState([]);
+  const [onlinePage, setOnlinePage] = useState(1);
   const [categories, setCategories] = useState([]);
   const [categoryFilter, setCategoryFilter] = useState("");
   const [scopeFilter, setScopeFilter] = useState([]);
@@ -50,23 +54,17 @@ export default function RessourcesPage() {
     if (!hasLocationFilter) {
       setLocations([]);
       setLocationsTruncated(false);
-      setOnline([]);
       setLoading(false);
       return;
     }
     setLoading(true);
     const scopesParam = scopeFilter.length > 0 ? `&scopes=${scopeFilter.join(",")}` : "";
     const categoryParam = categoryFilter ? `&category=${categoryFilter}` : "";
-    Promise.all([
-      fetch(`/api/resource-locations?locale=${locale}${scopesParam}${categoryParam}`).then((res) =>
-        res.ok ? res.json() : { results: [], truncated: false }
-      ),
-      fetch(`/api/resource-online?locale=${locale}${scopesParam}`).then((res) => (res.ok ? res.json() : [])),
-    ])
-      .then(([locationData, onlineRows]) => {
+    fetch(`/api/resource-locations?locale=${locale}${scopesParam}${categoryParam}`)
+      .then((res) => (res.ok ? res.json() : { results: [], truncated: false }))
+      .then((locationData) => {
         setLocations(Array.isArray(locationData?.results) ? locationData.results : []);
         setLocationsTruncated(Boolean(locationData?.truncated));
-        setOnline(Array.isArray(onlineRows) ? onlineRows : []);
         setLoading(false);
       })
       .catch((err) => {
@@ -74,6 +72,20 @@ export default function RessourcesPage() {
         setLoading(false);
       });
   }, [locale, scopeFilter, categoryFilter, hasLocationFilter]);
+
+  // Les ressources en ligne (plateformes, sites...) sont un jeu de données
+  // restreint — contrairement aux lieux (~66 000 avec l'import OSM/
+  // DATAtourisme du 24/08/2026), rien ne justifie d'exiger un filtre avant
+  // affichage ici. Elles restent filtrables par pays/zone (le filtre
+  // scope reste pertinent), juste pas obligatoires pour un premier
+  // affichage.
+  useEffect(() => {
+    const scopesParam = scopeFilter.length > 0 ? `&scopes=${scopeFilter.join(",")}` : "";
+    fetch(`/api/resource-online?locale=${locale}${scopesParam}`)
+      .then((res) => (res.ok ? res.json() : []))
+      .then((onlineRows) => setOnline(Array.isArray(onlineRows) ? onlineRows : []))
+      .catch(() => setOnline([]));
+  }, [locale, scopeFilter]);
 
   // Le filtre catégorie est maintenant appliqué côté serveur (voir
   // categoryParam ci-dessus) — filteredLocations ne fait donc plus que
@@ -85,6 +97,10 @@ export default function RessourcesPage() {
     if (!categoryFilter) return online;
     return online.filter((o) => o.category_slug === categoryFilter);
   }, [online, categoryFilter]);
+
+  useEffect(() => {
+    setOnlinePage(1);
+  }, [categoryFilter, scopeFilter]);
 
   useEffect(() => {
     if (tab !== "map" || sobriety || !hasLocationFilter || !mapContainerRef.current) return;
@@ -356,24 +372,33 @@ export default function RessourcesPage() {
         filteredOnline.length === 0 ? (
           <p>{t("ressources.no_online")}</p>
         ) : (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 12 }}>
-            {filteredOnline.map((o) => (
-              <div key={o.slug} className="pdpb-card">
-                <p style={{ fontSize: 15, fontWeight: 600, margin: "0 0 6px" }}>
-                  {o.title} {o.scope_codes && o.scope_codes.length > 0 && <ScopeBadges codes={o.scope_codes} locale={locale} />}
-                </p>
-                {o.category_name && (
-                  <p style={{ fontSize: 11, color: "var(--color-texte-clair)", textTransform: "uppercase", letterSpacing: "0.03em", margin: "0 0 6px" }}>
-                    {o.category_name}
+          <>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 12 }}>
+              {filteredOnline.slice((onlinePage - 1) * ONLINE_PAGE_SIZE, onlinePage * ONLINE_PAGE_SIZE).map((o) => (
+                <div key={o.slug} className="pdpb-card">
+                  <p style={{ fontSize: 15, fontWeight: 600, margin: "0 0 6px" }}>
+                    {o.title} {o.scope_codes && o.scope_codes.length > 0 && <ScopeBadges codes={o.scope_codes} locale={locale} />}
                   </p>
-                )}
-                <p style={{ fontSize: 13, margin: "0 0 8px" }}>{o.description}</p>
-                <a href={o.url} target="_blank" rel="noopener noreferrer" style={{ fontSize: 13, fontWeight: 600 }}>
-                  {t("ressources.visit_link")}
-                </a>
-              </div>
-            ))}
-          </div>
+                  {o.category_name && (
+                    <p style={{ fontSize: 11, color: "var(--color-texte-clair)", textTransform: "uppercase", letterSpacing: "0.03em", margin: "0 0 6px" }}>
+                      {o.category_name}
+                    </p>
+                  )}
+                  <p style={{ fontSize: 13, margin: "0 0 8px" }}>{o.description}</p>
+                  <a href={o.url} target="_blank" rel="noopener noreferrer" style={{ fontSize: 13, fontWeight: 600 }}>
+                    {t("ressources.visit_link")}
+                  </a>
+                </div>
+              ))}
+            </div>
+            {filteredOnline.length > ONLINE_PAGE_SIZE && (
+              <Pagination
+                page={onlinePage}
+                totalPages={Math.max(1, Math.ceil(filteredOnline.length / ONLINE_PAGE_SIZE))}
+                onChange={setOnlinePage}
+              />
+            )}
+          </>
         )
       )}
     </div>
