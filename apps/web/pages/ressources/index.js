@@ -108,32 +108,47 @@ export default function RessourcesPage() {
           // que de dessiner individuellement les ~66 000 lieux d'un coup
           // (import en masse OSM/DATAtourisme, 24/08/2026) — même besoin et
           // même solution que pour les ~35 000 centrales sur /energie.
+          // chunkedLoading : ajoute les marqueurs par lots (via
+          // requestAnimationFrame en interne) plutôt que d'un bloc, pour ne
+          // pas geler l'onglet le temps de traiter des dizaines de milliers
+          // de lieux.
           markersLayerRef.current = L.markerClusterGroup({
             maxClusterRadius: 50,
+            chunkedLoading: true,
+            chunkInterval: 100,
+            chunkDelay: 20,
           }).addTo(mapRef.current);
         }
 
         markersLayerRef.current.clearLayers();
-        filteredLocations.forEach((loc) => {
-          const linksHtml = (loc.links || [])
-            .map((link) => `<a href="${link.url}" target="_blank" rel="noopener noreferrer">${link.label}</a>`)
-            .join(" · ");
-          const flagsHtml = (loc.scope_codes || []).map((c) => scopeFlag(c)).join(" ");
-          const attributionHtml = loc.license_attribution
-            ? `<br/><span style="font-size:11px;color:#666">${loc.license_attribution}</span>`
-            : "";
-          L.circleMarker([loc.latitude, loc.longitude], {
+        const markers = filteredLocations.map((loc) => {
+          // Le HTML du popup n'est construit qu'à l'ouverture (bindPopup
+          // accepte une fonction), pas pour chacun des ~66 000 lieux dès le
+          // chargement — sinon on paie le coût de construction de 66 000
+          // chaînes HTML même pour les lieux jamais cliqués.
+          const marker = L.circleMarker([loc.latitude, loc.longitude], {
             radius: 8,
             color: "#1b5e20",
             fillColor: "#1baf7a",
             fillOpacity: 0.85,
             weight: 2,
-          })
-            .bindPopup(
-              `<strong>${loc.name}</strong>${flagsHtml ? ` ${flagsHtml}` : ""}<br/>${loc.description}${loc.address ? `<br/><em>${loc.address}</em>` : ""}${linksHtml ? `<br/>${linksHtml}` : ""}${attributionHtml}`
-            )
-            .addTo(markersLayerRef.current);
+          });
+          marker.bindPopup(() => {
+            const linksHtml = (loc.links || [])
+              .map((link) => `<a href="${link.url}" target="_blank" rel="noopener noreferrer">${link.label}</a>`)
+              .join(" · ");
+            const flagsHtml = (loc.scope_codes || []).map((c) => scopeFlag(c)).join(" ");
+            const attributionHtml = loc.license_attribution
+              ? `<br/><span style="font-size:11px;color:#666">${loc.license_attribution}</span>`
+              : "";
+            return `<strong>${loc.name}</strong>${flagsHtml ? ` ${flagsHtml}` : ""}<br/>${loc.description}${loc.address ? `<br/><em>${loc.address}</em>` : ""}${linksHtml ? `<br/>${linksHtml}` : ""}${attributionHtml}`;
+          });
+          return marker;
         });
+        // addLayers (au pluriel) traite le tableau efficacement en un seul
+        // passage interne à markercluster, plutôt que 66 000 appels
+        // individuels à addTo() — gain notable sur un aussi gros volume.
+        markersLayerRef.current.addLayers(markers);
 
         if (filteredLocations.length > 0) {
           const bounds = L.latLngBounds(filteredLocations.map((l) => [l.latitude, l.longitude]));
