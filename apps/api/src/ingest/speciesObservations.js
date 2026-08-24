@@ -58,7 +58,6 @@ const GBIF_BASE = "https://api.gbif.org/v1";
 const KINGDOM_PLANTAE = 6;
 const GLOBAL_TREE_SEARCH_DATASET_KEY = "7cfcd73b-03ae-476b-a61c-872d36b6c38f";
 const TOP_SPECIES_PER_ZONE = 15;
-const MAX_SPECIES_GTS_CHECKS = 800; // plafond de vérifications GlobalTreeSearch + noms communs par exécution
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -202,7 +201,6 @@ export async function ingestSpeciesObservations(pool) {
   const countryCodes3 = countryRows.rows.map((r) => r.country_code);
 
   const gtsCache = new Map();
-  let gtsChecksUsed = 0;
 
   let countriesProcessed = 0;
   let countriesSkipped = 0;
@@ -254,18 +252,11 @@ export async function ingestSpeciesObservations(pool) {
       let rank = 0;
       for (const sp of topSpecies) {
         rank += 1;
-        let inGts = false;
-        let commonNames = {};
-        if (gtsChecksUsed < MAX_SPECIES_GTS_CHECKS) {
-          const enriched = await enrichSpecies(sp.name, gtsCache);
-          inGts = enriched.inGts;
-          commonNames = enriched.commonNames;
-          gtsChecksUsed += 1;
-        } else if (gtsCache.has(sp.name)) {
-          const cached = gtsCache.get(sp.name);
-          inGts = cached.inGts;
-          commonNames = cached.commonNames;
-        }
+        // Le cache (gtsCache) déduplique déjà les vrais appels réseau entre
+        // pays/lieux — pas besoin d'un plafond arbitraire par-dessus, qui a
+        // par le passé provoqué des noms communs manquants pour des pays
+        // traités tard dans la boucle (voir commit de correction).
+        const { inGts, commonNames } = await enrichSpecies(sp.name, gtsCache);
         await client.query(
           `INSERT INTO species_observations_countries
              (country_code, scientific_name, observation_count, in_global_tree_search, common_names, rank)
@@ -327,18 +318,7 @@ export async function ingestSpeciesObservations(pool) {
       let rank = 0;
       for (const sp of topSpecies) {
         rank += 1;
-        let inGts = false;
-        let commonNames = {};
-        if (gtsChecksUsed < MAX_SPECIES_GTS_CHECKS) {
-          const enriched = await enrichSpecies(sp.name, gtsCache);
-          inGts = enriched.inGts;
-          commonNames = enriched.commonNames;
-          gtsChecksUsed += 1;
-        } else if (gtsCache.has(sp.name)) {
-          const cached = gtsCache.get(sp.name);
-          inGts = cached.inGts;
-          commonNames = cached.commonNames;
-        }
+        const { inGts, commonNames } = await enrichSpecies(sp.name, gtsCache);
         await client.query(
           `INSERT INTO species_observation_places_species
              (place_id, scientific_name, observation_count, in_global_tree_search, common_names, rank)
@@ -362,17 +342,17 @@ export async function ingestSpeciesObservations(pool) {
     client.release();
   }
 
-  return { countriesProcessed, countriesSkipped, placesProcessed, gtsChecksUsed };
+  return { countriesProcessed, countriesSkipped, placesProcessed, uniqueSpeciesResolved: gtsCache.size };
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
   const { default: pg } = await import("pg");
   const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
-  console.log("Ingestion des espèces observées (GBIF) — pays + lieux pilotes, cela peut prendre plusieurs minutes...");
+  console.log("Ingestion des espèces observées (GBIF) — pays + lieux pilotes, plafond retiré (voir correction du 24/08/2026), compter jusqu'à 30 minutes selon le nombre d'espèces uniques rencontrées...");
   const result = await ingestSpeciesObservations(pool);
   console.log(
     `Terminé : ${result.countriesProcessed} pays traités (${result.countriesSkipped} ignorés), ` +
-      `${result.placesProcessed} lieux pilotes, ${result.gtsChecksUsed} vérifications GlobalTreeSearch.`
+      `${result.placesProcessed} lieux pilotes, ${result.uniqueSpeciesResolved} espèces uniques résolues (GlobalTreeSearch + noms communs).`
   );
   await pool.end();
 }
