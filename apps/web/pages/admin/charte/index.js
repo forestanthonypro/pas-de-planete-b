@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import Link from "next/link";
 import AdminAuthGate from "../../../components/AdminAuthGate";
 import ScrollableTable from "../../../components/ScrollableTable";
@@ -13,6 +13,9 @@ function AdminCharterPageInner() {
   const [sections, setSections] = useState([]);
   const [items, setItems] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
+  const [viewingSuggestionId, setViewingSuggestionId] = useState(null);
+  const [editText, setEditText] = useState("");
+  const [savingEdit, setSavingEdit] = useState(false);
   const [newSectionName, setNewSectionName] = useState("");
   const [loaded, setLoaded] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -152,6 +155,38 @@ function AdminCharterPageInner() {
       .catch((err) => setError(err.message));
   }
 
+  function openSuggestion(s) {
+    setViewingSuggestionId(viewingSuggestionId === s.id ? null : s.id);
+    setEditText(s.text);
+  }
+
+  // Corriger le texte d'une proposition avant publication — même principe
+  // que les autres rubriques (débunk, interviews, paysans, pétitions,
+  // ressources), qui permettent déjà de modifier une proposition avant
+  // publication via leur page d'édition complète.
+  function saveSuggestionText(id) {
+    if (!editText.trim()) return;
+    setSavingEdit(true);
+    fetch(`/api/admin/charter-suggestions/${id}/text`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ text: editText.trim() }),
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Échec de la mise à jour");
+        return res.json();
+      })
+      .then(() => {
+        setSavingEdit(false);
+        loadAll();
+      })
+      .catch((err) => {
+        setSavingEdit(false);
+        setError(err.message);
+      });
+  }
+
   const itemsBySection = {};
   for (const item of items) {
     if (!itemsBySection[item.section_id]) itemsBySection[item.section_id] = [];
@@ -260,22 +295,59 @@ function AdminCharterPageInner() {
                   </thead>
                   <tbody>
                     {suggestions.map((s) => (
-                      <tr key={s.id}>
-                        <td style={{ padding: 8, fontSize: 13 }}>{s.text}</td>
-                        <td style={{ padding: 8, fontSize: 13 }}>{STATUS_LABELS[s.status] || s.status}</td>
-                        <td style={{ padding: 8, whiteSpace: "nowrap" }}>
-                          <select
-                            value={s.status}
-                            onChange={(e) => updateSuggestionStatus(s.id, e.target.value)}
-                            style={{ fontSize: 12, padding: "4px 6px" }}
-                          >
-                            <option value="pending">En attente</option>
-                            <option value="published">Publiée</option>
-                            <option value="draft">Brouillon</option>
-                            <option value="rejected">Rejetée</option>
-                          </select>
-                        </td>
-                      </tr>
+                      <Fragment key={s.id}>
+                        <tr key={s.id}>
+                          <td style={{ padding: 8, fontSize: 13, maxWidth: 320, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                            {s.text}
+                          </td>
+                          <td style={{ padding: 8, fontSize: 13 }}>{STATUS_LABELS[s.status] || s.status}</td>
+                          <td style={{ padding: 8, whiteSpace: "nowrap" }}>
+                            <button
+                              type="button"
+                              onClick={() => openSuggestion(s)}
+                              style={{ fontSize: 12, marginRight: 8 }}
+                            >
+                              {viewingSuggestionId === s.id ? "Masquer" : "Voir / Modifier"}
+                            </button>
+                            <select
+                              value={s.status}
+                              onChange={(e) => updateSuggestionStatus(s.id, e.target.value)}
+                              style={{ fontSize: 12, padding: "4px 6px" }}
+                            >
+                              <option value="pending">En attente</option>
+                              <option value="published">Publiée</option>
+                              <option value="draft">Brouillon</option>
+                              <option value="rejected">Rejetée</option>
+                            </select>
+                          </td>
+                        </tr>
+                        {viewingSuggestionId === s.id && (
+                          <tr key={`${s.id}-detail`}>
+                            <td colSpan={3} style={{ padding: "0 8px 12px" }}>
+                              <div style={{ padding: "0.75rem 1rem", background: "var(--color-fond)", borderRadius: 8, border: "1px solid var(--color-bordure)" }}>
+                                <p style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.03em", margin: "0 0 6px", color: "var(--color-texte-clair)" }}>
+                                  Texte (modifiable avant publication)
+                                </p>
+                                <textarea
+                                  value={editText}
+                                  onChange={(e) => setEditText(e.target.value)}
+                                  rows={4}
+                                  maxLength={2000}
+                                  style={{ width: "100%", padding: "8px 10px", fontFamily: "inherit", marginBottom: 8 }}
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => saveSuggestionText(s.id)}
+                                  disabled={!editText.trim() || editText.trim() === s.text || savingEdit}
+                                  style={{ fontSize: 12, fontWeight: 600 }}
+                                >
+                                  {savingEdit ? "Enregistrement..." : "Enregistrer les modifications"}
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+                      </Fragment>
                     ))}
                   </tbody>
                 </table>

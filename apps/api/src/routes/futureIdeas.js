@@ -233,4 +233,24 @@ router.post("/api/admin/future-idea-suggestions/:id/status", requireAdminSession
   }
 });
 
+// Même principe que /api/admin/charter-suggestions/:id/text — corriger le
+// texte d'une proposition avant publication, pour rester cohérent avec
+// les autres rubriques qui permettent déjà de modifier une proposition
+// avant de la publier.
+router.post("/api/admin/future-idea-suggestions/:id/text", requireAdminSession, async (req, res) => {
+  const { text } = req.body || {};
+  if (!text || !text.trim()) {
+    return res.status(400).json({ error: "text est requis" });
+  }
+  if (text.length > 2000) {
+    return res.status(400).json({ error: "Texte trop long (2000 caractères max)" });
+  }
+  try {
+    await pool.query("UPDATE future_idea_suggestions SET text = $1 WHERE id = $2", [text.trim(), req.params.id]);
+    res.json({ status: "ok" });
+  } catch (err) {
+    res.status(500).json({ error: "Échec de la mise à jour", detail: errorDetail(err) });
+  }
+});
+
 export default router;

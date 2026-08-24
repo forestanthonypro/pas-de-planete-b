@@ -339,5 +339,27 @@ router.post("/api/admin/charter-suggestions/:id/status", requireAdminSession, as
   }
 });
 
+// Permet de corriger une proposition (fautes, mise en forme, contenu
+// inapproprié à retirer) avant de la publier — même principe que les
+// autres rubriques (débunk, interviews, paysans, pétitions, ressources),
+// où la proposition devient une entrée complète modifiable via edit.js
+// avant publication. Ici la "proposition" reste un texte libre, donc une
+// simple édition du texte suffit.
+router.post("/api/admin/charter-suggestions/:id/text", requireAdminSession, async (req, res) => {
+  const { text } = req.body || {};
+  if (!text || !text.trim()) {
+    return res.status(400).json({ error: "text est requis" });
+  }
+  if (text.length > 2000) {
+    return res.status(400).json({ error: "Texte trop long (2000 caractères max)" });
+  }
+  try {
+    await pool.query("UPDATE charter_suggestions SET text = $1 WHERE id = $2", [text.trim(), req.params.id]);
+    res.json({ status: "ok" });
+  } catch (err) {
+    res.status(500).json({ error: "Échec de la mise à jour", detail: errorDetail(err) });
+  }
+});
+
 
 export default router;

@@ -15,6 +15,8 @@ function AdminFutureIdeasListInner() {
   const [page, setPage] = useState(1);
   const [suggestions, setSuggestions] = useState([]);
   const [viewingSuggestionId, setViewingSuggestionId] = useState(null);
+  const [editText, setEditText] = useState("");
+  const [savingEdit, setSavingEdit] = useState(false);
 
   useEffect(() => {
     loadIdeas();
@@ -41,6 +43,39 @@ function AdminFutureIdeasListInner() {
       })
       .then(() => loadSuggestions())
       .catch((err) => setError(err.message));
+  }
+
+  function openSuggestion(s) {
+    setViewingSuggestionId(viewingSuggestionId === s.id ? null : s.id);
+    setEditText(s.text);
+  }
+
+  // Corriger le texte d'une proposition (fautes, mise en forme, contenu à
+  // retirer) avant de la publier — même principe que les autres rubriques
+  // (débunk, interviews, paysans, pétitions, ressources), qui permettent
+  // déjà de modifier une proposition avant publication via leur page
+  // d'édition complète.
+  function saveSuggestionText(id) {
+    if (!editText.trim()) return;
+    setSavingEdit(true);
+    fetch(`/api/admin/future-idea-suggestions/${id}/text`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ text: editText.trim() }),
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Échec de la mise à jour");
+        return res.json();
+      })
+      .then(() => {
+        setSavingEdit(false);
+        loadSuggestions();
+      })
+      .catch((err) => {
+        setSavingEdit(false);
+        setError(err.message);
+      });
   }
 
 
@@ -180,10 +215,10 @@ function AdminFutureIdeasListInner() {
                     <td style={{ padding: 8, whiteSpace: "nowrap" }}>
                       <button
                         type="button"
-                        onClick={() => setViewingSuggestionId(viewingSuggestionId === s.id ? null : s.id)}
+                        onClick={() => openSuggestion(s)}
                         style={{ fontSize: 12, marginRight: 8 }}
                       >
-                        {viewingSuggestionId === s.id ? "Masquer" : "Voir"}
+                        {viewingSuggestionId === s.id ? "Masquer" : "Voir / Modifier"}
                       </button>
                       <select
                         value={s.status}
@@ -202,9 +237,23 @@ function AdminFutureIdeasListInner() {
                       <td colSpan={3} style={{ padding: "0 8px 12px" }}>
                         <div style={{ padding: "0.75rem 1rem", background: "var(--color-fond)", borderRadius: 8, border: "1px solid var(--color-bordure)" }}>
                           <p style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.03em", margin: "0 0 6px", color: "var(--color-texte-clair)" }}>
-                            Texte intégral
+                            Texte (modifiable avant publication)
                           </p>
-                          <p style={{ fontSize: 13, margin: "0 0 10px", whiteSpace: "pre-wrap" }}>{s.text}</p>
+                          <textarea
+                            value={editText}
+                            onChange={(e) => setEditText(e.target.value)}
+                            rows={4}
+                            maxLength={2000}
+                            style={{ width: "100%", padding: "8px 10px", fontFamily: "inherit", marginBottom: 8 }}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => saveSuggestionText(s.id)}
+                            disabled={!editText.trim() || editText.trim() === s.text || savingEdit}
+                            style={{ fontSize: 12, fontWeight: 600, marginBottom: 10 }}
+                          >
+                            {savingEdit ? "Enregistrement..." : "Enregistrer les modifications"}
+                          </button>
                           {s.submitter_email && (
                             <p style={{ fontSize: 13, margin: "0 0 6px" }}>
                               Email : <a href={`mailto:${s.submitter_email}`}>{s.submitter_email}</a>
