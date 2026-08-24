@@ -70,6 +70,24 @@ async function fetchJson(url) {
   return res.json();
 }
 
+// Avec ~200 pays et plusieurs centaines d'espèces sur une exécution de
+// 10-15 minutes, un échec réseau ponctuel est attendu. Sans retry, une
+// espèce très commune (ex. Hedera helix, la plus observée en France) peut
+// perdre son nom commun pour toute l'exécution si un seul appel échoue au
+// mauvais moment — d'où ce petit retry avant d'abandonner.
+async function fetchJsonWithRetry(url, attempts = 2) {
+  let lastErr;
+  for (let i = 0; i < attempts; i++) {
+    try {
+      return await fetchJson(url);
+    } catch (err) {
+      lastErr = err;
+      if (i < attempts - 1) await sleep(500);
+    }
+  }
+  throw lastErr;
+}
+
 function toAlpha2(iso3) {
   try {
     return countriesLib.alpha3ToAlpha2(iso3);
@@ -108,16 +126,18 @@ async function fetchCoverage(zoneFilter) {
   };
 }
 
+// Retourne { present, ok }. ok=false signifie un échec réseau (à ne pas
+// mettre en cache définitivement) ; present=false avec ok=true signifie
+// une vraie réponse GBIF ne trouvant rien dans GlobalTreeSearch.
 async function checkGlobalTreeSearch(scientificName) {
-  let present = false;
   try {
     const url = `${GBIF_BASE}/species/search?datasetKey=${GLOBAL_TREE_SEARCH_DATASET_KEY}&q=${encodeURIComponent(scientificName)}&limit=1`;
-    const data = await fetchJson(url);
-    present = (data.results || []).length > 0;
+    const data = await fetchJsonWithRetry(url);
+    return { present: (data.results || []).length > 0, ok: true };
   } catch (err) {
-    console.error(`[speciesObservations] erreur GlobalTreeSearch pour "${scientificName}":`, err.message);
+    console.error(`[speciesObservations] erreur GlobalTreeSearch pour "${scientificName}" (abandon après retry):`, err.message);
+    return { present: false, ok: false };
   }
-  return present;
 }
 
 function resolveCommonNames(scientificName, vernacularResults) {
@@ -134,17 +154,20 @@ function resolveCommonNames(scientificName, vernacularResults) {
   return names;
 }
 
+// Retourne { names, ok } — même logique ok=false que checkGlobalTreeSearch :
+// un échec sur l'un ou l'autre des deux appels GBIF (match puis
+// vernacularNames) n'est jamais mis en cache comme "pas de nom commun".
 async function fetchCommonNames(scientificName) {
   try {
     const matchUrl = `${GBIF_BASE}/species/match?name=${encodeURIComponent(scientificName)}&kingdom=Plantae`;
-    const match = await fetchJson(matchUrl);
-    if (!match.usageKey) return {};
+    const match = await fetchJsonWithRetry(matchUrl);
+    if (!match.usageKey) return { names: {}, ok: true }; // réponse valide, juste aucune correspondance GBIF
     const vernUrl = `${GBIF_BASE}/species/${match.usageKey}/vernacularNames?limit=50`;
-    const vern = await fetchJson(vernUrl);
-    return resolveCommonNames(scientificName, vern.results || []);
+    const vern = await fetchJsonWithRetry(vernUrl);
+    return { names: resolveCommonNames(scientificName, vern.results || []), ok: true };
   } catch (err) {
-    console.error(`[speciesObservations] erreur noms communs pour "${scientificName}":`, err.message);
-    return {};
+    console.error(`[speciesObservations] erreur noms communs pour "${scientificName}" (abandon après retry):`, err.message);
+    return { names: {}, ok: false };
   }
 }
 
@@ -152,15 +175,20 @@ async function fetchCommonNames(scientificName) {
 // GlobalTreeSearch et ses noms communs — mis en cache par nom scientifique
 // pour ne jamais refaire ces appels quand la même espèce revient dans
 // plusieurs pays/lieux (très fréquent : Hedera helix apparaît dans presque
-// toutes les zones tempérées testées).
+// toutes les zones tempérées testées). Un échec réseau (même après retry)
+// n'est PAS mis en cache : la prochaine occurrence de la même espèce
+// retentera plutôt que de rester bloquée sur un résultat vide pour toute
+// l'exécution.
 async function enrichSpecies(scientificName, cache) {
   if (cache.has(scientificName)) return cache.get(scientificName);
-  const inGts = await checkGlobalTreeSearch(scientificName);
+  const gts = await checkGlobalTreeSearch(scientificName);
   await sleep(300);
-  const commonNames = await fetchCommonNames(scientificName);
+  const common = await fetchCommonNames(scientificName);
   await sleep(300);
-  const result = { inGts, commonNames };
-  cache.set(scientificName, result);
+  const result = { inGts: gts.present, commonNames: common.names };
+  if (gts.ok && common.ok) {
+    cache.set(scientificName, result);
+  }
   return result;
 }
 

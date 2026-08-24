@@ -134,18 +134,25 @@ export default function VegetationPage() {
   const { data: placesList } = useApiFetch("/api/species-observations/places/list", {
     transform: (rows) => (Array.isArray(rows) ? rows : []),
   });
+  // Ne montre que les lieux pilotes du pays sélectionné en haut de page —
+  // s'il n'y en a aucun, on retombe sur la liste complète (mieux qu'un
+  // sélecteur vide) et on l'explique via no_place_for_country.
+  const placesForCountry = useMemo(() => {
+    if (!placesList || placesList.length === 0) return [];
+    const matching = placesList.filter((p) => p.country_code === countryCode);
+    return matching.length > 0 ? matching : placesList;
+  }, [placesList, countryCode]);
+  const hasPlaceForCountry = useMemo(
+    () => (placesList || []).some((p) => p.country_code === countryCode),
+    [placesList, countryCode]
+  );
   const [placeSlug, setPlaceSlug] = useState("");
   useEffect(() => {
-    if (!placesList || placesList.length === 0) return;
-    // Aligne par défaut le lieu pilote sur le pays sélectionné en haut de
-    // page quand un lieu pilote existe pour ce pays — sinon garde la
-    // sélection en cours si elle reste valide, ou retombe sur le premier
-    // lieu de la liste.
-    const matchingPlace = placesList.find((p) => p.country_code === countryCode);
-    if (matchingPlace) {
-      setPlaceSlug(matchingPlace.slug);
-    } else if (!placeSlug || !placesList.some((p) => p.slug === placeSlug)) {
-      setPlaceSlug(placesList[0].slug);
+    if (placesForCountry.length === 0) return;
+    // Si le lieu actuellement sélectionné n'est plus dans la liste filtrée
+    // (changement de pays), on retombe sur le premier lieu pertinent.
+    if (!placesForCountry.some((p) => p.slug === placeSlug)) {
+      setPlaceSlug(placesForCountry[0].slug);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [placesList, countryCode]);
@@ -435,16 +442,16 @@ export default function VegetationPage() {
         )}
 
         <h3 style={{ fontSize: 15, marginTop: "1.5rem" }}>{t("vegetation.observedSpecies.by_place_title")}</h3>
-        {placesList && placesList.length > 0 && !placesList.some((p) => p.country_code === countryCode) && (
+        {placesList && placesList.length > 0 && !hasPlaceForCountry && (
           <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginBottom: "0.5rem" }}>
             {t("vegetation.observedSpecies.no_place_for_country", { country: selectedCountryName })}
           </p>
         )}
-        {placesList && placesList.length > 0 && (
+        {placesForCountry.length > 0 && (
           <label style={{ display: "block", marginBottom: "0.75rem" }}>
             {t("vegetation.observedSpecies.place_label")}{" "}
             <select value={placeSlug} onChange={(e) => setPlaceSlug(e.target.value)}>
-              {placesList.map((p) => (
+              {placesForCountry.map((p) => (
                 <option key={p.slug} value={p.slug}>
                   {p.name}
                 </option>
