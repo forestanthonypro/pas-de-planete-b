@@ -166,11 +166,11 @@ export default function CharterPage() {
             const myVote = myVotes[item.id];
             return (
               <div key={item.id} className="pdpb-card" style={{ marginBottom: 10 }}>
-                <p style={{ fontSize: 15, fontWeight: 600, margin: "0 0 4px" }}>
+                <p style={{ fontSize: 15, fontWeight: 600, margin: "0 0 4px", whiteSpace: "pre-line" }}>
                   {i + 1}. {item.title}
                 </p>
                 {item.description && (
-                  <p style={{ fontSize: 13, color: "var(--color-texte-clair)", margin: "0 0 10px" }}>{item.description}</p>
+                  <p style={{ fontSize: 13, color: "var(--color-texte-clair)", margin: "0 0 10px", whiteSpace: "pre-line" }}>{item.description}</p>
                 )}
                 <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "center" }}>
                   <button
@@ -257,7 +257,7 @@ export default function CharterPage() {
           <h2 style={{ fontSize: 18 }}>{t("charter.suggestions_title")}</h2>
           <ul>
             {data.publishedSuggestions.map((s) => (
-              <li key={s.id} style={{ fontSize: 14, marginBottom: 6 }}>{s.text}</li>
+              <li key={s.id} style={{ fontSize: 14, marginBottom: 6, whiteSpace: "pre-line" }}>{s.text}</li>
             ))}
           </ul>
         </section>

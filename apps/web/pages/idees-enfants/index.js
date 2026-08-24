@@ -8,11 +8,12 @@ import { IconCheck } from "../../components/icons";
 import { useT } from "../../lib/useT";
 import { getAnonymousId } from "../../lib/anonymousId";
 
+const MIN_ALTERNATIVE_LENGTH = 30;
 
 export default function FutureIdeasPage() {
   const { t, locale } = useT();
   const [ideas, setIdeas] = useState([]);
-  const [mySupports, setMySupports] = useState(new Set());
+  const [myVotes, setMyVotes] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [publishedSuggestions, setPublishedSuggestions] = useState([]);
@@ -22,6 +23,10 @@ export default function FutureIdeasPage() {
   const [suggestionNotes, setSuggestionNotes] = useState("");
   const [website, setWebsite] = useState("");
   const [suggestionStatus, setSuggestionStatus] = useState("idle"); // idle | sending | done | error
+  const [nuancePromptSlug, setNuancePromptSlug] = useState(null);
+  const [nuanceAlternative, setNuanceAlternative] = useState("");
+  const [nuanceSubmitting, setNuanceSubmitting] = useState(false);
+  const [declinedSlug, setDeclinedSlug] = useState(null);
 
   useEffect(() => {
     const anonymousId = getAnonymousId();
@@ -33,9 +38,11 @@ export default function FutureIdeasPage() {
       anonymousId ? fetch(`/api/future-idea-votes/${anonymousId}`).then((res) => (res.ok ? res.json() : [])) : Promise.resolve([]),
       fetch(`/api/future-idea-suggestions/published`).then((res) => (res.ok ? res.json() : [])),
     ])
-      .then(([ideaRows, mySlugs, suggestionRows]) => {
+      .then(([ideaRows, voteRows, suggestionRows]) => {
         setIdeas(Array.isArray(ideaRows) ? ideaRows : []);
-        setMySupports(new Set(mySlugs));
+        const votesBySlug = {};
+        for (const v of voteRows) votesBySlug[v.idea_slug] = v.vote_type;
+        setMyVotes(votesBySlug);
         setPublishedSuggestions(Array.isArray(suggestionRows) ? suggestionRows : []);
         setLoading(false);
       })
@@ -46,36 +53,82 @@ export default function FutureIdeasPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [locale]);
 
-  function toggleSupport(slug) {
+  function vote(slug, voteType) {
     const anonymousId = getAnonymousId();
-    const alreadySupported = mySupports.has(slug);
-
-    // Mise à jour optimiste du compteur et de l'état affiché.
+    // Mise à jour optimiste : on ajuste tout de suite les compteurs et le
+    // vote affiché, sans attendre la réponse du serveur — même principe
+    // que la charte.
     setIdeas((prev) =>
-      prev.map((idea) =>
-        idea.slug === slug
-          ? { ...idea, support_count: idea.support_count + (alreadySupported ? -1 : 1) }
-          : idea
-      )
+      prev.map((idea) => {
+        if (idea.slug !== slug) return idea;
+        const previousVote = myVotes[slug];
+        let adhereCount = idea.adhere_count;
+        let nuanceCount = idea.nuance_count;
+        if (previousVote === "adhere") adhereCount -= 1;
+        if (previousVote === "nuance") nuanceCount -= 1;
+        if (voteType === "adhere") adhereCount += 1;
+        if (voteType === "nuance") nuanceCount += 1;
+        return { ...idea, adhere_count: adhereCount, nuance_count: nuanceCount };
+      })
     );
-    setMySupports((prev) => {
-      const next = new Set(prev);
-      if (alreadySupported) next.delete(slug);
-      else next.add(slug);
-      return next;
-    });
+    setMyVotes((prev) => ({ ...prev, [slug]: voteType }));
 
     fetch(`/api/future-idea-votes`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ anonymousId, ideaSlug: slug }),
+      body: JSON.stringify({ anonymousId, ideaSlug: slug, voteType }),
     }).catch(() => {
-      // Échec silencieux : le soutien reste affiché localement, on ne casse
+      // Échec silencieux : le vote reste affiché localement, on ne casse
       // pas l'expérience pour un souci réseau ponctuel.
     });
   }
 
-  const sortedIdeas = [...ideas].sort((a, b) => b.support_count - a.support_count);
+  // Cliquer sur "À nuancer" n'enregistre rien tout de suite — ça ouvre
+  // d'abord un petit parcours qui encourage un retour constructif, plutôt
+  // que de compter silencieusement un désaccord sans contenu. Identique à
+  // la charte.
+  function openNuancePrompt(slug) {
+    setNuancePromptSlug(slug);
+    setNuanceAlternative("");
+    setDeclinedSlug(null);
+  }
+
+  function closeNuancePrompt() {
+    setNuancePromptSlug(null);
+    setNuanceAlternative("");
+  }
+
+  function switchToAdhereFromPrompt(slug) {
+    vote(slug, "adhere");
+    closeNuancePrompt();
+  }
+
+  function declineNuancePrompt(slug) {
+    closeNuancePrompt();
+    setDeclinedSlug(slug);
+  }
+
+  function confirmNuanceWithAlternative(slug, ideaTitle) {
+    if (nuanceAlternative.trim().length < MIN_ALTERNATIVE_LENGTH) return;
+    setNuanceSubmitting(true);
+    vote(slug, "nuance");
+    fetch(`/api/future-idea-suggestions`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: `Concernant « ${ideaTitle} » : ${nuanceAlternative.trim()}` }),
+    })
+      .then(() => {
+        setNuanceSubmitting(false);
+        closeNuancePrompt();
+      })
+      .catch(() => {
+        // Le vote est déjà enregistré ; seule la proposition d'alternative
+        // a échoué à partir — on referme quand même plutôt que bloquer la
+        // personne sur un souci réseau ponctuel.
+        setNuanceSubmitting(false);
+        closeNuancePrompt();
+      });
+  }
 
   function handleSuggestionSubmit(e) {
     e.preventDefault();
@@ -113,40 +166,95 @@ export default function FutureIdeasPage() {
 
       {loading && <p>{t("common.loading")}</p>}
       {error && <p role="alert">{t("common.error_prefix")} {error}</p>}
-      {!loading && !error && sortedIdeas.length === 0 && <p>{t("futureIdeas.no_ideas")}</p>}
+      {!loading && !error && ideas.length === 0 && <p>{t("futureIdeas.no_ideas")}</p>}
 
-      {!loading && !error && sortedIdeas.map((idea) => {
-        const supported = mySupports.has(idea.slug);
+      {!loading && !error && ideas.map((idea, i) => {
+        const myVote = myVotes[idea.slug];
         return (
-          <div key={idea.slug} className="pdpb-card" style={{ marginBottom: 10, display: "flex", alignItems: "center", gap: 12 }}>
-            <div style={{ flex: 1 }}>
-              <p style={{ fontSize: 15, fontWeight: 600, margin: "0 0 4px" }}>
-                {idea.title} {idea.scope_codes && idea.scope_codes.length > 0 && <ScopeBadges codes={idea.scope_codes} locale={locale} />}
+          <div key={idea.slug} className="pdpb-card" style={{ marginBottom: 10 }}>
+            <p style={{ fontSize: 15, fontWeight: 600, margin: "0 0 4px", whiteSpace: "pre-line" }}>
+              {i + 1}. {idea.title}{" "}
+              {idea.scope_codes && idea.scope_codes.length > 0 && <ScopeBadges codes={idea.scope_codes} locale={locale} />}
+            </p>
+            {idea.description && (
+              <p style={{ fontSize: 13, color: "var(--color-texte-clair)", margin: "0 0 10px", whiteSpace: "pre-line" }}>
+                {idea.description}
               </p>
-              {idea.description && (
-                <p style={{ fontSize: 13, color: "var(--color-texte-clair)", margin: 0 }}>{idea.description}</p>
-              )}
+            )}
+            <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "center" }}>
+              <button
+                type="button"
+                onClick={() => vote(idea.slug, "adhere")}
+                style={{
+                  padding: "6px 12px",
+                  borderRadius: 20,
+                  border: myVote === "adhere" ? "2px solid var(--color-forest)" : "1px solid var(--color-bordure)",
+                  background: myVote === "adhere" ? "var(--color-carte-verte)" : "var(--color-fond)",
+                  color: "var(--color-texte)",
+                  fontWeight: myVote === "adhere" ? 600 : 400,
+                  cursor: "pointer",
+                  fontSize: 13,
+                }}
+              >
+                👍 {t("charter.vote_adhere")} · {idea.adhere_count}
+              </button>
+              <button
+                type="button"
+                onClick={() => openNuancePrompt(idea.slug)}
+                style={{
+                  padding: "6px 12px",
+                  borderRadius: 20,
+                  border: myVote === "nuance" ? "2px solid #a86b0a" : "1px solid var(--color-bordure)",
+                  background: myVote === "nuance" ? "#fdf1d6" : "var(--color-fond)",
+                  color: myVote === "nuance" ? "#3d2c05" : "var(--color-texte)",
+                  fontWeight: myVote === "nuance" ? 600 : 400,
+                  cursor: "pointer",
+                  fontSize: 13,
+                }}
+              >
+                🤔 {t("charter.vote_nuance")} · {idea.nuance_count}
+              </button>
             </div>
-            <button
-              type="button"
-              onClick={() => toggleSupport(idea.slug)}
-              style={{
-                flexShrink: 0,
-                padding: "8px 14px",
-                borderRadius: 20,
-                border: supported ? "2px solid var(--color-forest)" : "1px solid var(--color-bordure)",
-                background: supported ? "var(--color-carte-verte)" : "var(--color-fond)",
-                color: "var(--color-texte)",
-                fontWeight: supported ? 600 : 400,
-                cursor: "pointer",
-                fontSize: 13,
-                textAlign: "center",
-              }}
-            >
-              {supported ? `✓ ${t("futureIdeas.supported_button")}` : t("futureIdeas.support_button")}
-              <br />
-              <span style={{ fontSize: 17, fontWeight: 700 }}>{idea.support_count}</span>
-            </button>
+
+            {nuancePromptSlug === idea.slug && (
+              <div style={{ marginTop: 10, padding: "0.75rem", background: "var(--color-fond)", border: "1px solid #a86b0a", borderRadius: 8 }}>
+                <p style={{ fontSize: 13, margin: "0 0 10px" }}>{t("charter.nuance_prompt")}</p>
+                <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginBottom: 10 }}>
+                  <button type="button" onClick={() => switchToAdhereFromPrompt(idea.slug)} style={{ fontSize: 13 }}>
+                    {t("charter.nuance_switch_to_yes")}
+                  </button>
+                  <button type="button" onClick={() => declineNuancePrompt(idea.slug)} style={{ fontSize: 13 }}>
+                    {t("charter.nuance_decline")}
+                  </button>
+                </div>
+                <p style={{ fontSize: 12, fontWeight: 600, margin: "0 0 4px" }}>{t("charter.nuance_alternative_label")}</p>
+                <textarea
+                  value={nuanceAlternative}
+                  onChange={(e) => setNuanceAlternative(e.target.value)}
+                  placeholder={t("charter.nuance_alternative_placeholder")}
+                  rows={4}
+                  maxLength={2000}
+                  style={{ width: "100%", padding: "8px 10px", fontFamily: "inherit", marginBottom: 4 }}
+                />
+                <p style={{ fontSize: 12, color: nuanceAlternative.trim().length < MIN_ALTERNATIVE_LENGTH ? "var(--color-texte-clair)" : "#1baf7a", margin: "0 0 8px" }}>
+                  {t("charter.nuance_char_count", { count: nuanceAlternative.trim().length, min: MIN_ALTERNATIVE_LENGTH })}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => confirmNuanceWithAlternative(idea.slug, idea.title)}
+                  disabled={nuanceAlternative.trim().length < MIN_ALTERNATIVE_LENGTH || nuanceSubmitting}
+                  style={{ fontSize: 13, fontWeight: 600 }}
+                >
+                  {nuanceSubmitting ? t("charter.nuance_sending") : t("charter.nuance_confirm")}
+                </button>
+              </div>
+            )}
+
+            {declinedSlug === idea.slug && (
+              <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginTop: 10, fontStyle: "italic" }}>
+                {t("charter.nuance_declined_message")}
+              </p>
+            )}
           </div>
         );
       })}
@@ -156,7 +264,7 @@ export default function FutureIdeasPage() {
           <h2 style={{ fontSize: 18 }}>{t("futureIdeas.suggestions_title")}</h2>
           <ul>
             {publishedSuggestions.map((s) => (
-              <li key={s.id} style={{ fontSize: 14, marginBottom: 6 }}>
+              <li key={s.id} style={{ fontSize: 14, marginBottom: 6, whiteSpace: "pre-line" }}>
                 {s.text} {s.scope_codes && s.scope_codes.length > 0 && <ScopeBadges codes={s.scope_codes} locale={locale} />}
               </li>
             ))}
