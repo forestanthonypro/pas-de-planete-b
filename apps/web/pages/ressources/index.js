@@ -71,47 +71,82 @@ export default function RessourcesPage() {
       link.href = "/vendor/leaflet.css";
       document.head.appendChild(link);
     }
+    if (!document.getElementById("leaflet-markercluster-css")) {
+      const link1 = document.createElement("link");
+      link1.id = "leaflet-markercluster-css";
+      link1.rel = "stylesheet";
+      link1.href = "/vendor/MarkerCluster.css";
+      document.head.appendChild(link1);
+      const link2 = document.createElement("link");
+      link2.id = "leaflet-markercluster-default-css";
+      link2.rel = "stylesheet";
+      link2.href = "/vendor/MarkerCluster.Default.css";
+      document.head.appendChild(link2);
+    }
 
-    import("leaflet").then((L) => {
-      if (cancelled || !mapContainerRef.current) return;
+    import("leaflet")
+      .then((leafletModule) => {
+        const L = leafletModule.default || leafletModule;
+        // leaflet.markercluster est un plugin à l'ancienne qui s'attache à
+        // une variable globale `L` plutôt que d'exporter proprement son
+        // propre module — on doit donc la poser explicitement avant de
+        // l'importer, plutôt que de compter sur un comportement implicite
+        // qui varie selon la façon dont le bundler résout les imports.
+        if (typeof window !== "undefined") window.L = L;
+        return import("leaflet.markercluster").then(() => L);
+      })
+      .then((L) => {
+        if (cancelled || !mapContainerRef.current) return;
 
-      if (!mapRef.current) {
-        mapRef.current = L.map(mapContainerRef.current).setView([46.6, 2.2], 5);
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-          attribution: "&copy; contributeurs OpenStreetMap",
-          maxZoom: 18,
-        }).addTo(mapRef.current);
-        markersLayerRef.current = L.layerGroup().addTo(mapRef.current);
-      }
+        if (!mapRef.current) {
+          mapRef.current = L.map(mapContainerRef.current).setView([46.6, 2.2], 5);
+          L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            attribution: "&copy; contributeurs OpenStreetMap",
+            maxZoom: 18,
+          }).addTo(mapRef.current);
+          // Regroupe les marqueurs proches en bulles à faible zoom plutôt
+          // que de dessiner individuellement les ~66 000 lieux d'un coup
+          // (import en masse OSM/DATAtourisme, 24/08/2026) — même besoin et
+          // même solution que pour les ~35 000 centrales sur /energie.
+          markersLayerRef.current = L.markerClusterGroup({
+            maxClusterRadius: 50,
+          }).addTo(mapRef.current);
+        }
 
-      markersLayerRef.current.clearLayers();
-      filteredLocations.forEach((loc) => {
-        const linksHtml = (loc.links || [])
-          .map((link) => `<a href="${link.url}" target="_blank" rel="noopener noreferrer">${link.label}</a>`)
-          .join(" · ");
-        const flagsHtml = (loc.scope_codes || []).map((c) => scopeFlag(c)).join(" ");
-        L.circleMarker([loc.latitude, loc.longitude], {
-          radius: 8,
-          color: "#1b5e20",
-          fillColor: "#1baf7a",
-          fillOpacity: 0.85,
-          weight: 2,
-        })
-          .bindPopup(
-            `<strong>${loc.name}</strong>${flagsHtml ? ` ${flagsHtml}` : ""}<br/>${loc.description}${loc.address ? `<br/><em>${loc.address}</em>` : ""}${linksHtml ? `<br/>${linksHtml}` : ""}`
-          )
-          .addTo(markersLayerRef.current);
+        markersLayerRef.current.clearLayers();
+        filteredLocations.forEach((loc) => {
+          const linksHtml = (loc.links || [])
+            .map((link) => `<a href="${link.url}" target="_blank" rel="noopener noreferrer">${link.label}</a>`)
+            .join(" · ");
+          const flagsHtml = (loc.scope_codes || []).map((c) => scopeFlag(c)).join(" ");
+          const attributionHtml = loc.license_attribution
+            ? `<br/><span style="font-size:11px;color:#666">${loc.license_attribution}</span>`
+            : "";
+          L.circleMarker([loc.latitude, loc.longitude], {
+            radius: 8,
+            color: "#1b5e20",
+            fillColor: "#1baf7a",
+            fillOpacity: 0.85,
+            weight: 2,
+          })
+            .bindPopup(
+              `<strong>${loc.name}</strong>${flagsHtml ? ` ${flagsHtml}` : ""}<br/>${loc.description}${loc.address ? `<br/><em>${loc.address}</em>` : ""}${linksHtml ? `<br/>${linksHtml}` : ""}${attributionHtml}`
+            )
+            .addTo(markersLayerRef.current);
+        });
+
+        if (filteredLocations.length > 0) {
+          const bounds = L.latLngBounds(filteredLocations.map((l) => [l.latitude, l.longitude]));
+          mapRef.current.fitBounds(bounds, { padding: [30, 30], maxZoom: 12 });
+        }
+
+        setTimeout(() => {
+          if (!cancelled && mapRef.current) mapRef.current.invalidateSize();
+        }, 50);
+      })
+      .catch((err) => {
+        console.error("Échec de l'initialisation de la carte Leaflet :", err);
       });
-
-      if (filteredLocations.length > 0) {
-        const bounds = L.latLngBounds(filteredLocations.map((l) => [l.latitude, l.longitude]));
-        mapRef.current.fitBounds(bounds, { padding: [30, 30], maxZoom: 12 });
-      }
-
-      setTimeout(() => {
-        if (!cancelled && mapRef.current) mapRef.current.invalidateSize();
-      }, 50);
-    });
     return () => {
       cancelled = true;
       if (mapRef.current) {

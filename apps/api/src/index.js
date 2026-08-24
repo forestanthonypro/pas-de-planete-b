@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
+import compression from "compression";
 import cookieParser from "cookie-parser";
 import { pool } from "./lib/db.js";
 import { globalLimiter } from "./lib/rateLimits.js";
@@ -47,6 +48,12 @@ app.use(
     crossOriginResourcePolicy: { policy: "cross-origin" },
   })
 );
+
+// Compression gzip des réponses — sans effet notable sur les petites
+// réponses habituelles du site, mais nécessaire depuis l'import en masse
+// des lieux ressources (/api/resource-locations peut renvoyer des dizaines
+// de Mo en JSON non compressé avec ~66 000 lieux dans le monde).
+app.use(compression());
 
 // CORS_ORIGIN accepte une ou plusieurs origines séparées par des virgules
 // (ex: pour autoriser à la fois le navigateur classique en localhost et
