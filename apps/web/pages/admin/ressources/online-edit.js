@@ -171,6 +171,16 @@ function AdminOnlineResourceEditInner() {
           </select>
         </label>
 
+        <div style={{ marginBottom: "1rem" }}>
+          <ScopeMultiSelect
+            value={scopeCodes}
+            onChange={setScopeCodes}
+            locale="fr"
+            label="Pays ou zone concernée (optionnel)"
+            placeholder="Rechercher un pays, un continent..."
+          />
+        </div>
+
         <label style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: "1rem", fontSize: 14 }}>
           <input type="checkbox" checked={published} onChange={(e) => setPublished(e.target.checked)} />
           Publier (visible sur la page publique)
