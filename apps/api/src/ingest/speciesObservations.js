@@ -193,32 +193,39 @@ async function enrichSpecies(scientificName, cache) {
 }
 
 const COUNTRIES_DEV_BASE = "https://countries.dev";
+const CITIES_PER_COUNTRY = 10;
 
-// Trouve la capitale d'un pays via countries.dev (gratuit, sans clé,
-// données GeoNames CC BY 4.0 — vérifié en réel : identifie correctement
-// la capitale même quand ce n'est pas la ville la plus peuplée, ex. Berne
-// pour la Suisse malgré Zurich plus grande). On demande les 20 premières
-// villes par population et on cherche featureCode=PPLC (Populated Place,
-// Capital) plutôt que de supposer que la plus peuplée est la capitale.
-async function fetchCapitalCity(iso2) {
+// Récupère jusqu'à `limit` villes d'un pays via countries.dev (gratuit,
+// sans clé, données GeoNames CC BY 4.0), triées par population.
+async function fetchCitiesForCountry(iso2, limit = 15) {
   try {
-    const url = `${COUNTRIES_DEV_BASE}/cities?country=${iso2}&limit=20`;
+    const url = `${COUNTRIES_DEV_BASE}/cities?country=${iso2}&limit=${limit}`;
     const cities = await fetchJsonWithRetry(url);
-    if (!Array.isArray(cities) || cities.length === 0) return null;
-    const capital = cities.find((c) => c.featureCode === "PPLC") || cities[0];
-    if (!capital || typeof capital.latitude !== "number" || typeof capital.longitude !== "number") return null;
-    return { name: capital.name, lat: capital.latitude, lon: capital.longitude };
+    return Array.isArray(cities) ? cities : [];
   } catch (err) {
-    console.error(`[speciesObservations] erreur capitale pour "${iso2}" (abandon après retry):`, err.message);
-    return null;
+    console.error(`[speciesObservations] erreur villes pour "${iso2}" (abandon après retry):`, err.message);
+    return [];
   }
 }
 
-// Complète les 4 lieux pilotes choisis à la main par la capitale de
-// chaque pays déjà suivi par le site qui n'a pas encore de lieu pilote —
-// pour ne jamais dupliquer un lieu déjà couvert (ex. la France a déjà
-// Paris et la Lozère, pas besoin d'ajouter Paris une seconde fois via ce
-// mécanisme automatique).
+// Sélectionne jusqu'à maxCount villes représentatives : les plus peuplées,
+// en garantissant que la vraie capitale (featureCode=PPLC) y figure même
+// si elle n'est pas parmi les plus peuplées — vérifié en réel sur la
+// Suisse (Berne, 5e ville par population, correctement incluse).
+function selectRepresentativeCities(cities, maxCount) {
+  const capital = cities.find((c) => c.featureCode === "PPLC");
+  const top = cities.slice(0, maxCount);
+  if (capital && !top.some((c) => c.geonameId === capital.geonameId)) {
+    top.pop();
+    top.push(capital);
+  }
+  return top;
+}
+
+// Complète les 4 lieux pilotes choisis à la main par jusqu'à 10 villes par
+// pays déjà suivi par le site qui n'a pas encore de lieu pilote — pour ne
+// jamais dupliquer un lieu déjà couvert (ex. la France a déjà Paris et la
+// Lozère, pas besoin d'ajouter Paris une seconde fois via ce mécanisme).
 async function buildPlacesList(countryCodes3) {
   const seedCountryCodes = new Set(PLACES_SEED.map((p) => p.countryCode));
   const autoPlaces = [];
@@ -226,24 +233,160 @@ async function buildPlacesList(countryCodes3) {
     if (seedCountryCodes.has(iso3)) continue;
     const iso2 = toAlpha2(iso3);
     if (!iso2) continue;
-    const capital = await fetchCapitalCity(iso2);
+    const cities = await fetchCitiesForCountry(iso2, 15);
     await sleep(300);
-    if (!capital) continue;
-    autoPlaces.push({
-      slug: `capital-${iso3.toLowerCase()}`,
-      name: `${capital.name}, ${localizeCountryNameFr(iso3) || iso3}`,
-      countryCode: iso3,
-      contexte: null, // pas de contexte rédigé pour les lieux auto-générés — voir isAuto côté UI
-      lat: capital.lat,
-      lon: capital.lon,
-      demiCoteDeg: 0.15, // échelle ville, cohérent avec Paris (0.12) et Mumbai (0.15)
-      isAuto: true,
-    });
+    const selected = selectRepresentativeCities(cities, CITIES_PER_COUNTRY);
+    const countryName = localizeCountryNameFr(iso3) || iso3;
+    for (const city of selected) {
+      if (typeof city.latitude !== "number" || typeof city.longitude !== "number") continue;
+      autoPlaces.push({
+        slug: `city-${iso3.toLowerCase()}-${city.geonameId}`,
+        name: `${city.name}, ${countryName}`,
+        countryCode: iso3,
+        contexte: city.featureCode === "PPLC" ? "Capitale nationale" : null,
+        lat: city.latitude,
+        lon: city.longitude,
+        demiCoteDeg: 0.15, // échelle ville, cohérent avec Paris (0.12) et Mumbai (0.15)
+        isAuto: true,
+      });
+    }
   }
   return [...PLACES_SEED.map((p) => ({ ...p, isAuto: false })), ...autoPlaces];
 }
 
-export async function ingestSpeciesObservations(pool) {
+// Traite un pays : facettes GBIF, upsert coverage + top espèces enrichies.
+// Retourne true si traité avec succès, false s'il a été ignoré (échec ou
+// pas de code alpha-2 valide).
+async function processCountry(client, iso3, gtsCache) {
+  const iso2 = toAlpha2(iso3);
+  if (!iso2) return false;
+  const zoneFilter = `country=${iso2}`;
+
+  let topSpecies;
+  let coverage;
+  try {
+    topSpecies = await fetchTopSpecies(zoneFilter);
+    await sleep(300);
+    coverage = await fetchCoverage(zoneFilter);
+    await sleep(300);
+  } catch (err) {
+    console.error(`[speciesObservations] ${iso3} fetch error:`, err.message);
+    return false;
+  }
+
+  const countryName = localizeCountryNameFr(iso3) || iso3;
+
+  await client.query(
+    `INSERT INTO species_observations_coverage
+       (country_code, country_name, total_occurrences, establishment_means_count, degree_of_establishment_count)
+     VALUES ($1, $2, $3, $4, $5)
+     ON CONFLICT (country_code)
+     DO UPDATE SET
+       country_name = EXCLUDED.country_name,
+       total_occurrences = EXCLUDED.total_occurrences,
+       establishment_means_count = EXCLUDED.establishment_means_count,
+       degree_of_establishment_count = EXCLUDED.degree_of_establishment_count,
+       updated_at = now()`,
+    [iso3, countryName, coverage.total, coverage.establishmentMeansCount, coverage.degreeOfEstablishmentCount]
+  );
+
+  await client.query("DELETE FROM species_observations_countries WHERE country_code = $1", [iso3]);
+
+  let rank = 0;
+  for (const sp of topSpecies) {
+    rank += 1;
+    const { inGts, commonNames } = await enrichSpecies(sp.name, gtsCache);
+    await client.query(
+      `INSERT INTO species_observations_countries
+         (country_code, scientific_name, observation_count, in_global_tree_search, common_names, rank)
+       VALUES ($1, $2, $3, $4, $5, $6)
+       ON CONFLICT (country_code, scientific_name)
+       DO UPDATE SET observation_count = EXCLUDED.observation_count,
+         in_global_tree_search = EXCLUDED.in_global_tree_search,
+         common_names = EXCLUDED.common_names,
+         rank = EXCLUDED.rank, updated_at = now()`,
+      [iso3, sp.name, sp.count, inGts, JSON.stringify(commonNames), rank]
+    );
+  }
+  return true;
+}
+
+// Traite un lieu : facettes GBIF sur son rectangle géographique, upsert
+// métadonnées + coverage + top espèces enrichies. Retourne true si
+// traité avec succès, false s'il a été ignoré (échec réseau).
+async function processPlace(client, place, gtsCache) {
+  const wkt = buildBBoxWKT(place.lat, place.lon, place.demiCoteDeg);
+  const zoneFilter = `geometry=${encodeURIComponent(wkt)}`;
+
+  let topSpecies;
+  let coverage;
+  try {
+    topSpecies = await fetchTopSpecies(zoneFilter);
+    await sleep(300);
+    coverage = await fetchCoverage(zoneFilter);
+    await sleep(300);
+  } catch (err) {
+    console.error(`[speciesObservations] lieu "${place.slug}" fetch error:`, err.message);
+    return false;
+  }
+
+  const placeResult = await client.query(
+    `INSERT INTO species_observation_places (slug, name, country_code, contexte, lat, lon, demi_cote_deg, is_auto)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+     ON CONFLICT (slug)
+     DO UPDATE SET name = EXCLUDED.name, country_code = EXCLUDED.country_code,
+       contexte = EXCLUDED.contexte, lat = EXCLUDED.lat, lon = EXCLUDED.lon,
+       demi_cote_deg = EXCLUDED.demi_cote_deg, is_auto = EXCLUDED.is_auto
+     RETURNING id`,
+    [place.slug, place.name, place.countryCode, place.contexte, place.lat, place.lon, place.demiCoteDeg, place.isAuto]
+  );
+  const placeId = placeResult.rows[0].id;
+
+  await client.query(
+    `INSERT INTO species_observation_places_coverage
+       (place_id, total_occurrences, establishment_means_count, degree_of_establishment_count)
+     VALUES ($1, $2, $3, $4)
+     ON CONFLICT (place_id)
+     DO UPDATE SET total_occurrences = EXCLUDED.total_occurrences,
+       establishment_means_count = EXCLUDED.establishment_means_count,
+       degree_of_establishment_count = EXCLUDED.degree_of_establishment_count,
+       updated_at = now()`,
+    [placeId, coverage.total, coverage.establishmentMeansCount, coverage.degreeOfEstablishmentCount]
+  );
+
+  await client.query("DELETE FROM species_observation_places_species WHERE place_id = $1", [placeId]);
+
+  let rank = 0;
+  for (const sp of topSpecies) {
+    rank += 1;
+    const { inGts, commonNames } = await enrichSpecies(sp.name, gtsCache);
+    await client.query(
+      `INSERT INTO species_observation_places_species
+         (place_id, scientific_name, observation_count, in_global_tree_search, common_names, rank)
+       VALUES ($1, $2, $3, $4, $5, $6)
+       ON CONFLICT (place_id, scientific_name)
+       DO UPDATE SET observation_count = EXCLUDED.observation_count,
+         in_global_tree_search = EXCLUDED.in_global_tree_search,
+         common_names = EXCLUDED.common_names, rank = EXCLUDED.rank`,
+      [placeId, sp.name, sp.count, inGts, JSON.stringify(commonNames), rank]
+    );
+  }
+  return true;
+}
+
+// Supprime les lieux auto-générés de l'ancien format de slug
+// ("capital-xxx", un seul par pays) remplacé par le nouveau
+// ("city-xxx-N", jusqu'à 10 par pays) — purement transitoire, sans effet
+// après la première exécution qui suit ce changement.
+async function cleanupLegacyAutoPlaces(client) {
+  await client.query("DELETE FROM species_observation_places WHERE is_auto = true AND slug LIKE 'capital-%'");
+}
+
+// --- Mode complet (localhost / déclenchement manuel) : comportement
+// inchangé depuis la version d'origine — traite tout, sans notion de
+// tranche ni de reprise. C'est ce que lance `npm run ingest:species-observations`
+// sans argument. ---
+async function runFullCycle(pool) {
   const countryRows = await pool.query(`
     SELECT DISTINCT country_code FROM co2_emissions
     UNION
@@ -252,7 +395,6 @@ export async function ingestSpeciesObservations(pool) {
   const countryCodes3 = countryRows.rows.map((r) => r.country_code);
 
   const gtsCache = new Map();
-
   let countriesProcessed = 0;
   let countriesSkipped = 0;
   let placesProcessed = 0;
@@ -260,132 +402,20 @@ export async function ingestSpeciesObservations(pool) {
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
+    await cleanupLegacyAutoPlaces(client);
 
     for (const iso3 of countryCodes3) {
-      const iso2 = toAlpha2(iso3);
-      if (!iso2) {
-        countriesSkipped += 1;
-        continue;
-      }
-      const zoneFilter = `country=${iso2}`;
-
-      let topSpecies;
-      let coverage;
-      try {
-        topSpecies = await fetchTopSpecies(zoneFilter);
-        await sleep(300);
-        coverage = await fetchCoverage(zoneFilter);
-        await sleep(300);
-      } catch (err) {
-        console.error(`[speciesObservations] ${iso3} fetch error:`, err.message);
-        countriesSkipped += 1;
-        continue;
-      }
-
-      const countryName = localizeCountryNameFr(iso3) || iso3;
-
-      await client.query(
-        `INSERT INTO species_observations_coverage
-           (country_code, country_name, total_occurrences, establishment_means_count, degree_of_establishment_count)
-         VALUES ($1, $2, $3, $4, $5)
-         ON CONFLICT (country_code)
-         DO UPDATE SET
-           country_name = EXCLUDED.country_name,
-           total_occurrences = EXCLUDED.total_occurrences,
-           establishment_means_count = EXCLUDED.establishment_means_count,
-           degree_of_establishment_count = EXCLUDED.degree_of_establishment_count,
-           updated_at = now()`,
-        [iso3, countryName, coverage.total, coverage.establishmentMeansCount, coverage.degreeOfEstablishmentCount]
-      );
-
-      await client.query("DELETE FROM species_observations_countries WHERE country_code = $1", [iso3]);
-
-      let rank = 0;
-      for (const sp of topSpecies) {
-        rank += 1;
-        // Le cache (gtsCache) déduplique déjà les vrais appels réseau entre
-        // pays/lieux — pas besoin d'un plafond arbitraire par-dessus, qui a
-        // par le passé provoqué des noms communs manquants pour des pays
-        // traités tard dans la boucle (voir commit de correction).
-        const { inGts, commonNames } = await enrichSpecies(sp.name, gtsCache);
-        await client.query(
-          `INSERT INTO species_observations_countries
-             (country_code, scientific_name, observation_count, in_global_tree_search, common_names, rank)
-           VALUES ($1, $2, $3, $4, $5, $6)
-           ON CONFLICT (country_code, scientific_name)
-           DO UPDATE SET observation_count = EXCLUDED.observation_count,
-             in_global_tree_search = EXCLUDED.in_global_tree_search,
-             common_names = EXCLUDED.common_names,
-             rank = EXCLUDED.rank, updated_at = now()`,
-          [iso3, sp.name, sp.count, inGts, JSON.stringify(commonNames), rank]
-        );
-      }
-
-      countriesProcessed += 1;
+      const ok = await processCountry(client, iso3, gtsCache);
+      if (ok) countriesProcessed += 1;
+      else countriesSkipped += 1;
     }
 
     const placesList = await buildPlacesList(countryCodes3);
-    console.log(`[speciesObservations] ${placesList.length} lieux à traiter (${PLACES_SEED.length} pilotes + ${placesList.length - PLACES_SEED.length} capitales auto-générées).`);
+    console.log(`[speciesObservations] ${placesList.length} lieux à traiter (${PLACES_SEED.length} pilotes + ${placesList.length - PLACES_SEED.length} villes auto-générées).`);
 
     for (const place of placesList) {
-      const wkt = buildBBoxWKT(place.lat, place.lon, place.demiCoteDeg);
-      const zoneFilter = `geometry=${encodeURIComponent(wkt)}`;
-
-      let topSpecies;
-      let coverage;
-      try {
-        topSpecies = await fetchTopSpecies(zoneFilter);
-        await sleep(300);
-        coverage = await fetchCoverage(zoneFilter);
-        await sleep(300);
-      } catch (err) {
-        console.error(`[speciesObservations] lieu "${place.slug}" fetch error:`, err.message);
-        continue;
-      }
-
-      const placeResult = await client.query(
-        `INSERT INTO species_observation_places (slug, name, country_code, contexte, lat, lon, demi_cote_deg, is_auto)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-         ON CONFLICT (slug)
-         DO UPDATE SET name = EXCLUDED.name, country_code = EXCLUDED.country_code,
-           contexte = EXCLUDED.contexte, lat = EXCLUDED.lat, lon = EXCLUDED.lon,
-           demi_cote_deg = EXCLUDED.demi_cote_deg, is_auto = EXCLUDED.is_auto
-         RETURNING id`,
-        [place.slug, place.name, place.countryCode, place.contexte, place.lat, place.lon, place.demiCoteDeg, place.isAuto]
-      );
-      const placeId = placeResult.rows[0].id;
-
-      await client.query(
-        `INSERT INTO species_observation_places_coverage
-           (place_id, total_occurrences, establishment_means_count, degree_of_establishment_count)
-         VALUES ($1, $2, $3, $4)
-         ON CONFLICT (place_id)
-         DO UPDATE SET total_occurrences = EXCLUDED.total_occurrences,
-           establishment_means_count = EXCLUDED.establishment_means_count,
-           degree_of_establishment_count = EXCLUDED.degree_of_establishment_count,
-           updated_at = now()`,
-        [placeId, coverage.total, coverage.establishmentMeansCount, coverage.degreeOfEstablishmentCount]
-      );
-
-      await client.query("DELETE FROM species_observation_places_species WHERE place_id = $1", [placeId]);
-
-      let rank = 0;
-      for (const sp of topSpecies) {
-        rank += 1;
-        const { inGts, commonNames } = await enrichSpecies(sp.name, gtsCache);
-        await client.query(
-          `INSERT INTO species_observation_places_species
-             (place_id, scientific_name, observation_count, in_global_tree_search, common_names, rank)
-           VALUES ($1, $2, $3, $4, $5, $6)
-           ON CONFLICT (place_id, scientific_name)
-           DO UPDATE SET observation_count = EXCLUDED.observation_count,
-             in_global_tree_search = EXCLUDED.in_global_tree_search,
-             common_names = EXCLUDED.common_names, rank = EXCLUDED.rank`,
-          [placeId, sp.name, sp.count, inGts, JSON.stringify(commonNames), rank]
-        );
-      }
-
-      placesProcessed += 1;
+      const ok = await processPlace(client, place, gtsCache);
+      if (ok) placesProcessed += 1;
     }
 
     await client.query("COMMIT");
@@ -396,17 +426,196 @@ export async function ingestSpeciesObservations(pool) {
     client.release();
   }
 
-  return { countriesProcessed, countriesSkipped, placesProcessed, uniqueSpeciesResolved: gtsCache.size };
+  return { status: "complete", countriesProcessed, countriesSkipped, placesProcessed, uniqueSpeciesResolved: gtsCache.size };
+}
+
+// --- Mode par tranches (production, via GitHub Actions toutes les 20
+// minutes — voir .github/workflows/refresh-species-observations.yml).
+// Reprend automatiquement où le cycle précédent s'est arrêté, en se
+// basant sur updated_at des tables de couverture plutôt que sur un
+// curseur explicite : un pays/lieu pas encore mis à jour depuis le début
+// du cycle en cours est simplement repris, ce qui rend la reprise
+// naturellement robuste à un arrêt en plein milieu (crash, timeout). ---
+
+const CYCLE_MAX_AGE_DAYS = 25; // au-delà, on démarre un nouveau cycle mensuel plutôt que de considérer le précédent "encore frais"
+
+async function runResumableBatch(pool, maxDurationMs) {
+  const startTime = Date.now();
+  const timeIsUp = () => maxDurationMs != null && Date.now() - startTime >= maxDurationMs;
+
+  const progressResult = await pool.query("SELECT * FROM species_observations_progress WHERE id = 1");
+  let progress = progressResult.rows[0];
+  const cycleAgeDays = (Date.now() - new Date(progress.cycle_started_at).getTime()) / (1000 * 60 * 60 * 24);
+
+  if (progress.phase === "done" && cycleAgeDays < CYCLE_MAX_AGE_DAYS) {
+    return { status: "up-to-date", phase: "done", countriesProcessed: 0, placesProcessed: 0 };
+  }
+  if (progress.phase === "done") {
+    // Cycle précédent terminé mais ancien : on en redémarre un nouveau.
+    await pool.query(
+      `UPDATE species_observations_progress
+       SET phase = 'countries', cycle_started_at = now(), updated_at = now() WHERE id = 1`
+    );
+    progress = { phase: "countries", cycle_started_at: new Date() };
+  }
+  const cycleStartedAt = progress.cycle_started_at;
+
+  const countryRows = await pool.query(`
+    SELECT DISTINCT country_code FROM co2_emissions
+    UNION
+    SELECT DISTINCT country_code FROM power_plants
+  `);
+  const countryCodes3 = countryRows.rows.map((r) => r.country_code);
+
+  const gtsCache = new Map();
+  let countriesProcessed = 0;
+  let placesProcessed = 0;
+
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    await cleanupLegacyAutoPlaces(client);
+    await client.query("COMMIT");
+  } finally {
+    client.release();
+  }
+
+  if (progress.phase === "countries") {
+    const pending = await pool.query(
+      `SELECT c.code AS country_code FROM unnest($1::text[]) AS c(code)
+       LEFT JOIN species_observations_coverage cov ON cov.country_code = c.code
+       WHERE cov.country_code IS NULL OR cov.updated_at < $2
+       ORDER BY c.code`,
+      [countryCodes3, cycleStartedAt]
+    );
+
+    for (const row of pending.rows) {
+      const client2 = await pool.connect();
+      try {
+        await client2.query("BEGIN");
+        const ok = await processCountry(client2, row.country_code, gtsCache);
+        await client2.query("COMMIT");
+        if (ok) countriesProcessed += 1;
+      } catch (err) {
+        await client2.query("ROLLBACK");
+        console.error(`[speciesObservations] pays "${row.country_code}" échec (tranche), sera repris:`, err.message);
+      } finally {
+        client2.release();
+      }
+      if (timeIsUp()) {
+        await pool.query("UPDATE species_observations_progress SET updated_at = now() WHERE id = 1");
+        return { status: "partial", phase: "countries", countriesProcessed, placesProcessed: 0 };
+      }
+    }
+
+    // Tous les pays du cycle sont à jour : on construit la liste des
+    // lieux (appels countries.dev) une seule fois, puis on passe en phase
+    // "places". Les tranches suivantes n'auront plus besoin de rappeler
+    // countries.dev — elles reliront la liste déjà en base.
+    const placesList = await buildPlacesList(countryCodes3);
+    const client3 = await pool.connect();
+    try {
+      await client3.query("BEGIN");
+      for (const place of placesList) {
+        await client3.query(
+          `INSERT INTO species_observation_places (slug, name, country_code, contexte, lat, lon, demi_cote_deg, is_auto)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+           ON CONFLICT (slug)
+           DO UPDATE SET name = EXCLUDED.name, country_code = EXCLUDED.country_code,
+             contexte = EXCLUDED.contexte, lat = EXCLUDED.lat, lon = EXCLUDED.lon,
+             demi_cote_deg = EXCLUDED.demi_cote_deg, is_auto = EXCLUDED.is_auto`,
+          [place.slug, place.name, place.countryCode, place.contexte, place.lat, place.lon, place.demiCoteDeg, place.isAuto]
+        );
+      }
+      await client3.query(
+        `UPDATE species_observations_progress SET phase = 'places', updated_at = now() WHERE id = 1`
+      );
+      await client3.query("COMMIT");
+    } catch (err) {
+      await client3.query("ROLLBACK");
+      throw err;
+    } finally {
+      client3.release();
+    }
+
+    if (timeIsUp()) {
+      return { status: "partial", phase: "places", countriesProcessed, placesProcessed: 0 };
+    }
+  }
+
+  // Phase "places" : les métadonnées sont déjà en base (construites ci-dessus,
+  // potentiellement lors d'une tranche précédente) — on relit directement
+  // depuis species_observation_places, pas besoin de rappeler countries.dev.
+  const pendingPlaces = await pool.query(
+    `SELECT p.id, p.slug, p.name, p.country_code, p.contexte, p.lat, p.lon, p.demi_cote_deg, p.is_auto
+     FROM species_observation_places p
+     LEFT JOIN species_observation_places_coverage cov ON cov.place_id = p.id
+     WHERE cov.place_id IS NULL OR cov.updated_at < $1
+     ORDER BY p.slug`,
+    [cycleStartedAt]
+  );
+
+  for (const row of pendingPlaces.rows) {
+    const place = {
+      slug: row.slug,
+      name: row.name,
+      countryCode: row.country_code,
+      contexte: row.contexte,
+      lat: Number(row.lat),
+      lon: Number(row.lon),
+      demiCoteDeg: Number(row.demi_cote_deg),
+      isAuto: row.is_auto,
+    };
+    const client4 = await pool.connect();
+    try {
+      await client4.query("BEGIN");
+      const ok = await processPlace(client4, place, gtsCache);
+      await client4.query("COMMIT");
+      if (ok) placesProcessed += 1;
+    } catch (err) {
+      await client4.query("ROLLBACK");
+      console.error(`[speciesObservations] lieu "${row.slug}" échec (tranche), sera repris:`, err.message);
+    } finally {
+      client4.release();
+    }
+    if (timeIsUp()) {
+      await pool.query("UPDATE species_observations_progress SET updated_at = now() WHERE id = 1");
+      return { status: "partial", phase: "places", countriesProcessed, placesProcessed };
+    }
+  }
+
+  await pool.query("UPDATE species_observations_progress SET phase = 'done', updated_at = now() WHERE id = 1");
+  return { status: "complete", phase: "done", countriesProcessed, placesProcessed };
+}
+
+export async function ingestSpeciesObservations(pool, options = {}) {
+  const { resume = false, maxDurationMs = null } = options;
+  if (resume) {
+    return runResumableBatch(pool, maxDurationMs);
+  }
+  return runFullCycle(pool);
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
   const { default: pg } = await import("pg");
   const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
-  console.log("Ingestion des espèces observées (GBIF) — pays + lieux pilotes, plafond retiré (voir correction du 24/08/2026), compter jusqu'à 30 minutes selon le nombre d'espèces uniques rencontrées...");
-  const result = await ingestSpeciesObservations(pool);
-  console.log(
-    `Terminé : ${result.countriesProcessed} pays traités (${result.countriesSkipped} ignorés), ` +
-      `${result.placesProcessed} lieux pilotes, ${result.uniqueSpeciesResolved} espèces uniques résolues (GlobalTreeSearch + noms communs).`
-  );
+
+  const args = process.argv.slice(2);
+  const resume = args.includes("--resume");
+  const durationArg = args.find((a) => a.startsWith("--max-duration-minutes="));
+  const maxDurationMs = durationArg ? Number(durationArg.split("=")[1]) * 60 * 1000 : null;
+
+  if (resume) {
+    console.log(`Ingestion des espèces observées (GBIF) — mode tranche (reprise), budget ${maxDurationMs ? maxDurationMs / 60000 + " min" : "illimité"}...`);
+    const result = await runResumableBatch(pool, maxDurationMs);
+    console.log(`Tranche terminée : statut "${result.status}", phase "${result.phase}", ${result.countriesProcessed} pays traités, ${result.placesProcessed} lieux traités.`);
+  } else {
+    console.log("Ingestion des espèces observées (GBIF) — pays + lieux (jusqu'à 10 villes/pays), mode complet, compter jusqu'à 1h-1h30 selon le nombre d'espèces uniques rencontrées...");
+    const result = await runFullCycle(pool);
+    console.log(
+      `Terminé : ${result.countriesProcessed} pays traités (${result.countriesSkipped} ignorés), ` +
+        `${result.placesProcessed} lieux traités, ${result.uniqueSpeciesResolved} espèces uniques résolues (GlobalTreeSearch + noms communs).`
+    );
+  }
   await pool.end();
 }

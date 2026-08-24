@@ -700,9 +700,12 @@ router.get("/api/species-observations/places/:slug", async (req, res) => {
   }
 });
 
-router.post("/api/admin/ingest/species-observations", requireIngestToken, async (_req, res) => {
+router.post("/api/admin/ingest/species-observations", requireIngestToken, async (req, res) => {
   try {
-    const result = await ingestSpeciesObservations(pool);
+    const resume = req.query.resume === "true" || req.query.resume === "1";
+    const maxDurationMinutesRaw = req.query.maxDurationMinutes;
+    const maxDurationMs = maxDurationMinutesRaw ? Number(maxDurationMinutesRaw) * 60 * 1000 : null;
+    const result = await ingestSpeciesObservations(pool, { resume, maxDurationMs });
     res.json({ status: "ok", ...result });
   } catch (err) {
     res.status(500).json({ error: "Échec de l'ingestion", detail: errorDetail(err) });

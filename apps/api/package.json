@@ -25,7 +25,8 @@
     "ingest:an-groups": "node src/ingest/an_groups.js",
     "push:worker": "node src/workers/pushNotifications.js",
     "push:once": "node src/workers/pushNotifications.js --once",
-    "ingest:species-observations": "node src/ingest/speciesObservations.js"
+    "ingest:species-observations": "node src/ingest/speciesObservations.js",
+    "ingest:species-observations:batch": "node src/ingest/speciesObservations.js --resume --max-duration-minutes=15"
   },
   "dependencies": {
     "adm-zip": "^0.6.0",

@@ -1,0 +1,25 @@
+name: Rafraîchir les espèces observées (GBIF)
+
+# Contrairement aux autres ingestions (refresh-data.yml, une fois par
+# mois), celle-ci est trop longue pour tenir dans un seul appel HTTP —
+# jusqu'à 217 pays + jusqu'à 10 villes par pays (~1h-1h30 au total). Elle
+# tourne donc par tranches de 15 minutes, toutes les 20 minutes, et
+# reprend automatiquement où elle s'est arrêtée (voir la table
+# species_observations_progress et le mode --resume de
+# apps/api/src/ingest/speciesObservations.js) jusqu'à ce qu'un cycle
+# complet soit terminé — puis elle ne fait plus rien jusqu'au prochain
+# cycle mensuel (25 jours après le début du précédent).
+on:
+  schedule:
+    - cron: "*/20 * * * *"
+  workflow_dispatch: {}
+
+jobs:
+  refresh-species-observations:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Traiter une tranche (reprend automatiquement où le cycle précédent s'est arrêté)
+        run: |
+          curl -f -X POST "${{ secrets.API_URL }}/api/admin/ingest/species-observations?resume=true&maxDurationMinutes=15" \
+            -H "x-ingest-token: ${{ secrets.INGEST_TOKEN }}" \
+            --max-time 1000
