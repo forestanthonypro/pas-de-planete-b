@@ -260,7 +260,10 @@
       "coverage_note": "在该区域的{total}条记录中,{emPct}%标明了该植物是本地种还是引进种,{dePct}%说明了其定植状况(入侵性、栽培等)。此数据在不同国家常常缺失——比例低并不代表没有引进物种,只是信息未被记录。",
       "no_data": "该区域暂无数据。",
       "source": "来源:GBIF(GBIF.org),带时间戳的观测记录。GlobalTreeSearch核实:BGCI。",
-      "source_last_updated": "我们数据库的最后更新时间:{date}。"
+      "source_last_updated": "我们数据库的最后更新时间:{date}。",
+      "table_common_name": "俗名",
+      "name_unavailable": "暂无俗名",
+      "no_place_for_country": "目前没有{country}的试点地点 — 以下显示的是另一个区域。"
     }
   },
   "especes": {

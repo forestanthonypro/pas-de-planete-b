@@ -260,7 +260,10 @@
       "coverage_note": "このエリアの{total}件の記録のうち、{emPct}%がその植物が在来種か外来種かを示しており、{dePct}%が定着状況(侵略的、栽培など)を明示しています。このデータは国によってしばしば欠落しています — 割合が低いことは外来種が存在しないことを意味するのではなく、単に情報が記録されていないことを意味します。",
       "no_data": "このエリアのデータはまだありません。",
       "source": "出典:GBIF(GBIF.org)、日付入り観察記録。GlobalTreeSearch確認:BGCI。",
-      "source_last_updated": "当データベースの最終更新:{date}。"
+      "source_last_updated": "当データベースの最終更新:{date}。",
+      "table_common_name": "通称",
+      "name_unavailable": "通称は利用できません",
+      "no_place_for_country": "現時点で{country}のパイロット地点はありません — 以下は別のエリアを表示しています。"
     }
   },
   "especes": {

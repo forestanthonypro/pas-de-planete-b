@@ -260,7 +260,10 @@
       "coverage_note": "Sur {total} enregistrements dans cette zone, {emPct} % indiquent si la plante est native ou introduite, et {dePct} % précisent son degré d'implantation (envahissante, cultivée...). Cette donnée est souvent absente selon les pays — un pourcentage bas ne veut pas dire qu'il n'y a pas d'espèces introduites, seulement que l'information n'a pas été renseignée.",
       "no_data": "Pas encore de données pour cette zone.",
       "source": "Source : GBIF (GBIF.org), observations horodatées. Vérification GlobalTreeSearch : BGCI.",
-      "source_last_updated": "Dernière mise à jour de notre base : {date}."
+      "source_last_updated": "Dernière mise à jour de notre base : {date}.",
+      "table_common_name": "Nom commun",
+      "name_unavailable": "Nom commun non disponible",
+      "no_place_for_country": "Aucun lieu pilote pour {country} pour le moment — aperçu d'une autre zone ci-dessous."
     }
   },
   "especes": {

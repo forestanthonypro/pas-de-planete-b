@@ -32,12 +32,33 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const PLACES_SEED = JSON.parse(
   readFileSync(join(__dirname, "species_observation_places_seed.json"), "utf-8")
 );
+// Même fichier d'overrides que species.js (ingestion des statuts d'extinction) —
+// pas de duplication, les deux ingestions bénéficient des mêmes corrections
+// manuelles.
+const NAME_OVERRIDES = JSON.parse(
+  readFileSync(join(__dirname, "species_common_names_overrides.json"), "utf-8")
+);
+
+// Couvre les 8 langues du site. GBIF ne renvoie pas toujours un code ISO
+// 639-1 à 2 lettres — certaines entrées utilisent le code à 3 lettres
+// (ISO 639-2/3). On accepte les deux formes, vérifié par appel réel
+// (species/8351737/vernacularNames — Hedera helix) avant écriture.
+const LANGUAGE_CODES = {
+  fr: ["fr", "fra"],
+  en: ["en", "eng"],
+  es: ["es", "spa"],
+  it: ["it", "ita"],
+  ru: ["ru", "rus"],
+  ja: ["ja", "jpn"],
+  zh: ["zh", "zho", "chi"],
+  hi: ["hi", "hin"],
+};
 
 const GBIF_BASE = "https://api.gbif.org/v1";
 const KINGDOM_PLANTAE = 6;
 const GLOBAL_TREE_SEARCH_DATASET_KEY = "7cfcd73b-03ae-476b-a61c-872d36b6c38f";
 const TOP_SPECIES_PER_ZONE = 15;
-const MAX_SPECIES_GTS_CHECKS = 800; // plafond de vérifications GlobalTreeSearch par exécution
+const MAX_SPECIES_GTS_CHECKS = 800; // plafond de vérifications GlobalTreeSearch + noms communs par exécution
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -87,8 +108,7 @@ async function fetchCoverage(zoneFilter) {
   };
 }
 
-async function checkGlobalTreeSearch(scientificName, cache) {
-  if (cache.has(scientificName)) return cache.get(scientificName);
+async function checkGlobalTreeSearch(scientificName) {
   let present = false;
   try {
     const url = `${GBIF_BASE}/species/search?datasetKey=${GLOBAL_TREE_SEARCH_DATASET_KEY}&q=${encodeURIComponent(scientificName)}&limit=1`;
@@ -97,8 +117,51 @@ async function checkGlobalTreeSearch(scientificName, cache) {
   } catch (err) {
     console.error(`[speciesObservations] erreur GlobalTreeSearch pour "${scientificName}":`, err.message);
   }
-  cache.set(scientificName, present);
   return present;
+}
+
+function resolveCommonNames(scientificName, vernacularResults) {
+  const names = {};
+  for (const [lang, codes] of Object.entries(LANGUAGE_CODES)) {
+    const match = vernacularResults?.find(
+      (v) => codes.includes((v.language || "").toLowerCase()) && v.vernacularName
+    );
+    if (match) names[lang] = match.vernacularName;
+  }
+  // Les correspondances manuelles priment sur ce que GBIF a pu fournir.
+  const manual = NAME_OVERRIDES[scientificName];
+  if (manual) Object.assign(names, manual);
+  return names;
+}
+
+async function fetchCommonNames(scientificName) {
+  try {
+    const matchUrl = `${GBIF_BASE}/species/match?name=${encodeURIComponent(scientificName)}&kingdom=Plantae`;
+    const match = await fetchJson(matchUrl);
+    if (!match.usageKey) return {};
+    const vernUrl = `${GBIF_BASE}/species/${match.usageKey}/vernacularNames?limit=50`;
+    const vern = await fetchJson(vernUrl);
+    return resolveCommonNames(scientificName, vern.results || []);
+  } catch (err) {
+    console.error(`[speciesObservations] erreur noms communs pour "${scientificName}":`, err.message);
+    return {};
+  }
+}
+
+// Résout en une fois, pour un nom scientifique donné, sa présence dans
+// GlobalTreeSearch et ses noms communs — mis en cache par nom scientifique
+// pour ne jamais refaire ces appels quand la même espèce revient dans
+// plusieurs pays/lieux (très fréquent : Hedera helix apparaît dans presque
+// toutes les zones tempérées testées).
+async function enrichSpecies(scientificName, cache) {
+  if (cache.has(scientificName)) return cache.get(scientificName);
+  const inGts = await checkGlobalTreeSearch(scientificName);
+  await sleep(300);
+  const commonNames = await fetchCommonNames(scientificName);
+  await sleep(300);
+  const result = { inGts, commonNames };
+  cache.set(scientificName, result);
+  return result;
 }
 
 export async function ingestSpeciesObservations(pool) {
@@ -163,22 +226,27 @@ export async function ingestSpeciesObservations(pool) {
       for (const sp of topSpecies) {
         rank += 1;
         let inGts = false;
+        let commonNames = {};
         if (gtsChecksUsed < MAX_SPECIES_GTS_CHECKS) {
-          inGts = await checkGlobalTreeSearch(sp.name, gtsCache);
+          const enriched = await enrichSpecies(sp.name, gtsCache);
+          inGts = enriched.inGts;
+          commonNames = enriched.commonNames;
           gtsChecksUsed += 1;
-          await sleep(300);
         } else if (gtsCache.has(sp.name)) {
-          inGts = gtsCache.get(sp.name);
+          const cached = gtsCache.get(sp.name);
+          inGts = cached.inGts;
+          commonNames = cached.commonNames;
         }
         await client.query(
           `INSERT INTO species_observations_countries
-             (country_code, scientific_name, observation_count, in_global_tree_search, rank)
-           VALUES ($1, $2, $3, $4, $5)
+             (country_code, scientific_name, observation_count, in_global_tree_search, common_names, rank)
+           VALUES ($1, $2, $3, $4, $5, $6)
            ON CONFLICT (country_code, scientific_name)
            DO UPDATE SET observation_count = EXCLUDED.observation_count,
              in_global_tree_search = EXCLUDED.in_global_tree_search,
+             common_names = EXCLUDED.common_names,
              rank = EXCLUDED.rank, updated_at = now()`,
-          [iso3, sp.name, sp.count, inGts, rank]
+          [iso3, sp.name, sp.count, inGts, JSON.stringify(commonNames), rank]
         );
       }
 
@@ -231,21 +299,26 @@ export async function ingestSpeciesObservations(pool) {
       for (const sp of topSpecies) {
         rank += 1;
         let inGts = false;
+        let commonNames = {};
         if (gtsChecksUsed < MAX_SPECIES_GTS_CHECKS) {
-          inGts = await checkGlobalTreeSearch(sp.name, gtsCache);
+          const enriched = await enrichSpecies(sp.name, gtsCache);
+          inGts = enriched.inGts;
+          commonNames = enriched.commonNames;
           gtsChecksUsed += 1;
-          await sleep(300);
         } else if (gtsCache.has(sp.name)) {
-          inGts = gtsCache.get(sp.name);
+          const cached = gtsCache.get(sp.name);
+          inGts = cached.inGts;
+          commonNames = cached.commonNames;
         }
         await client.query(
           `INSERT INTO species_observation_places_species
-             (place_id, scientific_name, observation_count, in_global_tree_search, rank)
-           VALUES ($1, $2, $3, $4, $5)
+             (place_id, scientific_name, observation_count, in_global_tree_search, common_names, rank)
+           VALUES ($1, $2, $3, $4, $5, $6)
            ON CONFLICT (place_id, scientific_name)
            DO UPDATE SET observation_count = EXCLUDED.observation_count,
-             in_global_tree_search = EXCLUDED.in_global_tree_search, rank = EXCLUDED.rank`,
-          [placeId, sp.name, sp.count, inGts, rank]
+             in_global_tree_search = EXCLUDED.in_global_tree_search,
+             common_names = EXCLUDED.common_names, rank = EXCLUDED.rank`,
+          [placeId, sp.name, sp.count, inGts, JSON.stringify(commonNames), rank]
         );
       }
 

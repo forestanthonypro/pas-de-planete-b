@@ -260,7 +260,10 @@
       "coverage_note": "Out of {total} records in this area, {emPct}% indicate whether the plant is native or introduced, and {dePct}% specify its establishment status (invasive, cultivated...). This data is often missing depending on the country — a low percentage does not mean there are no introduced species, only that the information was not recorded.",
       "no_data": "No data yet for this area.",
       "source": "Source: GBIF (GBIF.org), timestamped observations. GlobalTreeSearch verification: BGCI.",
-      "source_last_updated": "Our database was last updated on {date}."
+      "source_last_updated": "Our database was last updated on {date}.",
+      "table_common_name": "Common name",
+      "name_unavailable": "Common name unavailable",
+      "no_place_for_country": "No pilot location for {country} yet — showing another area below."
     }
   },
   "especes": {

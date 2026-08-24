@@ -642,7 +642,7 @@ router.get("/api/species-observations/:country", async (req, res) => {
         [country]
       ),
       pool.query(
-        `SELECT scientific_name, observation_count, in_global_tree_search, rank
+        `SELECT scientific_name, observation_count, in_global_tree_search, common_names, rank
          FROM species_observations_countries WHERE country_code = $1 ORDER BY rank`,
         [country]
       ),
@@ -685,7 +685,7 @@ router.get("/api/species-observations/places/:slug", async (req, res) => {
         [placeId]
       ),
       pool.query(
-        `SELECT scientific_name, observation_count, in_global_tree_search, rank
+        `SELECT scientific_name, observation_count, in_global_tree_search, common_names, rank
          FROM species_observation_places_species WHERE place_id = $1 ORDER BY rank`,
         [placeId]
       ),

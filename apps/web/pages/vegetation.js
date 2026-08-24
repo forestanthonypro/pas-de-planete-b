@@ -9,6 +9,7 @@ import { useWorldBenchmarks } from "../lib/useWorldBenchmarks";
 import { useT } from "../lib/useT";
 import ScrollableTable from "../components/ScrollableTable";
 import { useApiFetch } from "../lib/useApiFetch";
+import { primaryCommonName } from "../lib/commonNames";
 
 function ObservedSpeciesChart({ topSpecies, canvasRef, chartRef, t, locale, titleKey }) {
   useEffect(() => {
@@ -21,7 +22,10 @@ function ObservedSpeciesChart({ topSpecies, canvasRef, chartRef, t, locale, titl
       chartRef.current = new Chart(canvasRef.current, {
         type: "bar",
         data: {
-          labels: rows.map((s) => s.scientific_name),
+          labels: rows.map((s) => {
+            const common = primaryCommonName(s.common_names, locale);
+            return common ? `${common} (${s.scientific_name})` : s.scientific_name;
+          }),
           datasets: [
             {
               label: t("vegetation.observedSpecies.chart_count"),
@@ -37,7 +41,7 @@ function ObservedSpeciesChart({ topSpecies, canvasRef, chartRef, t, locale, titl
           plugins: { legend: { display: false } },
           scales: {
             x: { title: { display: true, text: t("vegetation.observedSpecies.axis_count") } },
-            y: { ticks: { font: { style: "italic" } } },
+            y: { ticks: { font: { size: 11 } } },
           },
         },
       });
@@ -70,34 +74,41 @@ function CoverageNote({ coverage, t }) {
   );
 }
 
-function ObservedSpeciesTable({ topSpecies, t }) {
+function ObservedSpeciesTable({ topSpecies, t, locale }) {
   if (!topSpecies || topSpecies.length === 0) return null;
   return (
     <ScrollableTable>
-      <table style={{ width: "100%", minWidth: 480, borderCollapse: "collapse" }}>
+      <table style={{ width: "100%", minWidth: 560, borderCollapse: "collapse" }}>
         <thead>
           <tr>
+            <th scope="col" style={{ textAlign: "left", padding: 6 }}>{t("vegetation.observedSpecies.table_common_name")}</th>
             <th scope="col" style={{ textAlign: "left", padding: 6 }}>{t("vegetation.observedSpecies.table_species")}</th>
             <th scope="col" style={{ textAlign: "right", padding: 6 }}>{t("vegetation.observedSpecies.table_count")}</th>
             <th scope="col" style={{ textAlign: "left", padding: 6 }}>{t("vegetation.observedSpecies.table_gts")}</th>
           </tr>
         </thead>
         <tbody>
-          {topSpecies.map((s) => (
-            <tr key={s.scientific_name}>
-              <th scope="row" style={{ textAlign: "left", padding: 6, fontWeight: 400, fontStyle: "italic" }}>
-                {s.scientific_name}
-              </th>
-              <td style={{ textAlign: "right", padding: 6 }}>{Number(s.observation_count).toLocaleString("fr-FR")}</td>
-              <td style={{ padding: 6 }}>
-                {s.in_global_tree_search ? (
-                  <span style={{ color: "#1baf7a", fontSize: 12 }}>{t("vegetation.observedSpecies.gts_yes")}</span>
-                ) : (
-                  <span style={{ color: "var(--color-texte-clair)", fontSize: 12 }}>{t("vegetation.observedSpecies.gts_no")}</span>
-                )}
-              </td>
-            </tr>
-          ))}
+          {topSpecies.map((s) => {
+            const common = primaryCommonName(s.common_names, locale);
+            return (
+              <tr key={s.scientific_name}>
+                <td style={{ textAlign: "left", padding: 6, color: common ? "inherit" : "var(--color-texte-clair)" }}>
+                  {common || t("vegetation.observedSpecies.name_unavailable")}
+                </td>
+                <th scope="row" style={{ textAlign: "left", padding: 6, fontWeight: 400, fontStyle: "italic" }}>
+                  {s.scientific_name}
+                </th>
+                <td style={{ textAlign: "right", padding: 6 }}>{Number(s.observation_count).toLocaleString("fr-FR")}</td>
+                <td style={{ padding: 6 }}>
+                  {s.in_global_tree_search ? (
+                    <span style={{ color: "#1baf7a", fontSize: 12 }}>{t("vegetation.observedSpecies.gts_yes")}</span>
+                  ) : (
+                    <span style={{ color: "var(--color-texte-clair)", fontSize: 12 }}>{t("vegetation.observedSpecies.gts_no")}</span>
+                  )}
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </ScrollableTable>
@@ -125,8 +136,19 @@ export default function VegetationPage() {
   });
   const [placeSlug, setPlaceSlug] = useState("");
   useEffect(() => {
-    if (!placeSlug && placesList && placesList.length > 0) setPlaceSlug(placesList[0].slug);
-  }, [placesList, placeSlug]);
+    if (!placesList || placesList.length === 0) return;
+    // Aligne par défaut le lieu pilote sur le pays sélectionné en haut de
+    // page quand un lieu pilote existe pour ce pays — sinon garde la
+    // sélection en cours si elle reste valide, ou retombe sur le premier
+    // lieu de la liste.
+    const matchingPlace = placesList.find((p) => p.country_code === countryCode);
+    if (matchingPlace) {
+      setPlaceSlug(matchingPlace.slug);
+    } else if (!placeSlug || !placesList.some((p) => p.slug === placeSlug)) {
+      setPlaceSlug(placesList[0].slug);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [placesList, countryCode]);
   const { data: placeSpeciesData } = useApiFetch(placeSlug ? `/api/species-observations/places/${placeSlug}` : null, {
     transform: (d) => d || { coverage: null, topSpecies: [] },
   });
@@ -404,7 +426,7 @@ export default function VegetationPage() {
             />
             <details style={{ fontSize: 13 }}>
               <summary style={{ cursor: "pointer" }}>{t("vegetation.observedSpecies.table_toggle")}</summary>
-              <ObservedSpeciesTable topSpecies={countrySpeciesData.topSpecies} t={t} />
+              <ObservedSpeciesTable topSpecies={countrySpeciesData.topSpecies} t={t} locale={locale} />
             </details>
             <CoverageNote coverage={countrySpeciesData.coverage} t={t} />
           </>
@@ -413,6 +435,11 @@ export default function VegetationPage() {
         )}
 
         <h3 style={{ fontSize: 15, marginTop: "1.5rem" }}>{t("vegetation.observedSpecies.by_place_title")}</h3>
+        {placesList && placesList.length > 0 && !placesList.some((p) => p.country_code === countryCode) && (
+          <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginBottom: "0.5rem" }}>
+            {t("vegetation.observedSpecies.no_place_for_country", { country: selectedCountryName })}
+          </p>
+        )}
         {placesList && placesList.length > 0 && (
           <label style={{ display: "block", marginBottom: "0.75rem" }}>
             {t("vegetation.observedSpecies.place_label")}{" "}
@@ -442,7 +469,7 @@ export default function VegetationPage() {
             />
             <details style={{ fontSize: 13 }}>
               <summary style={{ cursor: "pointer" }}>{t("vegetation.observedSpecies.table_toggle")}</summary>
-              <ObservedSpeciesTable topSpecies={placeSpeciesData.topSpecies} t={t} />
+              <ObservedSpeciesTable topSpecies={placeSpeciesData.topSpecies} t={t} locale={locale} />
             </details>
             <CoverageNote coverage={placeSpeciesData.coverage} t={t} />
           </>
