@@ -241,7 +241,27 @@
     "source_latest_year": "— 来源覆盖的最新年份：{year}",
     "source_last_updated": "· 我们数据库的最后更新时间：{date}",
     "source_refresh": "。每月自动更新。",
-    "error_no_data": "该国数据不可用"
+    "error_no_data": "该国数据不可用",
+    "observedSpecies": {
+      "title": "实地观测到的物种",
+      "intro": "这些数据来自GBIF记录的实地观测(公民科学和科学记录)——并非完整名录,而是按国家、以及若干试点城市/地区实际记录情况的快照。",
+      "gts_disclaimer": "「在GlobalTreeSearch中」标记仅表示该物种出现在此树木名录中(BGCI,CC BY-NC 4.0许可,非商业性质)——这绝不是种植建议。选择树种时请咨询当地林业部门。",
+      "by_country_title": "观测最多的物种 — {country}",
+      "by_place_title": "试点城市/地区详情",
+      "place_label": "地点:",
+      "table_toggle": "查看表格详情",
+      "table_species": "物种",
+      "table_count": "观测数",
+      "table_gts": "在GlobalTreeSearch中",
+      "gts_yes": "是",
+      "gts_no": "否",
+      "chart_count": "观测数量",
+      "axis_count": "观测数",
+      "coverage_note": "在该区域的{total}条记录中,{emPct}%标明了该植物是本地种还是引进种,{dePct}%说明了其定植状况(入侵性、栽培等)。此数据在不同国家常常缺失——比例低并不代表没有引进物种,只是信息未被记录。",
+      "no_data": "该区域暂无数据。",
+      "source": "来源:GBIF(GBIF.org),带时间戳的观测记录。GlobalTreeSearch核实:BGCI。",
+      "source_last_updated": "我们数据库的最后更新时间:{date}。"
+    }
   },
   "especes": {
     "title": "受威胁物种",

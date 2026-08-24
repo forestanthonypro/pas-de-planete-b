@@ -212,6 +212,7 @@ function buildActionPage3Html(countryName, labels, industryBreakdown, franceIndu
         ${labels.arbresQuestions.map((q) => `<li>${q}</li>`).join("")}
       </ol>
       <p class="action-source" style="margin-bottom:0">${labels.arbresQuestionsWho}</p>
+      <p class="action-source" style="margin-bottom:0;margin-top:1mm">${labels.arbresGbifCta}</p>
     </div>
 
     <p class="section-title" style="margin-top:3mm">${labels.consoTitle}</p>

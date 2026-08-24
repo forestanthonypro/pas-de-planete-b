@@ -241,7 +241,27 @@
     "source_latest_year": "— 出典がカバーする最新年：{year}",
     "source_last_updated": "· 当データベースの最終更新：{date}",
     "source_refresh": "。毎月自動更新。",
-    "error_no_data": "この国のデータは利用できません"
+    "error_no_data": "この国のデータは利用できません",
+    "observedSpecies": {
+      "title": "現地で観察された種",
+      "intro": "このデータはGBIFに記録された現地観察(市民科学および学術記録)に基づくものです — 完全な目録ではなく、国ごと、またいくつかのパイロット都市/地域で実際に記録された内容のスナップショットです。",
+      "gts_disclaimer": "「GlobalTreeSearchに掲載」というマークは、その種がこの樹木データベース(BGCI、CC BY-NC 4.0ライセンス、非商用)に掲載されていることを示すだけで、植栽の推奨では決してありません。樹種選びは地元の森林サービスにご相談ください。",
+      "by_country_title": "最も多く観察された種 — {country}",
+      "by_place_title": "パイロット都市/地域の詳細",
+      "place_label": "場所:",
+      "table_toggle": "表で詳細を見る",
+      "table_species": "種",
+      "table_count": "観察数",
+      "table_gts": "GlobalTreeSearch掲載",
+      "gts_yes": "はい",
+      "gts_no": "いいえ",
+      "chart_count": "観察数",
+      "axis_count": "観察数",
+      "coverage_note": "このエリアの{total}件の記録のうち、{emPct}%がその植物が在来種か外来種かを示しており、{dePct}%が定着状況(侵略的、栽培など)を明示しています。このデータは国によってしばしば欠落しています — 割合が低いことは外来種が存在しないことを意味するのではなく、単に情報が記録されていないことを意味します。",
+      "no_data": "このエリアのデータはまだありません。",
+      "source": "出典:GBIF(GBIF.org)、日付入り観察記録。GlobalTreeSearch確認:BGCI。",
+      "source_last_updated": "当データベースの最終更新:{date}。"
+    }
   },
   "especes": {
     "title": "絶滅危惧種",

@@ -90,6 +90,7 @@ export const labelsActionZh = {
     "林业部门是否建议在我所在的地区进行「辅助迁移」（即今天就种植适应明天气候的树种）？"
   ],
   arbresQuestionsWho: "这些部门每年都会根据最新的干旱数据更新建议——种植前请咨询当地相关部门。",
+  arbresGbifCta: "想知道您附近已经生长着哪些植物吗？可通过GlobalTreeSearch核实：pasdeplaneteb.com/vegetation",
 
   consoIndustryDynamicIntro: "真实的数据，而非孤立的比较",
   // countryName/year/pct fournis à l'appel (voir kitActionTemplate.js) —

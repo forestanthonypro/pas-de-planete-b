@@ -90,6 +90,7 @@ export const labelsActionFr = {
     "Le service forestier recommande-t-il une « migration assistée » (planter dès aujourd'hui des essences adaptées au climat de demain) dans ma zone ?"
   ],
   arbresQuestionsWho: "En France : ONF ou CNPF. Ailleurs : l'équivalent local — ces services évoluent leurs recommandations chaque année avec les nouvelles données de sécheresse.",
+  arbresGbifCta: "Envie de savoir ce qui pousse déjà près de chez vous, avec vérification GlobalTreeSearch ? pasdeplaneteb.com/vegetation",
 
   consoIndustryDynamicIntro: "Une vraie mesure, pas une comparaison isolée",
   // countryName/year/pct fournis à l'appel (voir kitActionTemplate.js) —

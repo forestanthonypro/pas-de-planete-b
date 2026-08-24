@@ -90,6 +90,7 @@ export const labelsActionHi = {
     "क्या वन विभाग मेरे क्षेत्र में \"सहायता प्राप्त प्रवासन\" (आज ही कल की जलवायु के अनुकूल प्रजातियां लगाना) की सिफारिश करता है?"
   ],
   arbresQuestionsWho: "ये विभाग हर साल नए सूखे के आंकड़ों के साथ अपनी सिफारिशें अपडेट करते हैं — पौधा लगाने से पहले अपने स्थानीय विभाग से सलाह लें।",
+  arbresGbifCta: "जानना चाहते हैं कि आपके आसपास पहले से क्या उग रहा है, GlobalTreeSearch से सत्यापित? pasdeplaneteb.com/vegetation",
 
   consoIndustryDynamicIntro: "एक अलग-थलग तुलना नहीं, बल्कि एक वास्तविक माप",
   // countryName/year/pct fournis à l'appel (voir kitActionTemplate.js) —

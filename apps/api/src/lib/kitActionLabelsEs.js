@@ -90,6 +90,7 @@ export const labelsActionEs = {
     "¿El servicio forestal recomienda una «migración asistida» (plantar hoy especies adaptadas al clima de mañana) en mi zona?"
   ],
   arbresQuestionsWho: "Estos servicios actualizan sus recomendaciones cada año con los nuevos datos de sequía — consulta al de tu zona antes de plantar.",
+  arbresGbifCta: "¿Quieres saber qué crece ya cerca de ti, verificado con GlobalTreeSearch? pasdeplaneteb.com/vegetation",
 
   consoIndustryDynamicIntro: "Una medida real, no una comparación aislada",
   // countryName/year/pct fournis à l'appel (voir kitActionTemplate.js) —

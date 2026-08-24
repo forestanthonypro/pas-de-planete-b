@@ -241,7 +241,27 @@
     "source_latest_year": "— latest year covered by the source: {year}",
     "source_last_updated": "· our database was last updated: {date}",
     "source_refresh": ". Automatic monthly refresh.",
-    "error_no_data": "Data unavailable for this country"
+    "error_no_data": "Data unavailable for this country",
+    "observedSpecies": {
+      "title": "Species observed in the field",
+      "intro": "This data comes from field observations recorded in GBIF (citizen science and scientific records) — not a complete inventory, but a snapshot of what is actually recorded, country by country and for a few pilot cities/regions.",
+      "gts_disclaimer": "The \"in GlobalTreeSearch\" marker only means the species appears in this tree reference list (BGCI, CC BY-NC 4.0 licence, non-commercial) — it is never a planting recommendation. To choose a species, ask your local forestry service.",
+      "by_country_title": "Most observed species — {country}",
+      "by_place_title": "Focus on a pilot city or region",
+      "place_label": "Location:",
+      "table_toggle": "View as table",
+      "table_species": "Species",
+      "table_count": "Observations",
+      "table_gts": "In GlobalTreeSearch",
+      "gts_yes": "Yes",
+      "gts_no": "No",
+      "chart_count": "Number of observations",
+      "axis_count": "Observations",
+      "coverage_note": "Out of {total} records in this area, {emPct}% indicate whether the plant is native or introduced, and {dePct}% specify its establishment status (invasive, cultivated...). This data is often missing depending on the country — a low percentage does not mean there are no introduced species, only that the information was not recorded.",
+      "no_data": "No data yet for this area.",
+      "source": "Source: GBIF (GBIF.org), timestamped observations. GlobalTreeSearch verification: BGCI.",
+      "source_last_updated": "Our database was last updated on {date}."
+    }
   },
   "especes": {
     "title": "Threatened species",

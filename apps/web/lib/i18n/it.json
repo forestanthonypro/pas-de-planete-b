@@ -241,7 +241,27 @@
     "source_latest_year": "— ultimo anno coperto dalla fonte: {year}",
     "source_last_updated": "· ultimo aggiornamento della nostra base: {date}",
     "source_refresh": ". Aggiornamento automatico mensile.",
-    "error_no_data": "Dati non disponibili per questo paese"
+    "error_no_data": "Dati non disponibili per questo paese",
+    "observedSpecies": {
+      "title": "Specie osservate sul campo",
+      "intro": "Questi dati provengono da osservazioni sul campo registrate in GBIF (cittadine e scientifiche) — non un inventario completo, ma un'istantanea di ciò che è effettivamente censito, paese per paese e su alcune città/regioni pilota.",
+      "gts_disclaimer": "Il marcatore «in GlobalTreeSearch» indica solo che la specie compare in questo elenco di alberi (BGCI, licenza CC BY-NC 4.0, non commerciale) — non è mai una raccomandazione di piantumazione. Per scegliere una specie, rivolgersi al servizio forestale locale.",
+      "by_country_title": "Specie più osservate — {country}",
+      "by_place_title": "Focus su una città o regione pilota",
+      "place_label": "Luogo:",
+      "table_toggle": "Vedi il dettaglio in tabella",
+      "table_species": "Specie",
+      "table_count": "Osservazioni",
+      "table_gts": "In GlobalTreeSearch",
+      "gts_yes": "Sì",
+      "gts_no": "No",
+      "chart_count": "Numero di osservazioni",
+      "axis_count": "Osservazioni",
+      "coverage_note": "Su {total} registrazioni in questa zona, il {emPct}% indica se la pianta è nativa o introdotta, e il {dePct}% precisa il suo grado di insediamento (invasiva, coltivata...). Questo dato manca spesso a seconda del paese — una percentuale bassa non significa che non ci siano specie introdotte, solo che l'informazione non è stata registrata.",
+      "no_data": "Nessun dato ancora disponibile per questa zona.",
+      "source": "Fonte: GBIF (GBIF.org), osservazioni datate. Verifica GlobalTreeSearch: BGCI.",
+      "source_last_updated": "Ultimo aggiornamento del nostro database: {date}."
+    }
   },
   "especes": {
     "title": "Specie minacciate",

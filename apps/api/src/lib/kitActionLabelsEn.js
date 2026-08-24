@@ -90,6 +90,7 @@ export const labelsActionEn = {
     "Does the forestry service recommend \"assisted migration\" (planting today the species suited to tomorrow's climate) in my area?"
   ],
   arbresQuestionsWho: "These services update their recommendations every year as new drought data comes in — check with your local one before planting.",
+  arbresGbifCta: "Curious what already grows near you, cross-checked against GlobalTreeSearch? pasdeplaneteb.com/vegetation",
 
   consoIndustryDynamicIntro: "A real measurement, not an isolated comparison",
   // countryName/year/pct fournis à l'appel (voir kitActionTemplate.js) —

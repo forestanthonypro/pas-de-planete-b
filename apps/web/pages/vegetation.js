@@ -10,6 +10,100 @@ import { useT } from "../lib/useT";
 import ScrollableTable from "../components/ScrollableTable";
 import { useApiFetch } from "../lib/useApiFetch";
 
+function ObservedSpeciesChart({ topSpecies, canvasRef, chartRef, t, locale, titleKey }) {
+  useEffect(() => {
+    if (!topSpecies || topSpecies.length === 0) return;
+    let cancelled = false;
+    import("../lib/chartSetup").then(({ default: Chart }) => {
+      if (cancelled || !canvasRef.current) return;
+      if (chartRef.current) chartRef.current.destroy();
+      const rows = topSpecies.slice(0, 10);
+      chartRef.current = new Chart(canvasRef.current, {
+        type: "bar",
+        data: {
+          labels: rows.map((s) => s.scientific_name),
+          datasets: [
+            {
+              label: t("vegetation.observedSpecies.chart_count"),
+              data: rows.map((s) => s.observation_count),
+              backgroundColor: rows.map((s) => (s.in_global_tree_search ? "#1baf7a" : "#4285f4")),
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          indexAxis: "y",
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { title: { display: true, text: t("vegetation.observedSpecies.axis_count") } },
+            y: { ticks: { font: { style: "italic" } } },
+          },
+        },
+      });
+    });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [topSpecies, locale, titleKey]);
+
+  if (!topSpecies || topSpecies.length === 0) return null;
+  return (
+    <div style={{ position: "relative", height: 260, marginBottom: "0.75rem" }}>
+      <canvas ref={canvasRef} role="img" aria-label={t("vegetation.observedSpecies.chart_count")} />
+    </div>
+  );
+}
+
+function CoverageNote({ coverage, t }) {
+  if (!coverage || !coverage.total_occurrences) return null;
+  const total = Number(coverage.total_occurrences);
+  const em = Number(coverage.establishment_means_count || 0);
+  const de = Number(coverage.degree_of_establishment_count || 0);
+  const emPct = total ? ((em / total) * 100).toFixed(1) : "0";
+  const dePct = total ? ((de / total) * 100).toFixed(1) : "0";
+  return (
+    <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginTop: "0.5rem" }}>
+      {t("vegetation.observedSpecies.coverage_note", { total: total.toLocaleString("fr-FR"), emPct, dePct })}
+    </p>
+  );
+}
+
+function ObservedSpeciesTable({ topSpecies, t }) {
+  if (!topSpecies || topSpecies.length === 0) return null;
+  return (
+    <ScrollableTable>
+      <table style={{ width: "100%", minWidth: 480, borderCollapse: "collapse" }}>
+        <thead>
+          <tr>
+            <th scope="col" style={{ textAlign: "left", padding: 6 }}>{t("vegetation.observedSpecies.table_species")}</th>
+            <th scope="col" style={{ textAlign: "right", padding: 6 }}>{t("vegetation.observedSpecies.table_count")}</th>
+            <th scope="col" style={{ textAlign: "left", padding: 6 }}>{t("vegetation.observedSpecies.table_gts")}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {topSpecies.map((s) => (
+            <tr key={s.scientific_name}>
+              <th scope="row" style={{ textAlign: "left", padding: 6, fontWeight: 400, fontStyle: "italic" }}>
+                {s.scientific_name}
+              </th>
+              <td style={{ textAlign: "right", padding: 6 }}>{Number(s.observation_count).toLocaleString("fr-FR")}</td>
+              <td style={{ padding: 6 }}>
+                {s.in_global_tree_search ? (
+                  <span style={{ color: "#1baf7a", fontSize: 12 }}>{t("vegetation.observedSpecies.gts_yes")}</span>
+                ) : (
+                  <span style={{ color: "var(--color-texte-clair)", fontSize: 12 }}>{t("vegetation.observedSpecies.gts_no")}</span>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </ScrollableTable>
+  );
+}
+
 export default function VegetationPage() {
   const { t, locale } = useT();
   const lastUpdated = useLastUpdated();
@@ -19,6 +113,25 @@ export default function VegetationPage() {
 
   const canvasRef = useRef(null);
   const chartRef = useRef(null);
+
+  const { data: countrySpeciesData } = useApiFetch(`/api/species-observations/${countryCode}`, {
+    transform: (d) => d || { coverage: null, topSpecies: [] },
+  });
+  const countrySpeciesChartRef = useRef(null);
+  const countrySpeciesCanvasRef = useRef(null);
+
+  const { data: placesList } = useApiFetch("/api/species-observations/places/list", {
+    transform: (rows) => (Array.isArray(rows) ? rows : []),
+  });
+  const [placeSlug, setPlaceSlug] = useState("");
+  useEffect(() => {
+    if (!placeSlug && placesList && placesList.length > 0) setPlaceSlug(placesList[0].slug);
+  }, [placesList, placeSlug]);
+  const { data: placeSpeciesData } = useApiFetch(placeSlug ? `/api/species-observations/places/${placeSlug}` : null, {
+    transform: (d) => d || { coverage: null, topSpecies: [] },
+  });
+  const placeSpeciesChartRef = useRef(null);
+  const placeSpeciesCanvasRef = useRef(null);
 
   const { data: vegetationRows, loading, error } = useApiFetch(`/api/vegetation/${countryCode}`, {
     errorMessage: t("vegetation.error_no_data"),
@@ -268,6 +381,82 @@ export default function VegetationPage() {
         )}
         {t("vegetation.source_refresh")}
       </p>
+
+      <section style={{ marginTop: "2.5rem", borderTop: "1px solid #eee", paddingTop: "1.5rem" }}>
+        <h2 style={{ fontSize: 18 }}>{t("vegetation.observedSpecies.title")}</h2>
+        <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginBottom: "0.75rem" }}>
+          {t("vegetation.observedSpecies.intro")}
+        </p>
+        <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginBottom: "1rem" }}>
+          {t("vegetation.observedSpecies.gts_disclaimer")}
+        </p>
+
+        <h3 style={{ fontSize: 15 }}>{t("vegetation.observedSpecies.by_country_title", { country: selectedCountryName })}</h3>
+        {countrySpeciesData?.topSpecies?.length > 0 ? (
+          <>
+            <ObservedSpeciesChart
+              topSpecies={countrySpeciesData.topSpecies}
+              canvasRef={countrySpeciesCanvasRef}
+              chartRef={countrySpeciesChartRef}
+              t={t}
+              locale={locale}
+              titleKey={`country-${countryCode}`}
+            />
+            <details style={{ fontSize: 13 }}>
+              <summary style={{ cursor: "pointer" }}>{t("vegetation.observedSpecies.table_toggle")}</summary>
+              <ObservedSpeciesTable topSpecies={countrySpeciesData.topSpecies} t={t} />
+            </details>
+            <CoverageNote coverage={countrySpeciesData.coverage} t={t} />
+          </>
+        ) : (
+          <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>{t("vegetation.observedSpecies.no_data")}</p>
+        )}
+
+        <h3 style={{ fontSize: 15, marginTop: "1.5rem" }}>{t("vegetation.observedSpecies.by_place_title")}</h3>
+        {placesList && placesList.length > 0 && (
+          <label style={{ display: "block", marginBottom: "0.75rem" }}>
+            {t("vegetation.observedSpecies.place_label")}{" "}
+            <select value={placeSlug} onChange={(e) => setPlaceSlug(e.target.value)}>
+              {placesList.map((p) => (
+                <option key={p.slug} value={p.slug}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
+        {placeSpeciesData?.place?.contexte && (
+          <p style={{ fontSize: 12, color: "var(--color-texte-clair)", fontStyle: "italic", marginBottom: "0.5rem" }}>
+            {placeSpeciesData.place.contexte}
+          </p>
+        )}
+        {placeSpeciesData?.topSpecies?.length > 0 ? (
+          <>
+            <ObservedSpeciesChart
+              topSpecies={placeSpeciesData.topSpecies}
+              canvasRef={placeSpeciesCanvasRef}
+              chartRef={placeSpeciesChartRef}
+              t={t}
+              locale={locale}
+              titleKey={`place-${placeSlug}`}
+            />
+            <details style={{ fontSize: 13 }}>
+              <summary style={{ cursor: "pointer" }}>{t("vegetation.observedSpecies.table_toggle")}</summary>
+              <ObservedSpeciesTable topSpecies={placeSpeciesData.topSpecies} t={t} />
+            </details>
+            <CoverageNote coverage={placeSpeciesData.coverage} t={t} />
+          </>
+        ) : (
+          <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>{t("vegetation.observedSpecies.no_data")}</p>
+        )}
+
+        <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginTop: "1rem" }}>
+          {t("vegetation.observedSpecies.source")}
+          {lastUpdated?.speciesObservations?.lastIngested && (
+            <> {t("vegetation.observedSpecies.source_last_updated", { date: formatDate(lastUpdated.speciesObservations.lastIngested, locale) })}</>
+          )}
+        </p>
+      </section>
     </div>
   );
 }

@@ -90,6 +90,7 @@ export const labelsActionJa = {
     "林業サービスは、私の地域で「支援移住」（明日の気候に適した樹種を今日から植えること）を推奨していますか？"
   ],
   arbresQuestionsWho: "こうしたサービスは、新しい干ばつデータが得られるたびに毎年推奨内容を更新しています——植える前に地域の窓口に確認してください。",
+  arbresGbifCta: "お住まいの地域にすでに何が生えているか、GlobalTreeSearchで確認しながら見てみませんか？ pasdeplaneteb.com/vegetation",
 
   consoIndustryDynamicIntro: "単発の比較ではなく、実際の測定値",
   // countryName/year/pct fournis à l'appel (voir kitActionTemplate.js) —

@@ -1,4 +1,4 @@
-{
+﻿{
   "name": "pdpb-api",
   "version": "0.1.0",
   "license": "AGPL-3.0-or-later",
@@ -24,7 +24,8 @@
     "ingest:deputy-votes": "node src/ingest/deputy_votes.js",
     "ingest:an-groups": "node src/ingest/an_groups.js",
     "push:worker": "node src/workers/pushNotifications.js",
-    "push:once": "node src/workers/pushNotifications.js --once"
+    "push:once": "node src/workers/pushNotifications.js --once",
+    "ingest:species-observations": "node src/ingest/speciesObservations.js"
   },
   "dependencies": {
     "adm-zip": "^0.6.0",

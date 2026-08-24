@@ -241,7 +241,27 @@
     "source_latest_year": "— último año cubierto por la fuente: {year}",
     "source_last_updated": "· última actualización de nuestra base: {date}",
     "source_refresh": ". Actualización automática mensual.",
-    "error_no_data": "Datos no disponibles para este país"
+    "error_no_data": "Datos no disponibles para este país",
+    "observedSpecies": {
+      "title": "Especies observadas sobre el terreno",
+      "intro": "Estos datos provienen de observaciones de campo registradas en GBIF (ciudadanas y científicas) — no es un inventario completo, sino una instantánea de lo que realmente se registra, país por país y en algunas ciudades/regiones piloto.",
+      "gts_disclaimer": "La marca «en GlobalTreeSearch» solo indica que la especie figura en este catálogo de árboles (BGCI, licencia CC BY-NC 4.0, no comercial) — nunca es una recomendación de plantación. Para elegir una especie, consulte a su servicio forestal local.",
+      "by_country_title": "Especies más observadas — {country}",
+      "by_place_title": "Zoom en una ciudad o región piloto",
+      "place_label": "Lugar:",
+      "table_toggle": "Ver detalle en tabla",
+      "table_species": "Especie",
+      "table_count": "Observaciones",
+      "table_gts": "En GlobalTreeSearch",
+      "gts_yes": "Sí",
+      "gts_no": "No",
+      "chart_count": "Número de observaciones",
+      "axis_count": "Observaciones",
+      "coverage_note": "De {total} registros en esta zona, el {emPct} % indica si la planta es nativa o introducida, y el {dePct} % precisa su grado de implantación (invasora, cultivada...). Este dato suele faltar según el país — un porcentaje bajo no significa que no haya especies introducidas, solo que la información no fue registrada.",
+      "no_data": "Todavía no hay datos para esta zona.",
+      "source": "Fuente: GBIF (GBIF.org), observaciones con fecha. Verificación GlobalTreeSearch: BGCI.",
+      "source_last_updated": "Última actualización de nuestra base: {date}."
+    }
   },
   "especes": {
     "title": "Especies amenazadas",

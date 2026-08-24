@@ -241,7 +241,27 @@
     "source_latest_year": "— dernière année couverte par la source : {year}",
     "source_last_updated": "· dernière mise à jour de notre base : {date}",
     "source_refresh": ". Rafraîchissement automatique mensuel.",
-    "error_no_data": "Données indisponibles pour ce pays"
+    "error_no_data": "Données indisponibles pour ce pays",
+    "observedSpecies": {
+      "title": "Espèces observées sur le terrain",
+      "intro": "Ces données viennent des observations de terrain enregistrées dans GBIF (citoyennes et scientifiques) — pas un inventaire complet, mais un aperçu de ce qui est concrètement recensé, pays par pays et sur quelques villes/régions pilotes.",
+      "gts_disclaimer": "Le marqueur « dans GlobalTreeSearch » indique seulement que l'espèce figure dans ce référentiel d'arbres (BGCI, licence CC BY-NC 4.0 non commerciale) — ce n'est jamais une recommandation à planter. Pour choisir une essence, renseignez-vous auprès de votre service forestier local.",
+      "by_country_title": "Espèces les plus observées — {country}",
+      "by_place_title": "Zoom sur une ville ou région pilote",
+      "place_label": "Lieu :",
+      "table_toggle": "Voir le détail en tableau",
+      "table_species": "Espèce",
+      "table_count": "Observations",
+      "table_gts": "Dans GlobalTreeSearch",
+      "gts_yes": "Oui",
+      "gts_no": "Non",
+      "chart_count": "Nombre d'observations",
+      "axis_count": "Observations",
+      "coverage_note": "Sur {total} enregistrements dans cette zone, {emPct} % indiquent si la plante est native ou introduite, et {dePct} % précisent son degré d'implantation (envahissante, cultivée...). Cette donnée est souvent absente selon les pays — un pourcentage bas ne veut pas dire qu'il n'y a pas d'espèces introduites, seulement que l'information n'a pas été renseignée.",
+      "no_data": "Pas encore de données pour cette zone.",
+      "source": "Source : GBIF (GBIF.org), observations horodatées. Vérification GlobalTreeSearch : BGCI.",
+      "source_last_updated": "Dernière mise à jour de notre base : {date}."
+    }
   },
   "especes": {
     "title": "Espèces menacées",

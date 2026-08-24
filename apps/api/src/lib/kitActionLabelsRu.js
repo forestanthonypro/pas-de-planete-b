@@ -90,6 +90,7 @@ export const labelsActionRu = {
     "Рекомендует ли лесная служба «содействуемую миграцию» (посадку уже сегодня видов, подходящих для климата будущего) в моём регионе?"
   ],
   arbresQuestionsWho: "Эти службы каждый год обновляют свои рекомендации по мере поступления новых данных о засухах — обратитесь в местную службу перед посадкой.",
+  arbresGbifCta: "Хотите узнать, что уже растёт рядом с вами, с проверкой по GlobalTreeSearch? pasdeplaneteb.com/vegetation",
 
   consoIndustryDynamicIntro: "Реальный показатель, а не изолированное сравнение",
   // countryName/year/pct fournis à l'appel (voir kitActionTemplate.js) —

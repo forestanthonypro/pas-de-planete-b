@@ -1,0 +1,38 @@
+[
+  {
+    "slug": "paris",
+    "name": "Paris, France",
+    "countryCode": "FRA",
+    "contexte": "France — urbain dense",
+    "lat": 48.8566,
+    "lon": 2.3522,
+    "demiCoteDeg": 0.12
+  },
+  {
+    "slug": "lozere",
+    "name": "Mende / Cévennes, Lozère, France",
+    "countryCode": "FRA",
+    "contexte": "France — rural, montagnard",
+    "lat": 44.5182,
+    "lon": 3.5,
+    "demiCoteDeg": 0.35
+  },
+  {
+    "slug": "bamako",
+    "name": "Bamako, Mali",
+    "countryCode": "MLI",
+    "contexte": "Couverture GBIF probablement plus faible",
+    "lat": 12.6392,
+    "lon": -8.0029,
+    "demiCoteDeg": 0.5
+  },
+  {
+    "slug": "mumbai",
+    "name": "Mumbai, Inde",
+    "countryCode": "IND",
+    "contexte": "Urbain dense, hors Europe, biogéographie différente",
+    "lat": 19.076,
+    "lon": 72.8777,
+    "demiCoteDeg": 0.15
+  }
+]

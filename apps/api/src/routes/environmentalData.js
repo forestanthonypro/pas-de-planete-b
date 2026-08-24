@@ -12,6 +12,7 @@ import { ingestVegetation } from "../ingest/vegetation.js";
 import { ingestWater } from "../ingest/water.js";
 import { ingestElectricity } from "../ingest/electricity.js";
 import { ingestSpeciesThreatened } from "../ingest/species_threatened.js";
+import { ingestSpeciesObservations } from "../ingest/speciesObservations.js";
 import { ingestPollution } from "../ingest/pollution.js";
 import { ingestWorldBenchmarks, ingestTemperatureBenchmark } from "../ingest/world_benchmarks.js";
 import { ingestTemperatures } from "../ingest/temperatures.js";
@@ -330,7 +331,7 @@ router.post("/api/admin/ingest/fires", requireIngestToken, async (_req, res) => 
 // (pas la date des données elles-mêmes, qui peut être plus ancienne selon la source).
 router.get("/api/meta/last-updated", async (_req, res) => {
   try {
-    const [co2, plants, species, fires, vegetation, water, electricity, speciesThreatened, pollution, deputies, anGroups, scrutins, worldBenchmarks, temperatures, usCongressMembers, usCongressVotes, spainCongressMembers, spainCongressVotes, spainSenateMembers, spainSenateVotes, italySenateMembers, italySenateVotes, italyCameraMembers, italyCameraVotes] = await Promise.all([
+    const [co2, plants, species, fires, vegetation, water, electricity, speciesThreatened, speciesObservations, pollution, deputies, anGroups, scrutins, worldBenchmarks, temperatures, usCongressMembers, usCongressVotes, spainCongressMembers, spainCongressVotes, spainSenateMembers, spainSenateVotes, italySenateMembers, italySenateVotes, italyCameraMembers, italyCameraVotes] = await Promise.all([
       pool.query("SELECT MAX(updated_at) AS updated_at, MAX(year) AS latest_year FROM co2_emissions"),
       pool.query("SELECT MAX(updated_at) AS updated_at FROM power_plants"),
       pool.query("SELECT MAX(updated_at) AS updated_at FROM species_status"),
@@ -339,6 +340,7 @@ router.get("/api/meta/last-updated", async (_req, res) => {
       pool.query("SELECT MAX(updated_at) AS updated_at, MAX(year) AS latest_year FROM water_data"),
       pool.query("SELECT MAX(updated_at) AS updated_at, MAX(year) AS latest_year FROM electricity_generation"),
       pool.query("SELECT MAX(updated_at) AS updated_at, MAX(year) AS latest_year FROM species_threatened_counts"),
+      pool.query("SELECT MAX(updated_at) AS updated_at, COUNT(DISTINCT country_code) AS country_count FROM species_observations_coverage"),
       pool.query("SELECT MAX(updated_at) AS updated_at, MAX(year) AS latest_year FROM pollution_data"),
       pool.query("SELECT MAX(updated_at) AS updated_at, COUNT(*) AS row_count FROM deputies"),
       pool.query("SELECT MAX(updated_at) AS updated_at FROM an_groups"),
@@ -365,6 +367,10 @@ router.get("/api/meta/last-updated", async (_req, res) => {
       water: { lastIngested: water.rows[0].updated_at, latestYear: water.rows[0].latest_year },
       electricity: { lastIngested: electricity.rows[0].updated_at, latestYear: electricity.rows[0].latest_year },
       speciesThreatened: { lastIngested: speciesThreatened.rows[0].updated_at, latestYear: speciesThreatened.rows[0].latest_year },
+      speciesObservations: {
+        lastIngested: speciesObservations.rows[0].updated_at,
+        countryCount: Number(speciesObservations.rows[0].country_count),
+      },
       pollution: { lastIngested: pollution.rows[0].updated_at, latestYear: pollution.rows[0].latest_year },
       deputies: { lastIngested: deputies.rows[0].updated_at, rowCount: Number(deputies.rows[0].row_count) },
       anGroups: { lastIngested: anGroups.rows[0].updated_at },
@@ -604,6 +610,100 @@ router.post("/api/admin/ingest/species-threatened", requireIngestToken, async (_
   try {
     const { inserted, skipped } = await ingestSpeciesThreatened(pool);
     res.json({ status: "ok", inserted, skipped });
+  } catch (err) {
+    res.status(500).json({ error: "Échec de l'ingestion", detail: errorDetail(err) });
+  }
+});
+
+
+// --- Espèces réellement observées (GBIF occurrence/search), par pays et
+// par quelques villes/régions pilotes. Signal différent de species_status
+// (statut d'extinction officiel) : ce qui est concrètement recensé sur le
+// terrain. Voir migration 055 pour le détail des limites de couverture. ---
+
+router.get("/api/species-observations/countries", async (_req, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT country_code, country_name FROM species_observations_coverage ORDER BY country_name"
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
+  }
+});
+
+router.get("/api/species-observations/:country", async (req, res) => {
+  const country = req.params.country.toUpperCase();
+  try {
+    const [coverage, species] = await Promise.all([
+      pool.query(
+        `SELECT total_occurrences, establishment_means_count, degree_of_establishment_count, updated_at
+         FROM species_observations_coverage WHERE country_code = $1`,
+        [country]
+      ),
+      pool.query(
+        `SELECT scientific_name, observation_count, in_global_tree_search, rank
+         FROM species_observations_countries WHERE country_code = $1 ORDER BY rank`,
+        [country]
+      ),
+    ]);
+    res.json({
+      coverage: coverage.rows[0] || null,
+      topSpecies: species.rows,
+    });
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
+  }
+});
+
+router.get("/api/species-observations/places/list", async (_req, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT slug, name, country_code, contexte FROM species_observation_places ORDER BY name"
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
+  }
+});
+
+router.get("/api/species-observations/places/:slug", async (req, res) => {
+  const { slug } = req.params;
+  try {
+    const place = await pool.query(
+      "SELECT id, slug, name, country_code, contexte FROM species_observation_places WHERE slug = $1",
+      [slug]
+    );
+    if (place.rows.length === 0) {
+      return res.status(404).json({ error: "Lieu inconnu" });
+    }
+    const placeId = place.rows[0].id;
+    const [coverage, species] = await Promise.all([
+      pool.query(
+        `SELECT total_occurrences, establishment_means_count, degree_of_establishment_count, updated_at
+         FROM species_observation_places_coverage WHERE place_id = $1`,
+        [placeId]
+      ),
+      pool.query(
+        `SELECT scientific_name, observation_count, in_global_tree_search, rank
+         FROM species_observation_places_species WHERE place_id = $1 ORDER BY rank`,
+        [placeId]
+      ),
+    ]);
+    res.json({
+      place: place.rows[0],
+      coverage: coverage.rows[0] || null,
+      topSpecies: species.rows,
+    });
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
+  }
+});
+
+router.post("/api/admin/ingest/species-observations", requireIngestToken, async (_req, res) => {
+  try {
+    const result = await ingestSpeciesObservations(pool);
+    res.json({ status: "ok", ...result });
   } catch (err) {
     res.status(500).json({ error: "Échec de l'ingestion", detail: errorDetail(err) });
   }
