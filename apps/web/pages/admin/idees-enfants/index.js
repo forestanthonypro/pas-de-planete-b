@@ -214,9 +214,14 @@ function AdminFutureIdeasListInner() {
       )}
 
       <section style={{ marginTop: "2rem" }}>
-        <h2 style={{ fontSize: 16 }}>Boîte à idées — modération</h2>
+        <h2 style={{ fontSize: 16 }}>Commentaires reçus via « À nuancer »</h2>
+        <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginTop: 0 }}>
+          Les propositions d&apos;idées passent désormais par la liste principale ci-dessus
+          (avec le badge « Proposition du public »). Cette section ne contient plus que les
+          alternatives constructives proposées quand quelqu&apos;un clique sur « À nuancer ».
+        </p>
         {suggestions.length === 0 ? (
-          <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>Aucune suggestion pour l&apos;instant.</p>
+          <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>Aucun commentaire pour l&apos;instant.</p>
         ) : (
           <ScrollableTable>
 <table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>

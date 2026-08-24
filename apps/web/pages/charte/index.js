@@ -267,17 +267,6 @@ export default function CharterPage() {
         </section>
       ))}
 
-      {!loading && !error && data && data.publishedSuggestions.length > 0 && (
-        <section style={{ marginTop: "2rem" }}>
-          <h2 style={{ fontSize: 18 }}>{t("charter.suggestions_title")}</h2>
-          <ul>
-            {data.publishedSuggestions.map((s) => (
-              <li key={s.id} style={{ fontSize: 14, marginBottom: 6, whiteSpace: "pre-line" }}>{s.text}</li>
-            ))}
-          </ul>
-        </section>
-      )}
-
       <section style={{ marginTop: "2.5rem", background: "var(--color-carte-verte)", borderRadius: 12, padding: "1.25rem" }}>
         <h2 style={{ fontSize: 17, marginTop: 0 }}>{t("charter.propose_title")}</h2>
         <p style={{ fontSize: 13, color: "var(--color-texte-clair)" }}>{t("charter.propose_intro")}</p>

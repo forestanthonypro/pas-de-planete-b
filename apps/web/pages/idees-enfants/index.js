@@ -16,7 +16,6 @@ export default function FutureIdeasPage() {
   const [myVotes, setMyVotes] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [publishedSuggestions, setPublishedSuggestions] = useState([]);
   const [suggestionTitle, setSuggestionTitle] = useState("");
   const [suggestionText, setSuggestionText] = useState("");
   const [suggestionScopeCodes, setSuggestionScopeCodes] = useState([]);
@@ -37,14 +36,12 @@ export default function FutureIdeasPage() {
         return res.json();
       }),
       anonymousId ? fetch(`/api/future-idea-votes/${anonymousId}`).then((res) => (res.ok ? res.json() : [])) : Promise.resolve([]),
-      fetch(`/api/future-idea-suggestions/published`).then((res) => (res.ok ? res.json() : [])),
     ])
-      .then(([ideaRows, voteRows, suggestionRows]) => {
+      .then(([ideaRows, voteRows]) => {
         setIdeas(Array.isArray(ideaRows) ? ideaRows : []);
         const votesBySlug = {};
         for (const v of voteRows) votesBySlug[v.idea_slug] = v.vote_type;
         setMyVotes(votesBySlug);
-        setPublishedSuggestions(Array.isArray(suggestionRows) ? suggestionRows : []);
         setLoading(false);
       })
       .catch((err) => {
@@ -265,19 +262,6 @@ export default function FutureIdeasPage() {
           </div>
         );
       })}
-
-      {!loading && !error && publishedSuggestions.length > 0 && (
-        <section style={{ marginTop: "2rem" }}>
-          <h2 style={{ fontSize: 18 }}>{t("futureIdeas.suggestions_title")}</h2>
-          <ul>
-            {publishedSuggestions.map((s) => (
-              <li key={s.id} style={{ fontSize: 14, marginBottom: 6, whiteSpace: "pre-line" }}>
-                {s.text} {s.scope_codes && s.scope_codes.length > 0 && <ScopeBadges codes={s.scope_codes} locale={locale} />}
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
 
       <section style={{ marginTop: "2.5rem", background: "var(--color-carte-verte)", borderRadius: 12, padding: "1.25rem" }}>
         <h2 style={{ fontSize: 17, marginTop: 0 }}>{t("futureIdeas.propose_title")}</h2>
