@@ -1,4 +1,12 @@
-import DebunkCharts from "./DebunkCharts";
+import dynamic from "next/dynamic";
+
+// Chart.js (~60-100 Ko) n'est chargé qu'à la demande, quand il y a
+// vraiment un graphique à afficher — beaucoup de débunks du jour n'en ont
+// aucun, et /decouverte (page mesurée par le pipeline EcoIndex/Lighthouse,
+// voir ci.yml) importait Chart.js à chaque visite même dans ce cas.
+// ssr:false : Chart.js dessine sur un <canvas>, entièrement côté client de
+// toute façon (voir DebunkCharts.js) — le rendu serveur n'apporterait rien.
+const DebunkCharts = dynamic(() => import("./DebunkCharts"), { ssr: false, loading: () => null });
 
 // Découpe le texte "reality" autour de repères [[chart:0]], [[chart:1]]...
 // pour permettre à un admin d'insérer un graphique n'importe où dans le
