@@ -170,16 +170,25 @@ jobs:
       - name: Mesurer les scores Lighthouse
         run: |
           npm install -g @lhci/cli@0.15.x
-          lhci collect --url="${{ vars.PRODUCTION_URL || 'https://pasdeplaneteb.com' }}" --numberOfRuns=1
+          # 3 runs plutôt qu'1 seul : un run unique sur un runner GitHub
+          # Actions partagé varie facilement de ±10-15 points d'une exécution
+          # à l'autre (charge CPU du runner, pas le site) — repéré le 30 août
+          # 2026 après un saut Performance 65->49 sans changement de poids de
+          # page correspondant. La médiane des 3 lisse ce bruit sans coût
+          # significatif (le site ne change pas entre les runs).
+          lhci collect --url="${{ vars.PRODUCTION_URL || 'https://pasdeplaneteb.com' }}" --numberOfRuns=3
 
       - name: Envoyer les résultats à l'API
         run: |
-          LH_REPORT=$(ls .lighthouseci/lhr-*.json | head -1)
-          PERF=$(jq '(.categories.performance.score * 100) | round' "$LH_REPORT")
-          A11Y=$(jq '(.categories.accessibility.score * 100) | round' "$LH_REPORT")
-          SEO=$(jq '(.categories.seo.score * 100) | round' "$LH_REPORT")
-          BP=$(jq '(.categories["best-practices"].score * 100) | round' "$LH_REPORT")
-          LOAD_TIME=$(jq '.audits["speed-index"].numericValue | round' "$LH_REPORT")
+          # Médiane sur les 3 rapports plutôt que le premier venu (voir
+          # commentaire ci-dessus) — jq trie les 3 valeurs et prend celle du
+          # milieu pour chaque métrique séparément.
+          median() { jq -s 'sort | .[1]'; }
+          PERF=$(for f in .lighthouseci/lhr-*.json; do jq '(.categories.performance.score * 100) | round' "$f"; done | median)
+          A11Y=$(for f in .lighthouseci/lhr-*.json; do jq '(.categories.accessibility.score * 100) | round' "$f"; done | median)
+          SEO=$(for f in .lighthouseci/lhr-*.json; do jq '(.categories.seo.score * 100) | round' "$f"; done | median)
+          BP=$(for f in .lighthouseci/lhr-*.json; do jq '(.categories["best-practices"].score * 100) | round' "$f"; done | median)
+          LOAD_TIME=$(for f in .lighthouseci/lhr-*.json; do jq '.audits["speed-index"].numericValue | round' "$f"; done | median)
           ECOINDEX=$(cat ecoindex-result.json)
 
           PAYLOAD=$(jq -n \
