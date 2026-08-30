@@ -26,7 +26,14 @@
 const REFERENCE_START = "1991-01-01";
 const REFERENCE_END = "2020-12-31";
 const WINDOW_RADIUS_DAYS = 7;
-const MIN_SAMPLE_SIZE = 20 * (WINDOW_RADIUS_DAYS * 2 + 1); // ~20 ans minimum avant de considérer la normale fiable (sur les 30 ans visés)
+// Seuil en dessous duquel une normale est jugée trop provisoire pour être
+// affichée sur le site (voir route publique /api/reference-weather/today,
+// environmentalData.js, qui réutilise cette même constante — les deux
+// utilisaient auparavant des seuils différents et non harmonisés, 300 ici
+// contre 100 côté route, ce qui rendait le diagnostic "reliableCount"
+// trompeur : il pouvait afficher 0 alors qu'une station était déjà
+// affichée sur le site. Une seule valeur, partagée, désormais.
+export const MIN_SAMPLE_SIZE_FOR_DISPLAY = 100;
 
 // Construit, pour un mois-jour donné, l'ensemble des mois-jours à ±radius
 // jours calendaires — indépendant de l'année (utilise une année de
@@ -123,7 +130,7 @@ export function computeNormalsFromRows(rows) {
       recordTempMax,
       recordTempMaxYear,
       sampleSize: windowSamples.length,
-      reliable: windowSamples.length >= MIN_SAMPLE_SIZE,
+      reliable: windowSamples.length >= MIN_SAMPLE_SIZE_FOR_DISPLAY,
     });
   }
   return results;

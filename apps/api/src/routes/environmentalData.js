@@ -6,7 +6,7 @@ import { ingestCo2 } from "../ingest/co2.js";
 import { ingestTemperaturesOneBatch } from "../ingest/temperatures.js";
 import { ingestReferenceWeatherOneBatch } from "../ingest/referenceWeather.js";
 import { ingestRecentReferenceWeather } from "../ingest/referenceWeatherRecent.js";
-import { computeAndStoreNormalsForStation } from "../ingest/referenceWeatherNormals.js";
+import { computeAndStoreNormalsForStation, MIN_SAMPLE_SIZE_FOR_DISPLAY } from "../ingest/referenceWeatherNormals.js";
 import { ingestSectorEmissions } from "../ingest/sectorEmissions.js";
 import { ingestPowerPlants } from "../ingest/power_plants.js";
 import { ingestSpecies } from "../ingest/species.js";
@@ -136,8 +136,9 @@ router.post("/api/admin/ingest/reference-weather-recent", requireIngestToken, as
 
 // --- Stations météo de référence (écart à la normale, records) ---
 
-const MIN_SAMPLE_SIZE_FOR_DISPLAY = 100; // sous ce seuil, la normale repose sur trop peu d'années pour être présentée comme fiable
-
+// Le seuil de fiabilité (MIN_SAMPLE_SIZE_FOR_DISPLAY) vient de
+// referenceWeatherNormals.js — une seule valeur, partagée avec le
+// diagnostic "reliableCount" de la route de calcul des normales.
 router.get("/api/reference-weather/today", async (_req, res) => {
   try {
     const result = await pool.query(`

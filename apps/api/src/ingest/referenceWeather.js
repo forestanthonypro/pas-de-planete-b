@@ -120,112 +120,149 @@ export async function ingestReferenceWeatherOneBatch(pool, maxDurationMs) {
     throw new Error("INFOCLIMAT_API_TOKEN manquant (variable d'environnement requise)");
   }
 
-  const startTime = Date.now();
-  const timeIsUp = () => maxDurationMs != null && Date.now() - startTime >= maxDurationMs;
-
-  // Calculé à chaque appel plutôt que figé : la collecte avance en continu
-  // jusqu'à "avant-hier" (voir FRESHNESS_BUFFER_DAYS) — pas seulement
-  // jusqu'à la fin de la période de référence 1991-2020. Cette dernière
-  // n'intervient que plus tard, au moment de calculer les normales
-  // (restriction appliquée dans la requête de calcul, pas ici) — sans
-  // cette distinction, on n'aurait jamais de données récentes à comparer
-  // aux normales une fois qu'elles seront calculées.
-  const cutoff = addDaysISO(new Date().toISOString().slice(0, 10), -FRESHNESS_BUFFER_DAYS);
-
-  let requestsMade = 0;
-  let daysStored = 0;
-  let stationsCaughtUpThisRun = 0;
-
-  const progressRows = (
-    await pool.query(
-      `SELECT station_code, next_start_date::text AS next_start_date, consecutive_errors
-       FROM reference_weather_ingest_progress ORDER BY station_code`
-    )
-  ).rows;
-
-  if (progressRows.length === 0) {
-    return { status: "no-stations", requestsMade: 0, daysStored: 0, stationsCaughtUpThisRun: 0 };
+  // Verrou (une ligne en base) empêchant deux lots de tourner en même
+  // temps — découvert nécessaire le 30/08/2026 après une progression
+  // incohérente entre stations, très probablement causée par le relais
+  // Next.js (rewrites()) qui coupe la connexion au bout de ~30s sur les
+  // appels via le domaine public (limite non configurable dans les
+  // versions récentes de Next.js, l'option experimental.proxyTimeout
+  // ayant été retirée) — le workflow déclenchait alors un nouveau lot en
+  // croyant le précédent échoué, alors qu'il continuait de tourner côté
+  // serveur.
+  //
+  // Volontairement PAS un verrou consultatif Postgres (pg_advisory_lock) :
+  // celui-ci est attaché à la connexion physique qui l'a posé, or `pool`
+  // (node-postgres) peut très bien servir des appels successifs sur des
+  // connexions différentes — l'acquisition et la libération risqueraient
+  // de ne pas se faire sur la même connexion, laissant le verrou posé
+  // indéfiniment (vérifié : le risque est réel, pas juste théorique, même
+  // si un test rapide et peu chargé peut sembler fonctionner par hasard).
+  // Une ligne en base, mise à jour de façon atomique, n'a pas ce problème.
+  //
+  // STALE_LOCK_MINUTES très au-dessus du budget d'un lot (10 min) : ne
+  // sert qu'à s'auto-réparer si jamais le processus plantait sans passer
+  // par le "finally" ci-dessous (coupure brutale du conteneur, par ex.).
+  const STALE_LOCK_MINUTES = 20;
+  const lockResult = await pool.query(
+    `UPDATE reference_weather_ingest_lock
+     SET locked_at = now()
+     WHERE id = 1 AND (locked_at IS NULL OR locked_at < now() - interval '${STALE_LOCK_MINUTES} minutes')
+     RETURNING id`
+  );
+  if (lockResult.rows.length === 0) {
+    return { status: "already-running", requestsMade: 0, daysStored: 0, stationsCaughtUpThisRun: 0 };
   }
 
-  for (const row of progressRows) {
-    let nextStartDate = row.next_start_date;
+  try {
+    const startTime = Date.now();
+    const timeIsUp = () => maxDurationMs != null && Date.now() - startTime >= maxDurationMs;
 
-    while (!timeIsUp()) {
-      if (nextStartDate > cutoff) {
-        // À jour pour l'instant — sera à nouveau "en retard" dès demain,
-        // quand cutoff aura avancé d'un jour. "completed" n'est donc
-        // qu'indicatif (utile pour un coup d'œil rapide en base), jamais
-        // utilisé pour sauter une station dans la requête ci-dessus.
-        await pool.query(
-          "UPDATE reference_weather_ingest_progress SET completed = true, last_run_at = now() WHERE station_code = $1",
-          [row.station_code]
-        );
-        stationsCaughtUpThisRun += 1;
-        break;
-      }
+    // Calculé à chaque appel plutôt que figé : la collecte avance en continu
+    // jusqu'à "avant-hier" (voir FRESHNESS_BUFFER_DAYS) — pas seulement
+    // jusqu'à la fin de la période de référence 1991-2020. Cette dernière
+    // n'intervient que plus tard, au moment de calculer les normales
+    // (restriction appliquée dans la requête de calcul, pas ici) — sans
+    // cette distinction, on n'aurait jamais de données récentes à comparer
+    // aux normales une fois qu'elles seront calculées.
+    const cutoff = addDaysISO(new Date().toISOString().slice(0, 10), -FRESHNESS_BUFFER_DAYS);
 
-      const endStr = addDaysISO(nextStartDate, CHUNK_DAYS - 1);
-      const clampedEnd = endStr > cutoff ? cutoff : endStr;
+    let requestsMade = 0;
+    let daysStored = 0;
+    let stationsCaughtUpThisRun = 0;
 
-      try {
-        const data = await fetchChunk(row.station_code, nextStartDate, clampedEnd, token);
-        requestsMade += 1;
+    const progressRows = (
+      await pool.query(
+        `SELECT station_code, next_start_date::text AS next_start_date, consecutive_errors
+         FROM reference_weather_ingest_progress ORDER BY station_code`
+      )
+    ).rows;
 
-        const stationMeta = data.stations?.[0];
-        if (stationMeta) {
-          await pool.query(
-            `UPDATE reference_weather_stations
-             SET api_station_name = $2, latitude = $3, longitude = $4, elevation = $5
-             WHERE station_code = $1`,
-            [row.station_code, stationMeta.name || null, stationMeta.latitude ?? null, stationMeta.longitude ?? null, stationMeta.elevation ?? null]
-          );
-        }
-
-        const days = aggregateDaily(data, row.station_code);
-        for (const day of days) {
-          await pool.query(
-            `INSERT INTO reference_weather_daily (station_code, observed_date, temp_min, temp_max, reading_count)
-             VALUES ($1, $2, $3, $4, $5)
-             ON CONFLICT (station_code, observed_date)
-             DO UPDATE SET temp_min = EXCLUDED.temp_min, temp_max = EXCLUDED.temp_max, reading_count = EXCLUDED.reading_count`,
-            [row.station_code, day.date, day.tempMin, day.tempMax, day.readingCount]
-          );
-          daysStored += 1;
-        }
-
-        nextStartDate = addDaysISO(clampedEnd, 1);
-        await pool.query(
-          `UPDATE reference_weather_ingest_progress
-           SET next_start_date = $2, consecutive_errors = 0, last_run_at = now() WHERE station_code = $1`,
-          [row.station_code, nextStartDate]
-        );
-      } catch (err) {
-        console.error(`[referenceWeather] ${row.station_code} ${nextStartDate}..${clampedEnd} échec (repris au prochain lot): ${err.message}`);
-        await pool.query(
-          `UPDATE reference_weather_ingest_progress
-           SET consecutive_errors = consecutive_errors + 1, last_run_at = now() WHERE station_code = $1`,
-          [row.station_code]
-        );
-        break; // passe à la station suivante, cette tranche sera retentée au prochain lot
-      }
-
-      await sleep(DELAY_MS);
+    if (progressRows.length === 0) {
+      return { status: "no-stations", requestsMade: 0, daysStored: 0, stationsCaughtUpThisRun: 0 };
     }
 
-    if (timeIsUp()) break;
+    for (const row of progressRows) {
+      let nextStartDate = row.next_start_date;
+
+      while (!timeIsUp()) {
+        if (nextStartDate > cutoff) {
+          // À jour pour l'instant — sera à nouveau "en retard" dès demain,
+          // quand cutoff aura avancé d'un jour. "completed" n'est donc
+          // qu'indicatif (utile pour un coup d'œil rapide en base), jamais
+          // utilisé pour sauter une station dans la requête ci-dessus.
+          await pool.query(
+            "UPDATE reference_weather_ingest_progress SET completed = true, last_run_at = now() WHERE station_code = $1",
+            [row.station_code]
+          );
+          stationsCaughtUpThisRun += 1;
+          break;
+        }
+
+        const endStr = addDaysISO(nextStartDate, CHUNK_DAYS - 1);
+        const clampedEnd = endStr > cutoff ? cutoff : endStr;
+
+        try {
+          const data = await fetchChunk(row.station_code, nextStartDate, clampedEnd, token);
+          requestsMade += 1;
+
+          const stationMeta = data.stations?.[0];
+          if (stationMeta) {
+            await pool.query(
+              `UPDATE reference_weather_stations
+               SET api_station_name = $2, latitude = $3, longitude = $4, elevation = $5
+               WHERE station_code = $1`,
+              [row.station_code, stationMeta.name || null, stationMeta.latitude ?? null, stationMeta.longitude ?? null, stationMeta.elevation ?? null]
+            );
+          }
+
+          const days = aggregateDaily(data, row.station_code);
+          for (const day of days) {
+            await pool.query(
+              `INSERT INTO reference_weather_daily (station_code, observed_date, temp_min, temp_max, reading_count)
+               VALUES ($1, $2, $3, $4, $5)
+               ON CONFLICT (station_code, observed_date)
+               DO UPDATE SET temp_min = EXCLUDED.temp_min, temp_max = EXCLUDED.temp_max, reading_count = EXCLUDED.reading_count`,
+              [row.station_code, day.date, day.tempMin, day.tempMax, day.readingCount]
+            );
+            daysStored += 1;
+          }
+
+          nextStartDate = addDaysISO(clampedEnd, 1);
+          await pool.query(
+            `UPDATE reference_weather_ingest_progress
+             SET next_start_date = $2, consecutive_errors = 0, last_run_at = now() WHERE station_code = $1`,
+            [row.station_code, nextStartDate]
+          );
+        } catch (err) {
+          console.error(`[referenceWeather] ${row.station_code} ${nextStartDate}..${clampedEnd} échec (repris au prochain lot): ${err.message}`);
+          await pool.query(
+            `UPDATE reference_weather_ingest_progress
+             SET consecutive_errors = consecutive_errors + 1, last_run_at = now() WHERE station_code = $1`,
+            [row.station_code]
+          );
+          break; // passe à la station suivante, cette tranche sera retentée au prochain lot
+        }
+
+        await sleep(DELAY_MS);
+      }
+
+      if (timeIsUp()) break;
+    }
+
+    // "caught-up" seulement si les 10 stations ont été vérifiées et sont
+    // toutes à jour jusqu'à cutoff — jamais "définitivement terminé" comme
+    // avant, puisque cutoff avance d'un jour à chaque exécution. Permet au
+    // workflow de sortir tôt une fois le rattrapage quotidien fait, sans
+    // boucler inutilement 30 fois pour rien chaque nuit.
+    const allCaughtUp = !timeIsUp() && stationsCaughtUpThisRun === progressRows.length;
+
+    return {
+      status: allCaughtUp ? "caught-up" : timeIsUp() ? "partial" : "continuing",
+      requestsMade,
+      daysStored,
+      stationsCaughtUpThisRun,
+    };
+  } finally {
+    await pool.query("UPDATE reference_weather_ingest_lock SET locked_at = NULL WHERE id = 1");
   }
-
-  // "caught-up" seulement si les 10 stations ont été vérifiées et sont
-  // toutes à jour jusqu'à cutoff — jamais "définitivement terminé" comme
-  // avant, puisque cutoff avance d'un jour à chaque exécution. Permet au
-  // workflow de sortir tôt une fois le rattrapage quotidien fait, sans
-  // boucler inutilement 30 fois pour rien chaque nuit.
-  const allCaughtUp = !timeIsUp() && stationsCaughtUpThisRun === progressRows.length;
-
-  return {
-    status: allCaughtUp ? "caught-up" : timeIsUp() ? "partial" : "continuing",
-    requestsMade,
-    daysStored,
-    stationsCaughtUpThisRun,
-  };
 }
