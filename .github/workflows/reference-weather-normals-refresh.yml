@@ -1,0 +1,30 @@
+name: Recalcul quotidien — Normales météo de référence
+
+# Les normales et records (reference_weather_normals) ne se recalculent
+# jamais tout seuls quand de nouvelles données arrivent — voir
+# ingest/referenceWeatherNormals.js, appelé uniquement à la demande via
+# /api/admin/ingest/reference-weather-normals. Sans ce workflow, une
+# station qui termine sa collecte (voir reference-weather-backfill.yml)
+# resterait invisible sur /temperatures jusqu'à un recalcul manuel — ce qui
+# s'est produit concrètement le 30/08/2026 (Lyon terminé mais toujours
+# absent du site, faute de recalcul).
+#
+# Décalé à 3h UTC, une heure après le début du backfill (2h UTC) — laisse
+# à la collecte nocturne le temps d'avancer avant de recalculer. Rapide
+# (~10 stations, quelques secondes au total) : pas besoin de lots comme
+# pour la collecte elle-même.
+on:
+  schedule:
+    - cron: "0 3 * * *" # 3h UTC chaque jour
+  workflow_dispatch: {}
+
+jobs:
+  refresh-normals:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Recalculer les normales des 10 stations
+        run: |
+          curl -f -s -X POST "${{ secrets.API_URL }}/api/admin/ingest/reference-weather-normals" \
+            -H "x-ingest-token: ${{ secrets.INGEST_TOKEN }}" \
+            --max-time 60
