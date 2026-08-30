@@ -226,6 +226,14 @@ export default function GenerationalWarmingChart() {
                     <span style={{ fontWeight: 600 }}>{t(s.labelKey)}</span>
                     {" — "}
                     <span style={{ color: "var(--color-texte-clair)" }}>{t(s.choicesKey)}</span>
+                    {s.overshootNoteKey && (
+                      <>
+                        {" "}
+                        <span style={{ display: "block", fontStyle: "italic", color: "var(--color-texte-clair)", marginTop: 2 }}>
+                          {t(s.overshootNoteKey)}
+                        </span>
+                      </>
+                    )}
                   </span>
                 </button>
               );

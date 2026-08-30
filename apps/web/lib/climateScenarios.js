@@ -87,6 +87,18 @@ export const SCENARIOS = [
     labelKey: "generationalWarming.scenario_ssp119",
     choicesKey: "generationalWarming.choices_ssp119",
     natureImpactKey: "generationalWarming.nature_ssp119",
+    // Seul ce scénario a une courbe qui remonte puis redescend — vérifié
+    // à deux reprises, ce n'est pas une erreur : le GIEC prévoit un léger
+    // "dépassement" (overshoot) de 1,5°C vers le milieu du siècle, suivi
+    // d'un retrait actif de CO2 (reforestation, captage) qui fait
+    // redescendre la température d'ici 2100. Confirmé par le résumé du
+    // Congrès américain sur l'AR6 (congress.gov/crs-product/R47082,
+    // 29/04/2022) citant directement le tableau SPM.1 : "SSP1-1.9 returns
+    // the increase, following a peak, to 1.4°C... by 2100" — et par l'AR6
+    // WG1 lui-même (encadré sur la notion de "overshoot", chapitre 4 et
+    // FGD). Sans cette note, la forme de la courbe (contre-intuitive pour
+    // le scénario le plus optimiste) risque de sembler être une erreur.
+    overshootNoteKey: "generationalWarming.overshoot_note_ssp119",
     color: "#2a78d6", // bleu — cohérent avec la palette déjà utilisée pour les graphiques du site (DebunkCharts.js)
     points: [
       { year: 2020, anomalyC: 1.1 },

@@ -1250,6 +1250,7 @@
     "nature_ssp370": "Between +3°C and +4°C, we enter a breaking point: up to about 39% of terrestrial species studied would face a very high risk of extinction, with mass mortality expected for iconic ecosystems such as coral reefs and tropical forests.",
     "nature_ssp585": "Around +4°C, the IPCC expects mass mortality and extinctions that would irreversibly transform the planet's richest biodiversity areas — tropical coral reefs, cold-water kelp forests, tropical forests. Up to 39-48% of terrestrial species studied would face a very high risk of extinction, and some regions could become inhospitable to nearly all the species living there today.",
     "nature_speed_note": "For comparison: life on Earth has already survived far bigger upheavals in the past. What worries scientists here is the speed — these changes would happen over a few decades, versus tens of thousands of years for comparable natural climate shifts, leaving species very little time to adapt or migrate.",
-    "nature_source": "Source: IPCC, Sixth Assessment Report, Working Group II (impacts, adaptation, vulnerability), 2022 — extinction risk by warming level and outlook for the most biodiverse ecosystems."
+    "nature_source": "Source: IPCC, Sixth Assessment Report, Working Group II (impacts, adaptation, vulnerability), 2022 — extinction risk by warming level and outlook for the most biodiverse ecosystems.",
+    "overshoot_note_ssp119": "💡 Why the curve dips back down: this scenario assumes a slight overshoot of 1.5°C mid-century, followed by active removal of CO2 from the atmosphere (reforestation, capture technologies) — hence the slight temperature decline by the end of the century."
   }
 }
