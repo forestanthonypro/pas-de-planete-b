@@ -1221,5 +1221,21 @@
     "banner_text": "興味のある新着情報を通知でお届けします。",
     "banner_cta": "有効にする",
     "banner_dismiss": "今後表示しない"
+  },
+  "generationalWarming": {
+    "title": "世代ごとの温暖化",
+    "intro": "このグラフは1900年以降すでに観測された世界の温暖化と、今日の集団的な選択次第で起こりうるシナリオを示しています。生年を選んで、その世代が各年齢でどれくらいの温暖化に直面しうるかを見てみましょう。",
+    "legend_observed": "観測値",
+    "scenario_ssp119": "非常に低い (SSP1-1.9)",
+    "scenario_ssp126": "低い (SSP1-2.6)",
+    "scenario_ssp245": "中程度 (SSP2-4.5)",
+    "scenario_ssp370": "高い (SSP3-7.0)",
+    "scenario_ssp585": "非常に高い (SSP5-8.5)",
+    "birth_year_prompt": "生年を選んでください",
+    "age_birth": "誕生時 ({year}年)",
+    "age_n": "{age}歳のとき ({year}年)",
+    "depends_on_choices": "集団的な選択次第で変わる",
+    "table_scenario": "シナリオ",
+    "source": "出典:NASA GISS(1900〜2024年の観測データ)およびIPCC第6次評価報告書、第1作業部会、表SPM.1(2020〜2100年のシナリオ)。本サイト独自のビジュアライゼーションであり、IPCCの図の複製ではありません。"
   }
 }

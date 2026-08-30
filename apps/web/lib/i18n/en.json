@@ -1221,5 +1221,21 @@
     "banner_text": "Stay informed: get notified about updates that matter to you.",
     "banner_cta": "Enable",
     "banner_dismiss": "Dismiss"
+  },
+  "generationalWarming": {
+    "title": "Warming across generations",
+    "intro": "This chart shows the global warming already measured since 1900, then the possible scenarios depending on today's collective choices. Pick a birth year below to see how much warming that generation could face at different ages.",
+    "legend_observed": "Observed",
+    "scenario_ssp119": "Very low (SSP1-1.9)",
+    "scenario_ssp126": "Low (SSP1-2.6)",
+    "scenario_ssp245": "Intermediate (SSP2-4.5)",
+    "scenario_ssp370": "High (SSP3-7.0)",
+    "scenario_ssp585": "Very high (SSP5-8.5)",
+    "birth_year_prompt": "Choose a birth year",
+    "age_birth": "At birth ({year})",
+    "age_n": "At age {age} ({year})",
+    "depends_on_choices": "depending on collective choices",
+    "table_scenario": "Scenario",
+    "source": "Source: NASA GISS (1900-2024 historical) and IPCC AR6 Working Group I, Table SPM.1 (2020-2100 scenarios). Original visualization by this site — not a reproduction of IPCC's own charts."
   }
 }

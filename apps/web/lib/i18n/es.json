@@ -1221,5 +1221,21 @@
     "banner_text": "Mantente informado: recibe una notificación sobre las novedades que te interesan.",
     "banner_cta": "Activar",
     "banner_dismiss": "No volver a mostrar"
+  },
+  "generationalWarming": {
+    "title": "El calentamiento según las generaciones",
+    "intro": "Este gráfico muestra el calentamiento mundial ya medido desde 1900, y luego los escenarios posibles según las decisiones colectivas de hoy. Elige un año de nacimiento para ver a qué calentamiento podría estar expuesta esa generación a distintas edades.",
+    "legend_observed": "Observado",
+    "scenario_ssp119": "Muy bajo (SSP1-1.9)",
+    "scenario_ssp126": "Bajo (SSP1-2.6)",
+    "scenario_ssp245": "Intermedio (SSP2-4.5)",
+    "scenario_ssp370": "Alto (SSP3-7.0)",
+    "scenario_ssp585": "Muy alto (SSP5-8.5)",
+    "birth_year_prompt": "Elige un año de nacimiento",
+    "age_birth": "Al nacer ({year})",
+    "age_n": "A los {age} años ({year})",
+    "depends_on_choices": "según las decisiones colectivas",
+    "table_scenario": "Escenario",
+    "source": "Fuente: NASA GISS (histórico 1900-2024) e IPCC AR6, Grupo de Trabajo I, tabla SPM.1 (escenarios 2020-2100). Visualización original de este sitio — no es una reproducción de los gráficos del IPCC."
   }
 }

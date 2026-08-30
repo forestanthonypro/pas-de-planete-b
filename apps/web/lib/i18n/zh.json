@@ -1221,5 +1221,21 @@
     "banner_text": "保持关注：接收您感兴趣的更新通知。",
     "banner_cta": "启用",
     "banner_dismiss": "不再显示"
+  },
+  "generationalWarming": {
+    "title": "跨代际的气候变暖",
+    "intro": "此图表显示了自1900年以来已实际测量的全球变暖，以及根据今天的集体选择可能出现的情景。选择一个出生年份，看看该世代在不同年龄段可能面临的变暖程度。",
+    "legend_observed": "已观测",
+    "scenario_ssp119": "极低 (SSP1-1.9)",
+    "scenario_ssp126": "低 (SSP1-2.6)",
+    "scenario_ssp245": "中等 (SSP2-4.5)",
+    "scenario_ssp370": "高 (SSP3-7.0)",
+    "scenario_ssp585": "极高 (SSP5-8.5)",
+    "birth_year_prompt": "选择出生年份",
+    "age_birth": "出生时 ({year}年)",
+    "age_n": "{age}岁时 ({year}年)",
+    "depends_on_choices": "取决于集体选择",
+    "table_scenario": "情景",
+    "source": "来源：NASA GISS（1900-2024年历史数据）和IPCC第六次评估报告第一工作组，表SPM.1（2020-2100年情景）。本网站的原创可视化——并非IPCC图表的复制品。"
   }
 }

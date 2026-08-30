@@ -10,6 +10,7 @@ import ShareButtons from "../components/ShareButtons";
 import ScrollableTable from "../components/ScrollableTable";
 import Pagination from "../components/Pagination";
 import { useSobriety } from "../lib/SobrietyContext";
+import GenerationalWarmingChart from "../components/GenerationalWarmingChart";
 
 const PAGE_SIZE = 20;
 
@@ -458,6 +459,11 @@ export default function TemperaturesPage() {
           <> {t("temperatures.source_last_updated", { date: formatDate(lastUpdated.temperatures.lastIngested, locale) })}</>
         )}
       </p>
+
+      <section style={{ marginTop: "2.5rem", borderTop: "1px solid #eee", paddingTop: "1.5rem" }}>
+        <h2 style={{ fontSize: 18 }}>{t("generationalWarming.title")}</h2>
+        <GenerationalWarmingChart />
+      </section>
     </div>
   );
 }

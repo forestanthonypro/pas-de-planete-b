@@ -1221,5 +1221,21 @@
     "banner_text": "Restez informé·e : recevez une notification pour les nouveautés qui vous intéressent.",
     "banner_cta": "Activer",
     "banner_dismiss": "Ne plus afficher"
+  },
+  "generationalWarming": {
+    "title": "Le réchauffement selon les générations",
+    "intro": "Ce graphique montre le réchauffement mondial déjà mesuré depuis 1900, puis les scénarios possibles selon les choix collectifs faits aujourd'hui. Choisissez une année de naissance ci-dessous pour voir à quel réchauffement cette génération pourrait être exposée à différents âges.",
+    "legend_observed": "Observé",
+    "scenario_ssp119": "Très bas (SSP1-1.9)",
+    "scenario_ssp126": "Bas (SSP1-2.6)",
+    "scenario_ssp245": "Intermédiaire (SSP2-4.5)",
+    "scenario_ssp370": "Haut (SSP3-7.0)",
+    "scenario_ssp585": "Très haut (SSP5-8.5)",
+    "birth_year_prompt": "Choisissez une année de naissance",
+    "age_birth": "À la naissance ({year})",
+    "age_n": "À {age} ans ({year})",
+    "depends_on_choices": "selon les choix collectifs",
+    "table_scenario": "Scénario",
+    "source": "Source : NASA GISS (historique 1900-2024) et GIEC, 6ᵉ rapport, groupe de travail I, tableau SPM.1 (scénarios 2020-2100). Visualisation originale du site — pas une reproduction des graphiques du GIEC."
   }
 }

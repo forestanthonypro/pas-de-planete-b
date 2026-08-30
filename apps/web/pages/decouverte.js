@@ -9,6 +9,7 @@ import { useCountriesList } from "../lib/useCountriesList";
 import { localizedCountryName } from "../lib/countryNames";
 import { detectDefaultCountry } from "../lib/detectCountry";
 import CountrySelect from "../components/CountrySelect";
+import GenerationalWarmingChart from "../components/GenerationalWarmingChart";
 import { IconCloud, IconBolt, IconDroplet, IconTree, IconPaw, IconSmog, IconThermometer, IconSearch, IconPlay, IconLandmark, IconScroll, IconCheck, IconScale, IconUsers, IconLeaf, IconHome, IconBulb } from "../components/icons";
 
 const VERDICT_COLORS = { faux: "#d63e2a", trompeur: "#f4b400", confirme: "#1baf7a" };
@@ -741,12 +742,12 @@ function RankingQuiz({ t }) {
   );
 }
 
-const TOTAL_SECTIONS = 8;
+const TOTAL_SECTIONS = 9;
 
 // Ordre des id de <section> sur la page — sert à la fois à la jauge de
 // progression (IntersectionObserver ci-dessous) et implicitement au
 // numéro affiché par chaque SectionDivider.
-const SECTION_IDS = ["accroche", "explication", "objections", "comparaisons", "quiz", "gains", "profilage", "plus-loin"];
+const SECTION_IDS = ["accroche", "explication", "objections", "comparaisons", "quiz", "gains", "generationnel", "profilage", "plus-loin"];
 
 function SectionProgressBar({ activeSection, t }) {
   const { sobriety } = useSobriety();
@@ -1101,9 +1102,16 @@ export default function DecouvertePage() {
         </ul>
       </section>
 
-      {/* --- Section 7 : Et maintenant ? (profilage guidé) --- */}
+      {/* --- Section 7 : Le réchauffement selon les générations --- */}
+      <section id="generationnel" style={{ padding: "1rem 0 2rem" }}>
+        <SectionDivider Icon={IconThermometer} index={7} t={t} />
+        <h2 style={{ fontSize: 26, fontWeight: 600, marginBottom: 6 }}>{t("generationalWarming.title")}</h2>
+        <GenerationalWarmingChart />
+      </section>
+
+      {/* --- Section 8 : Et maintenant ? (profilage guidé) --- */}
       <section id="profilage" style={{ padding: "1rem 0 2rem" }}>
-        <SectionDivider Icon={IconUsers} index={7} t={t} />
+        <SectionDivider Icon={IconUsers} index={8} t={t} />
         <h2 style={{ fontSize: 26, fontWeight: 600, color: "var(--color-texte)", margin: "0 0 6px" }}>
           {t("decouverte.action_title")}
         </h2>
@@ -1118,9 +1126,9 @@ export default function DecouvertePage() {
         </div>
       </section>
 
-      {/* --- Section 8 : Envie d'aller plus loin ? --- */}
+      {/* --- Section 9 : Envie d'aller plus loin ? --- */}
       <section id="plus-loin" style={{ padding: "1rem 0 3rem" }}>
-        <SectionDivider Icon={IconHome} index={8} t={t} />
+        <SectionDivider Icon={IconHome} index={9} t={t} />
         <h2 style={{ fontSize: 26, fontWeight: 600, color: "var(--color-texte)", margin: "0 0 6px" }}>
           {t("decouverte.more_title")}
         </h2>
