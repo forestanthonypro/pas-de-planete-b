@@ -1236,6 +1236,11 @@
     "age_n": "A los {age} años ({year})",
     "depends_on_choices": "según las decisiones colectivas",
     "table_scenario": "Escenario",
-    "source": "Fuente: NASA GISS (histórico 1900-2024) e IPCC AR6, Grupo de Trabajo I, tabla SPM.1 (escenarios 2020-2100). Visualización original de este sitio — no es una reproducción de los gráficos del IPCC."
+    "source": "Fuente: NASA GISS (histórico 1900-2024) e IPCC AR6, Grupo de Trabajo I, tabla SPM.1 (escenarios 2020-2100). Visualización original de este sitio — no es una reproducción de los gráficos del IPCC.",
+    "choices_ssp119": "Abandono rápido de los combustibles fósiles, neutralidad de carbono hacia 2050, fuerte cooperación internacional.",
+    "choices_ssp126": "Transición hacia las renovables en marcha, neutralidad de carbono más tardía.",
+    "choices_ssp245": "Continuación de las tendencias actuales, esfuerzos moderados, sin ruptura clara.",
+    "choices_ssp370": "Prioridad a los intereses nacionales, débil cooperación internacional climática.",
+    "choices_ssp585": "Desarrollo basado en combustibles fósiles, escasa regulación climática."
   }
 }

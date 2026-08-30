@@ -54,10 +54,22 @@ export const HISTORICAL_ANOMALY = [
 // des trajectoires d'émissions différentes, du plus sobre au plus intensif
 // — ce ne sont pas des prédictions, mais des futurs possibles selon les
 // choix collectifs faits ou non.
+//
+// "choicesKey" (texte affiché au survol de chaque courbe et sous la
+// légende) résume la trajectoire socio-économique associée à chaque
+// scénario dans le cadre AR6 lui-même — GIEC AR6 WG1, chapitre 1 et
+// annexe III (description des 5 familles SSP) : SSP1 = développement
+// orienté durabilité, SSP2 = prolongement des tendances actuelles,
+// SSP3 = priorité aux enjeux nationaux/sécuritaires, faible coopération
+// internationale, SSP5 = développement fondé sur les énergies fossiles.
+// Les repères 1.9/2.6/4.5/7.0/8.5 correspondent au forçage radiatif visé
+// en 2100 (W/m²) — plus le chiffre est élevé, moins l'effort de réduction
+// des émissions est important.
 export const SCENARIOS = [
   {
     id: "ssp119",
     labelKey: "generationalWarming.scenario_ssp119",
+    choicesKey: "generationalWarming.choices_ssp119",
     color: "#2a78d6", // bleu — cohérent avec la palette déjà utilisée pour les graphiques du site (DebunkCharts.js)
     points: [
       { year: 2020, anomalyC: 1.1 },
@@ -70,6 +82,7 @@ export const SCENARIOS = [
   {
     id: "ssp126",
     labelKey: "generationalWarming.scenario_ssp126",
+    choicesKey: "generationalWarming.choices_ssp126",
     color: "#1baf7a", // vert
     points: [
       { year: 2020, anomalyC: 1.1 },
@@ -82,6 +95,7 @@ export const SCENARIOS = [
   {
     id: "ssp245",
     labelKey: "generationalWarming.scenario_ssp245",
+    choicesKey: "generationalWarming.choices_ssp245",
     color: "#eda100", // ambre
     points: [
       { year: 2020, anomalyC: 1.1 },
@@ -94,6 +108,7 @@ export const SCENARIOS = [
   {
     id: "ssp370",
     labelKey: "generationalWarming.scenario_ssp370",
+    choicesKey: "generationalWarming.choices_ssp370",
     color: "#eb6834", // orange
     points: [
       { year: 2020, anomalyC: 1.1 },
@@ -106,6 +121,7 @@ export const SCENARIOS = [
   {
     id: "ssp585",
     labelKey: "generationalWarming.scenario_ssp585",
+    choicesKey: "generationalWarming.choices_ssp585",
     color: "#b0401f", // rouge
     points: [
       { year: 2020, anomalyC: 1.1 },

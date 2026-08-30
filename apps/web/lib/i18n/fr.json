@@ -1236,6 +1236,11 @@
     "age_n": "À {age} ans ({year})",
     "depends_on_choices": "selon les choix collectifs",
     "table_scenario": "Scénario",
-    "source": "Source : NASA GISS (historique 1900-2024) et GIEC, 6ᵉ rapport, groupe de travail I, tableau SPM.1 (scénarios 2020-2100). Visualisation originale du site — pas une reproduction des graphiques du GIEC."
+    "source": "Source : NASA GISS (historique 1900-2024) et GIEC, 6ᵉ rapport, groupe de travail I, tableau SPM.1 (scénarios 2020-2100). Visualisation originale du site — pas une reproduction des graphiques du GIEC.",
+    "choices_ssp119": "Sortie rapide des énergies fossiles, neutralité carbone vers 2050, forte coopération internationale.",
+    "choices_ssp126": "Transition engagée vers les renouvelables, neutralité carbone atteinte plus tardivement.",
+    "choices_ssp245": "Poursuite des tendances actuelles, efforts de réduction modérés, pas de rupture forte.",
+    "choices_ssp370": "Priorité aux intérêts nationaux, faible coopération internationale sur le climat.",
+    "choices_ssp585": "Développement fondé sur les énergies fossiles, peu de régulation climatique."
   }
 }

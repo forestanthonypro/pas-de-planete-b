@@ -1236,6 +1236,11 @@
     "age_n": "At age {age} ({year})",
     "depends_on_choices": "depending on collective choices",
     "table_scenario": "Scenario",
-    "source": "Source: NASA GISS (1900-2024 historical) and IPCC AR6 Working Group I, Table SPM.1 (2020-2100 scenarios). Original visualization by this site — not a reproduction of IPCC's own charts."
+    "source": "Source: NASA GISS (1900-2024 historical) and IPCC AR6 Working Group I, Table SPM.1 (2020-2100 scenarios). Original visualization by this site — not a reproduction of IPCC's own charts.",
+    "choices_ssp119": "Rapid phase-out of fossil fuels, carbon neutrality around 2050, strong international cooperation.",
+    "choices_ssp126": "Transition to renewables underway, carbon neutrality reached later.",
+    "choices_ssp245": "Current trends continue, moderate reduction efforts, no major shift.",
+    "choices_ssp370": "National interests prioritized, weak international climate cooperation.",
+    "choices_ssp585": "Fossil-fuel-based development, little climate regulation."
   }
 }

@@ -18,7 +18,7 @@ function formatDelta(value) {
 // graphiques du site (voir DebunkContentWithCharts.js), pour ne jamais
 // alourdir le chargement initial d'une page avec Chart.js si le visiteur
 // ne fait que passer.
-function WarmingChartCanvas({ birthYear }) {
+function WarmingChartCanvas({ birthYear, t }) {
   const canvasRef = useRef(null);
   const chartRef = useRef(null);
 
@@ -29,7 +29,7 @@ function WarmingChartCanvas({ birthYear }) {
       if (chartRef.current) chartRef.current.destroy();
 
       const historicalDataset = {
-        label: "Observé",
+        label: "observed",
         data: HISTORICAL_ANOMALY.map((p) => ({ x: p.year, y: p.anomalyC })),
         borderColor: "#8a8a8a",
         backgroundColor: "transparent",
@@ -69,7 +69,33 @@ function WarmingChartCanvas({ birthYear }) {
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              // La ligne pointillée d'année de naissance n'a pas de valeur
+              // de température à montrer (juste deux points techniques
+              // -0,5 et 5 pour dessiner un trait vertical) — on l'exclut
+              // entièrement de l'infobulle plutôt que d'afficher un chiffre
+              // qui n'a pas de sens.
+              filter: (item) => item.dataset.label !== "birth-marker",
+              callbacks: {
+                label: (context) => {
+                  const id = context.dataset.label;
+                  const scenario = SCENARIOS.find((s) => s.id === id);
+                  const name = scenario ? t(scenario.labelKey) : t("generationalWarming.legend_observed");
+                  return `${name} : ${formatDelta(context.parsed.y)}`;
+                },
+                // Met en avant, juste en dessous de la valeur, les choix
+                // collectifs (trajectoire socio-économique) qui
+                // correspondent à ce scénario — pas affiché pour la courbe
+                // "Observé", qui est un fait mesuré, pas un scénario.
+                afterLabel: (context) => {
+                  const scenario = SCENARIOS.find((s) => s.id === context.dataset.label);
+                  return scenario ? t(scenario.choicesKey) : "";
+                },
+              },
+            },
+          },
           scales: {
             x: {
               type: "linear",
@@ -148,19 +174,23 @@ export default function GenerationalWarmingChart() {
         {t("generationalWarming.intro")}
       </p>
 
-      {sobriety ? <WarmingTable t={t} /> : <WarmingChartCanvas birthYear={birthYear} />}
+      {sobriety ? <WarmingTable t={t} /> : <WarmingChartCanvas birthYear={birthYear} t={t} />}
 
       {!sobriety && (
-        <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", fontSize: 12, marginBottom: "1.25rem" }}>
-          <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-            <span style={{ width: 14, height: 3, background: "#8a8a8a", display: "inline-block" }} />
-            {t("generationalWarming.legend_observed")}
-          </span>
+        <div style={{ display: "flex", flexDirection: "column", gap: 6, fontSize: 12, marginBottom: "1.25rem" }}>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
+            <span style={{ width: 14, height: 3, background: "#8a8a8a", display: "inline-block", flexShrink: 0 }} />
+            <span style={{ fontWeight: 600 }}>{t("generationalWarming.legend_observed")}</span>
+          </div>
           {SCENARIOS.map((s) => (
-            <span key={s.id} style={{ display: "flex", alignItems: "center", gap: 4 }}>
-              <span style={{ width: 14, height: 3, background: s.color, display: "inline-block" }} />
-              {t(s.labelKey)}
-            </span>
+            <div key={s.id} style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
+              <span style={{ width: 14, height: 3, background: s.color, display: "inline-block", flexShrink: 0 }} />
+              <span>
+                <span style={{ fontWeight: 600 }}>{t(s.labelKey)}</span>
+                {" — "}
+                <span style={{ color: "var(--color-texte-clair)" }}>{t(s.choicesKey)}</span>
+              </span>
+            </div>
           ))}
         </div>
       )}
