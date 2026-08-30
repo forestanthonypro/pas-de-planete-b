@@ -1267,10 +1267,11 @@
     "new_record_cold": "Nuevo récord de frío para este día",
     "others_collecting": "{count} otra(s) estación(es) todavía recopilando su histórico de referencia.",
     "explanation": "«La normal» es la temperatura media medida en esta fecha durante los últimos 30 años (1991-2020) — la referencia que usan los servicios meteorológicos para decir si un día es más cálido o más frío de lo habitual, no una previsión.",
-    "curve_intro": "Estas curvas muestran la normal (temperatura máxima media 1991-2020) día a día del año, para cada ciudad — una forma concreta de ver cómo es «un año normal» según el lugar.",
+    "curve_intro": "Estas curvas muestran la normal (temperatura máxima media de varios años, indicada entre paréntesis para cada ciudad — no necesariamente 1991-2020 en todas partes, según la antigüedad de la estación) día a día del calendario. El eje horizontal no representa un año concreto, solo el ciclo del calendario — una forma concreta de ver cómo es «un año normal» según el lugar.",
     "curve_table_city": "Ciudad",
     "curve_table_winter": "Normal de invierno (15 de enero)",
     "curve_table_summer": "Normal de verano (15 de julio)",
-    "normal_period": "normal {start}-{end}"
+    "normal_period": "normal {start}-{end}",
+    "curve_x_axis": "Día del año (media plurianual, no un año concreto)"
   }
 }

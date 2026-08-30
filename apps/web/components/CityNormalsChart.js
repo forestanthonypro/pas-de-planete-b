@@ -13,7 +13,7 @@ const CITY_COLORS = [
 // Convertit "MM-DD" en un numéro de jour dans l'année (base non
 // bissextile arbitraire, 2001) — juste pour donner un axe X numérique à
 // Chart.js, l'année elle-même n'a pas de sens ici (normale = moyenne sur
-// 1991-2020, pas une année précise).
+// plusieurs années, pas une année précise).
 function monthDayToDayNumber(monthDay) {
   const [month, day] = monthDay.split("-").map(Number);
   const d = new Date(Date.UTC(2001, month - 1, day));
@@ -21,7 +21,24 @@ function monthDayToDayNumber(monthDay) {
   return Math.round((d - start) / 86400000) + 1;
 }
 
-function CurveCanvas({ curves }) {
+// Convertit un numéro de jour (1-366, base non bissextile arbitraire
+// 2001) en date lisible — utilisé à la fois pour les graduations de l'axe
+// et pour le titre de l'infobulle.
+function dayNumberToDate(v) {
+  const d = new Date(Date.UTC(2001, 0, 1));
+  d.setUTCDate(d.getUTCDate() + Math.round(v) - 1);
+  return d;
+}
+
+// Le 1er de chaque mois, en numéro de jour — des graduations à ces valeurs
+// précises plutôt qu'un simple "stepSize: 30" évite les mois qui se
+// répètent sur l'axe (30 jours ne tombe pas pile sur un début de mois :
+// avec un pas fixe, deux graduations consécutives peuvent tomber dans le
+// même mois, ex. le 1er et le 31 janvier affichant tous les deux
+// "janv.") — repéré le 30/08/2026 sur une vraie capture d'écran du site.
+const MONTH_START_DAYS = [1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335];
+
+function CurveCanvas({ curves, t }) {
   const canvasRef = useRef(null);
   const chartRef = useRef(null);
 
@@ -49,19 +66,32 @@ function CurveCanvas({ curves }) {
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          plugins: { legend: { position: "bottom", labels: { boxWidth: 14, font: { size: 11 } } } },
+          plugins: {
+            legend: { position: "bottom", labels: { boxWidth: 14, font: { size: 11 } } },
+            tooltip: {
+              callbacks: {
+                // "15 juillet" plutôt que le numéro de jour brut ("257"),
+                // qui n'a aucun sens pour un visiteur — vérifié confus en
+                // pratique le 30/08/2026.
+                title: (items) => (items[0] ? dayNumberToDate(items[0].parsed.x).toLocaleDateString("fr-FR", { day: "numeric", month: "long", timeZone: "UTC" }) : ""),
+              },
+            },
+          },
           scales: {
             x: {
               type: "linear",
               min: 1,
               max: 366,
+              title: { display: true, text: t("referenceWeather.curve_x_axis") },
+              // Graduations forcées au 1er de chaque mois (voir
+              // MONTH_START_DAYS) plutôt qu'un pas fixe — sans ça, deux
+              // graduations consécutives peuvent tomber dans le même mois
+              // et l'afficher deux fois de suite.
+              afterBuildTicks: (axis) => {
+                axis.ticks = MONTH_START_DAYS.map((v) => ({ value: v }));
+              },
               ticks: {
-                stepSize: 30,
-                callback: (v) => {
-                  const d = new Date(Date.UTC(2001, 0, 1));
-                  d.setUTCDate(d.getUTCDate() + Math.round(v) - 1);
-                  return d.toLocaleDateString("fr-FR", { month: "short", timeZone: "UTC" });
-                },
+                callback: (v) => dayNumberToDate(v).toLocaleDateString("fr-FR", { month: "short", timeZone: "UTC" }),
               },
             },
             y: { title: { display: true, text: "°C (normale)" } },
@@ -76,7 +106,7 @@ function CurveCanvas({ curves }) {
         chartRef.current = null;
       }
     };
-  }, [curves]);
+  }, [curves, t]);
 
   return (
     <div style={{ position: "relative", height: 300 }}>
@@ -151,7 +181,7 @@ export default function CityNormalsChart() {
       <p style={{ fontSize: 13, color: "var(--color-texte-clair)", marginBottom: "0.75rem" }}>
         {t("referenceWeather.curve_intro")}
       </p>
-      {sobriety ? <CurveTable curves={curves} t={t} /> : <CurveCanvas curves={curves} />}
+      {sobriety ? <CurveTable curves={curves} t={t} /> : <CurveCanvas curves={curves} t={t} />}
     </div>
   );
 }

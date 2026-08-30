@@ -1267,10 +1267,11 @@
     "new_record_cold": "Nouveau record de froid pour ce jour",
     "others_collecting": "{count} autre(s) station(s) encore en cours de collecte de leur historique de référence.",
     "explanation": "\"La normale\" désigne la température moyenne mesurée à cette date sur les 30 dernières années (1991-2020) — c'est la référence utilisée par les services météorologiques pour dire si une journée est plus chaude ou plus froide que d'habitude, pas une prévision.",
-    "curve_intro": "Ces courbes montrent la normale (température maximale moyenne 1991-2020) jour par jour de l'année, pour chaque ville — de quoi voir concrètement à quoi ressemble \"une année normale\" selon l'endroit.",
+    "curve_intro": "Ces courbes montrent la normale (température maximale moyenne sur plusieurs années, indiquée entre parenthèses pour chaque ville — pas forcément 1991-2020 partout, selon l'ancienneté de la station) jour par jour de l'année. L'axe horizontal ne représente pas une année précise, mais le déroulement du calendrier — de quoi voir concrètement à quoi ressemble \"une année normale\" selon l'endroit.",
     "curve_table_city": "Ville",
     "curve_table_winter": "Normale d'hiver (15 janvier)",
     "curve_table_summer": "Normale d'été (15 juillet)",
-    "normal_period": "normale {start}-{end}"
+    "normal_period": "normale {start}-{end}",
+    "curve_x_axis": "Jour de l'année (moyenne pluriannuelle, pas une année précise)"
   }
 }
