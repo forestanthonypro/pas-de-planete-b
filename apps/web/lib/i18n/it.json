@@ -1265,6 +1265,11 @@
     "vs_normal": "vs normale",
     "new_record_hot": "Nuovo record di caldo per questo giorno",
     "new_record_cold": "Nuovo record di freddo per questo giorno",
-    "others_collecting": "{count} altra/e stazione/i ancora in fase di raccolta del proprio storico di riferimento."
+    "others_collecting": "{count} altra/e stazione/i ancora in fase di raccolta del proprio storico di riferimento.",
+    "explanation": "\"La normale\" è la temperatura media misurata in questa data negli ultimi 30 anni (1991-2020) — il riferimento usato dai servizi meteorologici per dire se una giornata è più calda o più fredda del solito, non una previsione.",
+    "curve_intro": "Queste curve mostrano la normale (temperatura massima media 1991-2020) giorno per giorno dell'anno, per ogni città — un modo concreto per vedere com'è \"un anno normale\" a seconda del luogo.",
+    "curve_table_city": "Città",
+    "curve_table_winter": "Normale invernale (15 gennaio)",
+    "curve_table_summer": "Normale estiva (15 luglio)"
   }
 }

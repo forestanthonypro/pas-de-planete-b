@@ -1265,6 +1265,11 @@
     "vs_normal": "vs normal",
     "new_record_hot": "New heat record for this day",
     "new_record_cold": "New cold record for this day",
-    "others_collecting": "{count} other station(s) still collecting their reference history."
+    "others_collecting": "{count} other station(s) still collecting their reference history.",
+    "explanation": "\"The normal\" is the average temperature measured on this date over the last 30 years (1991-2020) — the reference used by weather services to say whether a day is warmer or colder than usual, not a forecast.",
+    "curve_intro": "These curves show the normal (average maximum temperature 1991-2020) day by day across the year, for each city — a concrete way to see what \"a normal year\" looks like depending on where you are.",
+    "curve_table_city": "City",
+    "curve_table_winter": "Winter normal (Jan 15)",
+    "curve_table_summer": "Summer normal (Jul 15)"
   }
 }

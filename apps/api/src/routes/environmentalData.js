@@ -191,6 +191,40 @@ router.get("/api/reference-weather/today", async (_req, res) => {
   }
 });
 
+// Courbe de normale (température moyenne sur 1991-2020, jour par jour de
+// l'année) pour chaque station suffisamment fiable — sert à visualiser
+// concrètement ce qu'est "la normale" évoquée dans /api/reference-weather/
+// today, plutôt qu'un simple chiffre abstrait.
+router.get("/api/reference-weather/normals-curve", async (_req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT s.station_code, s.city_label, s.display_order,
+              n.month_day, n.normal_temp_min, n.normal_temp_max
+       FROM reference_weather_stations s
+       JOIN reference_weather_normals n ON n.station_code = s.station_code
+       WHERE n.sample_size >= $1
+       ORDER BY s.display_order, n.month_day`,
+      [MIN_SAMPLE_SIZE_FOR_DISPLAY]
+    );
+
+    const byStation = new Map();
+    for (const row of result.rows) {
+      if (!byStation.has(row.station_code)) {
+        byStation.set(row.station_code, { stationCode: row.station_code, cityLabel: row.city_label, points: [] });
+      }
+      byStation.get(row.station_code).points.push({
+        monthDay: row.month_day,
+        normalTempMin: row.normal_temp_min != null ? parseFloat(row.normal_temp_min) : null,
+        normalTempMax: row.normal_temp_max != null ? parseFloat(row.normal_temp_max) : null,
+      });
+    }
+
+    res.json(Array.from(byStation.values()));
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
+  }
+});
+
 // --- Centrales électriques ---
 
 router.get("/api/power-plants/countries", async (_req, res) => {

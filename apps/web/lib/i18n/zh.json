@@ -1265,6 +1265,11 @@
     "vs_normal": "较常年值",
     "new_record_hot": "该日新高温记录",
     "new_record_cold": "该日新低温记录",
-    "others_collecting": "还有{count}个站点仍在收集其参考历史数据。"
+    "others_collecting": "还有{count}个站点仍在收集其参考历史数据。",
+    "explanation": "「常年值」是指过去30年（1991-2020年）该日期测得的平均气温——气象部门用它来判断某一天是否比平常更热或更冷，而不是天气预报。",
+    "curve_intro": "这些曲线按年度逐日展示了每个城市的常年值（1991-2020年平均最高气温）——直观地展示不同地点「正常年份」的样子。",
+    "curve_table_city": "城市",
+    "curve_table_winter": "冬季常年值（1月15日）",
+    "curve_table_summer": "夏季常年值（7月15日）"
   }
 }

@@ -34,6 +34,9 @@ export default function TodayWeatherDeviation() {
 
   return (
     <div>
+      <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginBottom: "0.75rem" }}>
+        {t("referenceWeather.explanation")}
+      </p>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 10 }}>
         {ready.map((r) => {
           const isHot = r.deviationMax > 0;

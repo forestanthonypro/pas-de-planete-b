@@ -12,6 +12,7 @@ import Pagination from "../components/Pagination";
 import { useSobriety } from "../lib/SobrietyContext";
 import GenerationalWarmingChart from "../components/GenerationalWarmingChart";
 import TodayWeatherDeviation from "../components/TodayWeatherDeviation";
+import CityNormalsChart from "../components/CityNormalsChart";
 
 const PAGE_SIZE = 20;
 
@@ -464,6 +465,9 @@ export default function TemperaturesPage() {
       <section style={{ marginTop: "2.5rem", borderTop: "1px solid #eee", paddingTop: "1.5rem" }}>
         <h2 style={{ fontSize: 18 }}>{t("referenceWeather.title")}</h2>
         <TodayWeatherDeviation />
+        <div style={{ marginTop: "1.5rem" }}>
+          <CityNormalsChart />
+        </div>
       </section>
 
       <section style={{ marginTop: "2.5rem", borderTop: "1px solid #eee", paddingTop: "1.5rem" }}>
