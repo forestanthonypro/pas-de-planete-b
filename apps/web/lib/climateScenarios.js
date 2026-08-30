@@ -81,11 +81,25 @@ export const HISTORICAL_ANOMALY = [
 //   valeur "long terme" (2081-2100) — une approximation assumée et
 //   expliquée dans le texte lui-même plutôt que présentée comme une
 //   précision qu'elle n'a pas.
+// "actionsKey" (affiché dans le panneau détaillé, avant l'impact sur la
+// nature) explique concrètement ce qu'implique chaque trajectoire —
+// politiques énergétiques, coopération internationale, usage des terres —
+// à partir des narrations officielles des scénarios socio-économiques
+// (SSP = "Shared Socioeconomic Pathways"), O'Neill et al. (2017), "The
+// roads ahead: Narratives for shared socioeconomic pathways describing
+// world futures in the 21st century", Global Environmental Change 42 —
+// le document fondateur de ces 5 familles de trajectoires, repris tel
+// quel par le GIEC dans l'AR6. Formulé de façon descriptive ("cette
+// trajectoire correspond à...") plutôt que prescriptive, y compris pour
+// les scénarios les plus défavorables — il ne s'agit jamais de
+// recommander SSP3-7.0 ou SSP5-8.5, seulement d'expliquer ce qu'impliquerait
+// concrètement de s'y engager (ou de ne rien changer).
 export const SCENARIOS = [
   {
     id: "ssp119",
     labelKey: "generationalWarming.scenario_ssp119",
     choicesKey: "generationalWarming.choices_ssp119",
+    actionsKey: "generationalWarming.actions_ssp119",
     natureImpactKey: "generationalWarming.nature_ssp119",
     // Seul ce scénario a une courbe qui remonte puis redescend — vérifié
     // à deux reprises, ce n'est pas une erreur : le GIEC prévoit un léger
@@ -112,6 +126,7 @@ export const SCENARIOS = [
     id: "ssp126",
     labelKey: "generationalWarming.scenario_ssp126",
     choicesKey: "generationalWarming.choices_ssp126",
+    actionsKey: "generationalWarming.actions_ssp126",
     natureImpactKey: "generationalWarming.nature_ssp126",
     color: "#1baf7a", // vert
     points: [
@@ -126,6 +141,7 @@ export const SCENARIOS = [
     id: "ssp245",
     labelKey: "generationalWarming.scenario_ssp245",
     choicesKey: "generationalWarming.choices_ssp245",
+    actionsKey: "generationalWarming.actions_ssp245",
     natureImpactKey: "generationalWarming.nature_ssp245",
     color: "#eda100", // ambre
     points: [
@@ -140,6 +156,7 @@ export const SCENARIOS = [
     id: "ssp370",
     labelKey: "generationalWarming.scenario_ssp370",
     choicesKey: "generationalWarming.choices_ssp370",
+    actionsKey: "generationalWarming.actions_ssp370",
     natureImpactKey: "generationalWarming.nature_ssp370",
     color: "#eb6834", // orange
     points: [
@@ -154,6 +171,7 @@ export const SCENARIOS = [
     id: "ssp585",
     labelKey: "generationalWarming.scenario_ssp585",
     choicesKey: "generationalWarming.choices_ssp585",
+    actionsKey: "generationalWarming.actions_ssp585",
     natureImpactKey: "generationalWarming.nature_ssp585",
     color: "#b0401f", // rouge
     points: [

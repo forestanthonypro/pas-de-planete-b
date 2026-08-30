@@ -255,6 +255,11 @@ export default function GenerationalWarmingChart() {
               }}
             >
               <p style={{ fontSize: 13, fontWeight: 700, margin: "0 0 6px" }}>
+                🛠️ {t("generationalWarming.actions_title", { scenario: t(selectedScenario.labelKey) })}
+              </p>
+              <p style={{ fontSize: 13, margin: "0 0 12px", lineHeight: 1.5 }}>{t(selectedScenario.actionsKey)}</p>
+
+              <p style={{ fontSize: 13, fontWeight: 700, margin: "0 0 6px" }}>
                 🌿 {t("generationalWarming.nature_impact_title", { scenario: t(selectedScenario.labelKey) })}
               </p>
               <p style={{ fontSize: 13, margin: "0 0 8px", lineHeight: 1.5 }}>{t(selectedScenario.natureImpactKey)}</p>
