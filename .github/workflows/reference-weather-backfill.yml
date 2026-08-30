@@ -1,0 +1,41 @@
+name: Backfill historique — Stations météo de référence
+
+# Contrairement au rafraîchissement annuel des températures (Open-Meteo,
+# quota horaire strict), l'API Infoclimat ne limite pas le débit de façon
+# stricte — seulement un "fair use" demandé, déjà respecté par le
+# cadencement interne du script (DELAY_MS, ingest/referenceWeather.js).
+# Pas besoin d'attendre entre les lots : ils s'enchaînent directement.
+#
+# Volume total : 30 ans x ~52 tranches de 7 jours x 10 stations
+# ≈ 15 600 requêtes, cadencées à ~1,5s chacune ≈ 6-7h de travail réel.
+# Chaque lot est borné à 10 minutes (voir la route), donc ~40-45 lots au
+# total — répartis sur 1 à 2 exécutions quotidiennes de ce workflow avant
+# complétion totale (au-delà, chaque exécution se termine en quelques
+# secondes, "status":"up-to-date").
+on:
+  schedule:
+    - cron: "0 2 * * *" # 2h UTC chaque jour
+  workflow_dispatch: {}
+
+jobs:
+  ingest-reference-weather:
+    runs-on: ubuntu-latest
+    timeout-minutes: 340 # marge sous la limite de 6h de GitHub Actions
+    steps:
+      - name: Lots successifs jusqu'à complétion ou fin de fenêtre
+        run: |
+          for i in $(seq 1 30); do
+            echo "=== Lot $i/30 ==="
+            RESPONSE=$(curl -f -s -X POST "${{ secrets.API_URL }}/api/admin/ingest/reference-weather-batch" \
+              -H "x-ingest-token: ${{ secrets.INGEST_TOKEN }}" \
+              --max-time 660)
+            echo "$RESPONSE"
+
+            STATUS=$(echo "$RESPONSE" | grep -o '"status":"[a-z-]*"' | cut -d'"' -f4)
+            if [ "$STATUS" = "up-to-date" ]; then
+              echo "Les 10 stations sont entièrement à jour sur 1991-2020."
+              exit 0
+            fi
+          done
+
+          echo "30 lots traités pour aujourd'hui, il reste des données à récupérer — le cron de demain reprendra automatiquement."

@@ -4,6 +4,7 @@ import { errorDetail } from "../lib/errors.js";
 import { requireIngestToken } from "../lib/auth.js";
 import { ingestCo2 } from "../ingest/co2.js";
 import { ingestTemperaturesOneBatch } from "../ingest/temperatures.js";
+import { ingestReferenceWeatherOneBatch } from "../ingest/referenceWeather.js";
 import { ingestSectorEmissions } from "../ingest/sectorEmissions.js";
 import { ingestPowerPlants } from "../ingest/power_plants.js";
 import { ingestSpecies } from "../ingest/species.js";
@@ -75,6 +76,21 @@ router.post("/api/admin/ingest/sector-emissions", requireIngestToken, async (_re
 router.post("/api/admin/ingest/temperatures-batch", requireIngestToken, async (_req, res) => {
   try {
     const result = await ingestTemperaturesOneBatch(pool);
+    res.json({ status: "ok", ...result });
+  } catch (err) {
+    res.status(500).json({ error: "Échec de l'ingestion", detail: errorDetail(err) });
+  }
+});
+
+// Un seul lot borné à 10 minutes — voir ingestReferenceWeatherOneBatch
+// (ingest/referenceWeather.js) pour le détail (limite de 7 jours par
+// requête côté API Infoclimat, ~15 600 requêtes au total sur les 10
+// stations x 30 ans). Comme pour les autres ingestions par lots, appelée
+// en boucle par un workflow planifié plutôt qu'en une seule requête de
+// plusieurs heures.
+router.post("/api/admin/ingest/reference-weather-batch", requireIngestToken, async (_req, res) => {
+  try {
+    const result = await ingestReferenceWeatherOneBatch(pool, 10 * 60 * 1000);
     res.json({ status: "ok", ...result });
   } catch (err) {
     res.status(500).json({ error: "Échec de l'ingestion", detail: errorDetail(err) });
