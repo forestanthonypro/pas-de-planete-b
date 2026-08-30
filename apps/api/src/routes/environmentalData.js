@@ -5,6 +5,7 @@ import { requireIngestToken } from "../lib/auth.js";
 import { ingestCo2 } from "../ingest/co2.js";
 import { ingestTemperaturesOneBatch } from "../ingest/temperatures.js";
 import { ingestReferenceWeatherOneBatch } from "../ingest/referenceWeather.js";
+import { computeAndStoreNormalsForStation } from "../ingest/referenceWeatherNormals.js";
 import { ingestSectorEmissions } from "../ingest/sectorEmissions.js";
 import { ingestPowerPlants } from "../ingest/power_plants.js";
 import { ingestSpecies } from "../ingest/species.js";
@@ -94,6 +95,25 @@ router.post("/api/admin/ingest/reference-weather-batch", requireIngestToken, asy
     res.json({ status: "ok", ...result });
   } catch (err) {
     res.status(500).json({ error: "Échec de l'ingestion", detail: errorDetail(err) });
+  }
+});
+
+// Calcule les normales/records des 10 stations à partir de ce qui a déjà
+// été collecté — à déclencher manuellement une fois le backfill
+// suffisamment avancé (voir sample_size en base pour juger de la
+// fiabilité), pas encore automatisé en tâche planifiée le temps que la
+// collecte 1991-2020 avance. Rapide (~10 stations x <1s chacune), pas
+// besoin du système de lot avec reprise utilisé pour la collecte elle-même.
+router.post("/api/admin/ingest/reference-weather-normals", requireIngestToken, async (_req, res) => {
+  try {
+    const stations = (await pool.query("SELECT station_code FROM reference_weather_stations ORDER BY display_order")).rows;
+    const results = {};
+    for (const s of stations) {
+      results[s.station_code] = await computeAndStoreNormalsForStation(pool, s.station_code);
+    }
+    res.json({ status: "ok", results });
+  } catch (err) {
+    res.status(500).json({ error: "Échec du calcul", detail: errorDetail(err) });
   }
 });
 

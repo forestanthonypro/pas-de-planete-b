@@ -1,11 +1,15 @@
 // Ingestion de l'historique quotidien (min/max) des 10 stations de
-// référence (voir migration 062), sur la période 1991-2020 (30 ans, la
-// période officielle des "normales" climatiques), pour calculer nous-mêmes
-// un écart à la normale et un ratio records de chaleur/froid — inspiré de
-// dataclimat.fr (Infoclimat + Data For Good, mai 2026), mais recalculé par
-// nos soins car ni DataClimat ni Infoclimat n'exposent d'API publique pour
-// leurs indicateurs déjà agrégés (vérifié le 30/08/2026 : seule l'API de
-// données brutes par station est documentée et accessible par clé).
+// référence (voir migration 062). Collecte en continu depuis 1991 jusqu'à
+// avant-hier (pas seulement 1991-2020) — la restriction à la période de
+// référence officielle des "normales" climatiques (1991-2020) s'applique
+// au moment du CALCUL des normales, pas de la collecte : il faut aussi les
+// données récentes pour pouvoir comparer "aujourd'hui" à ces normales une
+// fois calculées. But : calculer nous-mêmes un écart à la normale et un
+// ratio records de chaleur/froid — inspiré de dataclimat.fr (Infoclimat +
+// Data For Good, mai 2026), mais recalculé par nos soins car ni DataClimat
+// ni Infoclimat n'exposent d'API publique pour leurs indicateurs déjà
+// agrégés (vérifié le 30/08/2026 : seule l'API de données brutes par
+// station est documentée et accessible par clé).
 //
 // Source : API Infoclimat OpenData — https://www.infoclimat.fr/opendata/
 // Licence CC BY par station (réseau StatIC amateur) ou Licence Ouverte
@@ -53,9 +57,12 @@
 // arrêté — pas en un seul run.
 
 const API_BASE = "https://www.infoclimat.fr/opendata/";
-const REFERENCE_END = "2020-12-31";
 const CHUNK_DAYS = 7;
 const DELAY_MS = 1500;
+// Marge de sécurité : ne jamais réclamer le jour même ni la veille, dont
+// les données Infoclimat peuvent encore être incomplètes (station pas
+// encore synchronisée) — on s'arrête 2 jours avant "aujourd'hui".
+const FRESHNESS_BUFFER_DAYS = 2;
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -116,36 +123,49 @@ export async function ingestReferenceWeatherOneBatch(pool, maxDurationMs) {
   const startTime = Date.now();
   const timeIsUp = () => maxDurationMs != null && Date.now() - startTime >= maxDurationMs;
 
+  // Calculé à chaque appel plutôt que figé : la collecte avance en continu
+  // jusqu'à "avant-hier" (voir FRESHNESS_BUFFER_DAYS) — pas seulement
+  // jusqu'à la fin de la période de référence 1991-2020. Cette dernière
+  // n'intervient que plus tard, au moment de calculer les normales
+  // (restriction appliquée dans la requête de calcul, pas ici) — sans
+  // cette distinction, on n'aurait jamais de données récentes à comparer
+  // aux normales une fois qu'elles seront calculées.
+  const cutoff = addDaysISO(new Date().toISOString().slice(0, 10), -FRESHNESS_BUFFER_DAYS);
+
   let requestsMade = 0;
   let daysStored = 0;
-  let stationsCompletedThisRun = 0;
+  let stationsCaughtUpThisRun = 0;
 
   const progressRows = (
     await pool.query(
       `SELECT station_code, next_start_date::text AS next_start_date, consecutive_errors
-       FROM reference_weather_ingest_progress WHERE completed = false ORDER BY station_code`
+       FROM reference_weather_ingest_progress ORDER BY station_code`
     )
   ).rows;
 
   if (progressRows.length === 0) {
-    return { status: "up-to-date", requestsMade: 0, daysStored: 0, stationsCompletedThisRun: 0 };
+    return { status: "no-stations", requestsMade: 0, daysStored: 0, stationsCaughtUpThisRun: 0 };
   }
 
   for (const row of progressRows) {
     let nextStartDate = row.next_start_date;
 
     while (!timeIsUp()) {
-      if (nextStartDate > REFERENCE_END) {
+      if (nextStartDate > cutoff) {
+        // À jour pour l'instant — sera à nouveau "en retard" dès demain,
+        // quand cutoff aura avancé d'un jour. "completed" n'est donc
+        // qu'indicatif (utile pour un coup d'œil rapide en base), jamais
+        // utilisé pour sauter une station dans la requête ci-dessus.
         await pool.query(
           "UPDATE reference_weather_ingest_progress SET completed = true, last_run_at = now() WHERE station_code = $1",
           [row.station_code]
         );
-        stationsCompletedThisRun += 1;
+        stationsCaughtUpThisRun += 1;
         break;
       }
 
       const endStr = addDaysISO(nextStartDate, CHUNK_DAYS - 1);
-      const clampedEnd = endStr > REFERENCE_END ? REFERENCE_END : endStr;
+      const clampedEnd = endStr > cutoff ? cutoff : endStr;
 
       try {
         const data = await fetchChunk(row.station_code, nextStartDate, clampedEnd, token);
@@ -195,10 +215,17 @@ export async function ingestReferenceWeatherOneBatch(pool, maxDurationMs) {
     if (timeIsUp()) break;
   }
 
+  // "caught-up" seulement si les 10 stations ont été vérifiées et sont
+  // toutes à jour jusqu'à cutoff — jamais "définitivement terminé" comme
+  // avant, puisque cutoff avance d'un jour à chaque exécution. Permet au
+  // workflow de sortir tôt une fois le rattrapage quotidien fait, sans
+  // boucler inutilement 30 fois pour rien chaque nuit.
+  const allCaughtUp = !timeIsUp() && stationsCaughtUpThisRun === progressRows.length;
+
   return {
-    status: timeIsUp() ? "partial" : "continuing",
+    status: allCaughtUp ? "caught-up" : timeIsUp() ? "partial" : "continuing",
     requestsMade,
     daysStored,
-    stationsCompletedThisRun,
+    stationsCaughtUpThisRun,
   };
 }

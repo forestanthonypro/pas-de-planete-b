@@ -6,12 +6,19 @@ name: Backfill historique — Stations météo de référence
 # cadencement interne du script (DELAY_MS, ingest/referenceWeather.js).
 # Pas besoin d'attendre entre les lots : ils s'enchaînent directement.
 #
-# Volume total : 30 ans x ~52 tranches de 7 jours x 10 stations
-# ≈ 15 600 requêtes, cadencées à ~1,5s chacune ≈ 6-7h de travail réel.
-# Chaque lot est borné à 10 minutes (voir la route), donc ~40-45 lots au
-# total — répartis sur 1 à 2 exécutions quotidiennes de ce workflow avant
-# complétion totale (au-delà, chaque exécution se termine en quelques
-# secondes, "status":"up-to-date").
+# La collecte n'a pas de date de fin figée : elle avance en continu depuis
+# 1991 jusqu'à avant-hier (voir FRESHNESS_BUFFER_DAYS,
+# ingest/referenceWeather.js), pas seulement jusqu'à 2020 — indispensable
+# pour pouvoir comparer les jours récents aux normales 1991-2020 une fois
+# celles-ci calculées. Une fois le rattrapage initial terminé (~35 ans),
+# ce même workflow ne fait plus qu'1 jour de rattrapage par nuit — chaque
+# exécution se termine alors en quelques secondes ("status":"caught-up").
+#
+# Volume du rattrapage initial : ~35 ans x ~52 tranches de 7 jours x 10
+# stations ≈ 18 200 requêtes, cadencées à ~1,5s chacune ≈ 7-8h de travail
+# réel. Chaque lot est borné à 10 minutes (voir la route), donc ~45-50 lots
+# au total — répartis sur 2 à 3 exécutions quotidiennes de ce workflow
+# avant rattrapage complet.
 on:
   schedule:
     - cron: "0 2 * * *" # 2h UTC chaque jour
@@ -32,8 +39,8 @@ jobs:
             echo "$RESPONSE"
 
             STATUS=$(echo "$RESPONSE" | grep -o '"status":"[a-z-]*"' | cut -d'"' -f4)
-            if [ "$STATUS" = "up-to-date" ]; then
-              echo "Les 10 stations sont entièrement à jour sur 1991-2020."
+            if [ "$STATUS" = "caught-up" ]; then
+              echo "Les 10 stations sont à jour jusqu'à avant-hier."
               exit 0
             fi
           done
