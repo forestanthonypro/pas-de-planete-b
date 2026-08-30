@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { useT } from "../lib/useT";
 import { useSobriety } from "../lib/SobrietyContext";
 import { HISTORICAL_ANOMALY, SCENARIOS, estimateWarmingAtYear } from "../lib/climateScenarios";
@@ -200,75 +200,79 @@ export default function GenerationalWarmingChart() {
             {SCENARIOS.map((s) => {
               const isSelected = selectedScenarioId === s.id;
               return (
-                <button
-                  key={s.id}
-                  type="button"
-                  onClick={() => setSelectedScenarioId(isSelected ? null : s.id)}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 10,
-                    textAlign: "left",
-                    width: "100%",
-                    padding: isSelected ? "11px 13px" : "10px 14px",
-                    background: isSelected ? `${s.color}1a` : "var(--color-fond)",
-                    border: isSelected ? `2px solid ${s.color}` : "none",
-                    borderLeft: isSelected ? `2px solid ${s.color}` : `4px solid ${s.color}`,
-                    borderRadius: isSelected ? 8 : "0 8px 8px 0",
-                    cursor: "pointer",
-                    font: "inherit",
-                    color: "inherit",
-                  }}
-                  aria-pressed={isSelected}
-                >
-                  <span style={{ flex: 1 }}>
-                    <span style={{ display: "block", fontWeight: 600, marginBottom: 2 }}>{t(s.labelKey)}</span>
-                    <span style={{ display: "block", color: "var(--color-texte-clair)", lineHeight: 1.5 }}>{t(s.choicesKey)}</span>
-                    {s.overshootNoteKey && (
-                      <span style={{ display: "block", fontStyle: "italic", color: "var(--color-texte-clair)", marginTop: 4 }}>
-                        {t(s.overshootNoteKey)}
-                      </span>
-                    )}
-                  </span>
-                  <span aria-hidden="true" style={{ color: "var(--color-texte-clair)", fontSize: 18, flexShrink: 0, transform: isSelected ? "rotate(90deg)" : "none" }}>
-                    ›
-                  </span>
-                </button>
+                <Fragment key={s.id}>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedScenarioId(isSelected ? null : s.id)}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 10,
+                      textAlign: "left",
+                      width: "100%",
+                      padding: isSelected ? "11px 13px" : "10px 14px",
+                      background: isSelected ? `${s.color}1a` : "var(--color-fond)",
+                      border: isSelected ? `2px solid ${s.color}` : "none",
+                      borderLeft: isSelected ? `2px solid ${s.color}` : `4px solid ${s.color}`,
+                      borderRadius: isSelected ? "8px 8px 0 0" : "0 8px 8px 0",
+                      cursor: "pointer",
+                      font: "inherit",
+                      color: "inherit",
+                    }}
+                    aria-pressed={isSelected}
+                  >
+                    <span style={{ flex: 1 }}>
+                      <span style={{ display: "block", fontWeight: 600, marginBottom: 2 }}>{t(s.labelKey)}</span>
+                      <span style={{ display: "block", color: "var(--color-texte-clair)", lineHeight: 1.5 }}>{t(s.choicesKey)}</span>
+                      {s.overshootNoteKey && (
+                        <span style={{ display: "block", fontStyle: "italic", color: "var(--color-texte-clair)", marginTop: 4 }}>
+                          {t(s.overshootNoteKey)}
+                        </span>
+                      )}
+                    </span>
+                    <span aria-hidden="true" style={{ color: "var(--color-texte-clair)", fontSize: 18, flexShrink: 0, transform: isSelected ? "rotate(90deg)" : "none" }}>
+                      ›
+                    </span>
+                  </button>
+
+                  {/* Infos complémentaires directement sous la carte
+                      dépliée, pas regroupées ailleurs — plus cohérent
+                      visuellement : chaque carte porte ses propres
+                      informations plutôt que de renvoyer vers un panneau
+                      commun en bas de liste. */}
+                  {isSelected && (
+                    <div
+                      style={{
+                        border: `2px solid ${s.color}`,
+                        borderTop: "none",
+                        borderRadius: "0 0 8px 8px",
+                        padding: "0.9rem 1rem",
+                        marginTop: -6,
+                      }}
+                    >
+                      <p style={{ fontSize: 13, fontWeight: 700, margin: "0 0 6px" }}>
+                        🛠️ {t("generationalWarming.actions_title", { scenario: t(s.labelKey) })}
+                      </p>
+                      <p style={{ fontSize: 13, margin: "0 0 12px", lineHeight: 1.5 }}>{t(s.actionsKey)}</p>
+
+                      <p style={{ fontSize: 13, fontWeight: 700, margin: "0 0 6px" }}>
+                        🌿 {t("generationalWarming.nature_impact_title", { scenario: t(s.labelKey) })}
+                      </p>
+                      <p style={{ fontSize: 13, margin: "0 0 8px", lineHeight: 1.5 }}>{t(s.natureImpactKey)}</p>
+                      <p style={{ fontSize: 11, color: "var(--color-texte-clair)", margin: "0 0 8px", fontStyle: "italic" }}>
+                        {t("generationalWarming.nature_speed_note")}
+                      </p>
+                      <p style={{ fontSize: 10, color: "var(--color-texte-clair)", margin: 0 }}>
+                        {t("generationalWarming.nature_source")}
+                      </p>
+                    </div>
+                  )}
+                </Fragment>
               );
             })}
           </div>
 
-          {/* Panneau pédagogique : impact sur la nature du scénario
-              sélectionné — invisible par défaut, pour ne jamais présenter
-              un scénario particulier comme "celui à regarder" avant que la
-              personne n'ait fait son propre choix. */}
-          {selectedScenario ? (
-            <div
-              style={{
-                borderLeft: `4px solid ${selectedScenario.color}`,
-                background: "var(--color-fond)",
-                borderRadius: 8,
-                padding: "0.9rem 1rem",
-                marginBottom: "1.25rem",
-              }}
-            >
-              <p style={{ fontSize: 13, fontWeight: 700, margin: "0 0 6px" }}>
-                🛠️ {t("generationalWarming.actions_title", { scenario: t(selectedScenario.labelKey) })}
-              </p>
-              <p style={{ fontSize: 13, margin: "0 0 12px", lineHeight: 1.5 }}>{t(selectedScenario.actionsKey)}</p>
-
-              <p style={{ fontSize: 13, fontWeight: 700, margin: "0 0 6px" }}>
-                🌿 {t("generationalWarming.nature_impact_title", { scenario: t(selectedScenario.labelKey) })}
-              </p>
-              <p style={{ fontSize: 13, margin: "0 0 8px", lineHeight: 1.5 }}>{t(selectedScenario.natureImpactKey)}</p>
-              <p style={{ fontSize: 11, color: "var(--color-texte-clair)", margin: "0 0 8px", fontStyle: "italic" }}>
-                {t("generationalWarming.nature_speed_note")}
-              </p>
-              <p style={{ fontSize: 10, color: "var(--color-texte-clair)", margin: 0 }}>
-                {t("generationalWarming.nature_source")}
-              </p>
-            </div>
-          ) : (
+          {!selectedScenario && (
             <p style={{ fontSize: 12, color: "var(--color-texte-clair)", fontStyle: "italic", marginBottom: "1.25rem" }}>
               {t("generationalWarming.nature_impact_prompt")}
             </p>
