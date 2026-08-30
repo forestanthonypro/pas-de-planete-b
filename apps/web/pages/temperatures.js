@@ -13,6 +13,7 @@ import { useSobriety } from "../lib/SobrietyContext";
 import GenerationalWarmingChart from "../components/GenerationalWarmingChart";
 import TodayWeatherDeviation from "../components/TodayWeatherDeviation";
 import CityNormalsChart from "../components/CityNormalsChart";
+import YearlyExceedanceChart from "../components/YearlyExceedanceChart";
 
 const PAGE_SIZE = 20;
 
@@ -467,6 +468,9 @@ export default function TemperaturesPage() {
         <TodayWeatherDeviation />
         <div style={{ marginTop: "1.5rem" }}>
           <CityNormalsChart />
+        </div>
+        <div style={{ marginTop: "1.5rem" }}>
+          <YearlyExceedanceChart />
         </div>
       </section>
 

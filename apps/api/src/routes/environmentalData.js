@@ -239,6 +239,53 @@ router.get("/api/reference-weather/normals-curve", async (_req, res) => {
   }
 });
 
+// Pourcentage de jours par an où la température maximale a dépassé la
+// normale de ce jour précis, par ville — permet de voir si ces
+// dépassements deviennent plus fréquents au fil des années collectées.
+// N'inclut que les années suffisamment complètes (≥300 jours de données)
+// pour ne pas fausser le pourcentage avec une première ou dernière année
+// partielle (voir MIN_DAYS_FOR_YEAR).
+const MIN_DAYS_FOR_YEAR = 300;
+
+router.get("/api/reference-weather/exceedance-by-year", async (_req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT s.station_code, s.city_label, s.display_order,
+              extract(year from d.observed_date)::int AS year,
+              count(*) FILTER (WHERE d.temp_max > n.normal_temp_max) AS hot_days,
+              count(*) AS total_days
+       FROM reference_weather_daily d
+       JOIN reference_weather_stations s ON s.station_code = d.station_code
+       JOIN reference_weather_normals n
+         ON n.station_code = d.station_code AND n.month_day = to_char(d.observed_date, 'MM-DD')
+       WHERE n.sample_size >= $1
+       GROUP BY s.station_code, s.city_label, s.display_order, year
+       HAVING count(*) >= $2
+       ORDER BY s.display_order, year`,
+      [MIN_SAMPLE_SIZE_FOR_DISPLAY, MIN_DAYS_FOR_YEAR]
+    );
+
+    const byStation = new Map();
+    for (const row of result.rows) {
+      if (!byStation.has(row.station_code)) {
+        byStation.set(row.station_code, { stationCode: row.station_code, cityLabel: row.city_label, points: [] });
+      }
+      const hotDays = parseInt(row.hot_days, 10);
+      const totalDays = parseInt(row.total_days, 10);
+      byStation.get(row.station_code).points.push({
+        year: row.year,
+        percentHotDays: Math.round((hotDays / totalDays) * 1000) / 10,
+        hotDays,
+        totalDays,
+      });
+    }
+
+    res.json(Array.from(byStation.values()));
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
+  }
+});
+
 // --- Centrales électriques ---
 
 router.get("/api/power-plants/countries", async (_req, res) => {

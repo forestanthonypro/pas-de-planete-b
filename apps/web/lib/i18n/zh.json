@@ -1272,6 +1272,10 @@
     "curve_table_winter": "冬季常年值（1月15日）",
     "curve_table_summer": "夏季常年值（7月15日）",
     "normal_period": "{start}-{end}年常年值",
-    "curve_x_axis": "年内日期(多年平均值，非特定年份)"
+    "curve_x_axis": "年内日期(多年平均值，非特定年份)",
+    "exceedance_intro": "对于每个城市，展示一年中最高气温超过该日常年值的天数比例——如果这一比例随收集年份上升，则是变暖的迹象。仅统计数据足够完整的年份。",
+    "exceedance_x_axis": "年份",
+    "exceedance_table_first": "首个年份",
+    "exceedance_table_last": "最新年份"
   }
 }

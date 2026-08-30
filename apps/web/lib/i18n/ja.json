@@ -1272,6 +1272,10 @@
     "curve_table_winter": "冬の平年値(1月15日)",
     "curve_table_summer": "夏の平年値(7月15日)",
     "normal_period": "{start}〜{end}年平年値",
-    "curve_x_axis": "年間日付(複数年平均、特定の年ではありません)"
+    "curve_x_axis": "年間日付(複数年平均、特定の年ではありません)",
+    "exceedance_intro": "各都市について、最高気温がその日の平年値を上回った日の割合を示しています — 収集された年数にわたって上昇していれば、温暖化の兆候です。十分に完全なデータがある年のみを集計しています。",
+    "exceedance_x_axis": "年",
+    "exceedance_table_first": "最初の年",
+    "exceedance_table_last": "最新の年"
   }
 }

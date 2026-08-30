@@ -1272,6 +1272,10 @@
     "curve_table_winter": "Normal de invierno (15 de enero)",
     "curve_table_summer": "Normal de verano (15 de julio)",
     "normal_period": "normal {start}-{end}",
-    "curve_x_axis": "Día del año (media plurianual, no un año concreto)"
+    "curve_x_axis": "Día del año (media plurianual, no un año concreto)",
+    "exceedance_intro": "Para cada ciudad, proporción de días del año en que la temperatura máxima superó la normal de ese día concreto — un aumento a lo largo de los años recopilados es una señal de calentamiento. Solo se cuentan los años suficientemente completos.",
+    "exceedance_x_axis": "Año",
+    "exceedance_table_first": "Primer año",
+    "exceedance_table_last": "Último año"
   }
 }

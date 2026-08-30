@@ -1272,6 +1272,10 @@
     "curve_table_winter": "Winter normal (Jan 15)",
     "curve_table_summer": "Summer normal (Jul 15)",
     "normal_period": "{start}-{end} normal",
-    "curve_x_axis": "Day of year (multi-year average, not a specific year)"
+    "curve_x_axis": "Day of year (multi-year average, not a specific year)",
+    "exceedance_intro": "For each city, share of days in the year where the maximum temperature exceeded the normal for that exact day — a rise over the collected years is a sign of warming. Only sufficiently complete years are counted.",
+    "exceedance_x_axis": "Year",
+    "exceedance_table_first": "First year",
+    "exceedance_table_last": "Last year"
   }
 }
