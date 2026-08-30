@@ -193,9 +193,8 @@ export default function GenerationalWarmingChart() {
 
       {!sobriety && (
         <>
-          <div style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, marginBottom: "0.75rem" }}>
-            <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
-              <span style={{ width: 14, height: 3, background: "#8a8a8a", display: "inline-block", flexShrink: 0 }} />
+          <div style={{ display: "flex", flexDirection: "column", gap: 6, fontSize: 12, marginBottom: "0.75rem" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 12px", borderLeft: "4px solid #8a8a8a", background: "var(--color-fond)", borderRadius: "0 8px 8px 0" }}>
               <span style={{ fontWeight: 600 }}>{t("generationalWarming.legend_observed")}</span>
             </div>
             {SCENARIOS.map((s) => {
@@ -207,33 +206,32 @@ export default function GenerationalWarmingChart() {
                   onClick={() => setSelectedScenarioId(isSelected ? null : s.id)}
                   style={{
                     display: "flex",
-                    alignItems: "baseline",
-                    gap: 6,
+                    alignItems: "center",
+                    gap: 10,
                     textAlign: "left",
-                    background: isSelected ? "var(--color-carte-verte, #eaf3de)" : "transparent",
-                    border: "none",
-                    borderRadius: 6,
-                    padding: "3px 6px",
-                    marginLeft: -6,
+                    width: "100%",
+                    padding: isSelected ? "11px 13px" : "10px 14px",
+                    background: isSelected ? `${s.color}1a` : "var(--color-fond)",
+                    border: isSelected ? `2px solid ${s.color}` : "none",
+                    borderLeft: isSelected ? `2px solid ${s.color}` : `4px solid ${s.color}`,
+                    borderRadius: isSelected ? 8 : "0 8px 8px 0",
                     cursor: "pointer",
                     font: "inherit",
                     color: "inherit",
                   }}
                   aria-pressed={isSelected}
                 >
-                  <span style={{ width: 14, height: 3, background: s.color, display: "inline-block", flexShrink: 0 }} />
-                  <span>
-                    <span style={{ fontWeight: 600 }}>{t(s.labelKey)}</span>
-                    {" — "}
-                    <span style={{ color: "var(--color-texte-clair)" }}>{t(s.choicesKey)}</span>
+                  <span style={{ flex: 1 }}>
+                    <span style={{ display: "block", fontWeight: 600, marginBottom: 2 }}>{t(s.labelKey)}</span>
+                    <span style={{ display: "block", color: "var(--color-texte-clair)", lineHeight: 1.5 }}>{t(s.choicesKey)}</span>
                     {s.overshootNoteKey && (
-                      <>
-                        {" "}
-                        <span style={{ display: "block", fontStyle: "italic", color: "var(--color-texte-clair)", marginTop: 2 }}>
-                          {t(s.overshootNoteKey)}
-                        </span>
-                      </>
+                      <span style={{ display: "block", fontStyle: "italic", color: "var(--color-texte-clair)", marginTop: 4 }}>
+                        {t(s.overshootNoteKey)}
+                      </span>
                     )}
+                  </span>
+                  <span aria-hidden="true" style={{ color: "var(--color-texte-clair)", fontSize: 18, flexShrink: 0, transform: isSelected ? "rotate(90deg)" : "none" }}>
+                    ›
                   </span>
                 </button>
               );
