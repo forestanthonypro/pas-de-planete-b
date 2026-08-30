@@ -1241,6 +1241,15 @@
     "choices_ssp126": "Transition engagée vers les renouvelables, neutralité carbone atteinte plus tardivement.",
     "choices_ssp245": "Poursuite des tendances actuelles, efforts de réduction modérés, pas de rupture forte.",
     "choices_ssp370": "Priorité aux intérêts nationaux, faible coopération internationale sur le climat.",
-    "choices_ssp585": "Développement fondé sur les énergies fossiles, peu de régulation climatique."
+    "choices_ssp585": "Développement fondé sur les énergies fossiles, peu de régulation climatique.",
+    "nature_impact_title": "Impact sur la nature — scénario {scenario}",
+    "nature_impact_prompt": "👆 Cliquez sur un scénario ci-dessus pour découvrir son impact sur la nature et la biodiversité.",
+    "nature_ssp119": "Ce scénario aboutit à un réchauffement proche de ce qui est déjà mesuré aujourd'hui. Le GIEC estime qu'environ 14 % des espèces terrestres étudiées seraient exposées à un risque très élevé d'extinction à ce niveau. Les écosystèmes les plus fragiles, comme les récifs coralliens, restent sous forte pression, mais l'essentiel de la biodiversité conserve une capacité d'adaptation.",
+    "nature_ssp126": "Entre +1,5°C et +2°C, le risque grimpe progressivement : environ 18 % des espèces terrestres étudiées seraient exposées à un risque très élevé d'extinction à +2°C. Les écosystèmes côtiers et marins commencent à subir des pertes de biodiversité plus marquées.",
+    "nature_ssp245": "En approchant les +3°C, le risque s'accélère nettement : environ 29 % des espèces terrestres étudiées seraient exposées à un risque très élevé d'extinction, et la plupart des écosystèmes marins basculeraient dans un risque élevé à très élevé de perte de biodiversité.",
+    "nature_ssp370": "Entre +3°C et +4°C, on entre dans une zone de rupture : jusqu'à environ 39 % des espèces terrestres étudiées seraient exposées à un risque très élevé d'extinction, avec des mortalités massives attendues pour des écosystèmes emblématiques comme les récifs coralliens et les forêts tropicales.",
+    "nature_ssp585": "Autour de +4°C, le GIEC prévoit des mortalités massives et des extinctions qui transformeraient de façon irréversible les zones les plus riches en biodiversité de la planète — récifs coralliens tropicaux, forêts de kelp en eaux froides, forêts tropicales. Jusqu'à 39 à 48 % des espèces terrestres étudiées seraient exposées à un risque très élevé d'extinction, et certaines régions pourraient devenir inhospitalières pour la quasi-totalité des espèces qui y vivent aujourd'hui.",
+    "nature_speed_note": "Pour comparaison : la vie sur Terre a déjà traversé des bouleversements bien plus importants par le passé. Ce qui inquiète les scientifiques ici, c'est la vitesse — ces changements se produiraient en quelques décennies, contre des dizaines de milliers d'années pour des évolutions climatiques naturelles comparables, laissant très peu de temps aux espèces pour s'adapter ou migrer.",
+    "nature_source": "Source : GIEC, 6ᵉ rapport, groupe de travail II (impacts, adaptation, vulnérabilité), 2022 — risques d'extinction par palier de réchauffement et perspectives sur les écosystèmes à très forte biodiversité."
   }
 }

@@ -18,7 +18,7 @@ function formatDelta(value) {
 // graphiques du site (voir DebunkContentWithCharts.js), pour ne jamais
 // alourdir le chargement initial d'une page avec Chart.js si le visiteur
 // ne fait que passer.
-function WarmingChartCanvas({ birthYear, t }) {
+function WarmingChartCanvas({ birthYear, selectedScenarioId, t }) {
   const canvasRef = useRef(null);
   const chartRef = useRef(null);
 
@@ -37,15 +37,24 @@ function WarmingChartCanvas({ birthYear, t }) {
         pointRadius: 0,
         tension: 0.25,
       };
-      const scenarioDatasets = SCENARIOS.map((s) => ({
-        label: s.id,
-        data: s.points.map((p) => ({ x: p.year, y: p.anomalyC })),
-        borderColor: s.color,
-        backgroundColor: "transparent",
-        borderWidth: 2,
-        pointRadius: 0,
-        tension: 0.2,
-      }));
+      const scenarioDatasets = SCENARIOS.map((s) => {
+        // Quand un scénario est sélectionné (clic dans la légende), sa
+        // courbe ressort nettement (plus épaisse, pleine opacité) et les
+        // autres s'estompent — pour relier visuellement le texte
+        // pédagogique affiché en dessous à la bonne ligne du graphique,
+        // repère important pour un public non averti.
+        const isSelected = selectedScenarioId === s.id;
+        const isDimmed = selectedScenarioId && !isSelected;
+        return {
+          label: s.id,
+          data: s.points.map((p) => ({ x: p.year, y: p.anomalyC })),
+          borderColor: isDimmed ? `${s.color}40` : s.color, // "40" = ~25% d'opacité en hexadécimal
+          backgroundColor: "transparent",
+          borderWidth: isSelected ? 4 : 2,
+          pointRadius: 0,
+          tension: 0.2,
+        };
+      });
 
       // Marqueur de l'année de naissance choisie — une ligne verticale fine,
       // dessinée via un dataset "invisible" à deux points plutôt qu'un
@@ -120,7 +129,7 @@ function WarmingChartCanvas({ birthYear, t }) {
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [birthYear]);
+  }, [birthYear, selectedScenarioId]);
 
   return (
     <div style={{ position: "relative", height: 280, marginBottom: "0.75rem" }}>
@@ -162,6 +171,8 @@ export default function GenerationalWarmingChart() {
   const { t } = useT();
   const { sobriety } = useSobriety();
   const [birthYear, setBirthYear] = useState(DEFAULT_BIRTH_YEAR);
+  const [selectedScenarioId, setSelectedScenarioId] = useState(null);
+  const selectedScenario = SCENARIOS.find((s) => s.id === selectedScenarioId) || null;
 
   const ageEstimates = useMemo(
     () => AGES.map((age) => ({ age, year: birthYear + age, estimate: estimateWarmingAtYear(birthYear + age) })),
@@ -174,25 +185,84 @@ export default function GenerationalWarmingChart() {
         {t("generationalWarming.intro")}
       </p>
 
-      {sobriety ? <WarmingTable t={t} /> : <WarmingChartCanvas birthYear={birthYear} t={t} />}
+      {sobriety ? (
+        <WarmingTable t={t} />
+      ) : (
+        <WarmingChartCanvas birthYear={birthYear} selectedScenarioId={selectedScenarioId} t={t} />
+      )}
 
       {!sobriety && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 6, fontSize: 12, marginBottom: "1.25rem" }}>
-          <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
-            <span style={{ width: 14, height: 3, background: "#8a8a8a", display: "inline-block", flexShrink: 0 }} />
-            <span style={{ fontWeight: 600 }}>{t("generationalWarming.legend_observed")}</span>
-          </div>
-          {SCENARIOS.map((s) => (
-            <div key={s.id} style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
-              <span style={{ width: 14, height: 3, background: s.color, display: "inline-block", flexShrink: 0 }} />
-              <span>
-                <span style={{ fontWeight: 600 }}>{t(s.labelKey)}</span>
-                {" — "}
-                <span style={{ color: "var(--color-texte-clair)" }}>{t(s.choicesKey)}</span>
-              </span>
+        <>
+          <div style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, marginBottom: "0.75rem" }}>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
+              <span style={{ width: 14, height: 3, background: "#8a8a8a", display: "inline-block", flexShrink: 0 }} />
+              <span style={{ fontWeight: 600 }}>{t("generationalWarming.legend_observed")}</span>
             </div>
-          ))}
-        </div>
+            {SCENARIOS.map((s) => {
+              const isSelected = selectedScenarioId === s.id;
+              return (
+                <button
+                  key={s.id}
+                  type="button"
+                  onClick={() => setSelectedScenarioId(isSelected ? null : s.id)}
+                  style={{
+                    display: "flex",
+                    alignItems: "baseline",
+                    gap: 6,
+                    textAlign: "left",
+                    background: isSelected ? "var(--color-carte-verte, #eaf3de)" : "transparent",
+                    border: "none",
+                    borderRadius: 6,
+                    padding: "3px 6px",
+                    marginLeft: -6,
+                    cursor: "pointer",
+                    font: "inherit",
+                    color: "inherit",
+                  }}
+                  aria-pressed={isSelected}
+                >
+                  <span style={{ width: 14, height: 3, background: s.color, display: "inline-block", flexShrink: 0 }} />
+                  <span>
+                    <span style={{ fontWeight: 600 }}>{t(s.labelKey)}</span>
+                    {" — "}
+                    <span style={{ color: "var(--color-texte-clair)" }}>{t(s.choicesKey)}</span>
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Panneau pédagogique : impact sur la nature du scénario
+              sélectionné — invisible par défaut, pour ne jamais présenter
+              un scénario particulier comme "celui à regarder" avant que la
+              personne n'ait fait son propre choix. */}
+          {selectedScenario ? (
+            <div
+              style={{
+                borderLeft: `4px solid ${selectedScenario.color}`,
+                background: "var(--color-fond)",
+                borderRadius: 8,
+                padding: "0.9rem 1rem",
+                marginBottom: "1.25rem",
+              }}
+            >
+              <p style={{ fontSize: 13, fontWeight: 700, margin: "0 0 6px" }}>
+                🌿 {t("generationalWarming.nature_impact_title", { scenario: t(selectedScenario.labelKey) })}
+              </p>
+              <p style={{ fontSize: 13, margin: "0 0 8px", lineHeight: 1.5 }}>{t(selectedScenario.natureImpactKey)}</p>
+              <p style={{ fontSize: 11, color: "var(--color-texte-clair)", margin: "0 0 8px", fontStyle: "italic" }}>
+                {t("generationalWarming.nature_speed_note")}
+              </p>
+              <p style={{ fontSize: 10, color: "var(--color-texte-clair)", margin: 0 }}>
+                {t("generationalWarming.nature_source")}
+              </p>
+            </div>
+          ) : (
+            <p style={{ fontSize: 12, color: "var(--color-texte-clair)", fontStyle: "italic", marginBottom: "1.25rem" }}>
+              {t("generationalWarming.nature_impact_prompt")}
+            </p>
+          )}
+        </>
       )}
 
       <div style={{ background: "var(--color-carte-verte, #eaf3de)", borderRadius: 12, padding: "1.25rem" }}>

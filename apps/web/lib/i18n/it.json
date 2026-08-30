@@ -1241,6 +1241,15 @@
     "choices_ssp126": "Transizione verso le rinnovabili avviata, neutralità carbonica raggiunta più tardi.",
     "choices_ssp245": "Prosecuzione delle tendenze attuali, sforzi moderati, nessuna rottura netta.",
     "choices_ssp370": "Priorità agli interessi nazionali, debole cooperazione internazionale sul clima.",
-    "choices_ssp585": "Sviluppo basato sui combustibili fossili, scarsa regolamentazione climatica."
+    "choices_ssp585": "Sviluppo basato sui combustibili fossili, scarsa regolamentazione climatica.",
+    "nature_impact_title": "Impatto sulla natura — scenario {scenario}",
+    "nature_impact_prompt": "👆 Clicca su uno scenario qui sopra per scoprire il suo impatto sulla natura e la biodiversità.",
+    "nature_ssp119": "Questo scenario porta a un riscaldamento vicino a quello già misurato oggi. L'IPCC stima che circa il 14% delle specie terrestri studiate sarebbe esposto a un rischio molto elevato di estinzione a questo livello. Gli ecosistemi più fragili, come le barriere coralline, restano sotto forte pressione, ma la maggior parte della biodiversità conserva capacità di adattamento.",
+    "nature_ssp126": "Tra +1,5°C e +2°C, il rischio sale progressivamente: circa il 18% delle specie terrestri studiate sarebbe esposto a un rischio molto elevato di estinzione a +2°C. Gli ecosistemi costieri e marini iniziano a subire perdite di biodiversità più marcate.",
+    "nature_ssp245": "Avvicinandosi ai +3°C, il rischio accelera nettamente: circa il 29% delle specie terrestri studiate sarebbe esposto a un rischio molto elevato di estinzione, e la maggior parte degli ecosistemi marini passerebbe a un rischio elevato o molto elevato di perdita di biodiversità.",
+    "nature_ssp370": "Tra +3°C e +4°C, si entra in una zona di rottura: fino a circa il 39% delle specie terrestri studiate sarebbe esposto a un rischio molto elevato di estinzione, con mortalità di massa attese per ecosistemi emblematici come le barriere coralline e le foreste tropicali.",
+    "nature_ssp585": "Intorno ai +4°C, l'IPCC prevede mortalità di massa ed estinzioni che trasformerebbero in modo irreversibile le aree più ricche di biodiversità del pianeta — barriere coralline tropicali, foreste di kelp in acque fredde, foreste tropicali. Fino al 39-48% delle specie terrestri studiate sarebbe esposto a un rischio molto elevato di estinzione, e alcune regioni potrebbero diventare inospitali per quasi tutte le specie che oggi vi abitano.",
+    "nature_speed_note": "Per confronto: la vita sulla Terra ha già attraversato sconvolgimenti ben più grandi in passato. Ciò che preoccupa gli scienziati qui è la velocità — questi cambiamenti avverrebbero in pochi decenni, contro decine di migliaia di anni per cambiamenti climatici naturali comparabili, lasciando pochissimo tempo alle specie per adattarsi o migrare.",
+    "nature_source": "Fonte: IPCC, 6° Rapporto di Valutazione, Gruppo di lavoro II (impatti, adattamento, vulnerabilità), 2022 — rischio di estinzione per livello di riscaldamento e prospettive per gli ecosistemi a più alta biodiversità."
   }
 }

@@ -1241,6 +1241,15 @@
     "choices_ssp126": "Transition to renewables underway, carbon neutrality reached later.",
     "choices_ssp245": "Current trends continue, moderate reduction efforts, no major shift.",
     "choices_ssp370": "National interests prioritized, weak international climate cooperation.",
-    "choices_ssp585": "Fossil-fuel-based development, little climate regulation."
+    "choices_ssp585": "Fossil-fuel-based development, little climate regulation.",
+    "nature_impact_title": "Impact on nature — {scenario} scenario",
+    "nature_impact_prompt": "👆 Click a scenario above to see its impact on nature and biodiversity.",
+    "nature_ssp119": "This scenario leads to warming close to what is already measured today. The IPCC estimates that about 14% of terrestrial species studied would face a very high risk of extinction at this level. The most fragile ecosystems, such as coral reefs, remain under heavy pressure, but most biodiversity retains some ability to adapt.",
+    "nature_ssp126": "Between +1.5°C and +2°C, the risk climbs steadily: about 18% of terrestrial species studied would face a very high risk of extinction at +2°C. Coastal and marine ecosystems start suffering more pronounced biodiversity losses.",
+    "nature_ssp245": "Approaching +3°C, the risk accelerates sharply: about 29% of terrestrial species studied would face a very high risk of extinction, and most marine ecosystems would shift into high to very high biodiversity loss risk.",
+    "nature_ssp370": "Between +3°C and +4°C, we enter a breaking point: up to about 39% of terrestrial species studied would face a very high risk of extinction, with mass mortality expected for iconic ecosystems such as coral reefs and tropical forests.",
+    "nature_ssp585": "Around +4°C, the IPCC expects mass mortality and extinctions that would irreversibly transform the planet's richest biodiversity areas — tropical coral reefs, cold-water kelp forests, tropical forests. Up to 39-48% of terrestrial species studied would face a very high risk of extinction, and some regions could become inhospitable to nearly all the species living there today.",
+    "nature_speed_note": "For comparison: life on Earth has already survived far bigger upheavals in the past. What worries scientists here is the speed — these changes would happen over a few decades, versus tens of thousands of years for comparable natural climate shifts, leaving species very little time to adapt or migrate.",
+    "nature_source": "Source: IPCC, Sixth Assessment Report, Working Group II (impacts, adaptation, vulnerability), 2022 — extinction risk by warming level and outlook for the most biodiverse ecosystems."
   }
 }

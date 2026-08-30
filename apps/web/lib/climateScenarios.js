@@ -65,11 +65,28 @@ export const HISTORICAL_ANOMALY = [
 // Les repères 1.9/2.6/4.5/7.0/8.5 correspondent au forçage radiatif visé
 // en 2100 (W/m²) — plus le chiffre est élevé, moins l'effort de réduction
 // des émissions est important.
+// "natureImpactKey" (texte pédagogique affiché quand on sélectionne un
+// scénario) résume les impacts sur la biodiversité au niveau de
+// réchauffement long terme correspondant — GIEC AR6 groupe de travail II
+// (impacts, adaptation, vulnérabilité, 2022), notamment :
+// - risque d'extinction "très élevé" par palier de réchauffement, pour les
+//   espèces terrestres étudiées : 14 % à +1,5°C, 18 % à +2°C, 29 % à +3°C,
+//   39 % à +4°C, jusqu'à 48 % à +5°C (chiffres du rapport, largement
+//   relayés — ex. Yale Climate Connections, 28/02/2022) ;
+// - GIEC AR6 WG2, FAQ 2 : à ~4°C d'ici 2100, mortalités massives et
+//   extinctions attendues, transformant de façon irréversible des zones à
+//   très forte biodiversité (récifs coralliens tropicaux, forêts de kelp
+//   en eaux froides, forêts tropicales) ;
+// - Chaque scénario est rattaché au chiffre du palier le plus proche de sa
+//   valeur "long terme" (2081-2100) — une approximation assumée et
+//   expliquée dans le texte lui-même plutôt que présentée comme une
+//   précision qu'elle n'a pas.
 export const SCENARIOS = [
   {
     id: "ssp119",
     labelKey: "generationalWarming.scenario_ssp119",
     choicesKey: "generationalWarming.choices_ssp119",
+    natureImpactKey: "generationalWarming.nature_ssp119",
     color: "#2a78d6", // bleu — cohérent avec la palette déjà utilisée pour les graphiques du site (DebunkCharts.js)
     points: [
       { year: 2020, anomalyC: 1.1 },
@@ -83,6 +100,7 @@ export const SCENARIOS = [
     id: "ssp126",
     labelKey: "generationalWarming.scenario_ssp126",
     choicesKey: "generationalWarming.choices_ssp126",
+    natureImpactKey: "generationalWarming.nature_ssp126",
     color: "#1baf7a", // vert
     points: [
       { year: 2020, anomalyC: 1.1 },
@@ -96,6 +114,7 @@ export const SCENARIOS = [
     id: "ssp245",
     labelKey: "generationalWarming.scenario_ssp245",
     choicesKey: "generationalWarming.choices_ssp245",
+    natureImpactKey: "generationalWarming.nature_ssp245",
     color: "#eda100", // ambre
     points: [
       { year: 2020, anomalyC: 1.1 },
@@ -109,6 +128,7 @@ export const SCENARIOS = [
     id: "ssp370",
     labelKey: "generationalWarming.scenario_ssp370",
     choicesKey: "generationalWarming.choices_ssp370",
+    natureImpactKey: "generationalWarming.nature_ssp370",
     color: "#eb6834", // orange
     points: [
       { year: 2020, anomalyC: 1.1 },
@@ -122,6 +142,7 @@ export const SCENARIOS = [
     id: "ssp585",
     labelKey: "generationalWarming.scenario_ssp585",
     choicesKey: "generationalWarming.choices_ssp585",
+    natureImpactKey: "generationalWarming.nature_ssp585",
     color: "#b0401f", // rouge
     points: [
       { year: 2020, anomalyC: 1.1 },
