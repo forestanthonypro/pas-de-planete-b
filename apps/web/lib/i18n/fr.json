@@ -1270,6 +1270,7 @@
     "curve_intro": "Ces courbes montrent la normale (température maximale moyenne 1991-2020) jour par jour de l'année, pour chaque ville — de quoi voir concrètement à quoi ressemble \"une année normale\" selon l'endroit.",
     "curve_table_city": "Ville",
     "curve_table_winter": "Normale d'hiver (15 janvier)",
-    "curve_table_summer": "Normale d'été (15 juillet)"
+    "curve_table_summer": "Normale d'été (15 juillet)",
+    "normal_period": "normale {start}-{end}"
   }
 }

@@ -1270,6 +1270,7 @@
     "curve_intro": "这些曲线按年度逐日展示了每个城市的常年值（1991-2020年平均最高气温）——直观地展示不同地点「正常年份」的样子。",
     "curve_table_city": "城市",
     "curve_table_winter": "冬季常年值（1月15日）",
-    "curve_table_summer": "夏季常年值（7月15日）"
+    "curve_table_summer": "夏季常年值（7月15日）",
+    "normal_period": "{start}-{end}年常年值"
   }
 }

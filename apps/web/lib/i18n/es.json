@@ -1270,6 +1270,7 @@
     "curve_intro": "Estas curvas muestran la normal (temperatura máxima media 1991-2020) día a día del año, para cada ciudad — una forma concreta de ver cómo es «un año normal» según el lugar.",
     "curve_table_city": "Ciudad",
     "curve_table_winter": "Normal de invierno (15 de enero)",
-    "curve_table_summer": "Normal de verano (15 de julio)"
+    "curve_table_summer": "Normal de verano (15 de julio)",
+    "normal_period": "normal {start}-{end}"
   }
 }

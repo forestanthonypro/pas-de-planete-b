@@ -1270,6 +1270,7 @@
     "curve_intro": "これらの曲線は、各都市について1年を通じた平年値(1991〜2020年の平均最高気温)を日ごとに示しています — 場所によって「平年の1年」がどのようなものか、具体的に見ることができます。",
     "curve_table_city": "都市",
     "curve_table_winter": "冬の平年値(1月15日)",
-    "curve_table_summer": "夏の平年値(7月15日)"
+    "curve_table_summer": "夏の平年値(7月15日)",
+    "normal_period": "{start}〜{end}年平年値"
   }
 }

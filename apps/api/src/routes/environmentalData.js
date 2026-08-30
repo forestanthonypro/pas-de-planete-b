@@ -144,7 +144,8 @@ router.get("/api/reference-weather/today", async (_req, res) => {
     const result = await pool.query(`
       SELECT s.station_code, s.city_label,
              d.observed_date::text AS observed_date, d.temp_min, d.temp_max,
-             n.normal_temp_min, n.normal_temp_max, n.record_temp_min, n.record_temp_max, n.sample_size
+             n.normal_temp_min, n.normal_temp_max, n.record_temp_min, n.record_temp_max, n.sample_size,
+             n.reference_start_year, n.reference_end_year
       FROM reference_weather_stations s
       -- Le jour le plus récent disponible pour chaque station (LATERAL,
       -- pas forcément le même jour calendaire pour toutes si l'une a pris
@@ -182,6 +183,12 @@ router.get("/api/reference-weather/today", async (_req, res) => {
         deviationMin: hasReliableNormal ? Math.round((tempMin - normalTempMin) * 10) / 10 : null,
         isNewRecordMax: hasReliableNormal && recordTempMax != null && tempMax >= recordTempMax,
         isNewRecordMin: hasReliableNormal && recordTempMin != null && tempMin <= recordTempMin,
+        // Toujours exposé quand une normale existe : jamais de comparaison
+        // "vs normale" sans préciser sur quelle période elle repose (peut
+        // être bien plus court que 1991-2020 pour une station récente,
+        // voir determineReferencePeriod dans referenceWeatherNormals.js).
+        referenceStartYear: hasReliableNormal ? r.reference_start_year : null,
+        referenceEndYear: hasReliableNormal ? r.reference_end_year : null,
       };
     });
 
@@ -199,7 +206,8 @@ router.get("/api/reference-weather/normals-curve", async (_req, res) => {
   try {
     const result = await pool.query(
       `SELECT s.station_code, s.city_label, s.display_order,
-              n.month_day, n.normal_temp_min, n.normal_temp_max
+              n.month_day, n.normal_temp_min, n.normal_temp_max,
+              n.reference_start_year, n.reference_end_year
        FROM reference_weather_stations s
        JOIN reference_weather_normals n ON n.station_code = s.station_code
        WHERE n.sample_size >= $1
@@ -210,7 +218,13 @@ router.get("/api/reference-weather/normals-curve", async (_req, res) => {
     const byStation = new Map();
     for (const row of result.rows) {
       if (!byStation.has(row.station_code)) {
-        byStation.set(row.station_code, { stationCode: row.station_code, cityLabel: row.city_label, points: [] });
+        byStation.set(row.station_code, {
+          stationCode: row.station_code,
+          cityLabel: row.city_label,
+          referenceStartYear: row.reference_start_year,
+          referenceEndYear: row.reference_end_year,
+          points: [],
+        });
       }
       byStation.get(row.station_code).points.push({
         monthDay: row.month_day,

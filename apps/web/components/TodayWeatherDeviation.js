@@ -47,6 +47,11 @@ export default function TodayWeatherDeviation() {
               <p style={{ fontSize: 12, margin: 0, color: isHot ? "#b0401f" : "#2a78d6" }}>
                 {formatDeviation(r.deviationMax)} {t("referenceWeather.vs_normal")}
               </p>
+              {r.referenceStartYear && (
+                <p style={{ fontSize: 10, color: "var(--color-texte-clair)", margin: "2px 0 0" }}>
+                  {t("referenceWeather.normal_period", { start: r.referenceStartYear, end: r.referenceEndYear })}
+                </p>
+              )}
               {r.isNewRecordMax && <p style={{ fontSize: 11, margin: "4px 0 0", fontWeight: 600 }}>🔥 {t("referenceWeather.new_record_hot")}</p>}
               {r.isNewRecordMin && <p style={{ fontSize: 11, margin: "4px 0 0", fontWeight: 600 }}>❄️ {t("referenceWeather.new_record_cold")}</p>}
             </div>

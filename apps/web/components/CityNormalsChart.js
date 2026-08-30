@@ -32,7 +32,9 @@ function CurveCanvas({ curves }) {
       if (chartRef.current) chartRef.current.destroy();
 
       const datasets = curves.map((curve, i) => ({
-        label: curve.cityLabel,
+        label: curve.referenceStartYear
+          ? `${curve.cityLabel} (${curve.referenceStartYear}-${curve.referenceEndYear})`
+          : curve.cityLabel,
         data: curve.points.map((p) => ({ x: monthDayToDayNumber(p.monthDay), y: p.normalTempMax })),
         borderColor: CITY_COLORS[i % CITY_COLORS.length],
         backgroundColor: "transparent",
@@ -103,7 +105,14 @@ function CurveTable({ curves, t }) {
           const s = summerPoint(curve.points);
           return (
             <tr key={curve.stationCode}>
-              <th scope="row" style={{ textAlign: "left", padding: 6, fontWeight: 400 }}>{curve.cityLabel}</th>
+              <th scope="row" style={{ textAlign: "left", padding: 6, fontWeight: 400 }}>
+                {curve.cityLabel}
+                {curve.referenceStartYear && (
+                  <span style={{ display: "block", fontSize: 10, color: "var(--color-texte-clair)" }}>
+                    {curve.referenceStartYear}-{curve.referenceEndYear}
+                  </span>
+                )}
+              </th>
               <td style={{ textAlign: "right", padding: 6 }}>{w ? `${w.normalTempMax.toLocaleString("fr-FR")} °C` : "—"}</td>
               <td style={{ textAlign: "right", padding: 6 }}>{s ? `${s.normalTempMax.toLocaleString("fr-FR")} °C` : "—"}</td>
             </tr>
