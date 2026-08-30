@@ -1258,5 +1258,13 @@
     "actions_ssp245": "This path corresponds to a continuation of current trends and policies, with no decisive additional effort: renewables keep growing at today's pace, some efficiency gains are made, but climate commitments remain uneven across countries and insufficient to meet the Paris Agreement.",
     "actions_ssp370": "This path corresponds to a retreat into national and regional interests, at the expense of international climate cooperation: continued or increased reliance on fossil fuels (including coal), less investment in clean technology and education, and priority given to security and competitiveness over global environmental issues.",
     "actions_ssp585": "This path corresponds to rapid economic growth built on intensive fossil fuel exploitation — including a significant expansion of coal — with very high energy consumption and little climate regulation. Some local environmental issues (such as air pollution) might be addressed, but without meaningful reduction of greenhouse gas emissions."
+  },
+  "referenceWeather": {
+    "title": "Today in France, compared to normals",
+    "collecting": "Reference data is still being collected — this indicator will appear once enough history is available (a few hours, running in the background).",
+    "vs_normal": "vs normal",
+    "new_record_hot": "New heat record for this day",
+    "new_record_cold": "New cold record for this day",
+    "others_collecting": "{count} other station(s) still collecting their reference history."
   }
 }

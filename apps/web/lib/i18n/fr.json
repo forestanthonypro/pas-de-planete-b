@@ -1258,5 +1258,13 @@
     "actions_ssp245": "Cette trajectoire correspond à la poursuite des tendances et politiques actuelles, sans effort supplémentaire décisif : les renouvelables continuent de se développer au rythme actuel, quelques progrès d'efficacité énergétique sont réalisés, mais les engagements climatiques restent inégaux d'un pays à l'autre et insuffisants pour respecter l'accord de Paris.",
     "actions_ssp370": "Cette trajectoire correspond à un repli sur les intérêts nationaux et régionaux, au détriment de la coopération internationale sur le climat : maintien voire renforcement de la dépendance aux énergies fossiles (dont le charbon), moindres investissements dans les technologies propres et l'éducation, et priorité donnée à la sécurité et à la compétitivité plutôt qu'aux enjeux environnementaux globaux.",
     "actions_ssp585": "Cette trajectoire correspond à une croissance économique rapide fondée sur une exploitation intensive des énergies fossiles — dont une expansion importante du charbon —, avec une consommation d'énergie très élevée et peu de régulation climatique. Certains problèmes environnementaux locaux (comme la pollution de l'air) pourraient être traités, mais sans réduction significative des émissions de gaz à effet de serre."
+  },
+  "referenceWeather": {
+    "title": "Aujourd'hui en France, par rapport aux normales",
+    "collecting": "La collecte des données de référence est en cours — cet indicateur s'affichera dès que suffisamment d'historique sera disponible (plusieurs heures, en arrière-plan).",
+    "vs_normal": "vs normale",
+    "new_record_hot": "Nouveau record de chaleur pour ce jour",
+    "new_record_cold": "Nouveau record de froid pour ce jour",
+    "others_collecting": "{count} autre(s) station(s) encore en cours de collecte de leur historique de référence."
   }
 }

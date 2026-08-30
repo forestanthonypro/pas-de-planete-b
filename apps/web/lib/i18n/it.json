@@ -1258,5 +1258,13 @@
     "actions_ssp245": "Questa traiettoria corrisponde alla prosecuzione delle tendenze e politiche attuali, senza uno sforzo aggiuntivo decisivo: le rinnovabili continuano a crescere al ritmo attuale, si registrano alcuni progressi in efficienza, ma gli impegni climatici restano disomogenei tra i paesi e insufficienti a rispettare l'accordo di Parigi.",
     "actions_ssp370": "Questa traiettoria corrisponde a un ripiegamento sugli interessi nazionali e regionali, a scapito della cooperazione internazionale sul clima: mantenimento o rafforzamento della dipendenza dai combustibili fossili (incluso il carbone), minori investimenti in tecnologie pulite e istruzione, e priorità a sicurezza e competitività rispetto alle questioni ambientali globali.",
     "actions_ssp585": "Questa traiettoria corrisponde a una rapida crescita economica basata su uno sfruttamento intensivo dei combustibili fossili — inclusa una significativa espansione del carbone —, con un consumo energetico molto elevato e scarsa regolamentazione climatica. Alcuni problemi ambientali locali (come l'inquinamento atmosferico) potrebbero essere affrontati, ma senza una riduzione significativa delle emissioni di gas serra."
+  },
+  "referenceWeather": {
+    "title": "Oggi in Francia, rispetto alle normali",
+    "collecting": "I dati di riferimento sono ancora in fase di raccolta — questo indicatore apparirà non appena sarà disponibile abbastanza storico (qualche ora, in background).",
+    "vs_normal": "vs normale",
+    "new_record_hot": "Nuovo record di caldo per questo giorno",
+    "new_record_cold": "Nuovo record di freddo per questo giorno",
+    "others_collecting": "{count} altra/e stazione/i ancora in fase di raccolta del proprio storico di riferimento."
   }
 }

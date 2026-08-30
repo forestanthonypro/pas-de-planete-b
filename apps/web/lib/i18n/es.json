@@ -1258,5 +1258,13 @@
     "actions_ssp245": "Esta trayectoria corresponde a la continuación de las tendencias y políticas actuales, sin un esfuerzo adicional decisivo: las renovables siguen creciendo al ritmo actual, se logran algunas mejoras de eficiencia, pero los compromisos climáticos siguen siendo desiguales entre países e insuficientes para cumplir el Acuerdo de París.",
     "actions_ssp370": "Esta trayectoria corresponde a un repliegue hacia los intereses nacionales y regionales, en detrimento de la cooperación internacional sobre el clima: mantenimiento o refuerzo de la dependencia de los combustibles fósiles (incluido el carbón), menor inversión en tecnologías limpias y educación, y prioridad a la seguridad y la competitividad frente a los problemas ambientales globales.",
     "actions_ssp585": "Esta trayectoria corresponde a un crecimiento económico rápido basado en una explotación intensiva de los combustibles fósiles —incluida una expansión importante del carbón—, con un consumo de energía muy elevado y poca regulación climática. Algunos problemas ambientales locales (como la contaminación del aire) podrían abordarse, pero sin una reducción significativa de las emisiones de gases de efecto invernadero."
+  },
+  "referenceWeather": {
+    "title": "Hoy en Francia, comparado con las normales",
+    "collecting": "Los datos de referencia se están recopilando — este indicador aparecerá en cuanto haya suficiente histórico disponible (unas horas, en segundo plano).",
+    "vs_normal": "vs normal",
+    "new_record_hot": "Nuevo récord de calor para este día",
+    "new_record_cold": "Nuevo récord de frío para este día",
+    "others_collecting": "{count} otra(s) estación(es) todavía recopilando su histórico de referencia."
   }
 }

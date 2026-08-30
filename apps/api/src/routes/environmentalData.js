@@ -5,6 +5,7 @@ import { requireIngestToken } from "../lib/auth.js";
 import { ingestCo2 } from "../ingest/co2.js";
 import { ingestTemperaturesOneBatch } from "../ingest/temperatures.js";
 import { ingestReferenceWeatherOneBatch } from "../ingest/referenceWeather.js";
+import { ingestRecentReferenceWeather } from "../ingest/referenceWeatherRecent.js";
 import { computeAndStoreNormalsForStation } from "../ingest/referenceWeatherNormals.js";
 import { ingestSectorEmissions } from "../ingest/sectorEmissions.js";
 import { ingestPowerPlants } from "../ingest/power_plants.js";
@@ -114,6 +115,78 @@ router.post("/api/admin/ingest/reference-weather-normals", requireIngestToken, a
     res.json({ status: "ok", results });
   } catch (err) {
     res.status(500).json({ error: "Échec du calcul", detail: errorDetail(err) });
+  }
+});
+
+// Collecte ponctuelle et rapide des N derniers jours pour les 10 stations
+// — voir ingest/referenceWeatherRecent.js pour pourquoi cette route existe
+// séparément du grand backfill chronologique. À déclencher une fois, puis
+// idéalement à reprogrammer en tâche quotidienne légère une fois le
+// backfill principal terminé (pas encore fait — l'ingestion continue de
+// toute façon rattraper ces mêmes dates automatiquement).
+router.post("/api/admin/ingest/reference-weather-recent", requireIngestToken, async (req, res) => {
+  try {
+    const days = req.query.days ? parseInt(req.query.days, 10) : 60;
+    const result = await ingestRecentReferenceWeather(pool, days);
+    res.json({ status: "ok", ...result });
+  } catch (err) {
+    res.status(500).json({ error: "Échec de l'ingestion", detail: errorDetail(err) });
+  }
+});
+
+// --- Stations météo de référence (écart à la normale, records) ---
+
+const MIN_SAMPLE_SIZE_FOR_DISPLAY = 100; // sous ce seuil, la normale repose sur trop peu d'années pour être présentée comme fiable
+
+router.get("/api/reference-weather/today", async (_req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT s.station_code, s.city_label,
+             d.observed_date::text AS observed_date, d.temp_min, d.temp_max,
+             n.normal_temp_min, n.normal_temp_max, n.record_temp_min, n.record_temp_max, n.sample_size
+      FROM reference_weather_stations s
+      -- Le jour le plus récent disponible pour chaque station (LATERAL,
+      -- pas forcément le même jour calendaire pour toutes si l'une a pris
+      -- du retard dans sa collecte).
+      LEFT JOIN LATERAL (
+        SELECT * FROM reference_weather_daily
+        WHERE station_code = s.station_code
+        ORDER BY observed_date DESC LIMIT 1
+      ) d ON true
+      LEFT JOIN reference_weather_normals n
+        ON n.station_code = s.station_code AND d.observed_date IS NOT NULL
+        AND n.month_day = to_char(d.observed_date, 'MM-DD')
+      ORDER BY s.display_order
+    `);
+
+    const rows = result.rows.map((r) => {
+      const hasData = r.observed_date != null;
+      const sampleSize = r.sample_size != null ? parseInt(r.sample_size, 10) : 0;
+      const hasReliableNormal = hasData && r.normal_temp_max != null && sampleSize >= MIN_SAMPLE_SIZE_FOR_DISPLAY;
+      const tempMax = hasData ? parseFloat(r.temp_max) : null;
+      const tempMin = hasData ? parseFloat(r.temp_min) : null;
+      const normalTempMax = hasReliableNormal ? parseFloat(r.normal_temp_max) : null;
+      const normalTempMin = hasReliableNormal ? parseFloat(r.normal_temp_min) : null;
+      const recordTempMax = hasReliableNormal && r.record_temp_max != null ? parseFloat(r.record_temp_max) : null;
+      const recordTempMin = hasReliableNormal && r.record_temp_min != null ? parseFloat(r.record_temp_min) : null;
+      return {
+        stationCode: r.station_code,
+        cityLabel: r.city_label,
+        observedDate: r.observed_date,
+        tempMin,
+        tempMax,
+        dataReady: hasReliableNormal,
+        sampleSize,
+        deviationMax: hasReliableNormal ? Math.round((tempMax - normalTempMax) * 10) / 10 : null,
+        deviationMin: hasReliableNormal ? Math.round((tempMin - normalTempMin) * 10) / 10 : null,
+        isNewRecordMax: hasReliableNormal && recordTempMax != null && tempMax >= recordTempMax,
+        isNewRecordMin: hasReliableNormal && recordTempMin != null && tempMin <= recordTempMin,
+      };
+    });
+
+    res.json(rows);
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
   }
 });
 

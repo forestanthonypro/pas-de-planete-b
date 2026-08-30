@@ -68,13 +68,13 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function addDaysISO(dateStr, days) {
+export function addDaysISO(dateStr, days) {
   const d = new Date(`${dateStr}T00:00:00Z`);
   d.setUTCDate(d.getUTCDate() + days);
   return d.toISOString().slice(0, 10);
 }
 
-async function fetchChunk(stationCode, startStr, endStr, token) {
+export async function fetchChunk(stationCode, startStr, endStr, token) {
   const url = `${API_BASE}?version=2&method=get&format=json&stations[]=${encodeURIComponent(stationCode)}&start=${startStr}&end=${endStr}&token=${token}`;
   const res = await fetch(url);
   if (!res.ok) {
@@ -90,7 +90,7 @@ async function fetchChunk(stationCode, startStr, endStr, token) {
 // Regroupe les relevés bruts (10 min à quelques heures selon la station)
 // par jour calendaire (partie date de dh_utc, en UTC), calcule le min/max
 // du champ "temperature" de chaque relevé du jour.
-function aggregateDaily(apiResponse, stationCode) {
+export function aggregateDaily(apiResponse, stationCode) {
   const readings = apiResponse.hourly?.[stationCode] || [];
   const byDate = new Map();
   for (const reading of readings) {
