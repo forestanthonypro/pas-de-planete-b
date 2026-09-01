@@ -1276,6 +1276,7 @@
     "exceedance_intro": "Pour chaque ville, part des jours de l'année où la température maximale a dépassé la normale de ce jour précis — une hausse au fil des années collectées est un signe de réchauffement. Seules les années suffisamment complètes sont comptées.",
     "exceedance_x_axis": "Année",
     "exceedance_table_first": "Première année",
-    "exceedance_table_last": "Dernière année"
+    "exceedance_table_last": "Dernière année",
+    "stations_stale": "Source indisponible depuis un moment pour : {list}."
   }
 }

@@ -1276,6 +1276,7 @@
     "exceedance_intro": "对于每个城市，展示一年中最高气温超过该日常年值的天数比例——如果这一比例随收集年份上升，则是变暖的迹象。仅统计数据足够完整的年份。",
     "exceedance_x_axis": "年份",
     "exceedance_table_first": "首个年份",
-    "exceedance_table_last": "最新年份"
+    "exceedance_table_last": "最新年份",
+    "stations_stale": "以下站点的数据源已中断一段时间：{list}。"
   }
 }

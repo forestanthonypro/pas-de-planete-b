@@ -1276,6 +1276,7 @@
     "exceedance_intro": "各都市について、最高気温がその日の平年値を上回った日の割合を示しています — 収集された年数にわたって上昇していれば、温暖化の兆候です。十分に完全なデータがある年のみを集計しています。",
     "exceedance_x_axis": "年",
     "exceedance_table_first": "最初の年",
-    "exceedance_table_last": "最新の年"
+    "exceedance_table_last": "最新の年",
+    "stations_stale": "しばらくの間データソースが利用できません: {list}。"
   }
 }

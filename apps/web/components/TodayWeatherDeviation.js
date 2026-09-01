@@ -22,9 +22,10 @@ export default function TodayWeatherDeviation() {
   if (!rows) return null; // chargement silencieux, pas de saut de mise en page
 
   const ready = rows.filter((r) => r.dataReady);
-  const notReady = rows.length - ready.length;
+  const stale = rows.filter((r) => !r.dataReady && r.isStale);
+  const stillCollecting = rows.length - ready.length - stale.length;
 
-  if (ready.length === 0) {
+  if (ready.length === 0 && stale.length === 0) {
     return (
       <div style={{ background: "var(--color-fond)", borderRadius: 8, padding: "1rem", fontSize: 13, color: "var(--color-texte-clair)", fontStyle: "italic" }}>
         {t("referenceWeather.collecting")}
@@ -58,9 +59,16 @@ export default function TodayWeatherDeviation() {
           );
         })}
       </div>
-      {notReady > 0 && (
+      {stillCollecting > 0 && (
         <p style={{ fontSize: 11, color: "var(--color-texte-clair)", marginTop: 8, fontStyle: "italic" }}>
-          {t("referenceWeather.others_collecting", { count: notReady })}
+          {t("referenceWeather.others_collecting", { count: stillCollecting })}
+        </p>
+      )}
+      {stale.length > 0 && (
+        <p style={{ fontSize: 11, color: "var(--color-texte-clair)", marginTop: 4, fontStyle: "italic" }}>
+          {t("referenceWeather.stations_stale", {
+            list: stale.map((r) => `${r.cityLabel} (${new Date(r.observedDate).toLocaleDateString("fr-FR", { timeZone: "UTC" })})`).join(", "),
+          })}
         </p>
       )}
     </div>

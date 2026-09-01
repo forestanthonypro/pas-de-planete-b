@@ -1276,6 +1276,7 @@
     "exceedance_intro": "Para cada ciudad, proporción de días del año en que la temperatura máxima superó la normal de ese día concreto — un aumento a lo largo de los años recopilados es una señal de calentamiento. Solo se cuentan los años suficientemente completos.",
     "exceedance_x_axis": "Año",
     "exceedance_table_first": "Primer año",
-    "exceedance_table_last": "Último año"
+    "exceedance_table_last": "Último año",
+    "stations_stale": "Fuente no disponible desde hace tiempo para: {list}."
   }
 }

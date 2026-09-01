@@ -1276,6 +1276,7 @@
     "exceedance_intro": "Per ogni città, quota dei giorni dell'anno in cui la temperatura massima ha superato la normale di quel giorno esatto — un aumento nel corso degli anni raccolti è un segno di riscaldamento. Vengono conteggiati solo gli anni sufficientemente completi.",
     "exceedance_x_axis": "Anno",
     "exceedance_table_first": "Primo anno",
-    "exceedance_table_last": "Ultimo anno"
+    "exceedance_table_last": "Ultimo anno",
+    "stations_stale": "Fonte non disponibile da tempo per: {list}."
   }
 }

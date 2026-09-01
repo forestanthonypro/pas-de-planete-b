@@ -139,6 +139,16 @@ router.post("/api/admin/ingest/reference-weather-recent", requireIngestToken, as
 // Le seuil de fiabilité (MIN_SAMPLE_SIZE_FOR_DISPLAY) vient de
 // referenceWeatherNormals.js — une seule valeur, partagée avec le
 // diagnostic "reliableCount" de la route de calcul des normales.
+// Au-delà de ce nombre de jours de retard, la donnée la plus récente
+// d'une station est jugée trop ancienne pour être présentée comme
+// "aujourd'hui" — repéré le 30/08/2026 : Strasbourg (ME126) n'a plus
+// transmis de relevé depuis fin janvier 2026 (station "Lycée Couffignal"
+// hors service ou déconnectée côté source), et la comparaison "vs
+// normale" s'affichait quand même comme si c'était le jour même, ce qui
+// est trompeur — pas un bug de calcul, mais un vrai défaut d'affichage :
+// la fraîcheur de la donnée n'était jamais vérifiée avant affichage.
+const MAX_STALE_DAYS = 5;
+
 router.get("/api/reference-weather/today", async (_req, res) => {
   try {
     const result = await pool.query(`
@@ -163,8 +173,12 @@ router.get("/api/reference-weather/today", async (_req, res) => {
 
     const rows = result.rows.map((r) => {
       const hasData = r.observed_date != null;
+      const daysSinceObserved = hasData
+        ? Math.round((Date.now() - new Date(`${r.observed_date}T00:00:00Z`).getTime()) / 86400000)
+        : null;
+      const isStale = hasData && daysSinceObserved > MAX_STALE_DAYS;
       const sampleSize = r.sample_size != null ? parseInt(r.sample_size, 10) : 0;
-      const hasReliableNormal = hasData && r.normal_temp_max != null && sampleSize >= MIN_SAMPLE_SIZE_FOR_DISPLAY;
+      const hasReliableNormal = hasData && !isStale && r.normal_temp_max != null && sampleSize >= MIN_SAMPLE_SIZE_FOR_DISPLAY;
       const tempMax = hasData ? parseFloat(r.temp_max) : null;
       const tempMin = hasData ? parseFloat(r.temp_min) : null;
       const normalTempMax = hasReliableNormal ? parseFloat(r.normal_temp_max) : null;
@@ -175,9 +189,14 @@ router.get("/api/reference-weather/today", async (_req, res) => {
         stationCode: r.station_code,
         cityLabel: r.city_label,
         observedDate: r.observed_date,
-        tempMin,
-        tempMax,
+        tempMin: hasReliableNormal ? tempMin : null,
+        tempMax: hasReliableNormal ? tempMax : null,
         dataReady: hasReliableNormal,
+        // Distingue "jamais eu de données/normale" de "en a eu, mais plus
+        // récemment" — permet d'afficher un message différent et honnête
+        // selon le cas côté frontend, plutôt qu'un simple silence dans
+        // les deux cas.
+        isStale,
         sampleSize,
         deviationMax: hasReliableNormal ? Math.round((tempMax - normalTempMax) * 10) / 10 : null,
         deviationMin: hasReliableNormal ? Math.round((tempMin - normalTempMin) * 10) / 10 : null,
