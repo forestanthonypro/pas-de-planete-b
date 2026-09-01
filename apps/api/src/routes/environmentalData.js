@@ -229,7 +229,7 @@ router.get("/api/reference-weather/normals-curve", async (_req, res) => {
               n.reference_start_year, n.reference_end_year
        FROM reference_weather_stations s
        JOIN reference_weather_normals n ON n.station_code = s.station_code
-       WHERE n.sample_size >= $1
+       WHERE n.sample_size >= $1 AND s.excluded_from_charts = false
        ORDER BY s.display_order, n.month_day`,
       [MIN_SAMPLE_SIZE_FOR_DISPLAY]
     );
@@ -277,7 +277,7 @@ router.get("/api/reference-weather/exceedance-by-year", async (_req, res) => {
        JOIN reference_weather_stations s ON s.station_code = d.station_code
        JOIN reference_weather_normals n
          ON n.station_code = d.station_code AND n.month_day = to_char(d.observed_date, 'MM-DD')
-       WHERE n.sample_size >= $1
+       WHERE n.sample_size >= $1 AND s.excluded_from_charts = false
        GROUP BY s.station_code, s.city_label, s.display_order, year
        HAVING count(*) >= $2
        ORDER BY s.display_order, year`,
