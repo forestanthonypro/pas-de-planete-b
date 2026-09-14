@@ -6,11 +6,26 @@ updates:
       interval: "weekly"
     open-pull-requests-limit: 5
 
-   - package-ecosystem: "npm"
+  - package-ecosystem: "npm"
     directory: "/apps/web"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 5
+    groups:
+      # react et react-dom doivent toujours rester à la même version —
+      # une seule PR avec les deux mises à jour synchronisées, plutôt que
+      # deux PR séparées à merger "ensemble" en espérant ne pas oublier
+      # l'une des deux.
+      react:
+        patterns:
+          - "react"
+          - "react-dom"
+      # Même logique : next et eslint-config-next évoluent en binôme
+      # (eslint-config-next suit toujours la version de next).
+      next:
+        patterns:
+          - "next"
+          - "eslint-config-next"
     ignore:
       # ESLint 10 casse le lint ici : @typescript-eslint (embarqué par
       # eslint-config-next) n'implémente pas encore scopeManager.addGlobals,
@@ -27,6 +42,11 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 5
+    groups:
+      # Les 3 paquets @capacitor/* doivent rester synchronisés entre eux.
+      capacitor:
+        patterns:
+          - "@capacitor/*"
 
   # Garde aussi les actions GitHub elles-mêmes à jour (actions/checkout,
   # actions/setup-node, etc.) — souvent oublié, pourtant tout aussi

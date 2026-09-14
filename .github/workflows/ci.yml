@@ -119,6 +119,13 @@ jobs:
         run: |
           pip install ecoindex-scraper --break-system-packages
           playwright install --with-deps chromium
+          # ecoindex-scraper utilise en réalité camoufox (un navigateur
+          # Firefox durci contre la détection anti-bot), pas seulement
+          # Chromium — repéré le 31/08/2026 après un échec
+          # "CamoufoxNotInstalled" : le paquet Python camoufox est bien
+          # installé (dépendance d'ecoindex-scraper), mais le binaire du
+          # navigateur lui-même doit être téléchargé séparément.
+          python3 -m camoufox fetch
 
       - name: Mesurer l'EcoIndex du site
         run: |
