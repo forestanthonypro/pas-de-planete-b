@@ -29,7 +29,7 @@
     "ingest:species-observations:batch": "node src/ingest/speciesObservations.js --resume --max-duration-minutes=15"
   },
   "dependencies": {
-    "adm-zip": "^0.6.0",
+    "adm-zip": "^0.6.1",
     "compression": "^1.8.2",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
