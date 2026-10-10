@@ -5,6 +5,8 @@ import compression from "compression";
 import cookieParser from "cookie-parser";
 import { pool } from "./lib/db.js";
 import { globalLimiter } from "./lib/rateLimits.js";
+import { requireAdminSession } from "./lib/auth.js";
+import { errorDetail } from "./lib/errors.js";
 
 import authRoutes from "./routes/auth.js";
 import environmentalDataRoutes from "./routes/environmentalData.js";
@@ -92,16 +94,62 @@ app.use(globalLimiter);
 
 // Collecte CSP sans donnée métier et sans réponse détaillée. Le JSON est
 // sérialisé sur une seule ligne pour éviter l'injection de lignes de log.
-// Les rapports sont observables via les logs du conteneur API pendant la
-// phase Report-Only, puis servent à resserrer la politique avant blocage.
-app.post("/api/csp-report", (req, res) => {
+//
+// Persisté en base (table csp_violations, voir migration 067) en plus du
+// console.warn : les logs seuls ne suffisent pas pour tenir la fenêtre
+// d'observation de 7 jours sans violation exigée par CSP_ROLLOUT.md avant
+// de passer en mode bloquant, puisqu'un redéploiement normal (CI à chaque
+// merge sur main) remplace le conteneur api et efface tout son historique
+// de logs avec lui. La table, elle, survit aux redéploiements.
+app.post("/api/csp-report", async (req, res) => {
   const reports = Array.isArray(req.body) ? req.body : [req.body];
-  for (const report of reports.slice(0, 20)) {
-    if (report && typeof report === "object") {
-      console.warn("CSP_VIOLATION", JSON.stringify(report));
+  for (const raw of reports.slice(0, 20)) {
+    if (!raw || typeof raw !== "object") continue;
+    // Deux formats possibles selon le navigateur/API utilisée côté client :
+    // l'ancien report-uri envoie { "csp-report": {...} } directement, la
+    // Reporting API moderne envoie { body: {...}, type: "csp-violation" }.
+    const report = raw.body && typeof raw.body === "object" ? raw.body : raw["csp-report"] || raw;
+    console.warn("CSP_VIOLATION", JSON.stringify(report));
+    try {
+      await pool.query(
+        `INSERT INTO csp_violations (blocked_uri, violated_directive, document_uri, user_agent, report)
+         VALUES ($1, $2, $3, $4, $5)`,
+        [
+          report.blockedURL || report["blocked-uri"] || null,
+          report.effectiveDirective || report["violated-directive"] || null,
+          report.documentURL || report["document-uri"] || null,
+          req.header("user-agent") || null,
+          report,
+        ]
+      );
+    } catch (err) {
+      // On ne doit jamais faire échouer la réponse au navigateur pour un
+      // souci d'écriture en base (table pas encore migrée, DB indisponible,
+      // etc.) — le console.warn ci-dessus reste le filet de secours minimal.
+      console.error("CSP_VIOLATION insert failed", err.message);
     }
   }
   res.status(204).end();
+});
+
+// Lecture des violations persistées, pour tenir la fenêtre d'observation de
+// CSP_ROLLOUT.md sans dépendre des logs du conteneur (voir plus haut).
+// Réservé à l'admin comme le reste des routes de consultation interne.
+app.get("/api/admin/csp-violations", requireAdminSession, async (req, res) => {
+  try {
+    const sinceHours = Math.min(Math.max(parseInt(req.query.sinceHours, 10) || 24 * 7, 1), 24 * 90);
+    const result = await pool.query(
+      `SELECT id, received_at, blocked_uri, violated_directive, document_uri, user_agent, report
+       FROM csp_violations
+       WHERE received_at > now() - ($1 || ' hours')::interval
+       ORDER BY received_at DESC
+       LIMIT 500`,
+      [sinceHours]
+    );
+    res.json({ count: result.rows.length, violations: result.rows });
+  } catch (err) {
+    res.status(503).json({ error: "Données non initialisées", detail: errorDetail(err) });
+  }
 });
 
 // Vérifie aussi la connexion à la base : un simple "res.json ok" répondrait
