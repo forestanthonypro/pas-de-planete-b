@@ -1,0 +1,49 @@
+name: Rafraîchir la démocratie France (Assemblée nationale)
+
+on:
+  schedule:
+    # Hebdomadaire (lundi 5h UTC), séparé de refresh-data.yml (mensuel)
+    # depuis le 11 octobre 2026 : en session parlementaire active, une
+    # cadence mensuelle laissait jusqu'à ~1 mois de retard sur les scrutins
+    # (incident constaté ce jour-là : 238 scrutins manquants). Les groupes
+    # politiques et la liste des députés changent rarement en cours de
+    # législature, mais sont réingérés ici aussi par simplicité — le coût
+    # est négligeable (quelques secondes) comparé à refresh-scrutins.
+    #
+    # send-deputy-digests.yml tourne quotidiennement et dépend de la
+    # fraîcheur des scrutins ingérés ici : avec cette cadence hebdomadaire,
+    # le digest peut rester jusqu'à ~6 jours derrière un vote réel. Passer
+    # ce fichier en quotidien serait trivial (ré-ingestion idempotente, 2-3
+    # min) si ce délai devient gênant.
+    - cron: "0 5 * * 1"
+  workflow_dispatch: {}
+
+jobs:
+  # Ordre important : les députés doivent exister avant les votes (clé
+  # étrangère), donc refresh-scrutins attend refresh-deputies.
+
+  refresh-deputies:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ré-ingérer la liste des députés
+        run: |
+          curl -f -X POST "${{ secrets.API_URL }}/api/admin/ingest/deputies" \
+            -H "x-ingest-token: ${{ secrets.INGEST_TOKEN }}"
+
+  refresh-an-groups:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ré-ingérer les groupes politiques
+        run: |
+          curl -f -X POST "${{ secrets.API_URL }}/api/admin/ingest/an-groups" \
+            -H "x-ingest-token: ${{ secrets.INGEST_TOKEN }}"
+
+  refresh-scrutins:
+    needs: [refresh-deputies]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ré-ingérer les scrutins et les votes détaillés (peut prendre plusieurs minutes)
+        run: |
+          curl -f -X POST "${{ secrets.API_URL }}/api/admin/ingest/scrutins" \
+            -H "x-ingest-token: ${{ secrets.INGEST_TOKEN }}" \
+            --max-time 1200

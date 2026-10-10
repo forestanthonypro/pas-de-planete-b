@@ -80,35 +80,13 @@ jobs:
           curl -f -X POST "${{ secrets.API_URL }}/api/admin/ingest/world-benchmarks" \
             -H "x-ingest-token: ${{ secrets.INGEST_TOKEN }}"
 
-  # --- Démocratie (Assemblée nationale, 17e législature) ---
-  # Ordre important : les députés doivent exister avant les votes (clé
-  # étrangère), donc refresh-scrutins attend refresh-deputies.
-
-  refresh-deputies:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Ré-ingérer la liste des députés
-        run: |
-          curl -f -X POST "${{ secrets.API_URL }}/api/admin/ingest/deputies" \
-            -H "x-ingest-token: ${{ secrets.INGEST_TOKEN }}"
-
-  refresh-an-groups:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Ré-ingérer les groupes politiques
-        run: |
-          curl -f -X POST "${{ secrets.API_URL }}/api/admin/ingest/an-groups" \
-            -H "x-ingest-token: ${{ secrets.INGEST_TOKEN }}"
-
-  refresh-scrutins:
-    needs: [refresh-deputies]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Ré-ingérer les scrutins et les votes détaillés (peut prendre plusieurs minutes)
-        run: |
-          curl -f -X POST "${{ secrets.API_URL }}/api/admin/ingest/scrutins" \
-            -H "x-ingest-token: ${{ secrets.INGEST_TOKEN }}" \
-            --max-time 1200
+  # --- Démocratie France (Assemblée nationale, 17e législature) ---
+  # Déplacé dans refresh-democracy-france.yml (cadence hebdomadaire) le 11
+  # octobre 2026 : en session active, la cadence mensuelle d'ici laissait
+  # jusqu'à ~1 mois de retard sur les scrutins (incident constaté ce
+  # jour-là : 238 scrutins manquants, dernier en base vieux de 2,5 mois).
+  # Les groupes politiques et la liste des députés changent rarement, mais
+  # sont réingérés dans le même fichier par simplicité (coût négligeable).
 
   # --- Congrès des États-Unis (schéma générique parliament_*) ---
   # Indépendant des jobs France ci-dessus : pays et schéma de données
