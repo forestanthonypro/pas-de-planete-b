@@ -2,20 +2,18 @@ name: Rafraîchir la démocratie France (Assemblée nationale)
 
 on:
   schedule:
-    # Hebdomadaire (lundi 5h UTC), séparé de refresh-data.yml (mensuel)
-    # depuis le 11 octobre 2026 : en session parlementaire active, une
-    # cadence mensuelle laissait jusqu'à ~1 mois de retard sur les scrutins
-    # (incident constaté ce jour-là : 238 scrutins manquants). Les groupes
-    # politiques et la liste des députés changent rarement en cours de
-    # législature, mais sont réingérés ici aussi par simplicité — le coût
-    # est négligeable (quelques secondes) comparé à refresh-scrutins.
-    #
-    # send-deputy-digests.yml tourne quotidiennement et dépend de la
-    # fraîcheur des scrutins ingérés ici : avec cette cadence hebdomadaire,
-    # le digest peut rester jusqu'à ~6 jours derrière un vote réel. Passer
-    # ce fichier en quotidien serait trivial (ré-ingestion idempotente, 2-3
-    # min) si ce délai devient gênant.
-    - cron: "0 5 * * 1"
+    # Quotidien (5h UTC), séparé de refresh-data.yml (mensuel) depuis le 11
+    # octobre 2026 : en session parlementaire active, une cadence mensuelle
+    # laissait jusqu'à ~1 mois de retard sur les scrutins (incident constaté
+    # ce jour-là : 238 scrutins manquants). D'abord passé en hebdomadaire,
+    # puis en quotidien le jour même pour que send-deputy-digests.yml (tous
+    # les jours à 7h UTC, donc après celui-ci) parte toujours d'une base à
+    # jour — un vote d'hier est au pire visible dans le digest du lendemain
+    # matin, jamais après. Les groupes politiques et la liste des députés
+    # changent rarement en cours de législature, mais sont réingérés ici
+    # aussi par simplicité — le coût est négligeable (quelques secondes)
+    # comparé à refresh-scrutins (2-3 min, ré-ingestion idempotente).
+    - cron: "0 5 * * *"
   workflow_dispatch: {}
 
 jobs:
