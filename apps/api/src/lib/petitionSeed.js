@@ -7,7 +7,7 @@ export const PETITION_LOCALES = ["fr", "en", "es", "it", "ru", "ja", "zh", "hi"]
 
 const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
-function isHttpsUrl(value) {
+export function isHttpsUrl(value) {
   try {
     return new URL(value).protocol === "https:";
   } catch {
@@ -18,7 +18,7 @@ function isHttpsUrl(value) {
 // Une image est soit hébergée par le site lui-même (chemin racine, ex.
 // "/images/petitions/x.svg" — jamais "//hote/..." qui serait une URL
 // externe déguisée), soit une URL https externe.
-function isValidImageUrl(value) {
+export function isValidImageUrl(value) {
   if (typeof value !== "string" || value.trim() === "") return false;
   if (value.startsWith("/")) return !value.startsWith("//");
   return isHttpsUrl(value);

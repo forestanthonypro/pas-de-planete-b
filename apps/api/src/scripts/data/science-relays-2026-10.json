@@ -1,0 +1,308 @@
+{
+  "_comment": "Lot de relais scientifiques du 11 octobre 2026 — chaque source a été ouverte et vérifiée (titre, date, chiffres) avant rédaction ; les résumés sont rédigés par nous, sans citation longue. Les traductions ru/ja/zh/hi gagneraient à une relecture par un locuteur natif. Publié par apps/api/src/scripts/publish-science-relays.js.",
+  "categories": [
+    {
+      "slug": "sante",
+      "names": {
+        "fr": "Santé",
+        "en": "Health",
+        "es": "Salud",
+        "it": "Salute",
+        "ru": "Здоровье",
+        "ja": "健康",
+        "zh": "健康",
+        "hi": "स्वास्थ्य"
+      }
+    },
+    {
+      "slug": "biodiversite",
+      "names": {
+        "fr": "Biodiversité",
+        "en": "Biodiversity",
+        "es": "Biodiversidad",
+        "it": "Biodiversità",
+        "ru": "Биоразнообразие",
+        "ja": "生物多様性",
+        "zh": "生物多样性",
+        "hi": "जैव विविधता"
+      }
+    }
+  ],
+  "relays": [
+    {
+      "slug": "lancet-countdown-2025-sante-climat",
+      "contentType": "article",
+      "sourceUrl": "https://lancetcountdown.org/2025-report/",
+      "sourceName": "The Lancet Countdown",
+      "scientistName": "Lancet Countdown",
+      "categorySlug": "sante",
+      "imageUrl": "/images/interviews/lancet-countdown-2025.svg",
+      "scopeCodes": [
+        "WORLD"
+      ],
+      "published": true,
+      "translations": {
+        "fr": {
+          "title": "Climat et santé : le bilan 2025 du Lancet Countdown",
+          "scientistField": "Santé publique et climat",
+          "description": "Rapport 2025 du Lancet Countdown, rédigé par 128 experts de 71 institutions. La mortalité liée à la chaleur a augmenté de 23 % depuis les années 1990, pour atteindre en moyenne 546 000 décès par an, et la fumée des feux de forêt a causé 154 000 décès en 2024. Les subventions nettes aux énergies fossiles ont atteint 956 milliards de dollars en 2023. Le rapport montre aussi que l'action climatique protège déjà : environ 160 000 décès prématurés sont évités chaque année grâce au recul de la pollution liée au charbon."
+        },
+        "en": {
+          "title": "Climate and health: the Lancet Countdown 2025 assessment",
+          "scientistField": "Public health and climate",
+          "description": "The 2025 Lancet Countdown report, written by 128 experts from 71 institutions. Heat-related mortality has risen 23% since the 1990s, to an average of 546,000 deaths a year, and wildfire smoke caused 154,000 deaths in 2024. Net fossil fuel subsidies reached $956 billion in 2023. The report also shows that climate action is already protecting people: around 160,000 premature deaths are avoided each year thanks to falling coal-related air pollution."
+        },
+        "es": {
+          "title": "Clima y salud: el balance 2025 del Lancet Countdown",
+          "scientistField": "Salud pública y clima",
+          "description": "Informe 2025 del Lancet Countdown, elaborado por 128 expertos de 71 instituciones. La mortalidad relacionada con el calor ha aumentado un 23 % desde los años noventa, hasta una media de 546 000 muertes al año, y el humo de los incendios forestales causó 154 000 muertes en 2024. Las subvenciones netas a los combustibles fósiles alcanzaron 956 000 millones de dólares en 2023. El informe muestra también que la acción climática ya protege: unas 160 000 muertes prematuras se evitan cada año gracias a la reducción de la contaminación del carbón."
+        },
+        "it": {
+          "title": "Clima e salute: il bilancio 2025 del Lancet Countdown",
+          "scientistField": "Salute pubblica e clima",
+          "description": "Rapporto 2025 del Lancet Countdown, redatto da 128 esperti di 71 istituzioni. La mortalità legata al caldo è aumentata del 23 % dagli anni Novanta, raggiungendo in media 546 000 decessi all'anno, e il fumo degli incendi boschivi ha causato 154 000 decessi nel 2024. I sussidi netti ai combustibili fossili hanno raggiunto 956 miliardi di dollari nel 2023. Il rapporto mostra anche che l'azione per il clima protegge già: circa 160 000 morti premature vengono evitate ogni anno grazie al calo dell'inquinamento legato al carbone."
+        },
+        "ru": {
+          "title": "Климат и здоровье: итоги Lancet Countdown 2025",
+          "scientistField": "Общественное здравоохранение и климат",
+          "description": "Доклад Lancet Countdown 2025 года, подготовленный 128 экспертами из 71 организации. Смертность, связанная с жарой, выросла на 23 % с 1990-х годов и составляет в среднем 546 000 смертей в год; дым лесных пожаров стал причиной 154 000 смертей в 2024 году. Чистые субсидии на ископаемое топливо в 2023 году достигли 956 млрд долларов. Доклад показывает и другое: климатические меры уже защищают людей — примерно 160 000 преждевременных смертей ежегодно удаётся предотвратить благодаря снижению загрязнения воздуха от угля."
+        },
+        "ja": {
+          "title": "気候と健康：ランセット・カウントダウン2025年報告",
+          "scientistField": "公衆衛生と気候",
+          "description": "71機関の専門家128人がまとめた、ランセット・カウントダウンの2025年報告です。熱に関連する死亡は1990年代から23％増え、年平均54万6,000人に達し、2024年には森林火災の煙が15万4,000人の死亡の原因となりました。化石燃料への純補助金は2023年に9,560億ドルに達しています。一方で、気候対策はすでに命を守っています。石炭に関連する大気汚染の減少により、毎年およそ16万人の早すぎる死が避けられています。"
+        },
+        "zh": {
+          "title": "气候与健康：《柳叶刀》倒计时2025年报告",
+          "scientistField": "公共卫生与气候",
+          "description": "《柳叶刀》倒计时2025年报告由来自71家机构的128位专家撰写。与高温相关的死亡人数自20世纪90年代以来增加了23%，平均每年达54.6万人；2024年，森林火灾烟雾造成15.4万人死亡。2023年，化石燃料的净补贴达到9560亿美元。报告同时指出，气候行动已经在保护人们：由于燃煤相关空气污染的减少，每年约有16万例过早死亡得以避免。"
+        },
+        "hi": {
+          "title": "जलवायु और स्वास्थ्य: लैंसेट काउंटडाउन 2025 का आकलन",
+          "scientistField": "जन स्वास्थ्य और जलवायु",
+          "description": "71 संस्थानों के 128 विशेषज्ञों द्वारा तैयार लैंसेट काउंटडाउन की 2025 रिपोर्ट। गर्मी से जुड़ी मौतें 1990 के दशक से 23 % बढ़कर औसतन 5,46,000 प्रति वर्ष हो गई हैं, और 2024 में जंगल की आग के धुएँ से 1,54,000 मौतें हुईं। 2023 में जीवाश्म ईंधन पर शुद्ध सब्सिडी 956 अरब डॉलर तक पहुँच गई। रिपोर्ट यह भी दिखाती है कि जलवायु कार्रवाई पहले से लोगों की रक्षा कर रही है: कोयले से जुड़े वायु प्रदूषण में कमी के कारण हर साल लगभग 1,60,000 असामयिक मौतें टल रही हैं।"
+        }
+      }
+    },
+    {
+      "slug": "masson-delmotte-enjeux-climatiques-institut-pasteur",
+      "contentType": "video",
+      "sourceUrl": "https://www.pasteur.fr/fr/en-ce-moment/nos-videos/conference-de-valerie-masson-delmotte-sur-les-enjeux-climatiques-linstitut-pasteur",
+      "sourceName": "Institut Pasteur",
+      "scientistName": "Valérie Masson-Delmotte",
+      "categorySlug": "climat",
+      "imageUrl": "/images/interviews/masson-delmotte-pasteur.svg",
+      "scopeCodes": [
+        "WORLD"
+      ],
+      "published": true,
+      "translations": {
+        "fr": {
+          "title": "Valérie Masson-Delmotte : les enjeux climatiques, devant de jeunes chercheurs",
+          "scientistField": "Paléoclimatologue",
+          "description": "Conférence de la paléoclimatologue Valérie Masson-Delmotte (CEA), enregistrée en décembre 2023 lors de la cérémonie des doctorants de l'Institut Pasteur et mise en ligne en janvier 2024. Une occasion d'entendre l'une des voix scientifiques françaises du climat s'adresser à de jeunes chercheurs sur les enjeux climatiques. La vidéo est consultable sur le site de l'Institut Pasteur."
+        },
+        "en": {
+          "title": "Valérie Masson-Delmotte on the climate challenge, speaking to young researchers",
+          "scientistField": "Paleoclimatologist",
+          "description": "Talk by paleoclimatologist Valérie Masson-Delmotte (CEA), recorded in December 2023 at the Institut Pasteur doctoral students' ceremony and published online in January 2024. A chance to hear one of France's leading climate scientists address young researchers on the challenges of climate change. The video can be watched on the Institut Pasteur website."
+        },
+        "es": {
+          "title": "Valérie Masson-Delmotte sobre los desafíos climáticos, ante jóvenes investigadores",
+          "scientistField": "Paleoclimatóloga",
+          "description": "Conferencia de la paleoclimatóloga Valérie Masson-Delmotte (CEA), grabada en diciembre de 2023 durante la ceremonia de doctorandos del Instituto Pasteur y publicada en enero de 2024. Una ocasión para escuchar a una de las voces científicas francesas del clima dirigirse a jóvenes investigadores sobre los desafíos climáticos. El vídeo puede verse en el sitio web del Instituto Pasteur."
+        },
+        "it": {
+          "title": "Valérie Masson-Delmotte sulle sfide climatiche, davanti a giovani ricercatori",
+          "scientistField": "Paleoclimatologa",
+          "description": "Conferenza della paleoclimatologa Valérie Masson-Delmotte (CEA), registrata nel dicembre 2023 durante la cerimonia dei dottorandi dell'Institut Pasteur e pubblicata online a gennaio 2024. Un'occasione per ascoltare una delle voci scientifiche francesi sul clima rivolgersi a giovani ricercatori sulle sfide climatiche. Il video è consultabile sul sito dell'Institut Pasteur."
+        },
+        "ru": {
+          "title": "Валери Массон-Дельмотт о климатических вызовах — перед молодыми исследователями",
+          "scientistField": "Палеоклиматолог",
+          "description": "Лекция палеоклиматолога Валери Массон-Дельмотт (CEA), записанная в декабре 2023 года на церемонии для докторантов Института Пастера и опубликованная в январе 2024 года. Возможность услышать, как один из ведущих французских учёных-климатологов обращается к молодым исследователям с рассказом о климатических вызовах. Видео доступно на сайте Института Пастера."
+        },
+        "ja": {
+          "title": "ヴァレリー・マッソン＝デルモット氏が若手研究者に語る気候問題",
+          "scientistField": "古気候学者",
+          "description": "古気候学者ヴァレリー・マッソン＝デルモット氏（CEA）による講演で、2023年12月にパスツール研究所の博士課程学生の式典で収録され、2024年1月に公開されました。フランスを代表する気候科学者の一人が、若手研究者に向けて気候問題について語る貴重な機会です。動画はパスツール研究所のサイトで視聴できます。"
+        },
+        "zh": {
+          "title": "瓦莱丽·马松-德尔莫特向青年研究者谈气候挑战",
+          "scientistField": "古气候学家",
+          "description": "古气候学家瓦莱丽·马松-德尔莫特（法国原子能和替代能源委员会CEA）的演讲，2023年12月在巴斯德研究所博士生典礼上录制，并于2024年1月发布。这是聆听法国气候科学界代表人物之一向青年研究者讲述气候挑战的机会。视频可在巴斯德研究所网站观看。"
+        },
+        "hi": {
+          "title": "वैलेरी मैसों-डेल्मोत: युवा शोधकर्ताओं के सामने जलवायु चुनौतियाँ",
+          "scientistField": "पुराजलवायु वैज्ञानिक",
+          "description": "पुराजलवायु वैज्ञानिक वैलेरी मैसों-डेल्मोत (CEA) का व्याख्यान, जो दिसंबर 2023 में पाश्चर संस्थान के डॉक्टरेट छात्रों के समारोह में रिकॉर्ड किया गया और जनवरी 2024 में ऑनलाइन प्रकाशित हुआ। फ़्रांस के प्रमुख जलवायु वैज्ञानिकों में से एक को युवा शोधकर्ताओं से जलवायु चुनौतियों पर बात करते सुनने का अवसर। वीडियो पाश्चर संस्थान की वेबसाइट पर देखा जा सकता है।"
+        }
+      }
+    },
+    {
+      "slug": "haut-conseil-climat-rapport-annuel-2026",
+      "contentType": "article",
+      "sourceUrl": "https://www.hautconseilclimat.fr/publications/dangers-climatiques-la-france-face-a-ses-responsabilites/",
+      "sourceName": "Haut Conseil pour le climat",
+      "scientistName": "Haut Conseil pour le climat",
+      "categorySlug": "climat",
+      "imageUrl": "/images/interviews/haut-conseil-climat-2026.svg",
+      "scopeCodes": [
+        "FRA"
+      ],
+      "published": true,
+      "translations": {
+        "fr": {
+          "title": "Dangers climatiques : la France face à ses responsabilités (rapport 2026)",
+          "scientistField": "Organisme indépendant d'expertise climatique",
+          "description": "Huitième rapport annuel du Haut Conseil pour le climat, publié le 9 juillet 2026. Citant deux vagues de chaleur en mai et juin 2026 et la flambée des prix du pétrole et du gaz, il appelle la France à « changer d'échelle » pour protéger sa population et réduire sa dépendance aux énergies fossiles. Il propose des pistes pour rendre les politiques actuelles plus efficaces et esquisse une nouvelle génération de politiques publiques pour 2030-2035. Six chapitres : impacts et adaptation, émissions et budget carbone, politiques sectorielles, cadre d'action et diplomatie climatique."
+        },
+        "en": {
+          "title": "Climate dangers: France facing its responsibilities (2026 report)",
+          "scientistField": "Independent climate expert body",
+          "description": "Eighth annual report of France's High Council for Climate (Haut Conseil pour le climat), published on 9 July 2026. Citing two heatwaves in May and June 2026 and a surge in oil and gas prices, it calls on France to “change scale” to protect its population and cut its dependence on fossil fuels. It suggests ways to make current policies more effective and outlines a new generation of public policies for 2030–2035. Six chapters: impacts and adaptation, emissions and carbon budget, sector policies, policy framework and climate diplomacy."
+        },
+        "es": {
+          "title": "Peligros climáticos: Francia ante sus responsabilidades (informe 2026)",
+          "scientistField": "Órgano independiente de expertos en clima",
+          "description": "Octavo informe anual del Alto Consejo para el Clima de Francia (Haut Conseil pour le climat), publicado el 9 de julio de 2026. Basándose en dos olas de calor en mayo y junio de 2026 y en el alza de los precios del petróleo y del gas, pide a Francia «cambiar de escala» para proteger a su población y reducir su dependencia de los combustibles fósiles. Propone vías para hacer más eficaces las políticas actuales y esboza una nueva generación de políticas públicas para 2030-2035. Seis capítulos: impactos y adaptación, emisiones y presupuesto de carbono, políticas sectoriales, marco de actuación y diplomacia climática."
+        },
+        "it": {
+          "title": "Pericoli climatici: la Francia di fronte alle sue responsabilità (rapporto 2026)",
+          "scientistField": "Organismo indipendente di esperti sul clima",
+          "description": "Ottavo rapporto annuale dell'Alto Consiglio francese per il clima (Haut Conseil pour le climat), pubblicato il 9 luglio 2026. Richiamando due ondate di caldo a maggio e giugno 2026 e l'impennata dei prezzi di petrolio e gas, invita la Francia a «cambiare scala» per proteggere la popolazione e ridurre la dipendenza dai combustibili fossili. Propone modi per rendere più efficaci le politiche attuali e delinea una nuova generazione di politiche pubbliche per il 2030-2035. Sei capitoli: impatti e adattamento, emissioni e bilancio di carbonio, politiche settoriali, quadro d'azione e diplomazia climatica."
+        },
+        "ru": {
+          "title": "Климатические опасности: Франция перед лицом своей ответственности (доклад 2026 года)",
+          "scientistField": "Независимый экспертный орган по климату",
+          "description": "Восьмой ежегодный доклад Высшего совета Франции по климату (Haut Conseil pour le climat), опубликованный 9 июля 2026 года. Ссылаясь на две волны жары в мае и июне 2026 года и резкий рост цен на нефть и газ, совет призывает Францию «выйти на новый масштаб», чтобы защитить население и снизить зависимость от ископаемого топлива. В докладе предлагаются способы повысить эффективность нынешней политики и намечено новое поколение государственных мер на 2030–2035 годы. Шесть глав: последствия и адаптация, выбросы и углеродный бюджет, отраслевая политика, рамки политики и климатическая дипломатия."
+        },
+        "ja": {
+          "title": "気候の危険：責任に向き合うフランス（2026年報告）",
+          "scientistField": "独立した気候専門機関",
+          "description": "フランス気候高等評議会（Haut Conseil pour le climat）による第8次年次報告で、2026年7月9日に公表されました。2026年5月と6月の2度の熱波や石油・ガス価格の高騰を挙げ、国民を守り化石燃料への依存を減らすために、フランスに「規模を変える」ことを求めています。現行政策をより効果的にするための提案を示すとともに、2030〜2035年に向けた新世代の公共政策の方向性を描いています。全6章：影響と適応、排出量とカーボンバジェット、部門別政策、政策の枠組みと気候外交。"
+        },
+        "zh": {
+          "title": "气候危险：法国直面自身责任（2026年报告）",
+          "scientistField": "独立气候专家机构",
+          "description": "法国气候高级委员会（Haut Conseil pour le climat）的第八份年度报告，于2026年7月9日发布。报告以2026年5月和6月的两次热浪以及石油和天然气价格飙升为例，呼吁法国“提升行动规模”，以保护民众并降低对化石能源的依赖。报告提出了让现行政策更有效的途径，并勾勒出面向2030至2035年的新一代公共政策。全文六章：影响与适应、排放与碳预算、分行业政策、政策框架与气候外交。"
+        },
+        "hi": {
+          "title": "जलवायु ख़तरे: अपनी ज़िम्मेदारियों का सामना करता फ़्रांस (2026 रिपोर्ट)",
+          "scientistField": "स्वतंत्र जलवायु विशेषज्ञ संस्था",
+          "description": "फ़्रांस की जलवायु उच्च परिषद (Haut Conseil pour le climat) की आठवीं वार्षिक रिपोर्ट, जो 9 जुलाई 2026 को प्रकाशित हुई। मई और जून 2026 की दो लू-लहरों और तेल-गैस की कीमतों में उछाल का हवाला देते हुए यह फ़्रांस से आबादी की रक्षा करने और जीवाश्म ईंधन पर निर्भरता घटाने के लिए \"पैमाना बदलने\" का आग्रह करती है। यह मौजूदा नीतियों को अधिक प्रभावी बनाने के सुझाव देती है और 2030–2035 के लिए सार्वजनिक नीतियों की नई पीढ़ी की रूपरेखा रखती है। छह अध्याय: प्रभाव और अनुकूलन, उत्सर्जन और कार्बन बजट, क्षेत्रवार नीतियाँ, नीतिगत ढाँचा और जलवायु कूटनीति।"
+        }
+      }
+    },
+    {
+      "slug": "ipbes-changement-transformateur-biodiversite-2024",
+      "contentType": "article",
+      "sourceUrl": "https://www.ipbes.net/transformative-change",
+      "sourceName": "IPBES",
+      "scientistName": "IPBES",
+      "categorySlug": "biodiversite",
+      "imageUrl": "/images/interviews/ipbes-changement-transformateur.svg",
+      "scopeCodes": [
+        "WORLD"
+      ],
+      "published": true,
+      "translations": {
+        "fr": {
+          "title": "Biodiversité : les causes profondes du déclin et les leviers d'un changement transformateur",
+          "scientistField": "Plateforme intergouvernementale sur la biodiversité",
+          "description": "Rapport de l'IPBES approuvé en décembre 2024 à Windhoek (Namibie) par la plénière de ses 147 gouvernements membres. Il identifie trois causes profondes de la perte de biodiversité : la déconnexion des personnes vis-à-vis de la nature, la concentration inégale du pouvoir et de la richesse, et la priorité donnée aux gains individuels et matériels à court terme. Il propose cinq stratégies, dont transformer les systèmes économiques et rendre la gouvernance plus inclusive. Agir tout de suite coûterait deux fois moins cher que d'attendre dix ans ; les subventions publiques nuisibles à la nature atteignent 1 400 à 3 300 milliards de dollars par an."
+        },
+        "en": {
+          "title": "Biodiversity: the root causes of decline and the levers for transformative change",
+          "scientistField": "Intergovernmental platform on biodiversity",
+          "description": "IPBES report approved in December 2024 in Windhoek (Namibia) by the plenary of its 147 member governments. It identifies three underlying causes of biodiversity loss: people's disconnection from nature, the unequal concentration of power and wealth, and the priority given to short-term individual and material gains. It proposes five strategies, including transforming economic systems and making governance more inclusive. Acting now would cost half as much as waiting a decade; public subsidies harmful to nature reach $1.4–3.3 trillion a year."
+        },
+        "es": {
+          "title": "Biodiversidad: las causas profundas del declive y las palancas del cambio transformador",
+          "scientistField": "Plataforma intergubernamental sobre biodiversidad",
+          "description": "Informe de la IPBES aprobado en diciembre de 2024 en Windhoek (Namibia) por el plenario de sus 147 gobiernos miembros. Identifica tres causas subyacentes de la pérdida de biodiversidad: la desconexión de las personas respecto de la naturaleza, la concentración desigual del poder y la riqueza, y la prioridad dada a las ganancias individuales y materiales a corto plazo. Propone cinco estrategias, entre ellas transformar los sistemas económicos y hacer la gobernanza más inclusiva. Actuar ya costaría la mitad que esperar una década; las subvenciones públicas perjudiciales para la naturaleza alcanzan entre 1,4 y 3,3 billones de dólares al año."
+        },
+        "it": {
+          "title": "Biodiversità: le cause profonde del declino e le leve del cambiamento trasformativo",
+          "scientistField": "Piattaforma intergovernativa sulla biodiversità",
+          "description": "Rapporto dell'IPBES approvato nel dicembre 2024 a Windhoek (Namibia) dalla plenaria dei suoi 147 governi membri. Individua tre cause profonde della perdita di biodiversità: la disconnessione delle persone dalla natura, la concentrazione diseguale di potere e ricchezza, e la priorità data ai guadagni individuali e materiali a breve termine. Propone cinque strategie, tra cui trasformare i sistemi economici e rendere la governance più inclusiva. Agire subito costerebbe la metà che aspettare dieci anni; i sussidi pubblici dannosi per la natura raggiungono da 1.400 a 3.300 miliardi di dollari l'anno."
+        },
+        "ru": {
+          "title": "Биоразнообразие: глубинные причины упадка и рычаги трансформационных перемен",
+          "scientistField": "Межправительственная платформа по биоразнообразию",
+          "description": "Доклад IPBES, одобренный в декабре 2024 года в Виндхуке (Намибия) пленарной сессией 147 государств-членов. В нём названы три глубинные причины утраты биоразнообразия: отчуждённость людей от природы, неравное сосредоточение власти и богатства и приоритет краткосрочной индивидуальной материальной выгоды. Предложено пять стратегий, среди них преобразование экономических систем и более инклюзивное управление. Действовать сейчас вдвое дешевле, чем ждать десять лет; вредные для природы государственные субсидии достигают 1,4–3,3 трлн долларов в год."
+        },
+        "ja": {
+          "title": "生物多様性：衰退の根本原因と変革を促すテコ",
+          "scientistField": "生物多様性に関する政府間プラットフォーム",
+          "description": "2024年12月にナミビアのウィントフックで、147の加盟政府による総会が承認したIPBESの報告書です。生物多様性の損失の根本原因として、人々の自然からの断絶、権力と富の不平等な集中、短期的な個人的・物質的利益の優先の3つを挙げています。経済システムの転換やガバナンスをより包摂的にすることなど、5つの戦略を提案しています。今すぐ行動すれば、10年待つ場合の半分の費用で済みます。自然に有害な公的補助金は年間1.4兆〜3.3兆ドルに達しています。"
+        },
+        "zh": {
+          "title": "生物多样性：衰退的深层原因与推动变革的杠杆",
+          "scientistField": "生物多样性政府间科学政策平台",
+          "description": "该报告由IPBES于2024年12月在纳米比亚温得和克经其147个成员国政府的全体会议批准。报告指出生物多样性丧失有三大深层原因：人类与自然脱节、权力和财富的不平等集中，以及对短期个人物质利益的优先考虑。报告提出五项战略，包括变革经济体系和使治理更具包容性。立即行动的成本只有等待十年的一半；对自然有害的公共补贴每年达1.4万亿至3.3万亿美元。"
+        },
+        "hi": {
+          "title": "जैव विविधता: गिरावट के गहरे कारण और परिवर्तनकारी बदलाव के उपाय",
+          "scientistField": "जैव विविधता पर अंतर-सरकारी मंच",
+          "description": "IPBES की रिपोर्ट, जिसे दिसंबर 2024 में नामीबिया के विंडहोक में उसके 147 सदस्य देशों की पूर्ण बैठक ने मंज़ूरी दी। यह जैव विविधता के नुक़सान के तीन गहरे कारण बताती है: मनुष्यों का प्रकृति से कट जाना, शक्ति और संपदा का असमान केंद्रीकरण, और अल्पकालिक व्यक्तिगत भौतिक लाभ को प्राथमिकता। यह पाँच रणनीतियाँ सुझाती है, जिनमें आर्थिक प्रणालियों को बदलना और शासन को अधिक समावेशी बनाना शामिल है। अभी कार्रवाई करना दस साल इंतज़ार करने से आधा सस्ता होगा; प्रकृति के लिए हानिकारक सार्वजनिक सब्सिडी प्रति वर्ष 1.4 से 3.3 ट्रिलियन डॉलर तक पहुँचती हैं।"
+        }
+      }
+    },
+    {
+      "slug": "omm-etat-du-climat-mondial-2025",
+      "contentType": "article",
+      "sourceUrl": "https://wmo.int/publication-series/state-of-global-climate/state-of-global-climate-2025",
+      "sourceName": "Organisation météorologique mondiale (OMM)",
+      "scientistName": "OMM / WMO",
+      "categorySlug": "climat",
+      "imageUrl": "/images/interviews/omm-climat-mondial-2025.svg",
+      "scopeCodes": [
+        "WORLD"
+      ],
+      "published": true,
+      "translations": {
+        "fr": {
+          "title": "État du climat mondial 2025 : un système climatique de plus en plus déséquilibré",
+          "scientistField": "Agence des Nations unies pour la météorologie et le climat",
+          "description": "Rapport annuel de l'Organisation météorologique mondiale publié le 23 mars 2026. 2025 est la deuxième ou troisième année la plus chaude jamais enregistrée, à environ 1,43 °C au-dessus de la moyenne 1850-1900, et les onze années 2015-2025 sont les onze plus chaudes de l'histoire des mesures. Le déséquilibre énergétique de la Terre atteint son plus haut niveau en 65 ans de données. La glace de mer arctique est au niveau de son minimum record ou proche de celui-ci, et la fonte des glaciers se poursuit."
+        },
+        "en": {
+          "title": "State of the Global Climate 2025: a climate system increasingly out of balance",
+          "scientistField": "UN agency for weather and climate",
+          "description": "Annual report of the World Meteorological Organization, published on 23 March 2026. 2025 was the second or third warmest year on record, about 1.43 °C above the 1850–1900 average, and the eleven years 2015–2025 are the eleven warmest ever measured. Earth's energy imbalance is at its highest level in 65 years of records. Arctic sea ice is at or near its record minimum, and glaciers continue to melt."
+        },
+        "es": {
+          "title": "Estado del clima mundial 2025: un sistema climático cada vez más desequilibrado",
+          "scientistField": "Agencia de la ONU para el tiempo y el clima",
+          "description": "Informe anual de la Organización Meteorológica Mundial publicado el 23 de marzo de 2026. 2025 fue el segundo o tercer año más cálido jamás registrado, con unos 1,43 °C por encima de la media de 1850-1900, y los once años de 2015 a 2025 son los once más cálidos desde que hay mediciones. El desequilibrio energético de la Tierra alcanza su nivel más alto en 65 años de registros. El hielo marino del Ártico está en su mínimo récord o cerca de él, y los glaciares siguen fundiéndose."
+        },
+        "it": {
+          "title": "Stato del clima globale 2025: un sistema climatico sempre più squilibrato",
+          "scientistField": "Agenzia ONU per il meteo e il clima",
+          "description": "Rapporto annuale dell'Organizzazione meteorologica mondiale pubblicato il 23 marzo 2026. Il 2025 è stato il secondo o terzo anno più caldo mai registrato, circa 1,43 °C sopra la media 1850-1900, e gli undici anni dal 2015 al 2025 sono gli undici più caldi da quando si misura. Lo squilibrio energetico della Terra raggiunge il livello più alto in 65 anni di dati. Il ghiaccio marino artico è al minimo record o vicino ad esso e i ghiacciai continuano a fondere."
+        },
+        "ru": {
+          "title": "Состояние глобального климата в 2025 году: климатическая система всё сильнее выходит из равновесия",
+          "scientistField": "Агентство ООН по погоде и климату",
+          "description": "Ежегодный доклад Всемирной метеорологической организации, опубликованный 23 марта 2026 года. 2025 год стал вторым или третьим самым тёплым за всю историю наблюдений — примерно на 1,43 °C выше среднего уровня 1850–1900 годов, а одиннадцать лет с 2015 по 2025 год — одиннадцать самых тёплых за время измерений. Дисбаланс энергии Земли достиг самого высокого уровня за 65 лет наблюдений. Площадь арктического морского льда находится на рекордном минимуме или близка к нему, ледники продолжают таять."
+        },
+        "ja": {
+          "title": "世界の気候の現状2025：ますますバランスを失う気候システム",
+          "scientistField": "国連の気象・気候機関",
+          "description": "世界気象機関（WMO）が2026年3月23日に公表した年次報告です。2025年は観測史上2番目か3番目に暖かい年で、1850〜1900年の平均より約1.43℃高く、2015〜2025年の11年間は観測史上最も暖かい11年です。地球のエネルギー不均衡は65年間の記録で最高水準に達しました。北極の海氷面積は記録的な最小値かそれに近い水準で、氷河の融解も続いています。"
+        },
+        "zh": {
+          "title": "2025年全球气候状况：气候系统日益失衡",
+          "scientistField": "联合国气象与气候机构",
+          "description": "世界气象组织于2026年3月23日发布的年度报告。2025年是有记录以来第二或第三暖的一年，比1850至1900年平均值高约1.43°C，2015至2025年这十一年是有测量记录以来最暖的十一年。地球能量失衡达到65年记录中的最高水平。北极海冰面积处于或接近历史最低值，冰川仍在持续消融。"
+        },
+        "hi": {
+          "title": "2025 में वैश्विक जलवायु की स्थिति: बढ़ता असंतुलन",
+          "scientistField": "मौसम और जलवायु के लिए संयुक्त राष्ट्र की एजेंसी",
+          "description": "विश्व मौसम विज्ञान संगठन की वार्षिक रिपोर्ट, जो 23 मार्च 2026 को प्रकाशित हुई। 2025 रिकॉर्ड में दूसरा या तीसरा सबसे गर्म वर्ष रहा, जो 1850–1900 के औसत से लगभग 1.43 °C अधिक था, और 2015 से 2025 के ग्यारह वर्ष माप के इतिहास के सबसे गर्म ग्यारह वर्ष हैं। पृथ्वी का ऊर्जा असंतुलन 65 वर्षों के आँकड़ों में सबसे ऊँचे स्तर पर है। आर्कटिक की समुद्री बर्फ़ रिकॉर्ड न्यूनतम स्तर पर या उसके क़रीब है और ग्लेशियर पिघलते जा रहे हैं।"
+        }
+      }
+    }
+  ]
+}
