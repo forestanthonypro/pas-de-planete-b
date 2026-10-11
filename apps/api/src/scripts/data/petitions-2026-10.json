@@ -1,0 +1,134 @@
+{
+  "_comment": "Lot de pétitions du 11 octobre 2026 — chaque entrée a été vérifiée à la source (page de signature existante, organisateur identifiable). Les traductions ru/ja/zh/hi gagneraient à une relecture par un locuteur natif (voir next.config.js). Publié par apps/api/src/scripts/publish-petitions.js.",
+  "petitions": [
+    {
+      "slug": "protection-defenseurs-environnement-amnesty",
+      "status": "ongoing",
+      "petitionUrl": "https://www.amnesty.fr/petitions/exigez-protection-droits-defenseurs-environnement/",
+      "sourceName": "Amnesty International France",
+      "imageUrl": "/images/petitions/defenseurs-environnement.svg",
+      "scopeCodes": ["FRA"],
+      "published": true,
+      "translations": {
+        "fr": {
+          "title": "Ils sauvent la planète, sauvons leurs droits : protégeons les défenseur·es de l'environnement",
+          "description": "Amnesty International France demande au président de la République de reconnaître publiquement le travail des défenseur·es de l'environnement, de protéger le droit de s'exprimer et de mobiliser pour le climat, de garantir l'accès à une information de qualité sur le changement climatique et d'associer les populations concernées aux politiques climatiques et environnementales. Pétition ouverte jusqu'au 30 octobre 2026."
+        },
+        "en": {
+          "title": "They save the planet, let's save their rights: protect environmental defenders",
+          "description": "Amnesty International France urges the President of the Republic to publicly recognise the work of environmental defenders, protect the right to speak out and mobilise for the climate, guarantee access to quality information on climate change, and involve affected communities in climate and environmental policies. Open until 30 October 2026."
+        },
+        "es": {
+          "title": "Ellos salvan el planeta, salvemos sus derechos: protejamos a los defensores del medio ambiente",
+          "description": "Amnistía Internacional Francia pide al presidente de la República que reconozca públicamente el trabajo de los defensores del medio ambiente, proteja el derecho a expresarse y movilizarse por el clima, garantice el acceso a información de calidad sobre el cambio climático y haga participar a las poblaciones afectadas en las políticas climáticas y medioambientales. Abierta hasta el 30 de octubre de 2026."
+        },
+        "it": {
+          "title": "Salvano il pianeta, salviamo i loro diritti: proteggiamo i difensori dell'ambiente",
+          "description": "Amnesty International Francia chiede al Presidente della Repubblica di riconoscere pubblicamente il lavoro dei difensori dell'ambiente, di proteggere il diritto di esprimersi e di mobilitarsi per il clima, di garantire l'accesso a informazioni di qualità sul cambiamento climatico e di coinvolgere le popolazioni interessate nelle politiche climatiche e ambientali. Aperta fino al 30 ottobre 2026."
+        },
+        "ru": {
+          "title": "Они спасают планету — защитим их права: защитим защитников окружающей среды",
+          "description": "Amnesty International France призывает президента Франции публично признать работу защитников окружающей среды, защитить право высказываться и мобилизоваться ради климата, обеспечить доступ к качественной информации об изменении климата и привлекать затронутые сообщества к разработке климатической и экологической политики. Петиция открыта до 30 октября 2026 года."
+        },
+        "ja": {
+          "title": "地球を守る人々の権利を守ろう：環境擁護活動家を保護してください",
+          "description": "アムネスティ・インターナショナル・フランスは、共和国大統領に対し、環境擁護活動家の活動を公に認めること、気候のために声を上げ人々を動員する権利を守ること、気候変動に関する質の高い情報へのアクセスを保障すること、そして影響を受ける人々を気候・環境政策の策定に参加させることを求めています。署名は2026年10月30日まで受け付けています。"
+        },
+        "zh": {
+          "title": "他们在拯救地球，我们来捍卫他们的权利：保护环境捍卫者",
+          "description": "法国国际特赦组织呼吁法国总统公开承认环境捍卫者的工作，保护人们为气候发声和动员的权利，保障人们获取高质量的气候变化信息，并让受影响的民众参与气候与环境政策的制定。请愿将持续至2026年10月30日。"
+        },
+        "hi": {
+          "title": "वे धरती को बचाते हैं, आइए उनके अधिकार बचाएँ: पर्यावरण रक्षकों की रक्षा करें",
+          "description": "एमनेस्टी इंटरनेशनल फ़्रांस गणराज्य के राष्ट्रपति से माँग करता है कि वे पर्यावरण रक्षकों के काम को सार्वजनिक रूप से मान्यता दें, जलवायु के लिए बोलने और लोगों को जुटाने के अधिकार की रक्षा करें, जलवायु परिवर्तन पर गुणवत्तापूर्ण जानकारी तक पहुँच सुनिश्चित करें और प्रभावित समुदायों को जलवायु व पर्यावरण नीतियों में भागीदार बनाएँ। याचिका 30 अक्टूबर 2026 तक खुली है।"
+        }
+      }
+    },
+    {
+      "slug": "ecocide-crime-international",
+      "status": "ongoing",
+      "petitionUrl": "https://www.endecocide.org/sign/",
+      "sourceName": "Stop Ecocide",
+      "imageUrl": "/images/petitions/ecocide-crime-international.svg",
+      "scopeCodes": ["WORLD"],
+      "published": true,
+      "translations": {
+        "fr": {
+          "title": "Faire de l'écocide un crime international",
+          "description": "Pétition internationale du mouvement Stop Ecocide, adressée à tous les gouvernements : elle leur demande de déclarer publiquement qu'ils soutiennent la reconnaissance de l'écocide — les atteintes graves et étendues ou durables à l'environnement — comme crime international. Plus il y aura d'États réunis derrière cette idée, plus elle aura de poids. La pétition reste ouverte aux signatures."
+        },
+        "en": {
+          "title": "Make ecocide an international crime",
+          "description": "International petition by the Stop Ecocide movement, addressed to all governments, asking them to publicly declare their support for recognising ecocide — serious and widespread or long-term harm to the environment — as an international crime. The more states stand together behind the idea, the more weight it carries. The petition remains open for signatures."
+        },
+        "es": {
+          "title": "Hacer del ecocidio un crimen internacional",
+          "description": "Petición internacional del movimiento Stop Ecocide dirigida a todos los gobiernos, para que declaren públicamente su apoyo al reconocimiento del ecocidio —los daños graves y extensos o duraderos al medio ambiente— como crimen internacional. Cuantos más Estados se unan a esta idea, más peso tendrá. La petición sigue abierta a firmas."
+        },
+        "it": {
+          "title": "Fare dell'ecocidio un crimine internazionale",
+          "description": "Petizione internazionale del movimento Stop Ecocide, rivolta a tutti i governi, che chiede loro di dichiarare pubblicamente il proprio sostegno al riconoscimento dell'ecocidio — i danni gravi e diffusi o duraturi all'ambiente — come crimine internazionale. Più Stati si uniranno a questa idea, più peso avrà. La petizione resta aperta alle firme."
+        },
+        "ru": {
+          "title": "Признать экоцид международным преступлением",
+          "description": "Международная петиция движения Stop Ecocide, адресованная всем правительствам: она призывает их публично заявить о поддержке признания экоцида — серьёзного и масштабного или долгосрочного ущерба окружающей среде — международным преступлением. Чем больше государств поддержат эту идею, тем весомее она будет. Петиция остаётся открытой для подписания."
+        },
+        "ja": {
+          "title": "エコサイドを国際犯罪に",
+          "description": "ストップ・エコサイド運動による、すべての政府に宛てた国際署名です。エコサイド（環境への重大かつ広範囲または長期的な被害）を国際犯罪として認めることへの支持を、各国政府が公に表明するよう求めています。この考えに賛同する国が増えるほど、その重みは増します。署名は引き続き受け付けています。"
+        },
+        "zh": {
+          "title": "将生态灭绝定为国际罪行",
+          "description": "这是“终止生态灭绝”（Stop Ecocide）运动面向所有政府发起的国际请愿，呼吁各国政府公开表态，支持将生态灭绝——即对环境造成严重且广泛或长期的破坏——确立为国际罪行。支持这一主张的国家越多，分量就越重。请愿仍在接受签名。"
+        },
+        "hi": {
+          "title": "इकोसाइड को अंतरराष्ट्रीय अपराध बनाएँ",
+          "description": "स्टॉप इकोसाइड आंदोलन की यह अंतरराष्ट्रीय याचिका सभी सरकारों से अपील करती है कि वे इकोसाइड — पर्यावरण को पहुँचाई गई गंभीर और व्यापक या दीर्घकालिक क्षति — को अंतरराष्ट्रीय अपराध के रूप में मान्यता देने के अपने समर्थन की सार्वजनिक घोषणा करें। जितने अधिक देश इस विचार के साथ आएँगे, उसका वज़न उतना ही बढ़ेगा। याचिका पर हस्ताक्षर अभी भी खुले हैं।"
+        }
+      }
+    },
+    {
+      "slug": "stop-exploitation-miniere-fonds-marins",
+      "status": "ongoing",
+      "petitionUrl": "https://www.greenpeace.org/international/act/stop-deep-sea-mining/",
+      "sourceName": "Greenpeace International",
+      "imageUrl": "/images/petitions/stop-exploitation-miniere-fonds-marins.svg",
+      "scopeCodes": ["WORLD"],
+      "published": true,
+      "translations": {
+        "fr": {
+          "title": "Stop à l'exploitation minière des fonds marins avant qu'elle ne commence",
+          "description": "Greenpeace International demande aux gouvernements d'empêcher l'exploitation minière en eaux profondes avant même son démarrage et de soutenir un moratoire mondial sur cette nouvelle industrie extractive, afin de protéger des écosystèmes marins encore mal connus."
+        },
+        "en": {
+          "title": "Stop deep sea mining before it starts",
+          "description": "Greenpeace International calls on governments to stop deep sea mining before it even begins and to back a global moratorium on this new extractive industry, in order to protect marine ecosystems that are still poorly understood."
+        },
+        "es": {
+          "title": "Detengamos la minería en aguas profundas antes de que empiece",
+          "description": "Greenpeace Internacional pide a los gobiernos que detengan la minería en aguas profundas antes de que comience y que apoyen una moratoria mundial sobre esta nueva industria extractiva, para proteger unos ecosistemas marinos todavía poco conocidos."
+        },
+        "it": {
+          "title": "Fermiamo l'estrazione mineraria in acque profonde prima che inizi",
+          "description": "Greenpeace International chiede ai governi di fermare l'estrazione mineraria in acque profonde prima ancora che cominci e di sostenere una moratoria mondiale su questa nuova industria estrattiva, per proteggere ecosistemi marini ancora poco conosciuti."
+        },
+        "ru": {
+          "title": "Остановим глубоководную добычу полезных ископаемых, пока она не началась",
+          "description": "Greenpeace International призывает правительства остановить глубоководную добычу полезных ископаемых ещё до её начала и поддержать глобальный мораторий на эту новую добывающую отрасль — ради защиты морских экосистем, которые до сих пор плохо изучены."
+        },
+        "ja": {
+          "title": "深海採掘が始まる前に止めよう",
+          "description": "グリーンピース・インターナショナルは、各国政府に対し、深海採掘が始まる前にそれを止め、この新たな採取産業に対する世界的なモラトリアム（一時停止）を支持するよう求めています。まだよく知られていない海洋生態系を守るためです。"
+        },
+        "zh": {
+          "title": "在深海采矿开始之前叫停它",
+          "description": "绿色和平国际组织呼吁各国政府在深海采矿开始之前将其叫停，并支持对这一新兴采掘产业实施全球暂停令，以保护人类仍知之甚少的海洋生态系统。"
+        },
+        "hi": {
+          "title": "गहरे समुद्र में खनन शुरू होने से पहले उसे रोकें",
+          "description": "ग्रीनपीस इंटरनेशनल सरकारों से माँग करता है कि वे गहरे समुद्र में खनन को शुरू होने से पहले ही रोकें और इस नए खनन उद्योग पर वैश्विक रोक (मोरेटोरियम) का समर्थन करें, ताकि अब भी कम समझे गए समुद्री पारिस्थितिक तंत्रों की रक्षा हो सके।"
+        }
+      }
+    }
+  ]
+}
