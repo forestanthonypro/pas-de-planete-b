@@ -1,0 +1,497 @@
+{
+  "_comment": "Lot d'idées du 11 octobre 2026 pour « Les enfants d'aujourd'hui et de demain » (8 langues). Même structure que les idées existantes : phrase de mesures, puis « Effets attendus ». Les traductions ru/ja/zh/hi gagneraient à une relecture par un locuteur natif. Publié par apps/api/src/scripts/publish-future-ideas.js.",
+  "ideas": [
+    {
+      "slug": "planter-un-arbre-pour-chaque-enfant",
+      "scopeCodes": [
+        "FRA"
+      ],
+      "published": true,
+      "translations": {
+        "fr": {
+          "title": "Planter un arbre pour chaque enfant et le laisser grandir avec lui.",
+          "description": "Planter un arbre au nom de chaque enfant dans l’école ou la commune, l’identifier, le suivre année après année et associer les familles à son entretien.\n\nEffets attendus : lien durable avec la nature, ombre et fraîcheur pour tous, biodiversité accrue et sens des responsabilités."
+        },
+        "en": {
+          "title": "Planting a tree for every child and letting it grow up with them.",
+          "description": "Planting a tree in each child’s name at school or in the municipality, labelling it, following it year after year and involving families in its upkeep.\n\nExpected effects: a lasting bond with nature, shade and coolness for everyone, greater biodiversity and a sense of responsibility."
+        },
+        "es": {
+          "title": "Plantando un árbol para cada niño y dejándolo crecer con él.",
+          "description": "Plantar un árbol a nombre de cada niño en la escuela o en el municipio, identificarlo, seguirlo año tras año e implicar a las familias en su cuidado.\n\nEfectos esperados: vínculo duradero con la naturaleza, sombra y frescor para todos, mayor biodiversidad y sentido de la responsabilidad."
+        },
+        "it": {
+          "title": "Piantare un albero per ogni bambino e lasciarlo crescere con lui.",
+          "description": "Piantare un albero a nome di ogni bambino nella scuola o nel comune, identificarlo, seguirlo anno dopo anno e coinvolgere le famiglie nella sua cura.\n\nEffetti attesi: legame duraturo con la natura, ombra e frescura per tutti, maggiore biodiversità e senso di responsabilità."
+        },
+        "ru": {
+          "title": "Сажаем дерево для каждого ребёнка и позволяем ему расти вместе с ним.",
+          "description": "Посадка дерева на имя каждого ребёнка в школе или в населённом пункте, его маркировка, наблюдение за ним из года в год и привлечение семей к уходу за ним.\n\nОжидаемые результаты: прочная связь с природой, тень и прохлада для всех, рост биоразнообразия и чувство ответственности."
+        },
+        "ja": {
+          "title": "すべての子どもに一本の木を植え、子どもとともに育てる。",
+          "description": "学校や自治体で、子ども一人ひとりの名前で木を植え、名札を付け、毎年その成長を見守り、家族にも手入れに加わってもらう。\n\n期待される効果：自然との持続的なつながり、すべての人にとっての木陰と涼しさ、生物多様性の向上、そして責任感。"
+        },
+        "zh": {
+          "title": "为每个孩子种一棵树，让它与孩子一起成长。",
+          "description": "在学校或社区以每个孩子的名义种下一棵树，为它做好标记，年复一年地跟踪它的成长，并邀请家庭一起参与养护。\n\n预期效果：与自然建立持久的联系，为所有人带来树荫与清凉，提升生物多样性，培养责任感。"
+        },
+        "hi": {
+          "title": "हर बच्चे के लिए एक पेड़ लगाना और उसे बच्चे के साथ बढ़ने देना।",
+          "description": "स्कूल या नगर में हर बच्चे के नाम पर एक पेड़ लगाना, उसे चिह्नित करना, साल दर साल उसका ध्यान रखना और उसकी देखभाल में परिवारों को शामिल करना।\n\nअपेक्षित प्रभाव: प्रकृति से स्थायी जुड़ाव, सबके लिए छाया और ठंडक, अधिक जैव विविधता और ज़िम्मेदारी की भावना।"
+        }
+      }
+    },
+    {
+      "slug": "faire-de-chaque-classe-un-observatoire-de-la-biodiversite",
+      "scopeCodes": [
+        "FRA"
+      ],
+      "published": true,
+      "translations": {
+        "fr": {
+          "title": "Faire de chaque classe un observatoire de la biodiversité.",
+          "description": "Organiser des comptages réguliers d’oiseaux, d’insectes et de plantes dans la cour ou le quartier, dans le cadre de programmes de sciences participatives, et partager les observations avec les scientifiques.\n\nEffets attendus : apprentissage par l’expérience, regard attentif sur le vivant et données utiles à la recherche."
+        },
+        "en": {
+          "title": "Turning every classroom into a biodiversity observatory.",
+          "description": "Holding regular counts of birds, insects and plants in the schoolyard or neighbourhood as part of citizen-science programmes, and sharing the observations with scientists.\n\nExpected effects: learning by doing, closer attention to living things and data that is useful for research."
+        },
+        "es": {
+          "title": "Convirtiendo cada clase en un observatorio de la biodiversidad.",
+          "description": "Organizar recuentos periódicos de aves, insectos y plantas en el patio o en el barrio, dentro de programas de ciencia ciudadana, y compartir las observaciones con los científicos.\n\nEfectos esperados: aprendizaje a través de la experiencia, una mirada atenta a los seres vivos y datos útiles para la investigación."
+        },
+        "it": {
+          "title": "Trasformare ogni classe in un osservatorio della biodiversità.",
+          "description": "Organizzare conteggi regolari di uccelli, insetti e piante nel cortile o nel quartiere, nell'ambito di programmi di scienza partecipata, e condividere le osservazioni con gli scienziati.\n\nEffetti attesi: apprendimento attraverso l'esperienza, sguardo attento sul vivente e dati utili alla ricerca."
+        },
+        "ru": {
+          "title": "Превращаем каждый класс в обсерваторию биоразнообразия.",
+          "description": "Регулярный подсчёт птиц, насекомых и растений на школьном дворе или в районе в рамках программ гражданской науки и передача наблюдений учёным.\n\nОжидаемые результаты: обучение через опыт, внимательное отношение к живой природе и данные, полезные для научных исследований."
+        },
+        "ja": {
+          "title": "すべての教室を、生物多様性の観測所にする。",
+          "description": "校庭や地域で、市民科学プログラムの一環として鳥・昆虫・植物を定期的に数え、その観察結果を科学者と共有する。\n\n期待される効果：体験を通した学び、生き物への注意深いまなざし、そして研究に役立つデータ。"
+        },
+        "zh": {
+          "title": "把每个班级都变成生物多样性观测站。",
+          "description": "在校园或社区定期开展鸟类、昆虫和植物的计数，纳入公民科学项目，并与科学家分享观察结果。\n\n预期效果：在实践中学习，关注身边的生命，并提供对科研有用的数据。"
+        },
+        "hi": {
+          "title": "हर कक्षा को जैव विविधता की वेधशाला बनाना।",
+          "description": "स्कूल के आँगन या मोहल्ले में नागरिक विज्ञान कार्यक्रमों के तहत पक्षियों, कीड़ों और पौधों की नियमित गिनती करना और अवलोकनों को वैज्ञानिकों के साथ साझा करना।\n\nअपेक्षित प्रभाव: अनुभव से सीखना, जीवों के प्रति सजग दृष्टि और शोध के लिए उपयोगी आँकड़े।"
+        }
+      }
+    },
+    {
+      "slug": "jumeler-chaque-ecole-avec-une-ferme-locale",
+      "scopeCodes": [
+        "FRA"
+      ],
+      "published": true,
+      "translations": {
+        "fr": {
+          "title": "Jumeler chaque école avec une ferme locale.",
+          "description": "Organiser des visites régulières, des rencontres avec l’agriculteur, des travaux saisonniers à la ferme et un approvisionnement de la cantine en produits de ce même territoire.\n\nEffets attendus : compréhension de l’origine de l’alimentation, soutien aux agriculteurs locaux et repas plus frais et de saison."
+        },
+        "en": {
+          "title": "Twinning every school with a local farm.",
+          "description": "Organising regular visits, meetings with the farmer, seasonal work on the farm and supplying the canteen with produce from the same area.\n\nExpected effects: understanding where food comes from, support for local farmers, and fresher, seasonal meals."
+        },
+        "es": {
+          "title": "Hermanando cada escuela con una granja local.",
+          "description": "Organizar visitas periódicas, encuentros con el agricultor, trabajos de temporada en la granja y un suministro del comedor escolar con productos de ese mismo territorio.\n\nEfectos esperados: comprensión del origen de los alimentos, apoyo a los agricultores locales y comidas más frescas y de temporada."
+        },
+        "it": {
+          "title": "Gemellare ogni scuola con un'azienda agricola locale.",
+          "description": "Organizzare visite regolari, incontri con l'agricoltore, lavori stagionali in azienda e una fornitura della mensa con prodotti dello stesso territorio.\n\nEffetti attesi: comprensione dell'origine del cibo, sostegno agli agricoltori locali e pasti più freschi e di stagione."
+        },
+        "ru": {
+          "title": "Устанавливаем партнёрство каждой школы с местной фермой.",
+          "description": "Регулярные посещения, встречи с фермером, сезонные работы на ферме и снабжение школьной столовой продуктами с той же территории.\n\nОжидаемые результаты: понимание происхождения продуктов питания, поддержка местных фермеров и более свежие сезонные блюда."
+        },
+        "ja": {
+          "title": "すべての学校を地元の農場と結びつける。",
+          "description": "定期的な訪問、農家との交流、農場での季節の作業、そして同じ地域の食材による給食の提供を行う。\n\n期待される効果：食べ物の出どころへの理解、地元農家への支援、そしてより新鮮で旬の食事。"
+        },
+        "zh": {
+          "title": "让每所学校与一家本地农场结对。",
+          "description": "定期组织参观，与农民交流，参与农场的季节性劳动，并让学校食堂使用同一地区出产的食材。\n\n预期效果：了解食物的来源，支持本地农民，让餐食更新鲜、更应季。"
+        },
+        "hi": {
+          "title": "हर स्कूल को एक स्थानीय खेत से जोड़ना।",
+          "description": "नियमित भ्रमण, किसान से मुलाक़ात, खेत में मौसमी काम और स्कूल की कैंटीन में उसी क्षेत्र की उपज की आपूर्ति करना।\n\nअपेक्षित प्रभाव: भोजन के स्रोत की समझ, स्थानीय किसानों को सहयोग और अधिक ताज़ा, मौसमी भोजन।"
+        }
+      }
+    },
+    {
+      "slug": "apprendre-a-lire-le-climat-avec-les-donnees-de-sa-ville",
+      "scopeCodes": [
+        "FRA"
+      ],
+      "published": true,
+      "translations": {
+        "fr": {
+          "title": "Apprendre à lire le climat avec les données de sa propre ville.",
+          "description": "Utiliser en classe les températures, les épisodes de canicule, la qualité de l’air et les émissions de la commune comme support de mathématiques, de sciences et de géographie, à partir de sources officielles.\n\nEffets attendus : esprit critique, compréhension concrète du changement climatique et capacité à agir localement."
+        },
+        "en": {
+          "title": "Learning to read the climate through the data of your own city.",
+          "description": "Using local temperatures, heatwave episodes, air quality and emissions in class as material for maths, science and geography, drawing on official sources.\n\nExpected effects: critical thinking, a concrete understanding of climate change and the ability to act locally."
+        },
+        "es": {
+          "title": "Aprendiendo a leer el clima con los datos de la propia ciudad.",
+          "description": "Utilizar en clase las temperaturas, los episodios de ola de calor, la calidad del aire y las emisiones del municipio como material de matemáticas, ciencias y geografía, a partir de fuentes oficiales.\n\nEfectos esperados: pensamiento crítico, comprensión concreta del cambio climático y capacidad de actuar a nivel local."
+        },
+        "it": {
+          "title": "Imparare a leggere il clima con i dati della propria città.",
+          "description": "Utilizzare in classe le temperature, gli episodi di ondata di calore, la qualità dell'aria e le emissioni del comune come materiale per matematica, scienze e geografia, a partire da fonti ufficiali.\n\nEffetti attesi: spirito critico, comprensione concreta del cambiamento climatico e capacità di agire a livello locale."
+        },
+        "ru": {
+          "title": "Учимся читать климат по данным собственного города.",
+          "description": "Использование на уроках данных о температуре, волнах жары, качестве воздуха и выбросах в своём городе как материала для математики, естественных наук и географии на основе официальных источников.\n\nОжидаемые результаты: критическое мышление, конкретное понимание изменения климата и умение действовать на местном уровне."
+        },
+        "ja": {
+          "title": "自分の町のデータで気候を読み解くことを学ぶ。",
+          "description": "公的な情報源に基づき、地元の気温、猛暑の発生状況、大気の質、排出量を、算数・理科・地理の教材として授業で活用する。\n\n期待される効果：批判的思考、気候変動の具体的な理解、そして地域で行動する力。"
+        },
+        "zh": {
+          "title": "用自己所在城市的数据学会读懂气候。",
+          "description": "以官方数据为依据，在课堂上把本地的气温、热浪天数、空气质量和排放量作为数学、科学和地理的教学素材。\n\n预期效果：批判性思维，对气候变化的具体理解，以及在本地采取行动的能力。"
+        },
+        "hi": {
+          "title": "अपने शहर के आँकड़ों से जलवायु को पढ़ना सीखना।",
+          "description": "आधिकारिक स्रोतों के आधार पर स्थानीय तापमान, लू के दौर, वायु गुणवत्ता और उत्सर्जन को गणित, विज्ञान और भूगोल की पढ़ाई की सामग्री के रूप में कक्षा में उपयोग करना।\n\nअपेक्षित प्रभाव: आलोचनात्मक सोच, जलवायु परिवर्तन की ठोस समझ और स्थानीय स्तर पर कार्य करने की क्षमता।"
+        }
+      }
+    },
+    {
+      "slug": "preparer-chaque-enfant-aux-risques-climatiques-de-son-territoire",
+      "scopeCodes": [
+        "FRA"
+      ],
+      "published": true,
+      "translations": {
+        "fr": {
+          "title": "Préparer chaque enfant aux risques climatiques de son territoire.",
+          "description": "Enseigner, à chaque âge, les bons réflexes face à la canicule, aux incendies, aux inondations ou aux tempêtes, avec des exercices adaptés, rassurants et fondés sur les risques réellement présents localement.\n\nEffets attendus : réaction plus calme en cas d’alerte, moindre vulnérabilité et enfants acteurs de la sécurité collective."
+        },
+        "en": {
+          "title": "Preparing every child for the climate risks of their area.",
+          "description": "Teaching, at every age, the right reflexes in the face of heatwaves, fires, floods or storms, through suitable, reassuring exercises based on the risks that actually exist locally.\n\nExpected effects: calmer reactions during an alert, lower vulnerability and children who take part in collective safety."
+        },
+        "es": {
+          "title": "Preparando a cada niño para los riesgos climáticos de su territorio.",
+          "description": "Enseñar, a cada edad, los reflejos adecuados ante las olas de calor, los incendios, las inundaciones o las tormentas, con ejercicios adaptados y tranquilizadores, basados en los riesgos realmente presentes en cada lugar.\n\nEfectos esperados: reacción más serena ante una alerta, menor vulnerabilidad y niños que participan en la seguridad colectiva."
+        },
+        "it": {
+          "title": "Preparare ogni bambino ai rischi climatici del proprio territorio.",
+          "description": "Insegnare, a ogni età, i comportamenti giusti di fronte a ondate di calore, incendi, alluvioni o tempeste, con esercitazioni adatte e rassicuranti, basate sui rischi realmente presenti a livello locale.\n\nEffetti attesi: reazioni più calme in caso di allerta, minore vulnerabilità e bambini protagonisti della sicurezza collettiva."
+        },
+        "ru": {
+          "title": "Готовим каждого ребёнка к климатическим рискам его региона.",
+          "description": "Обучение на каждом возрасте правильным действиям при жаре, пожарах, наводнениях и бурях с помощью подходящих, успокаивающих упражнений, основанных на реальных местных рисках.\n\nОжидаемые результаты: более спокойная реакция при тревоге, меньшая уязвимость и дети как участники коллективной безопасности."
+        },
+        "ja": {
+          "title": "すべての子どもに、地域の気候リスクへの備えを教える。",
+          "description": "年齢に応じて、猛暑・火災・洪水・暴風雨への正しい行動を、その地域に実際に存在するリスクに基づいた、安心感のある適切な訓練を通じて教える。\n\n期待される効果：警報時の落ち着いた行動、脆弱性の低減、そして地域の安全に参加する子どもたち。"
+        },
+        "zh": {
+          "title": "让每个孩子都为所在地区的气候风险做好准备。",
+          "description": "按不同年龄段，教给孩子应对热浪、火灾、洪水或风暴的正确做法，通过适龄、令人安心且基于当地实际风险的演练来进行。\n\n预期效果：警报来临时更加冷静，降低脆弱性，让孩子成为集体安全的参与者。"
+        },
+        "hi": {
+          "title": "हर बच्चे को अपने क्षेत्र के जलवायु जोखिमों के लिए तैयार करना।",
+          "description": "हर उम्र में लू, आग, बाढ़ या तूफ़ान जैसी स्थितियों में सही कदम सिखाना, ऐसे उपयुक्त और आश्वस्त करने वाले अभ्यासों के साथ जो स्थानीय स्तर पर मौजूद वास्तविक जोखिमों पर आधारित हों।\n\nअपेक्षित प्रभाव: चेतावनी के समय अधिक शांत प्रतिक्रिया, कम संवेदनशीलता और सामूहिक सुरक्षा में भागीदार बच्चे।"
+        }
+      }
+    },
+    {
+      "slug": "faire-de-chaque-ecole-un-batiment-exemplaire-pour-l-energie",
+      "scopeCodes": [
+        "FRA"
+      ],
+      "published": true,
+      "translations": {
+        "fr": {
+          "title": "Faire de chaque école un bâtiment exemplaire pour l’énergie.",
+          "description": "Isoler les bâtiments, installer de l’énergie solaire lorsque c’est possible et afficher à l’entrée la consommation d’énergie et d’eau, afin que les élèves puissent en suivre l’évolution et participer aux économies.\n\nEffets attendus : classes plus confortables été comme hiver, factures réduites et énergie comprise par les enfants."
+        },
+        "en": {
+          "title": "Making every school an exemplary building for energy.",
+          "description": "Insulating buildings, installing solar power where possible and displaying energy and water consumption at the entrance, so that pupils can follow its evolution and take part in the savings.\n\nExpected effects: classrooms that are more comfortable in summer and winter, lower bills and energy understood by children."
+        },
+        "es": {
+          "title": "Convirtiendo cada escuela en un edificio ejemplar en materia de energía.",
+          "description": "Aislar los edificios, instalar energía solar cuando sea posible y mostrar a la entrada el consumo de energía y de agua, para que los alumnos puedan seguir su evolución y participar en el ahorro.\n\nEfectos esperados: aulas más confortables en verano y en invierno, facturas más bajas y una energía comprendida por los niños."
+        },
+        "it": {
+          "title": "Rendere ogni scuola un edificio esemplare per l'energia.",
+          "description": "Isolare gli edifici, installare energia solare quando possibile e mostrare all'ingresso i consumi di energia e di acqua, in modo che gli alunni ne seguano l'andamento e partecipino al risparmio.\n\nEffetti attesi: aule più confortevoli in estate e in inverno, bollette ridotte ed energia compresa dai bambini."
+        },
+        "ru": {
+          "title": "Делаем каждую школу образцовым зданием по энергопотреблению.",
+          "description": "Утепление зданий, установка солнечных панелей там, где это возможно, и вывод на входе данных о потреблении энергии и воды, чтобы ученики могли следить за изменениями и участвовать в экономии.\n\nОжидаемые результаты: более комфортные классы летом и зимой, снижение расходов и понимание детьми того, что такое энергия."
+        },
+        "ja": {
+          "title": "すべての学校を、エネルギー面の模範的な建物にする。",
+          "description": "建物を断熱し、可能な場合は太陽光発電を設置し、入口にエネルギーと水の使用量を掲示して、児童生徒がその推移を見守り、節約に参加できるようにする。\n\n期待される効果：夏も冬も快適な教室、光熱費の削減、そして子どもたちによるエネルギーへの理解。"
+        },
+        "zh": {
+          "title": "让每所学校都成为节能的示范建筑。",
+          "description": "对建筑进行保温改造，在条件允许时安装太阳能设施，并在入口处公示能源和用水量，让学生能够关注其变化并参与节约。\n\n预期效果：教室冬暖夏凉更舒适，费用降低，孩子们真正理解能源。"
+        },
+        "hi": {
+          "title": "हर स्कूल को ऊर्जा के मामले में एक आदर्श इमारत बनाना।",
+          "description": "इमारतों में इन्सुलेशन करना, जहाँ संभव हो सौर ऊर्जा लगाना और प्रवेश द्वार पर बिजली-पानी की खपत दर्शाना, ताकि विद्यार्थी उसके बदलाव को देख सकें और बचत में भागीदार बनें।\n\nअपेक्षित प्रभाव: गर्मी और सर्दी में अधिक आरामदायक कक्षाएँ, कम बिल और बच्चों को ऊर्जा की समझ।"
+        }
+      }
+    },
+    {
+      "slug": "garantir-une-fontaine-d-eau-potable-gratuite-dans-chaque-ecole",
+      "scopeCodes": [
+        "FRA"
+      ],
+      "published": true,
+      "translations": {
+        "fr": {
+          "title": "Garantir une fontaine d’eau potable gratuite dans chaque école.",
+          "description": "Installer des fontaines accessibles dans les cours et les restaurants scolaires, entretenues et contrôlées régulièrement, avec une gourde pour chaque enfant.\n\nEffets attendus : meilleure hydratation, moins de bouteilles en plastique et égalité d’accès à l’eau."
+        },
+        "en": {
+          "title": "Guaranteeing a free drinking-water fountain in every school.",
+          "description": "Installing accessible fountains in schoolyards and canteens, regularly maintained and checked, with a reusable bottle for each child.\n\nExpected effects: better hydration, fewer plastic bottles and equal access to water."
+        },
+        "es": {
+          "title": "Garantizando una fuente de agua potable gratuita en cada escuela.",
+          "description": "Instalar fuentes accesibles en los patios y comedores escolares, con mantenimiento y controles periódicos, y una cantimplora para cada niño.\n\nEfectos esperados: mejor hidratación, menos botellas de plástico e igualdad de acceso al agua."
+        },
+        "it": {
+          "title": "Garantire una fontanella di acqua potabile gratuita in ogni scuola.",
+          "description": "Installare fontanelle accessibili nei cortili e nelle mense scolastiche, sottoposte a manutenzione e controlli regolari, con una borraccia per ogni bambino.\n\nEffetti attesi: migliore idratazione, meno bottiglie di plastica e parità di accesso all'acqua."
+        },
+        "ru": {
+          "title": "Обеспечиваем бесплатный питьевой фонтанчик в каждой школе.",
+          "description": "Установка доступных питьевых фонтанчиков во дворах и школьных столовых, их регулярное обслуживание и проверка, а также многоразовая бутылка для каждого ребёнка.\n\nОжидаемые результаты: достаточное потребление воды, меньше пластиковых бутылок и равный доступ к воде."
+        },
+        "ja": {
+          "title": "すべての学校に、無料の飲料水の水飲み場を保証する。",
+          "description": "校庭や給食の場に誰でも使える水飲み場を設置し、定期的に維持管理と検査を行い、子ども一人ひとりに水筒を用意する。\n\n期待される効果：水分補給の改善、ペットボトルの削減、そして水への平等なアクセス。"
+        },
+        "zh": {
+          "title": "保证每所学校都有免费的直饮水设施。",
+          "description": "在校园和学校食堂设置便于使用的饮水点，定期维护和检测，并为每个孩子配备一个水壶。\n\n预期效果：改善饮水状况，减少塑料瓶使用，实现人人平等用水。"
+        },
+        "hi": {
+          "title": "हर स्कूल में पीने के पानी की मुफ़्त सुविधा की गारंटी देना।",
+          "description": "स्कूल के आँगन और कैंटीन में आसानी से पहुँच वाले पेयजल स्थल लगाना, उनका नियमित रखरखाव और जाँच करना और हर बच्चे को एक दोबारा इस्तेमाल होने वाली बोतल देना।\n\nअपेक्षित प्रभाव: बेहतर जल-सेवन, प्लास्टिक की बोतलों में कमी और पानी तक समान पहुँच।"
+        }
+      }
+    },
+    {
+      "slug": "garantir-un-air-respirable-devant-chaque-ecole",
+      "scopeCodes": [
+        "FRA"
+      ],
+      "published": true,
+      "translations": {
+        "fr": {
+          "title": "Garantir un air respirable devant chaque école.",
+          "description": "Créer des rues scolaires sans voiture aux heures d’entrée et de sortie, encourager la marche et le vélo, mesurer la qualité de l’air aux abords des écoles et en publier les résultats.\n\nEffets attendus : moins de pollution respirée par les enfants, sécurité accrue et quartiers plus apaisés."
+        },
+        "en": {
+          "title": "Guaranteeing breathable air in front of every school.",
+          "description": "Creating school streets closed to cars at drop-off and pick-up times, encouraging walking and cycling, measuring air quality around schools and publishing the results.\n\nExpected effects: less pollution breathed in by children, greater safety and calmer neighbourhoods."
+        },
+        "es": {
+          "title": "Garantizando un aire respirable ante cada escuela.",
+          "description": "Crear calles escolares sin coches en las horas de entrada y salida, fomentar los desplazamientos a pie y en bicicleta, medir la calidad del aire en los alrededores de las escuelas y publicar los resultados.\n\nEfectos esperados: menos contaminación respirada por los niños, mayor seguridad y barrios más tranquilos."
+        },
+        "it": {
+          "title": "Garantire aria respirabile davanti a ogni scuola.",
+          "description": "Creare strade scolastiche senza auto negli orari di entrata e di uscita, incoraggiare gli spostamenti a piedi e in bicicletta, misurare la qualità dell'aria nei pressi delle scuole e pubblicarne i risultati.\n\nEffetti attesi: meno inquinamento respirato dai bambini, maggiore sicurezza e quartieri più tranquilli."
+        },
+        "ru": {
+          "title": "Обеспечиваем чистый воздух перед каждой школой.",
+          "description": "Создание школьных улиц без автомобилей в часы начала и окончания занятий, поощрение ходьбы и езды на велосипеде, измерение качества воздуха вблизи школ и публикация результатов.\n\nОжидаемые результаты: меньше загрязнённого воздуха, которым дышат дети, повышение безопасности и более спокойные районы."
+        },
+        "ja": {
+          "title": "すべての学校の前に、きれいな空気を保証する。",
+          "description": "登下校の時間帯に車を通行止めにする「スクールストリート」を設け、徒歩や自転車を促し、学校周辺の大気の質を測定して結果を公表する。\n\n期待される効果：子どもが吸い込む汚染の減少、安全性の向上、そしてより穏やかな地域。"
+        },
+        "zh": {
+          "title": "保证每所学校门前都有可呼吸的清洁空气。",
+          "description": "在上下学时段设立禁止车辆通行的“学校街道”，鼓励步行和骑行，监测学校周边的空气质量并公布结果。\n\n预期效果：减少孩子吸入的污染，提高安全性，让社区更加安宁。"
+        },
+        "hi": {
+          "title": "हर स्कूल के सामने साँस लेने योग्य हवा की गारंटी देना।",
+          "description": "स्कूल आने-जाने के समय कारों से मुक्त “स्कूल मार्ग” बनाना, पैदल चलने और साइकिल को बढ़ावा देना, स्कूलों के आसपास वायु गुणवत्ता मापना और उसके परिणाम सार्वजनिक करना।\n\nअपेक्षित प्रभाव: बच्चों द्वारा साँस में ली जाने वाली प्रदूषित हवा में कमी, अधिक सुरक्षा और अधिक शांत मोहल्ले।"
+        }
+      }
+    },
+    {
+      "slug": "instaurer-une-zone-sans-pesticides-de-synthese-autour-des-ecoles",
+      "scopeCodes": [
+        "FRA"
+      ],
+      "published": true,
+      "translations": {
+        "fr": {
+          "title": "Instaurer une zone sans pesticides de synthèse autour des écoles.",
+          "description": "Interdire l’usage de pesticides de synthèse aux abords immédiats des établissements scolaires et accompagner les agriculteurs et les communes dans la transition vers des pratiques alternatives.\n\nEffets attendus : exposition réduite des enfants, biodiversité préservée et dialogue renforcé avec le monde agricole."
+        },
+        "en": {
+          "title": "Establishing a synthetic-pesticide-free zone around schools.",
+          "description": "Banning the use of synthetic pesticides in the immediate surroundings of schools and supporting farmers and municipalities in the transition to alternative practices.\n\nExpected effects: reduced exposure for children, preserved biodiversity and stronger dialogue with the farming community."
+        },
+        "es": {
+          "title": "Estableciendo una zona sin plaguicidas de síntesis alrededor de las escuelas.",
+          "description": "Prohibir el uso de plaguicidas de síntesis en los alrededores inmediatos de los centros escolares y acompañar a los agricultores y a los municipios en la transición hacia prácticas alternativas.\n\nEfectos esperados: menor exposición de los niños, biodiversidad preservada y un diálogo reforzado con el mundo agrícola."
+        },
+        "it": {
+          "title": "Istituire una zona senza pesticidi di sintesi attorno alle scuole.",
+          "description": "Vietare l'uso di pesticidi di sintesi nelle immediate vicinanze degli edifici scolastici e accompagnare agricoltori e comuni nella transizione verso pratiche alternative.\n\nEffetti attesi: minore esposizione dei bambini, biodiversità preservata e dialogo rafforzato con il mondo agricolo."
+        },
+        "ru": {
+          "title": "Создаём вокруг школ зону без синтетических пестицидов.",
+          "description": "Запрет на использование синтетических пестицидов в непосредственной близости от школ и поддержка фермеров и муниципалитетов при переходе на альтернативные методы.\n\nОжидаемые результаты: меньшее воздействие на детей, сохранение биоразнообразия и более тесный диалог с аграрным сообществом."
+        },
+        "ja": {
+          "title": "学校の周囲に、合成農薬を使わない区域を設ける。",
+          "description": "学校のすぐ周辺での合成農薬の使用を禁止し、農家や自治体が代替的な方法へ移行できるよう支援する。\n\n期待される効果：子どもたちの曝露の低減、生物多様性の保全、そして農業関係者との対話の強化。"
+        },
+        "zh": {
+          "title": "在学校周边设立禁用合成农药的区域。",
+          "description": "禁止在学校紧邻区域使用合成农药，并帮助农民和地方政府向替代性做法转型。\n\n预期效果：降低孩子接触农药的风险，保护生物多样性，加强与农业界的对话。"
+        },
+        "hi": {
+          "title": "स्कूलों के आसपास कृत्रिम कीटनाशक-मुक्त क्षेत्र बनाना।",
+          "description": "स्कूलों के ठीक आसपास कृत्रिम कीटनाशकों के उपयोग पर रोक लगाना और किसानों व नगर निकायों को वैकल्पिक तरीकों की ओर बढ़ने में सहयोग देना।\n\nअपेक्षित प्रभाव: बच्चों का कम संपर्क, जैव विविधता का संरक्षण और कृषि समुदाय के साथ मज़बूत संवाद।"
+        }
+      }
+    },
+    {
+      "slug": "apprendre-a-chaque-enfant-a-circuler-a-velo-en-securite",
+      "scopeCodes": [
+        "FRA"
+      ],
+      "published": true,
+      "translations": {
+        "fr": {
+          "title": "Apprendre à chaque enfant à circuler à vélo en sécurité.",
+          "description": "Généraliser l’apprentissage du vélo et des règles de circulation à tous les élèves du primaire, avec des vélos mis à disposition et des itinéraires sécurisés autour des écoles.\n\nEffets attendus : autonomie des enfants, activité physique quotidienne et moins de trajets en voiture."
+        },
+        "en": {
+          "title": "Teaching every child to cycle safely.",
+          "description": "Making cycling lessons and road-safety rules universal for all primary-school pupils, with bikes made available and safe routes around schools.\n\nExpected effects: children’s independence, daily physical activity and fewer car journeys."
+        },
+        "es": {
+          "title": "Enseñando a cada niño a circular en bicicleta con seguridad.",
+          "description": "Generalizar el aprendizaje de la bicicleta y de las normas de circulación a todos los alumnos de primaria, con bicicletas a su disposición e itinerarios seguros en torno a las escuelas.\n\nEfectos esperados: autonomía de los niños, actividad física diaria y menos desplazamientos en coche."
+        },
+        "it": {
+          "title": "Insegnare a ogni bambino a pedalare in sicurezza.",
+          "description": "Rendere universale l'apprendimento della bicicletta e delle regole della strada per tutti gli alunni della primaria, con biciclette messe a disposizione e percorsi sicuri attorno alle scuole.\n\nEffetti attesi: autonomia dei bambini, attività fisica quotidiana e meno spostamenti in auto."
+        },
+        "ru": {
+          "title": "Учим каждого ребёнка безопасно ездить на велосипеде.",
+          "description": "Обучение езде на велосипеде и правилам дорожного движения для всех учеников начальной школы, с предоставлением велосипедов и безопасными маршрутами вокруг школ.\n\nОжидаемые результаты: самостоятельность детей, ежедневная физическая активность и меньше поездок на автомобиле."
+        },
+        "ja": {
+          "title": "すべての子どもに、安全な自転車の乗り方を教える。",
+          "description": "自転車の乗り方と交通ルールの学習をすべての小学生に広げ、自転車の貸し出しと学校周辺の安全な経路を整える。\n\n期待される効果：子どもの自立、毎日の運動、そして車での送り迎えの減少。"
+        },
+        "zh": {
+          "title": "教会每个孩子安全骑行。",
+          "description": "让所有小学生都学习骑自行车和交通规则，提供自行车，并在学校周边规划安全的骑行路线。\n\n预期效果：培养孩子的独立性，保证每天的运动量，减少汽车出行。"
+        },
+        "hi": {
+          "title": "हर बच्चे को सुरक्षित साइकिल चलाना सिखाना।",
+          "description": "सभी प्राथमिक विद्यार्थियों के लिए साइकिल चलाना और यातायात नियम सिखाना सामान्य बनाना, साइकिलें उपलब्ध कराना और स्कूलों के आसपास सुरक्षित मार्ग बनाना।\n\nअपेक्षित प्रभाव: बच्चों में आत्मनिर्भरता, रोज़ की शारीरिक गतिविधि और कार से कम यात्राएँ।"
+        }
+      }
+    },
+    {
+      "slug": "viser-le-zero-gaspillage-a-l-ecole-reemploi-seconde-main-et-troc",
+      "scopeCodes": [
+        "FRA"
+      ],
+      "published": true,
+      "translations": {
+        "fr": {
+          "title": "Viser le zéro gaspillage à l’école : réemploi, seconde main et troc.",
+          "description": "Réutiliser les fournitures d’une année sur l’autre, organiser des échanges de vêtements, de livres et de jouets, et réduire le gaspillage alimentaire à la cantine en mesurant ce qui est jeté.\n\nEffets attendus : moins de déchets, économies pour les familles et habitude de consommer autrement."
+        },
+        "en": {
+          "title": "Aiming for zero waste at school: reuse, second-hand and swapping.",
+          "description": "Reusing supplies from one year to the next, organising swaps of clothes, books and toys, and cutting food waste in the canteen by measuring what is thrown away.\n\nExpected effects: less waste, savings for families and a habit of consuming differently."
+        },
+        "es": {
+          "title": "Apuntando al residuo cero en la escuela: reutilización, segunda mano y trueque.",
+          "description": "Reutilizar el material escolar de un año para otro, organizar intercambios de ropa, libros y juguetes y reducir el desperdicio alimentario en el comedor midiendo lo que se tira.\n\nEfectos esperados: menos residuos, ahorro para las familias y el hábito de consumir de otra manera."
+        },
+        "it": {
+          "title": "Puntare allo spreco zero a scuola: riuso, seconda mano e baratto.",
+          "description": "Riutilizzare il materiale scolastico da un anno all'altro, organizzare scambi di vestiti, libri e giocattoli e ridurre lo spreco alimentare in mensa misurando ciò che viene buttato.\n\nEffetti attesi: meno rifiuti, risparmio per le famiglie e l'abitudine a consumare in modo diverso."
+        },
+        "ru": {
+          "title": "Стремимся к нулевым отходам в школе: повторное использование, вещи из вторых рук и обмен.",
+          "description": "Повторное использование школьных принадлежностей из года в год, организация обмена одеждой, книгами и игрушками и сокращение пищевых отходов в столовой за счёт учёта выбрасываемого.\n\nОжидаемые результаты: меньше отходов, экономия для семей и привычка потреблять иначе."
+        },
+        "ja": {
+          "title": "学校でごみゼロを目指す：再利用、お下がり、物々交換。",
+          "description": "学用品を翌年も再利用し、衣類・本・おもちゃの交換会を開き、給食で捨てられる量を測って食品ロスを減らす。\n\n期待される効果：ごみの削減、家庭の負担軽減、そして消費の仕方を変える習慣。"
+        },
+        "zh": {
+          "title": "在学校追求零浪费：再利用、二手和以物换物。",
+          "description": "让学习用品逐年循环使用，组织衣物、书籍和玩具的交换，并通过称量被丢弃的食物来减少食堂的食物浪费。\n\n预期效果：减少垃圾，为家庭节省开支，养成不同的消费习惯。"
+        },
+        "hi": {
+          "title": "स्कूल में शून्य अपव्यय का लक्ष्य: पुन: उपयोग, सेकंड-हैंड और अदला-बदली।",
+          "description": "स्कूल की सामग्री को एक साल से दूसरे साल दोबारा इस्तेमाल करना, कपड़ों, किताबों और खिलौनों की अदला-बदली आयोजित करना और कैंटीन में फेंके गए खाने को तौलकर खाद्य बर्बादी घटाना।\n\nअपेक्षित प्रभाव: कम कचरा, परिवारों की बचत और अलग ढंग से उपभोग करने की आदत।"
+        }
+      }
+    },
+    {
+      "slug": "creer-un-defenseur-des-generations-futures",
+      "scopeCodes": [
+        "FRA"
+      ],
+      "published": true,
+      "translations": {
+        "fr": {
+          "title": "Créer un·e Défenseur·e des générations futures.",
+          "description": "Mettre en place une institution indépendante chargée d’alerter le Parlement et le public sur les conséquences à long terme des grandes décisions et de formuler des recommandations publiques, sur le modèle de ce qui existe déjà dans d’autres pays.\n\nEffets attendus : décisions pensées sur le long terme et voix durable pour les enfants d’aujourd’hui et de demain."
+        },
+        "en": {
+          "title": "Creating a Defender of Future Generations.",
+          "description": "Setting up an independent institution tasked with alerting Parliament and the public to the long-term consequences of major decisions and issuing public recommendations, along the lines of what already exists in other countries.\n\nExpected effects: decisions designed for the long term and a lasting voice for the children of today and tomorrow."
+        },
+        "es": {
+          "title": "Creando una figura de Defensor de las Generaciones Futuras.",
+          "description": "Establecer una institución independiente encargada de alertar al Parlamento y al público sobre las consecuencias a largo plazo de las grandes decisiones y de formular recomendaciones públicas, siguiendo el modelo de lo que ya existe en otros países.\n\nEfectos esperados: decisiones pensadas a largo plazo y una voz duradera para los niños de hoy y de mañana."
+        },
+        "it": {
+          "title": "Creare un Difensore delle generazioni future.",
+          "description": "Istituire un'istituzione indipendente incaricata di avvertire il Parlamento e il pubblico sulle conseguenze a lungo termine delle grandi decisioni e di formulare raccomandazioni pubbliche, sul modello di quanto già esiste in altri paesi.\n\nEffetti attesi: decisioni pensate sul lungo periodo e una voce duratura per i bambini di oggi e di domani."
+        },
+        "ru": {
+          "title": "Создаём институт Защитника будущих поколений.",
+          "description": "Учреждение независимого института, который предупреждает парламент и общество о долгосрочных последствиях важных решений и публикует рекомендации, по образцу того, что уже существует в других странах.\n\nОжидаемые результаты: решения, рассчитанные на долгосрочную перспективу, и постоянный голос для сегодняшних и будущих детей."
+        },
+        "ja": {
+          "title": "「将来世代の擁護者」を創設する。",
+          "description": "重要な決定の長期的な影響について、議会と市民に警告し、公に提言を行う独立した機関を、すでに他の国々に存在する例にならって設ける。\n\n期待される効果：長期的な視点に立った意思決定、そして今日と未来の子どもたちの声が持続的に届くこと。"
+        },
+        "zh": {
+          "title": "设立“后代权益捍卫者”。",
+          "description": "设立一个独立机构，负责就重大决策的长期后果向议会和公众发出预警并公开提出建议，借鉴其他国家已有的做法。\n\n预期效果：决策着眼长远，让今天和未来的孩子拥有持久的发言权。"
+        },
+        "hi": {
+          "title": "भावी पीढ़ियों के रक्षक की संस्था बनाना।",
+          "description": "एक स्वतंत्र संस्था स्थापित करना जो बड़े फ़ैसलों के दीर्घकालिक परिणामों के बारे में संसद और जनता को सचेत करे और सार्वजनिक सिफ़ारिशें दे, जैसा कि अन्य देशों में पहले से मौजूद है।\n\nअपेक्षित प्रभाव: दीर्घकालिक सोच से लिए गए निर्णय और आज व कल के बच्चों के लिए एक स्थायी आवाज़।"
+        }
+      }
+    }
+  ]
+}
