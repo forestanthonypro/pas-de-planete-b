@@ -13,7 +13,8 @@
 //   node src/scripts/publish-debunk.js --apply --no-push  # sans notification push aux abonnés
 //
 // Une fiche dont le slug existe déjà est laissée intacte par défaut (pour ne
-// jamais écraser une correction faite depuis l'admin). Tout est écrit dans UNE
+// jamais écraser une correction faite depuis l'admin) ; seule exception : si
+// elle n'a pas encore d'image, l'image du lot est ajoutée. Tout est écrit dans UNE
 // transaction ; les traductions sont écrites avant la fiche (la notification
 // push, migration 051, ne part donc jamais avant que les 8 langues existent).
 
@@ -78,7 +79,10 @@ async function main() {
       console.log(`\nAperçu seulement (${toWrite.length} fiche(s) seraient écrites, ${DEBUNK_LOCALES.length} langues chacune). Relancer avec --apply pour publier.`);
       return;
     }
-    if (toWrite.length === 0 && categories.every((c) => categoryIds.has(c.slug))) {
+    // Fiches déjà en ligne mais sans image : on ne complète QUE le champ vide
+    // (jamais une image choisie depuis l'admin, jamais le texte).
+    const toFillImage = entries.filter((e) => existingSlugs.has(e.slug) && !toWrite.includes(e) && e.imageUrl);
+    if (toWrite.length === 0 && toFillImage.length === 0 && categories.every((c) => categoryIds.has(c.slug))) {
       console.log("\nRien à écrire.");
       return;
     }
@@ -104,19 +108,25 @@ async function main() {
       }
       const fr = e.translations.fr;
       await client.query(
-        `INSERT INTO debunk_entries (slug, myth, reality, category_id, verdict, claim_quote, published, scope_codes, updated_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, now())
+        `INSERT INTO debunk_entries (slug, myth, reality, category_id, verdict, claim_quote, image_url, published, scope_codes, updated_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, now())
          ON CONFLICT (slug) DO UPDATE SET
            myth = EXCLUDED.myth, reality = EXCLUDED.reality, category_id = EXCLUDED.category_id,
-           verdict = EXCLUDED.verdict, claim_quote = EXCLUDED.claim_quote,
+           verdict = EXCLUDED.verdict, claim_quote = EXCLUDED.claim_quote, image_url = EXCLUDED.image_url,
            published = EXCLUDED.published, scope_codes = EXCLUDED.scope_codes, updated_at = now()`,
-        [e.slug, fr.myth.trim(), fr.reality.trim(), categoryIds.get(e.categorySlug), e.verdict, fr.claimQuote.trim(), e.published, e.scopeCodes]
+        [e.slug, fr.myth.trim(), fr.reality.trim(), categoryIds.get(e.categorySlug), e.verdict, fr.claimQuote.trim(), e.imageUrl, e.published, e.scopeCodes]
       );
       await client.query("DELETE FROM debunk_sources WHERE debunk_slug = $1", [e.slug]);
       for (const s of e.sources) {
         await client.query("INSERT INTO debunk_sources (debunk_slug, label, url) VALUES ($1, $2, $3)", [e.slug, s.label, s.url]);
       }
     }
+    let imagesFilled = 0;
+    for (const e of toFillImage) {
+      const res = await client.query("UPDATE debunk_entries SET image_url = $2 WHERE slug = $1 AND image_url IS NULL", [e.slug, e.imageUrl]);
+      imagesFilled += res.rowCount;
+    }
+    if (imagesFilled > 0) console.log(`Images ajoutées à des fiches déjà en ligne (champ vide uniquement) : ${imagesFilled}`);
     if (noPush) {
       // Les triggers de la migration 051 ont déjà mis en file un événement
       // "debunk_published" par fiche publiée ; on le retire avant le COMMIT,

@@ -1,5 +1,5 @@
 import { sanitizeScopeCodes } from "./scopeCodes.js";
-import { PETITION_LOCALES, isHttpsUrl } from "./petitionSeed.js";
+import { PETITION_LOCALES, isHttpsUrl, isValidImageUrl } from "./petitionSeed.js";
 
 export const DEBUNK_LOCALES = PETITION_LOCALES;
 export const DEBUNK_VERDICTS = ["faux", "trompeur", "confirme"];
@@ -58,6 +58,10 @@ export function validateDebunkSeed(seed) {
       fail("categorySlug est requis (catégorie existante ou déclarée dans categories)");
     }
 
+    if (entry.imageUrl !== undefined && !isValidImageUrl(entry.imageUrl)) {
+      fail("imageUrl doit être un chemin du site (/...) ou une URL https");
+    }
+
     const scopeCodes = Array.isArray(entry.scopeCodes) ? entry.scopeCodes : [];
     if (scopeCodes.length === 0 || sanitizeScopeCodes(scopeCodes).length !== scopeCodes.length) {
       fail("scopeCodes doit contenir au moins un code valide, sans doublon (ex. FRA, EUR, WORLD)");
@@ -88,6 +92,7 @@ export function validateDebunkSeed(seed) {
       slug: entry.slug,
       verdict: entry.verdict,
       categorySlug: entry.categorySlug,
+      imageUrl: entry.imageUrl || null,
       scopeCodes: sanitizeScopeCodes(scopeCodes),
       published: entry.published === true,
       sources: sources.map((s) => ({ label: String(s.label).trim(), url: s.url })),

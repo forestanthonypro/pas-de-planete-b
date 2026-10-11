@@ -62,3 +62,19 @@ test("rejette slug invalide, doublon, verdict inconnu et portée inventée", () 
 test("un fichier sans tableau entries est refusé", () => {
   assert.ok(validateDebunkSeed({}).errors.length > 0);
 });
+
+test("imageUrl : chemin du site ou https accepté, URL protocole-relatif refusée", () => {
+  assert.deepEqual(validateDebunkSeed({ entries: [validEntry({ imageUrl: "/images/debunk/x.svg" })] }).errors, []);
+  const { errors } = validateDebunkSeed({ entries: [validEntry({ imageUrl: "//evil.example/a.png" })] });
+  assert.ok(errors.some((e) => e.includes("imageUrl")));
+});
+
+test("chaque fiche livrée a une image présente dans public/images/debunk", async () => {
+  const { existsSync } = await import("node:fs");
+  const seed = JSON.parse(readFileSync(join(__dirname, "../src/scripts/data/debunk-2026-10.json"), "utf8"));
+  const { entries } = validateDebunkSeed(seed);
+  for (const e of entries) {
+    assert.ok(e.imageUrl, `${e.slug} sans image`);
+    assert.ok(existsSync(join(__dirname, "../../web/public", e.imageUrl)), `${e.imageUrl} introuvable`);
+  }
+});
