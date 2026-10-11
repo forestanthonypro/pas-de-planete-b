@@ -1,0 +1,443 @@
+{
+  "_comment": "Lot de fiches Débunk du 11 octobre 2026 — chaque affirmation a été confrontée à la source primaire ou officielle citée (GIEC AR6, NASA, NOAA/USGS, SDES, ADEME, réponse ministérielle). Les chiffres sont ceux lus dans ces sources ; les traductions ru/ja/zh/hi gagneraient à une relecture par un locuteur natif. Publié par apps/api/src/scripts/publish-debunk.js.",
+  "categories": [
+    {
+      "slug": "climat",
+      "names": {
+        "fr": "Climat",
+        "en": "Climate",
+        "es": "Clima",
+        "it": "Clima",
+        "ru": "Климат",
+        "ja": "気候",
+        "zh": "气候",
+        "hi": "जलवायु"
+      }
+    }
+  ],
+  "entries": [
+    {
+      "slug": "le-soleil-est-responsable-du-rechauffement-actuel",
+      "verdict": "faux",
+      "categorySlug": "climat",
+      "scopeCodes": [
+        "WORLD"
+      ],
+      "published": true,
+      "sources": [
+        {
+          "label": "NASA — Causes of climate change",
+          "url": "https://science.nasa.gov/climate-change/causes/"
+        },
+        {
+          "label": "GIEC, AR6 groupe I — Résumé pour les décideurs (2021)",
+          "url": "https://www.ipcc.ch/report/ar6/wg1/chapter/summary-for-policymakers/"
+        }
+      ],
+      "translations": {
+        "fr": {
+          "myth": "Le réchauffement actuel est dû au Soleil, pas aux activités humaines.",
+          "claimQuote": "C'est le Soleil qui réchauffe la planète, pas l'homme.",
+          "reality": "Faux. Le Soleil influence le climat, mais il ne peut pas expliquer le réchauffement observé depuis plusieurs décennies.\n\n1. Ce que mesurent les instruments\n\nSelon la NASA, l'énergie solaire reçue par la Terre suit le cycle solaire de 11 ans, sans augmentation nette depuis 1880 ; depuis 1750, elle est restée constante ou a légèrement diminué. Si le Soleil était la cause, la hausse des températures s'accompagnerait d'une hausse de l'énergie reçue : ce n'est pas le cas.\n\n2. Ce qu'en conclut le GIEC\n\nDans son sixième rapport, le GIEC estime que le réchauffement d'origine humaine entre 1850-1900 et 2010-2019 est de 1,07 °C (fourchette probable : 0,8 à 1,3 °C), alors que l'effet des facteurs naturels, solaires et volcaniques, est compris entre −0,1 et +0,1 °C.\n\n3. Ce qui reste vrai\n\nLe Soleil a joué un rôle dans des variations climatiques passées. Mais pour le réchauffement actuel, les mesures pointent vers l'augmentation des gaz à effet de serre : le CO₂ atmosphérique a augmenté d'environ 50 % depuis 1750 à cause des activités humaines."
+        },
+        "en": {
+          "myth": "Current global warming is caused by the Sun, not by human activity.",
+          "claimQuote": "It's the Sun that is warming the planet, not humans.",
+          "reality": "False. The Sun influences the climate, but it cannot explain the warming observed over the past several decades.\n\n1. What the instruments measure\n\nAccording to NASA, the solar energy reaching Earth follows the 11-year solar cycle, with no net increase since 1880; since 1750 it has stayed constant or declined slightly. If the Sun were the cause, rising temperatures would come with rising incoming energy. They do not.\n\n2. What the IPCC concludes\n\nIn its sixth assessment report, the IPCC estimates human-caused warming between 1850–1900 and 2010–2019 at 1.07 °C (likely range: 0.8 to 1.3 °C), while the effect of natural factors, solar and volcanic, lies between −0.1 and +0.1 °C.\n\n3. What remains true\n\nThe Sun has played a role in past climate variations. But for today's warming, the measurements point to rising greenhouse gases: atmospheric CO₂ has risen by about 50% since 1750 because of human activities."
+        },
+        "es": {
+          "myth": "El calentamiento actual se debe al Sol, no a las actividades humanas.",
+          "claimQuote": "Es el Sol el que calienta el planeta, no el ser humano.",
+          "reality": "Falso. El Sol influye en el clima, pero no puede explicar el calentamiento observado desde hace varias décadas.\n\n1. Lo que miden los instrumentos\n\nSegún la NASA, la energía solar que recibe la Tierra sigue el ciclo solar de 11 años, sin aumento neto desde 1880; desde 1750 se ha mantenido constante o ha disminuido ligeramente. Si el Sol fuera la causa, la subida de las temperaturas iría acompañada de un aumento de la energía recibida. No es así.\n\n2. Lo que concluye el IPCC\n\nEn su sexto informe, el IPCC estima el calentamiento de origen humano entre 1850-1900 y 2010-2019 en 1,07 °C (rango probable: 0,8 a 1,3 °C), mientras que el efecto de los factores naturales, solares y volcánicos, se sitúa entre −0,1 y +0,1 °C.\n\n3. Lo que sigue siendo cierto\n\nEl Sol ha influido en variaciones climáticas del pasado. Pero para el calentamiento actual, las mediciones apuntan al aumento de los gases de efecto invernadero: el CO₂ atmosférico ha aumentado cerca de un 50 % desde 1750 por las actividades humanas."
+        },
+        "it": {
+          "myth": "Il riscaldamento attuale è causato dal Sole, non dalle attività umane.",
+          "claimQuote": "È il Sole a riscaldare il pianeta, non l'uomo.",
+          "reality": "Falso. Il Sole influenza il clima, ma non può spiegare il riscaldamento osservato da diversi decenni.\n\n1. Cosa misurano gli strumenti\n\nSecondo la NASA, l'energia solare che raggiunge la Terra segue il ciclo solare di 11 anni, senza aumenti netti dal 1880; dal 1750 è rimasta costante o è leggermente diminuita. Se la causa fosse il Sole, l'aumento delle temperature sarebbe accompagnato da un aumento dell'energia ricevuta. Non è così.\n\n2. Cosa conclude l'IPCC\n\nNel suo sesto rapporto, l'IPCC stima il riscaldamento di origine umana tra il 1850-1900 e il 2010-2019 in 1,07 °C (intervallo probabile: da 0,8 a 1,3 °C), mentre l'effetto dei fattori naturali, solari e vulcanici, è compreso tra −0,1 e +0,1 °C.\n\n3. Cosa resta vero\n\nIl Sole ha avuto un ruolo in variazioni climatiche del passato. Ma per il riscaldamento attuale le misure indicano l'aumento dei gas serra: la CO₂ atmosferica è cresciuta di circa il 50 % dal 1750 a causa delle attività umane."
+        },
+        "ru": {
+          "myth": "Нынешнее потепление вызвано Солнцем, а не деятельностью человека.",
+          "claimQuote": "Планету нагревает Солнце, а не человек.",
+          "reality": "Ложь. Солнце влияет на климат, но не может объяснить потепление, наблюдаемое последние десятилетия.\n\n1. Что показывают приборы\n\nПо данным NASA, солнечная энергия, получаемая Землёй, следует 11-летнему солнечному циклу и не растёт заметным образом с 1880 года; с 1750 года она оставалась неизменной или слегка снижалась. Если бы причиной было Солнце, рост температур сопровождался бы ростом получаемой энергии. Этого нет.\n\n2. Вывод МГЭИК\n\nВ шестом докладе МГЭИК оценивает потепление антропогенного происхождения между 1850–1900 и 2010–2019 годами в 1,07 °C (вероятный диапазон: 0,8–1,3 °C), тогда как эффект природных факторов — солнечных и вулканических — лежит в пределах от −0,1 до +0,1 °C.\n\n3. Что остаётся верным\n\nСолнце играло роль в климатических колебаниях прошлого. Но для нынешнего потепления измерения указывают на рост парниковых газов: содержание CO₂ в атмосфере выросло примерно на 50 % с 1750 года из-за деятельности человека."
+        },
+        "ja": {
+          "myth": "現在の温暖化は人間活動ではなく、太陽が原因だ。",
+          "claimQuote": "地球を温めているのは太陽であって、人間ではない。",
+          "reality": "誤りです。太陽は気候に影響しますが、数十年にわたって観測されている温暖化を説明することはできません。\n\n1. 観測が示すこと\n\nNASAによると、地球が受け取る太陽エネルギーは11年周期の太陽活動に従い、1880年以降に正味の増加はなく、1750年以降は一定かわずかに減少しています。太陽が原因なら、気温の上昇に伴って受け取るエネルギーも増えるはずですが、そうなっていません。\n\n2. IPCCの結論\n\nIPCCは第6次評価報告書で、1850〜1900年から2010〜2019年までの人為起源の温暖化を1.07℃（可能性が高い範囲：0.8〜1.3℃）と見積もっています。一方、太陽や火山といった自然要因の影響は−0.1〜+0.1℃の範囲です。\n\n3. それでも正しいこと\n\n太陽は過去の気候変動に役割を果たしました。しかし現在の温暖化については、観測は温室効果ガスの増加を指しています。大気中のCO₂は人間活動により1750年から約50％増えました。"
+        },
+        "zh": {
+          "myth": "当前的变暖是太阳造成的，而不是人类活动。",
+          "claimQuote": "让地球变暖的是太阳，不是人类。",
+          "reality": "错误。太阳会影响气候，但无法解释几十年来观测到的变暖。\n\n1. 仪器测得的结果\n\n据美国国家航空航天局（NASA）介绍，地球接收的太阳能量遵循11年的太阳周期，自1880年以来没有净增加；自1750年以来保持不变或略有下降。如果太阳是原因，气温上升时接收的能量也应上升，但事实并非如此。\n\n2. IPCC的结论\n\nIPCC在第六次评估报告中估计，从1850–1900年到2010–2019年，人类活动造成的变暖为1.07°C（可能范围：0.8至1.3°C），而太阳和火山等自然因素的影响在−0.1至+0.1°C之间。\n\n3. 仍然成立的部分\n\n太阳在过去的气候变化中确实起过作用。但对于当前的变暖，观测结果指向温室气体的增加：由于人类活动，大气中的二氧化碳自1750年以来增加了约50%。"
+        },
+        "hi": {
+          "myth": "मौजूदा तापमान वृद्धि सूर्य के कारण है, मानव गतिविधियों के कारण नहीं।",
+          "claimQuote": "धरती को सूर्य गर्म कर रहा है, इंसान नहीं।",
+          "reality": "गलत। सूर्य जलवायु को प्रभावित करता है, लेकिन कई दशकों से देखी जा रही तापमान वृद्धि की व्याख्या वह नहीं कर सकता।\n\n1. उपकरण क्या मापते हैं\n\nनासा के अनुसार, पृथ्वी को मिलने वाली सौर ऊर्जा 11 वर्ष के सौर चक्र का अनुसरण करती है और 1880 से उसमें कोई शुद्ध वृद्धि नहीं हुई; 1750 से वह स्थिर रही है या थोड़ी घटी है। यदि सूर्य कारण होता, तो तापमान बढ़ने के साथ प्राप्त ऊर्जा भी बढ़ती। ऐसा नहीं है।\n\n2. आईपीसीसी का निष्कर्ष\n\nअपनी छठी रिपोर्ट में आईपीसीसी 1850–1900 से 2010–2019 के बीच मानवजनित तापमान वृद्धि को 1.07 °C (संभावित दायरा: 0.8 से 1.3 °C) आँकता है, जबकि सौर और ज्वालामुखीय जैसे प्राकृतिक कारकों का प्रभाव −0.1 से +0.1 °C के बीच है।\n\n3. जो बात अब भी सही है\n\nसूर्य ने अतीत के जलवायु बदलावों में भूमिका निभाई है। लेकिन मौजूदा तापमान वृद्धि के लिए माप ग्रीनहाउस गैसों में बढ़ोतरी की ओर इशारा करते हैं: मानव गतिविधियों के कारण वायुमंडलीय CO₂ 1750 से लगभग 50 % बढ़ा है।"
+        }
+      }
+    },
+    {
+      "slug": "le-rechauffement-climatique-s-est-arrete-en-1998",
+      "verdict": "faux",
+      "categorySlug": "climat",
+      "scopeCodes": [
+        "WORLD"
+      ],
+      "published": true,
+      "sources": [
+        {
+          "label": "GIEC, AR6 groupe I — Résumé pour les décideurs (2021)",
+          "url": "https://www.ipcc.ch/report/ar6/wg1/chapter/summary-for-policymakers/"
+        },
+        {
+          "label": "OMM — State of the Global Climate 2025",
+          "url": "https://wmo.int/publication-series/state-of-global-climate/state-of-global-climate-2025"
+        }
+      ],
+      "translations": {
+        "fr": {
+          "myth": "Le réchauffement climatique s'est arrêté en 1998.",
+          "claimQuote": "Il n'y a plus de réchauffement depuis 1998.",
+          "reality": "Faux. Le réchauffement a connu un ralentissement apparent sur quelques années, mais il ne s'est pas arrêté.\n\n1. Ce que dit le GIEC\n\nDans son sixième rapport, le GIEC indique que les variations solaires et volcaniques, ajoutées à la variabilité interne décennale, ont partiellement masqué le réchauffement entre 1998 et 2012, sans arrêter le réchauffement du système climatique.\n\n2. Ce que montrent les décennies suivantes\n\nLa température de surface de 2011-2020 dépasse de 1,09 °C (fourchette 0,95 à 1,20) celle de 1850-1900, contre 0,99 °C pour 2001-2020. Selon l'Organisation météorologique mondiale, les onze années de 2015 à 2025 sont les onze plus chaudes jamais mesurées, et 2025 est environ 1,43 °C au-dessus de la moyenne 1850-1900.\n\n3. Pourquoi l'argument circule\n\nPartir d'une année exceptionnellement chaude pour tracer une tendance donne l'impression d'un plateau. Ce qui compte est la tendance sur plusieurs décennies, et elle continue de monter."
+        },
+        "en": {
+          "myth": "Global warming stopped in 1998.",
+          "claimQuote": "There has been no warming since 1998.",
+          "reality": "False. Warming appeared to slow down for a few years, but it did not stop.\n\n1. What the IPCC says\n\nIn its sixth assessment report, the IPCC states that solar and volcanic variations, together with internal decadal variability, partly masked warming between 1998 and 2012, without halting the warming of the climate system.\n\n2. What the following decades show\n\nSurface temperature in 2011–2020 was 1.09 °C (range 0.95 to 1.20) above 1850–1900, against 0.99 °C for 2001–2020. According to the World Meteorological Organization, the eleven years from 2015 to 2025 are the eleven warmest ever measured, and 2025 was about 1.43 °C above the 1850–1900 average.\n\n3. Why the argument circulates\n\nStarting from an exceptionally hot year to draw a trend gives the impression of a plateau. What matters is the trend over several decades, and it keeps rising."
+        },
+        "es": {
+          "myth": "El calentamiento global se detuvo en 1998.",
+          "claimQuote": "No hay calentamiento desde 1998.",
+          "reality": "Falso. El calentamiento tuvo una desaceleración aparente durante unos años, pero no se detuvo.\n\n1. Lo que dice el IPCC\n\nEn su sexto informe, el IPCC indica que las variaciones solares y volcánicas, junto con la variabilidad interna decenal, enmascararon parcialmente el calentamiento entre 1998 y 2012, sin detener el calentamiento del sistema climático.\n\n2. Lo que muestran las décadas siguientes\n\nLa temperatura de superficie de 2011-2020 superó en 1,09 °C (rango 0,95 a 1,20) la de 1850-1900, frente a 0,99 °C en 2001-2020. Según la Organización Meteorológica Mundial, los once años de 2015 a 2025 son los once más cálidos jamás medidos, y 2025 estuvo cerca de 1,43 °C por encima de la media de 1850-1900.\n\n3. Por qué circula el argumento\n\nPartir de un año excepcionalmente cálido para trazar una tendencia da la impresión de una meseta. Lo que cuenta es la tendencia de varias décadas, y sigue subiendo."
+        },
+        "it": {
+          "myth": "Il riscaldamento globale si è fermato nel 1998.",
+          "claimQuote": "Non c'è più riscaldamento dal 1998.",
+          "reality": "Falso. Il riscaldamento ha avuto un rallentamento apparente per alcuni anni, ma non si è fermato.\n\n1. Cosa dice l'IPCC\n\nNel suo sesto rapporto, l'IPCC indica che le variazioni solari e vulcaniche, insieme alla variabilità interna decennale, hanno in parte mascherato il riscaldamento tra il 1998 e il 2012, senza fermare il riscaldamento del sistema climatico.\n\n2. Cosa mostrano i decenni successivi\n\nLa temperatura superficiale del 2011-2020 supera di 1,09 °C (intervallo da 0,95 a 1,20) quella del 1850-1900, contro 0,99 °C per il 2001-2020. Secondo l'Organizzazione meteorologica mondiale, gli undici anni dal 2015 al 2025 sono gli undici più caldi mai misurati, e il 2025 è stato circa 1,43 °C sopra la media 1850-1900.\n\n3. Perché l'argomento circola\n\nPartire da un anno eccezionalmente caldo per tracciare una tendenza dà l'impressione di un plateau. Conta la tendenza su più decenni, e continua a salire."
+        },
+        "ru": {
+          "myth": "Глобальное потепление прекратилось в 1998 году.",
+          "claimQuote": "С 1998 года потепления больше нет.",
+          "reality": "Ложь. Потепление несколько лет казалось замедлившимся, но не прекратилось.\n\n1. Что говорит МГЭИК\n\nВ шестом докладе МГЭИК указывает, что солнечные и вулканические колебания вместе с внутренней десятилетней изменчивостью частично маскировали потепление в 1998–2012 годах, не останавливая нагрев климатической системы.\n\n2. Что показали следующие десятилетия\n\nТемпература поверхности в 2011–2020 годах была выше уровня 1850–1900 годов на 1,09 °C (диапазон 0,95–1,20), а в 2001–2020 годах — на 0,99 °C. По данным Всемирной метеорологической организации, одиннадцать лет с 2015 по 2025 год — самые тёплые за всю историю измерений, а 2025 год был примерно на 1,43 °C выше среднего уровня 1850–1900 годов.\n\n3. Почему этот довод распространяется\n\nЕсли взять исходной точкой исключительно тёплый год, тренд выглядит как плато. Важна тенденция за несколько десятилетий, и она продолжает расти."
+        },
+        "ja": {
+          "myth": "地球温暖化は1998年に止まった。",
+          "claimQuote": "1998年以降、温暖化は起きていない。",
+          "reality": "誤りです。温暖化は数年間、見かけ上は鈍化しましたが、止まったわけではありません。\n\n1. IPCCの見解\n\nIPCCは第6次評価報告書で、太陽や火山の変動と数十年規模の内部変動が1998〜2012年の温暖化を部分的に覆い隠したが、気候システムの温暖化は止まらなかったとしています。\n\n2. その後の数十年が示すこと\n\n2011〜2020年の地表気温は1850〜1900年より1.09℃（範囲0.95〜1.20）高く、2001〜2020年の0.99℃を上回ります。世界気象機関によると、2015〜2025年の11年間は観測史上最も暖かい11年で、2025年は1850〜1900年平均より約1.43℃高い年でした。\n\n3. この主張が広まる理由\n\n極端に暑かった年を起点にすると、傾向線が横ばいに見えます。重要なのは数十年にわたる傾向であり、それは上昇し続けています。"
+        },
+        "zh": {
+          "myth": "全球变暖在1998年就停止了。",
+          "claimQuote": "1998年以来就没有再变暖了。",
+          "reality": "错误。变暖曾在几年间出现表面上的放缓，但并没有停止。\n\n1. IPCC怎么说\n\nIPCC在第六次评估报告中指出，太阳和火山活动的变化加上年代际内部变率，在1998至2012年间部分掩盖了变暖，但气候系统的变暖并未停止。\n\n2. 之后的几十年显示了什么\n\n2011–2020年的地表温度比1850–1900年高1.09°C（范围0.95至1.20），2001–2020年则为0.99°C。据世界气象组织，2015至2025年这十一年是有测量记录以来最暖的十一年，2025年比1850–1900年平均值高约1.43°C。\n\n3. 这一说法为何流传\n\n以一个异常炎热的年份为起点来画趋势线，会给人一种平台期的印象。重要的是几十年的趋势，而它仍在上升。"
+        },
+        "hi": {
+          "myth": "ग्लोबल वार्मिंग 1998 में रुक गई।",
+          "claimQuote": "1998 के बाद से कोई तापमान वृद्धि नहीं हुई है।",
+          "reality": "गलत। तापमान वृद्धि कुछ वर्षों के लिए धीमी पड़ती दिखी, लेकिन रुकी नहीं।\n\n1. आईपीसीसी क्या कहता है\n\nअपनी छठी रिपोर्ट में आईपीसीसी बताता है कि सौर और ज्वालामुखीय बदलावों तथा दशकीय आंतरिक परिवर्तनशीलता ने 1998 से 2012 के बीच तापमान वृद्धि को आंशिक रूप से ढँक दिया, पर जलवायु तंत्र का गर्म होना नहीं रुका।\n\n2. आने वाले दशक क्या दिखाते हैं\n\n2011–2020 का सतही तापमान 1850–1900 से 1.09 °C (दायरा 0.95 से 1.20) अधिक था, जबकि 2001–2020 के लिए यह 0.99 °C था। विश्व मौसम विज्ञान संगठन के अनुसार 2015 से 2025 के ग्यारह वर्ष अब तक मापे गए सबसे गर्म ग्यारह वर्ष हैं, और 2025 का तापमान 1850–1900 के औसत से लगभग 1.43 °C ऊपर रहा।\n\n3. यह तर्क क्यों फैलता है\n\nकिसी असाधारण रूप से गर्म वर्ष से शुरू करके रुझान खींचने पर वह सपाट मैदान जैसा दिखता है। मायने कई दशकों का रुझान रखता है, और वह लगातार ऊपर जा रहा है।"
+        }
+      }
+    },
+    {
+      "slug": "les-scientifiques-ne-sont-pas-d-accord-sur-l-origine-du-rechauffement",
+      "verdict": "faux",
+      "categorySlug": "climat",
+      "scopeCodes": [
+        "WORLD"
+      ],
+      "published": true,
+      "sources": [
+        {
+          "label": "Cornell CALS — More than 99.9% of studies agree humans are causing climate change (Lynas et al., 2021)",
+          "url": "https://cals.cornell.edu/news/2021/10/more-999-of-studies-agree-humans-are-causing-climate-change"
+        },
+        {
+          "label": "NASA — Causes of climate change",
+          "url": "https://science.nasa.gov/climate-change/causes/"
+        }
+      ],
+      "translations": {
+        "fr": {
+          "myth": "Les scientifiques ne sont pas d'accord entre eux sur l'origine du réchauffement climatique.",
+          "claimQuote": "Les scientifiques sont divisés sur le climat, il n'y a pas de consensus.",
+          "reality": "Faux. Sur la question de l'origine humaine du réchauffement, l'accord est quasi total dans la littérature scientifique.\n\n1. Ce que montre la recherche\n\nUne étude publiée en octobre 2021 dans Environmental Research Letters (Lynas et al.) a examiné 88 125 articles sur le climat, publiés en anglais entre 2012 et novembre 2020. Plus de 99 % des articles évalués par les pairs attribuent le changement climatique principalement aux activités humaines, concluent les auteurs.\n\n2. Ce que dit le GIEC\n\nLe GIEC l'exprime ainsi, cité par la NASA : l'influence humaine est le principal moteur de nombreux changements observés dans l'atmosphère.\n\n3. Ce que « consensus » ne veut pas dire\n\nUn consensus n'est pas l'absence de débat : les chercheurs discutent de la sensibilité du climat, du rythme des changements ou des impacts régionaux. Mais l'origine humaine du réchauffement n'est plus une controverse dans la littérature scientifique."
+        },
+        "en": {
+          "myth": "Scientists disagree with each other about the cause of global warming.",
+          "claimQuote": "Scientists are divided on climate; there is no consensus.",
+          "reality": "False. On the question of whether warming is human-caused, agreement in the scientific literature is almost total.\n\n1. What the research shows\n\nA study published in October 2021 in Environmental Research Letters (Lynas et al.) examined 88,125 climate papers published in English between 2012 and November 2020. More than 99% of peer-reviewed papers attribute climate change mainly to human activities, the authors conclude.\n\n2. What the IPCC says\n\nAs quoted by NASA, the IPCC puts it this way: human influence is the principal driver of many changes observed across the atmosphere.\n\n3. What “consensus” does not mean\n\nConsensus is not the absence of debate: researchers discuss climate sensitivity, the pace of change and regional impacts. But the human origin of warming is no longer a controversy in the scientific literature."
+        },
+        "es": {
+          "myth": "Los científicos no se ponen de acuerdo sobre el origen del calentamiento global.",
+          "claimQuote": "Los científicos están divididos sobre el clima; no hay consenso.",
+          "reality": "Falso. Sobre el origen humano del calentamiento, el acuerdo en la literatura científica es casi total.\n\n1. Lo que muestra la investigación\n\nUn estudio publicado en octubre de 2021 en Environmental Research Letters (Lynas et al.) examinó 88 125 artículos sobre el clima publicados en inglés entre 2012 y noviembre de 2020. Más del 99 % de los artículos revisados por pares atribuyen el cambio climático principalmente a las actividades humanas, concluyen los autores.\n\n2. Lo que dice el IPCC\n\nEl IPCC lo expresa así, según cita la NASA: la influencia humana es el principal motor de muchos de los cambios observados en la atmósfera.\n\n3. Lo que «consenso» no significa\n\nUn consenso no es la ausencia de debate: los investigadores discuten la sensibilidad del clima, el ritmo de los cambios o los impactos regionales. Pero el origen humano del calentamiento ya no es una controversia en la literatura científica."
+        },
+        "it": {
+          "myth": "Gli scienziati non sono d'accordo sull'origine del riscaldamento globale.",
+          "claimQuote": "Gli scienziati sono divisi sul clima, non c'è consenso.",
+          "reality": "Falso. Sull'origine umana del riscaldamento, l'accordo nella letteratura scientifica è quasi totale.\n\n1. Cosa mostra la ricerca\n\nUno studio pubblicato nell'ottobre 2021 su Environmental Research Letters (Lynas et al.) ha esaminato 88 125 articoli sul clima pubblicati in inglese tra il 2012 e il novembre 2020. Oltre il 99 % degli articoli sottoposti a revisione paritaria attribuisce il cambiamento climatico principalmente alle attività umane, concludono gli autori.\n\n2. Cosa dice l'IPCC\n\nL'IPCC lo esprime così, come citato dalla NASA: l'influenza umana è il principale motore di molti cambiamenti osservati nell'atmosfera.\n\n3. Cosa non significa «consenso»\n\nUn consenso non è assenza di dibattito: i ricercatori discutono della sensibilità del clima, del ritmo dei cambiamenti o degli impatti regionali. Ma l'origine umana del riscaldamento non è più una controversia nella letteratura scientifica."
+        },
+        "ru": {
+          "myth": "Учёные не согласны между собой относительно причин глобального потепления.",
+          "claimQuote": "Учёные расходятся во мнениях о климате, консенсуса нет.",
+          "reality": "Ложь. По вопросу о человеческом происхождении потепления согласие в научной литературе практически полное.\n\n1. Что показывают исследования\n\nИсследование, опубликованное в октябре 2021 года в Environmental Research Letters (Lynas и др.), проанализировало 88 125 статей о климате, вышедших на английском языке с 2012 года по ноябрь 2020 года. По выводам авторов, более 99 % рецензируемых статей объясняют изменение климата главным образом деятельностью человека.\n\n2. Что говорит МГЭИК\n\nМГЭИК формулирует так (цитата приведена NASA): влияние человека является основной причиной многих изменений, наблюдаемых в атмосфере.\n\n3. Чего «консенсус» не означает\n\nКонсенсус — это не отсутствие споров: исследователи обсуждают чувствительность климата, темпы изменений и региональные последствия. Но человеческое происхождение потепления перестало быть предметом разногласий в научной литературе."
+        },
+        "ja": {
+          "myth": "科学者の間でも温暖化の原因については意見が分かれている。",
+          "claimQuote": "気候については科学者の意見が割れていて、コンセンサスはない。",
+          "reality": "誤りです。温暖化が人為起源かどうかについては、科学文献の中でほぼ完全な一致があります。\n\n1. 研究が示すこと\n\n2021年10月に『Environmental Research Letters』に発表された研究（Lynasら）は、2012年から2020年11月までに英語で発表された気候に関する論文88,125本を調べました。著者らは、査読付き論文の99％超が、気候変動の主因は人間活動であるとしていると結論づけています。\n\n2. IPCCの見解\n\nNASAが引用するIPCCの表現では、人間の影響は大気で観測される多くの変化の主因です。\n\n3. 「コンセンサス」が意味しないこと\n\nコンセンサスは議論がないという意味ではありません。研究者は気候感度、変化の速度、地域ごとの影響などを議論しています。しかし、温暖化の人為的な原因は、科学文献の中ではもはや論争の対象ではありません。"
+        },
+        "zh": {
+          "myth": "科学家们对全球变暖的成因看法不一。",
+          "claimQuote": "科学家在气候问题上存在分歧，并没有共识。",
+          "reality": "错误。就变暖是否源于人类活动而言，科学文献中的看法几乎完全一致。\n\n1. 研究显示了什么\n\n2021年10月发表于《Environmental Research Letters》的一项研究（Lynas等）考察了2012年至2020年11月间以英文发表的88,125篇气候论文。作者的结论是，超过99%的同行评审论文将气候变化主要归因于人类活动。\n\n2. IPCC怎么说\n\n据NASA引述，IPCC的表述是：人类影响是大气中许多已观测到的变化的主要驱动因素。\n\n3. “共识”并不意味着什么\n\n共识不等于没有争论：研究人员仍在讨论气候敏感性、变化速度或区域影响等问题。但变暖的人为成因在科学文献中已不再是争议。"
+        },
+        "hi": {
+          "myth": "तापमान वृद्धि के कारण पर वैज्ञानिक आपस में सहमत नहीं हैं।",
+          "claimQuote": "जलवायु पर वैज्ञानिक बँटे हुए हैं, कोई आम सहमति नहीं है।",
+          "reality": "गलत। तापमान वृद्धि के मानवीय कारण को लेकर वैज्ञानिक साहित्य में लगभग पूरी सहमति है।\n\n1. शोध क्या दिखाता है\n\nअक्टूबर 2021 में Environmental Research Letters में प्रकाशित एक अध्ययन (Lynas आदि) ने 2012 से नवंबर 2020 के बीच अंग्रेज़ी में प्रकाशित जलवायु पर 88,125 लेखों की जाँच की। लेखकों के निष्कर्ष के अनुसार, 99 % से अधिक सहकर्मी-समीक्षित लेख जलवायु परिवर्तन का मुख्य कारण मानव गतिविधियों को मानते हैं।\n\n2. आईपीसीसी क्या कहता है\n\nनासा द्वारा उद्धृत आईपीसीसी के शब्दों में: वायुमंडल में देखे गए कई बदलावों का प्रमुख कारण मानव प्रभाव है।\n\n3. \"आम सहमति\" का अर्थ क्या नहीं है\n\nआम सहमति का मतलब बहस का न होना नहीं है: शोधकर्ता जलवायु संवेदनशीलता, बदलाव की गति या क्षेत्रीय प्रभावों पर चर्चा करते हैं। लेकिन तापमान वृद्धि का मानवीय कारण अब वैज्ञानिक साहित्य में विवाद का विषय नहीं है।"
+        }
+      }
+    },
+    {
+      "slug": "les-volcans-emettent-plus-de-co2-que-les-activites-humaines",
+      "verdict": "faux",
+      "categorySlug": "climat",
+      "scopeCodes": [
+        "WORLD"
+      ],
+      "published": true,
+      "sources": [
+        {
+          "label": "NOAA Climate.gov — Which emits more carbon dioxide: volcanoes or human activities? (2016)",
+          "url": "https://www.climate.gov/news-features/climate-qa/which-emits-more-carbon-dioxide-volcanoes-or-human-activities"
+        },
+        {
+          "label": "USGS — Volcanic versus anthropogenic carbon dioxide (Gerlach, Eos, 2011)",
+          "url": "https://pubs.usgs.gov/publication/70036496"
+        },
+        {
+          "label": "NASA — Causes of climate change",
+          "url": "https://science.nasa.gov/climate-change/causes/"
+        }
+      ],
+      "translations": {
+        "fr": {
+          "myth": "Les volcans émettent plus de CO₂ que toutes les activités humaines réunies.",
+          "claimQuote": "Une seule éruption pollue plus que toute l'humanité.",
+          "reality": "Faux. Les activités humaines émettent au moins 60 fois plus de CO₂ que l'ensemble des volcans.\n\n1. Les ordres de grandeur\n\nSelon une synthèse de l'USGS (Gerlach, 2011), les volcans émettent environ 0,3 milliard de tonnes de CO₂ par an ; une estimation ultérieure (Burton et al., 2013) retient environ 0,6 milliard. Les activités humaines en émettent environ 40 milliards de tonnes par an (chiffre 2015 cité par la NOAA). Le rapport va de plus de 60 fois à plus de 90 fois selon l'estimation retenue.\n\n2. Et les grosses éruptions ?\n\nMême des éruptions majeures comme celles du mont Saint Helens (1980) ou du Pinatubo (1991) n'ont émis, en une éruption, que l'équivalent d'environ neuf heures d'émissions humaines.\n\n3. Ce qui s'observe dans l'atmosphère\n\nLe CO₂ atmosphérique a augmenté d'environ 50 % depuis 1750 à cause des activités humaines, selon la NASA. Les éruptions marquent les esprits, mais elles ne pèsent pas dans ce bilan."
+        },
+        "en": {
+          "myth": "Volcanoes emit more CO₂ than all human activities combined.",
+          "claimQuote": "A single eruption pollutes more than all of humanity.",
+          "reality": "False. Human activities emit at least 60 times more CO₂ than all volcanoes combined.\n\n1. The orders of magnitude\n\nAccording to a USGS synthesis (Gerlach, 2011), volcanoes emit about 0.3 billion tonnes of CO₂ a year; a later estimate (Burton et al., 2013) puts it at about 0.6 billion. Human activities emit about 40 billion tonnes a year (2015 figure cited by NOAA). The ratio runs from over 60 times to over 90 times depending on the estimate used.\n\n2. What about big eruptions?\n\nEven major eruptions such as Mount St. Helens (1980) or Pinatubo (1991) emitted, in a single eruption, only the equivalent of about nine hours of human emissions.\n\n3. What is observed in the atmosphere\n\nAccording to NASA, atmospheric CO₂ has risen by about 50% since 1750 because of human activities. Eruptions capture the imagination, but they do not weigh in this balance."
+        },
+        "es": {
+          "myth": "Los volcanes emiten más CO₂ que todas las actividades humanas juntas.",
+          "claimQuote": "Una sola erupción contamina más que toda la humanidad.",
+          "reality": "Falso. Las actividades humanas emiten al menos 60 veces más CO₂ que todos los volcanes juntos.\n\n1. Los órdenes de magnitud\n\nSegún una síntesis del USGS (Gerlach, 2011), los volcanes emiten unos 0,3 mil millones de toneladas de CO₂ al año; una estimación posterior (Burton et al., 2013) sitúa la cifra en unos 0,6 mil millones. Las actividades humanas emiten unos 40 mil millones de toneladas al año (cifra de 2015 citada por la NOAA). La proporción va de más de 60 a más de 90 veces según la estimación.\n\n2. ¿Y las grandes erupciones?\n\nIncluso erupciones importantes como la del monte Santa Helena (1980) o la del Pinatubo (1991) emitieron, en una sola erupción, el equivalente a unas nueve horas de emisiones humanas.\n\n3. Lo que se observa en la atmósfera\n\nSegún la NASA, el CO₂ atmosférico ha aumentado cerca de un 50 % desde 1750 por las actividades humanas. Las erupciones impresionan, pero no pesan en este balance."
+        },
+        "it": {
+          "myth": "I vulcani emettono più CO₂ di tutte le attività umane messe insieme.",
+          "claimQuote": "Una sola eruzione inquina più di tutta l'umanità.",
+          "reality": "Falso. Le attività umane emettono almeno 60 volte più CO₂ di tutti i vulcani messi insieme.\n\n1. Gli ordini di grandezza\n\nSecondo una sintesi dell'USGS (Gerlach, 2011), i vulcani emettono circa 0,3 miliardi di tonnellate di CO₂ all'anno; una stima successiva (Burton et al., 2013) indica circa 0,6 miliardi. Le attività umane ne emettono circa 40 miliardi di tonnellate all'anno (dato 2015 citato dalla NOAA). Il rapporto va da oltre 60 a oltre 90 volte a seconda della stima.\n\n2. E le grandi eruzioni?\n\nAnche eruzioni importanti come quella del monte Sant'Elena (1980) o del Pinatubo (1991) hanno emesso, in una singola eruzione, solo l'equivalente di circa nove ore di emissioni umane.\n\n3. Cosa si osserva nell'atmosfera\n\nSecondo la NASA, la CO₂ atmosferica è aumentata di circa il 50 % dal 1750 a causa delle attività umane. Le eruzioni colpiscono l'immaginazione, ma non pesano in questo bilancio."
+        },
+        "ru": {
+          "myth": "Вулканы выбрасывают больше CO₂, чем вся человеческая деятельность вместе взятая.",
+          "claimQuote": "Одно извержение загрязняет больше, чем всё человечество.",
+          "reality": "Ложь. Человеческая деятельность выбрасывает как минимум в 60 раз больше CO₂, чем все вулканы вместе взятые.\n\n1. Порядки величин\n\nПо обзору USGS (Gerlach, 2011), вулканы выбрасывают около 0,3 млрд тонн CO₂ в год; более поздняя оценка (Burton и др., 2013) — около 0,6 млрд. Человеческая деятельность выбрасывает около 40 млрд тонн в год (данные за 2015 год, приведённые NOAA). Соотношение составляет от более чем 60 до более чем 90 раз в зависимости от оценки.\n\n2. А крупные извержения?\n\nДаже крупные извержения — Сент-Хеленс (1980) или Пинатубо (1991) — выбросили за одно извержение лишь эквивалент примерно девяти часов человеческих выбросов.\n\n3. Что наблюдается в атмосфере\n\nПо данным NASA, содержание CO₂ в атмосфере выросло примерно на 50 % с 1750 года из-за деятельности человека. Извержения впечатляют, но в этом балансе их вес невелик."
+        },
+        "ja": {
+          "myth": "火山は人間活動すべてを合わせたよりも多くのCO₂を排出している。",
+          "claimQuote": "たった一度の噴火が、人類全体より多く汚染している。",
+          "reality": "誤りです。人間活動は、すべての火山を合わせたよりも少なくとも60倍多いCO₂を排出しています。\n\n1. 桁の違い\n\nUSGSの総説（Gerlach、2011年）によると、火山のCO₂排出量は年間約3億トンです。その後の推定（Burtonら、2013年）では約6億トンとされています。人間活動は年間約400億トン（NOAAが引用する2015年の数値）を排出しています。どの推定を採るかにより、比率は60倍超から90倍超です。\n\n2. 大規模噴火は？\n\nセントヘレンズ山（1980年）やピナツボ山（1991年）のような大規模噴火でも、1回の噴火で出したCO₂は人間の排出量の約9時間分に相当する程度です。\n\n3. 大気中で観測されていること\n\nNASAによると、大気中のCO₂は人間活動により1750年から約50％増加しました。噴火は印象に残りますが、この収支では大きな比重を占めません。"
+        },
+        "zh": {
+          "myth": "火山排放的二氧化碳比所有人类活动加起来还多。",
+          "claimQuote": "一次火山喷发的污染就超过全人类。",
+          "reality": "错误。人类活动排放的二氧化碳至少是全部火山总和的60倍。\n\n1. 数量级\n\n据美国地质调查局（USGS）的综述（Gerlach，2011），火山每年排放约3亿吨二氧化碳；后来的估算（Burton等，2013）约为6亿吨。人类活动每年排放约400亿吨（NOAA引用的2015年数据）。取决于采用的估算，比例从60倍以上到90倍以上不等。\n\n2. 那大型火山喷发呢？\n\n即使是圣海伦斯火山（1980年）或皮纳图博火山（1991年）这样的大喷发，一次喷发排放的二氧化碳也只相当于人类约九个小时的排放量。\n\n3. 大气中观测到的情况\n\n据NASA，由于人类活动，大气中的二氧化碳自1750年以来增加了约50%。火山喷发令人印象深刻，但在这笔账中分量很小。"
+        },
+        "hi": {
+          "myth": "ज्वालामुखी सभी मानव गतिविधियों से ज़्यादा CO₂ छोड़ते हैं।",
+          "claimQuote": "एक अकेला ज्वालामुखी विस्फोट पूरी मानवता से ज़्यादा प्रदूषण करता है।",
+          "reality": "गलत। मानव गतिविधियाँ सभी ज्वालामुखियों के कुल उत्सर्जन से कम से कम 60 गुना अधिक CO₂ छोड़ती हैं।\n\n1. परिमाण का अंतर\n\nUSGS के एक संश्लेषण (Gerlach, 2011) के अनुसार ज्वालामुखी प्रति वर्ष लगभग 0.3 अरब टन CO₂ छोड़ते हैं; बाद के एक अनुमान (Burton आदि, 2013) में यह लगभग 0.6 अरब टन है। मानव गतिविधियाँ प्रति वर्ष लगभग 40 अरब टन छोड़ती हैं (NOAA द्वारा उद्धृत 2015 का आँकड़ा)। चुने गए अनुमान के आधार पर अनुपात 60 गुना से अधिक से 90 गुना से अधिक तक है।\n\n2. और बड़े विस्फोट?\n\nमाउंट सेंट हेलेंस (1980) या पिनातुबो (1991) जैसे बड़े विस्फोटों ने भी एक विस्फोट में मानव उत्सर्जन के केवल लगभग नौ घंटे के बराबर CO₂ छोड़ा।\n\n3. वायुमंडल में क्या देखा जाता है\n\nनासा के अनुसार मानव गतिविधियों के कारण वायुमंडलीय CO₂ 1750 से लगभग 50 % बढ़ा है। विस्फोट मन पर छाप छोड़ते हैं, पर इस हिसाब में उनका वज़न नगण्य है।"
+        }
+      }
+    },
+    {
+      "slug": "la-france-ne-represente-que-1-des-emissions-mondiales-inutile-d-agir",
+      "verdict": "trompeur",
+      "categorySlug": "climat",
+      "scopeCodes": [
+        "FRA"
+      ],
+      "published": true,
+      "sources": [
+        {
+          "label": "SDES — Chiffres clés du climat, France, Europe et Monde (édition 2024)",
+          "url": "https://www.statistiques.developpement-durable.gouv.fr/chiffres-cles-du-climat-france-europe-et-monde-edition-2024"
+        },
+        {
+          "label": "SDES — Émissions de gaz à effet de serre et empreinte carbone de la France en 2023",
+          "url": "https://www.statistiques.developpement-durable.gouv.fr/emissions-de-gaz-effet-de-serre-et-empreinte-carbone-de-la-france-une-baisse-significative-en-2023"
+        }
+      ],
+      "translations": {
+        "fr": {
+          "myth": "La France ne représente qu'environ 1 % des émissions mondiales, donc agir ne sert à rien.",
+          "claimQuote": "La France, c'est 1 % des émissions mondiales : ça ne changera rien.",
+          "reality": "Trompeur. Le chiffre est du bon ordre de grandeur, mais la conclusion « inutile d'agir » ne s'en déduit pas.\n\n1. Le chiffre\n\nSelon le SDES, la France a émis environ 373 Mt CO₂e sur son territoire en 2023, pour environ 53,8 Gt dans le monde en 2022 : de l'ordre de 0,7 % (calcul sur deux années voisines, à prendre comme un ordre de grandeur).\n\n2. Ce que le chiffre ne dit pas\n\nL'empreinte carbone de la France, qui compte aussi les émissions liées aux produits importés, est estimée à 644 Mt CO₂e en 2023, soit 9,4 t par habitant, dont environ 56 % proviennent des importations. En 2022, la moyenne mondiale était de 6,8 t par habitant, contre 6,5 t pour les émissions territoriales françaises.\n\n3. Pourquoi la conclusion est trompeuse\n\nLe raisonnement vaut pour presque tous les pays : le total mondial est la somme de nombreuses parts individuelles (Chine 29 %, États-Unis 11 %, Union européenne 7 % en 2022). Si chacun invoquait sa petite part, personne n'agirait, et le total ne baisserait jamais."
+        },
+        "en": {
+          "myth": "France accounts for only about 1% of global emissions, so acting is pointless.",
+          "claimQuote": "France is 1% of global emissions: it won't change anything.",
+          "reality": "Misleading. The figure is the right order of magnitude, but the conclusion “no point acting” does not follow from it.\n\n1. The figure\n\nAccording to SDES (the French government's statistics service for the environment), France emitted about 373 Mt CO₂e on its territory in 2023, against about 53.8 Gt worldwide in 2022: around 0.7% (a calculation across neighbouring years, to be read as an order of magnitude).\n\n2. What the figure leaves out\n\nFrance's carbon footprint, which also counts emissions embedded in imported goods, is estimated at 644 Mt CO₂e in 2023, or 9.4 t per person, of which about 56% comes from imports. In 2022 the world average was 6.8 t per person, against 6.5 t for French territorial emissions.\n\n3. Why the conclusion is misleading\n\nThe reasoning applies to almost every country: the world total is the sum of many individual shares (China 29%, United States 11%, European Union 7% in 2022). If everyone pointed to their small share, nobody would act and the total would never fall."
+        },
+        "es": {
+          "myth": "Francia solo representa cerca del 1 % de las emisiones mundiales, así que actuar no sirve de nada.",
+          "claimQuote": "Francia es el 1 % de las emisiones mundiales: no cambiará nada.",
+          "reality": "Engañoso. La cifra tiene el orden de magnitud correcto, pero la conclusión «es inútil actuar» no se deduce de ella.\n\n1. La cifra\n\nSegún el SDES (servicio de estadísticas del ministerio francés de Transición Ecológica), Francia emitió unos 373 Mt CO₂e en su territorio en 2023, frente a unos 53,8 Gt en el mundo en 2022: del orden del 0,7 % (cálculo con años cercanos, que debe leerse como un orden de magnitud).\n\n2. Lo que la cifra no dice\n\nLa huella de carbono de Francia, que también cuenta las emisiones asociadas a los productos importados, se estima en 644 Mt CO₂e en 2023, es decir, 9,4 t por habitante, de las cuales cerca del 56 % proceden de las importaciones. En 2022, la media mundial era de 6,8 t por habitante, frente a 6,5 t de las emisiones territoriales francesas.\n\n3. Por qué la conclusión engaña\n\nEl razonamiento valdría para casi todos los países: el total mundial es la suma de muchas partes individuales (China 29 %, Estados Unidos 11 %, Unión Europea 7 % en 2022). Si cada uno invocara su pequeña parte, nadie actuaría y el total nunca bajaría."
+        },
+        "it": {
+          "myth": "La Francia rappresenta solo circa l'1 % delle emissioni mondiali, quindi agire non serve a nulla.",
+          "claimQuote": "La Francia è l'1 % delle emissioni mondiali: non cambierà niente.",
+          "reality": "Fuorviante. La cifra ha l'ordine di grandezza giusto, ma la conclusione «inutile agire» non ne discende.\n\n1. La cifra\n\nSecondo l'SDES (servizio statistico del ministero francese della Transizione ecologica), la Francia ha emesso circa 373 Mt CO₂e sul proprio territorio nel 2023, a fronte di circa 53,8 Gt nel mondo nel 2022: dell'ordine dello 0,7 % (calcolo su anni vicini, da leggere come ordine di grandezza).\n\n2. Cosa non dice la cifra\n\nL'impronta di carbonio della Francia, che conta anche le emissioni legate ai prodotti importati, è stimata in 644 Mt CO₂e nel 2023, ovvero 9,4 t per abitante, di cui circa il 56 % proviene dalle importazioni. Nel 2022 la media mondiale era di 6,8 t per abitante, contro 6,5 t delle emissioni territoriali francesi.\n\n3. Perché la conclusione è fuorviante\n\nIl ragionamento varrebbe per quasi tutti i paesi: il totale mondiale è la somma di molte quote individuali (Cina 29 %, Stati Uniti 11 %, Unione europea 7 % nel 2022). Se ognuno invocasse la propria piccola quota, nessuno agirebbe e il totale non scenderebbe mai."
+        },
+        "ru": {
+          "myth": "На Францию приходится лишь около 1 % мировых выбросов, так что действовать бессмысленно.",
+          "claimQuote": "Франция — это 1 % мировых выбросов: ничего это не изменит.",
+          "reality": "Вводит в заблуждение. Цифра верна по порядку величины, но вывод «действовать бессмысленно» из неё не следует.\n\n1. Цифра\n\nПо данным SDES (статистической службы французского министерства экологического перехода), Франция выбросила на своей территории около 373 млн т CO₂-экв. в 2023 году при примерно 53,8 Гт в мире в 2022 году: порядка 0,7 % (расчёт по соседним годам, следует понимать как порядок величины).\n\n2. О чём цифра умалчивает\n\nУглеродный след Франции, учитывающий и выбросы, связанные с импортируемыми товарами, оценивается в 644 млн т CO₂-экв. в 2023 году, то есть 9,4 т на человека, из которых около 56 % приходится на импорт. В 2022 году мировое среднее составляло 6,8 т на человека, а территориальные выбросы Франции — 6,5 т.\n\n3. Почему вывод вводит в заблуждение\n\nТакое рассуждение подошло бы почти любой стране: мировой итог складывается из множества отдельных долей (Китай — 29 %, США — 11 %, Евросоюз — 7 % в 2022 году). Если бы каждый ссылался на свою малую долю, никто бы не действовал, и общий итог никогда бы не снижался."
+        },
+        "ja": {
+          "myth": "フランスは世界の排出量の約1％にすぎないので、対策しても意味がない。",
+          "claimQuote": "フランスは世界の排出量の1％。何をしても変わらない。",
+          "reality": "誤解を招きます。数字は桁としては妥当ですが、「対策しても無意味」という結論は導けません。\n\n1. 数字\n\nフランスの環境統計機関SDESによると、フランスの2023年の国内排出量は約3億7,300万トンCO₂換算で、世界の2022年の約538億トンに対しておよそ0.7％です（近い年同士の計算で、桁の目安として読んでください）。\n\n2. 数字が語らないこと\n\n輸入品に含まれる排出量も数えたフランスのカーボンフットプリントは、2023年で6億4,400万トンCO₂換算、1人当たり9.4トンと推定され、その約56％は輸入によるものです。2022年の世界平均は1人当たり6.8トンで、フランスの国内排出量は6.5トンでした。\n\n3. 結論が誤解を招く理由\n\nこの理屈はほとんどの国に当てはまります。世界の合計は多くの国の持ち分の和です（2022年は中国29％、米国11％、EU7％）。各国が自分の小さな持ち分を理由にすれば、誰も行動せず、合計は決して減りません。"
+        },
+        "zh": {
+          "myth": "法国只占全球排放量的1%左右，所以行动没有意义。",
+          "claimQuote": "法国只占全球排放的1%，改变不了什么。",
+          "reality": "具有误导性。这个数字的量级是对的，但“行动没有意义”的结论并不能由此得出。\n\n1. 这个数字\n\n据法国生态转型部统计部门SDES，法国2023年境内排放约3.73亿吨二氧化碳当量，而2022年全球约为538亿吨：约占0.7%（取相邻年份计算，仅作量级参考）。\n\n2. 这个数字没有说明的\n\n把进口商品所含排放也计算在内，法国2023年的碳足迹估计为6.44亿吨二氧化碳当量，人均9.4吨，其中约56%来自进口。2022年全球人均平均为6.8吨，法国境内排放人均为6.5吨。\n\n3. 为什么这个结论有误导性\n\n这种推理几乎适用于所有国家：全球总量是许多国家各自份额之和（2022年中国29%、美国11%、欧盟7%）。如果人人都以自己份额小为由不行动，就没有人会行动，总量也永远不会下降。"
+        },
+        "hi": {
+          "myth": "फ़्रांस वैश्विक उत्सर्जन का केवल लगभग 1 % है, इसलिए कदम उठाने का कोई फ़ायदा नहीं।",
+          "claimQuote": "फ़्रांस वैश्विक उत्सर्जन का 1 % है: इससे कुछ नहीं बदलेगा।",
+          "reality": "भ्रामक। आँकड़ा परिमाण के हिसाब से सही है, पर \"कदम उठाना बेकार है\" का निष्कर्ष उससे नहीं निकलता।\n\n1. आँकड़ा\n\nSDES (फ़्रांस के पर्यावरण मंत्रालय की सांख्यिकी सेवा) के अनुसार फ़्रांस ने 2023 में अपने क्षेत्र में लगभग 373 Mt CO₂e उत्सर्जित किया, जबकि 2022 में दुनिया में लगभग 53.8 Gt था: यानी लगभग 0.7 % (निकटवर्ती वर्षों का हिसाब, केवल परिमाण के संकेत के रूप में)।\n\n2. आँकड़ा क्या नहीं बताता\n\nआयातित वस्तुओं से जुड़े उत्सर्जन को भी गिनने वाला फ़्रांस का कार्बन फ़ुटप्रिंट 2023 में 644 Mt CO₂e आँका गया, यानी प्रति व्यक्ति 9.4 टन, जिसका लगभग 56 % आयात से आता है। 2022 में वैश्विक औसत प्रति व्यक्ति 6.8 टन था, जबकि फ़्रांस के क्षेत्रीय उत्सर्जन का 6.5 टन।\n\n3. निष्कर्ष क्यों भ्रामक है\n\nयह तर्क लगभग हर देश पर लागू होगा: वैश्विक कुल कई अलग-अलग हिस्सों का जोड़ है (2022 में चीन 29 %, अमेरिका 11 %, यूरोपीय संघ 7 %)। यदि हर कोई अपने छोटे हिस्से का हवाला दे, तो कोई कदम नहीं उठाएगा और कुल कभी नहीं घटेगा।"
+        }
+      }
+    },
+    {
+      "slug": "la-voiture-electrique-pollue-plus-que-la-voiture-thermique",
+      "verdict": "faux",
+      "categorySlug": "energie",
+      "scopeCodes": [
+        "FRA"
+      ],
+      "published": true,
+      "sources": [
+        {
+          "label": "ADEME, avis d'octobre 2022 sur la voiture électrique (relayé par l'AFP / Connaissance des énergies)",
+          "url": "https://www.connaissancedesenergies.org/afp/la-voiture-electrique-est-ecologique-si-elle-reste-legere-souligne-lademe-dans-un-nouvel-avis-221012"
+        }
+      ],
+      "translations": {
+        "fr": {
+          "myth": "La voiture électrique pollue plus que la voiture thermique.",
+          "claimQuote": "Avec la batterie, une voiture électrique pollue plus qu'une thermique.",
+          "reality": "Faux pour le climat, en France, à une condition : que la voiture reste légère.\n\n1. Ce que dit l'ADEME\n\nDans son avis d'octobre 2022, l'ADEME indique que, sur toute sa durée de vie, une voiture électrique utilisée en France a un impact carbone 2 à 3 fois inférieur à celui d'une voiture thermique comparable.\n\n2. La condition\n\nCet avantage dépend du poids du véhicule : au-delà d'une batterie de 60 kWh (environ 400 km d'autonomie), le bénéfice environnemental n'est pas garanti, prévient l'ADEME, qui recommande la plus petite batterie adaptée à l'usage et le modèle le plus léger.\n\n3. Les limites de ce constat\n\nIl vaut pour la France, où l'électricité est peu carbonée, et il porte sur l'impact carbone. Il ne dit pas que la voiture électrique est sans impact : c'est une voiture plus propre pour le climat, pas une voiture sans conséquences."
+        },
+        "en": {
+          "myth": "Electric cars pollute more than petrol or diesel cars.",
+          "claimQuote": "Once you count the battery, an electric car pollutes more than a combustion car.",
+          "reality": "False for the climate, in France, on one condition: that the car stays light.\n\n1. What ADEME says\n\nIn its October 2022 opinion, ADEME (the French environment agency) states that over its whole life an electric car used in France has a carbon impact 2 to 3 times lower than a comparable combustion car.\n\n2. The condition\n\nThis advantage depends on vehicle weight: above a 60 kWh battery (about 400 km of range), the environmental benefit is not guaranteed, ADEME warns. It recommends the smallest battery that suits the use and the lightest model.\n\n3. The limits of this finding\n\nIt holds for France, where electricity is low-carbon, and it concerns carbon impact. It does not say an electric car has no impact: it is a cleaner car for the climate, not a car without consequences."
+        },
+        "es": {
+          "myth": "El coche eléctrico contamina más que el de gasolina o diésel.",
+          "claimQuote": "Con la batería, un coche eléctrico contamina más que uno de combustión.",
+          "reality": "Falso para el clima, en Francia, con una condición: que el coche siga siendo ligero.\n\n1. Lo que dice la ADEME\n\nEn su dictamen de octubre de 2022, la ADEME (agencia francesa de la transición ecológica) indica que, a lo largo de toda su vida, un coche eléctrico utilizado en Francia tiene un impacto de carbono de 2 a 3 veces menor que el de un coche de combustión comparable.\n\n2. La condición\n\nEsta ventaja depende del peso del vehículo: por encima de una batería de 60 kWh (unos 400 km de autonomía), el beneficio ambiental no está garantizado, advierte la ADEME, que recomienda la batería más pequeña adecuada al uso y el modelo más ligero.\n\n3. Los límites de esta conclusión\n\nVale para Francia, donde la electricidad tiene pocas emisiones de carbono, y se refiere al impacto de carbono. No dice que el coche eléctrico no tenga impacto: es un coche más limpio para el clima, no un coche sin consecuencias."
+        },
+        "it": {
+          "myth": "L'auto elettrica inquina più di quella a benzina o diesel.",
+          "claimQuote": "Con la batteria, un'auto elettrica inquina più di una termica.",
+          "reality": "Falso per il clima, in Francia, a una condizione: che l'auto resti leggera.\n\n1. Cosa dice l'ADEME\n\nNel suo parere dell'ottobre 2022, l'ADEME (agenzia francese per la transizione ecologica) indica che, nell'arco della sua vita, un'auto elettrica usata in Francia ha un impatto di carbonio da 2 a 3 volte inferiore a quello di un'auto termica comparabile.\n\n2. La condizione\n\nQuesto vantaggio dipende dal peso del veicolo: oltre una batteria da 60 kWh (circa 400 km di autonomia), il beneficio ambientale non è garantito, avverte l'ADEME, che raccomanda la batteria più piccola adatta all'uso e il modello più leggero.\n\n3. I limiti di questa conclusione\n\nVale per la Francia, dove l'elettricità ha basse emissioni di carbonio, e riguarda l'impatto di carbonio. Non dice che l'auto elettrica sia priva di impatto: è un'auto più pulita per il clima, non un'auto senza conseguenze."
+        },
+        "ru": {
+          "myth": "Электромобиль загрязняет окружающую среду больше, чем автомобиль с двигателем внутреннего сгорания.",
+          "claimQuote": "Если учесть батарею, электромобиль загрязняет больше, чем обычная машина.",
+          "reality": "Ложь с точки зрения климата во Франции — при одном условии: машина должна оставаться лёгкой.\n\n1. Что говорит ADEME\n\nВ заключении от октября 2022 года ADEME (французское агентство по экологическому переходу) указывает, что за весь срок службы электромобиль, эксплуатируемый во Франции, имеет углеродный след в 2–3 раза меньше, чем сопоставимый автомобиль с двигателем внутреннего сгорания.\n\n2. Условие\n\nЭто преимущество зависит от массы автомобиля: при батарее более 60 кВт·ч (около 400 км запаса хода) экологическая выгода не гарантирована, предупреждает ADEME. Агентство рекомендует выбирать наименьшую подходящую по задачам батарею и самую лёгкую модель.\n\n3. Ограничения этого вывода\n\nОн справедлив для Франции, где электроэнергия малоуглеродная, и касается именно углеродного следа. Он не говорит, что у электромобиля нет последствий: это более чистая для климата машина, но не машина без последствий."
+        },
+        "ja": {
+          "myth": "電気自動車はガソリン車やディーゼル車より環境負荷が大きい。",
+          "claimQuote": "バッテリーを考えると、電気自動車のほうがエンジン車より汚染する。",
+          "reality": "フランスでは、気候の観点では誤りです。ただし車体が軽いことが条件です。\n\n1. ADEMEの見解\n\nフランスの環境エネルギー管理庁ADEMEは2022年10月の意見書で、フランスで使われる電気自動車は、ライフサイクル全体でみると、同等のエンジン車より炭素への影響が2〜3分の1であると述べています。\n\n2. 条件\n\nこの優位性は車の重さに左右されます。ADEMEは、バッテリーが60kWh（航続距離約400km）を超えると環境面の利点は保証されないと警告し、用途に合った最小のバッテリーと最も軽いモデルを選ぶよう勧めています。\n\n3. この結論の限界\n\nこれは電力の炭素排出が少ないフランスに当てはまり、炭素への影響についての話です。電気自動車に環境負荷がないという意味ではありません。気候にとってはよりクリーンな車ですが、影響のない車ではありません。"
+        },
+        "zh": {
+          "myth": "电动汽车比燃油车污染更大。",
+          "claimQuote": "算上电池，电动汽车比燃油车污染更大。",
+          "reality": "就气候而言，在法国这一说法是错误的，前提是车辆保持轻量。\n\n1. ADEME怎么说\n\n法国环境与能源管理署ADEME在2022年10月的意见中指出，在法国使用的电动汽车，其全生命周期的碳影响比同类燃油车低2至3倍。\n\n2. 前提条件\n\n这一优势取决于车重：ADEME提醒，电池超过60千瓦时（续航约400公里）后，环境效益就无法保证。该机构建议选择满足使用需求的最小电池和最轻的车型。\n\n3. 这一结论的局限\n\n它适用于电力碳排放较低的法国，并且针对的是碳影响。它并不是说电动汽车没有任何影响：它对气候更友好，但不是没有后果的车。"
+        },
+        "hi": {
+          "myth": "इलेक्ट्रिक कार पेट्रोल या डीज़ल कार से ज़्यादा प्रदूषण करती है।",
+          "claimQuote": "बैटरी को गिनें तो इलेक्ट्रिक कार सामान्य कार से ज़्यादा प्रदूषण करती है।",
+          "reality": "जलवायु के लिहाज़ से, फ़्रांस में, गलत — एक शर्त के साथ: कार हल्की रहे।\n\n1. ADEME क्या कहती है\n\nफ़्रांस की पर्यावरण एजेंसी ADEME ने अक्टूबर 2022 की अपनी राय में कहा कि फ़्रांस में इस्तेमाल होने वाली इलेक्ट्रिक कार का पूरे जीवनकाल में कार्बन प्रभाव तुलनीय आंतरिक दहन कार से 2 से 3 गुना कम होता है।\n\n2. शर्त\n\nयह लाभ वाहन के वज़न पर निर्भर है: ADEME चेतावनी देती है कि 60 kWh से बड़ी बैटरी (लगभग 400 किमी रेंज) पर पर्यावरणीय लाभ की गारंटी नहीं है। वह उपयोग के लिए उपयुक्त सबसे छोटी बैटरी और सबसे हल्के मॉडल की सलाह देती है।\n\n3. इस निष्कर्ष की सीमाएँ\n\nयह फ़्रांस पर लागू होता है, जहाँ बिजली कम कार्बन वाली है, और यह कार्बन प्रभाव की बात करता है। इसका मतलब यह नहीं कि इलेक्ट्रिक कार का कोई प्रभाव नहीं: यह जलवायु के लिए अधिक स्वच्छ कार है, बिना परिणामों वाली कार नहीं।"
+        }
+      }
+    },
+    {
+      "slug": "les-eoliennes-ne-sont-pas-recyclables",
+      "verdict": "trompeur",
+      "categorySlug": "energie",
+      "scopeCodes": [
+        "FRA"
+      ],
+      "published": true,
+      "sources": [
+        {
+          "label": "Assemblée nationale — Question écrite n° 7082 (16e législature), réponse du gouvernement, JO du 25 juillet 2023",
+          "url": "https://www.assemblee-nationale.fr/dyn/16/questions/QANR5L16QE7082.pdf"
+        }
+      ],
+      "translations": {
+        "fr": {
+          "myth": "Les éoliennes ne sont pas recyclables.",
+          "claimQuote": "Les éoliennes, c'est impossible à recycler : tout finit enterré.",
+          "reality": "Trompeur. La très grande partie d'une éolienne est recyclable ou réutilisable ; ce sont les pales, en matériaux composites, qui posent problème.\n\n1. Ce que la réglementation impose\n\nSelon la réponse du gouvernement à une question parlementaire (JO du 25 juillet 2023), au moins 90 % de la masse totale des éoliennes démantelées, fondations incluses, doivent être réutilisés ou recyclés depuis le 1er juillet 2022 (85 % en cas de dérogation). Pour les projets déposés après le 1er janvier 2023, l'objectif passe à 95 % après le 1er janvier 2024. Les fondations doivent être excavées, sauf dérogation du préfet.\n\n2. Le vrai point faible : les pales\n\nPour les rotors, l'obligation est plus basse : au moins 35 % de la masse à réutiliser ou recycler depuis juillet 2022, 45 % pour les nouveaux projets dès 2023, puis 55 % après le 1er janvier 2025. Le gouvernement indique que des débouchés existent et que de nouvelles solutions de recyclage des fibres de verre sont en développement, sans chiffrer l'état actuel de la filière.\n\n3. En résumé\n\nDire que les éoliennes ne sont « pas recyclables » est faux pour l'essentiel de leur masse. Mais affirmer que le recyclage des pales est réglé serait tout aussi inexact : c'est un sujet en cours de structuration."
+        },
+        "en": {
+          "myth": "Wind turbines can't be recycled.",
+          "claimQuote": "Wind turbines are impossible to recycle: it all ends up buried.",
+          "reality": "Misleading. Most of a wind turbine is recyclable or reusable; the blades, made of composite materials, are the problem.\n\n1. What the regulation requires\n\nAccording to the French government's answer to a parliamentary question (Journal officiel, 25 July 2023), since 1 July 2022 at least 90% of the total mass of dismantled wind turbines, foundations included, must be reused or recycled (85% under a derogation). For projects filed after 1 January 2023, the target rises to 95% after 1 January 2024. Foundations must be excavated unless the prefect grants a derogation.\n\n2. The real weak spot: the blades\n\nFor rotors the obligation is lower: at least 35% of mass to be reused or recycled since July 2022, 45% for new projects from 2023, then 55% after 1 January 2025. The government says outlets already exist and that new glass-fibre recycling solutions are being developed, without quantifying the current state of the sector.\n\n3. In short\n\nSaying wind turbines are “not recyclable” is false for most of their mass. But claiming that blade recycling is solved would be just as inaccurate: it is a sector still being structured."
+        },
+        "es": {
+          "myth": "Los aerogeneradores no se pueden reciclar.",
+          "claimQuote": "Los aerogeneradores son imposibles de reciclar: todo acaba enterrado.",
+          "reality": "Engañoso. La mayor parte de un aerogenerador es reciclable o reutilizable; el problema son las palas, hechas de materiales compuestos.\n\n1. Lo que exige la normativa\n\nSegún la respuesta del Gobierno francés a una pregunta parlamentaria (Diario Oficial, 25 de julio de 2023), desde el 1 de julio de 2022 al menos el 90 % de la masa total de los aerogeneradores desmantelados, cimentaciones incluidas, debe reutilizarse o reciclarse (85 % en caso de excepción). Para los proyectos presentados después del 1 de enero de 2023, el objetivo sube al 95 % a partir del 1 de enero de 2024. Las cimentaciones deben extraerse, salvo excepción del prefecto.\n\n2. El verdadero punto débil: las palas\n\nPara los rotores la obligación es menor: al menos el 35 % de la masa debe reutilizarse o reciclarse desde julio de 2022, el 45 % para los nuevos proyectos desde 2023 y el 55 % después del 1 de enero de 2025. El Gobierno indica que ya existen salidas y que se desarrollan nuevas soluciones de reciclaje de fibra de vidrio, sin cuantificar el estado actual del sector.\n\n3. En resumen\n\nDecir que los aerogeneradores «no son reciclables» es falso para la mayor parte de su masa. Pero afirmar que el reciclaje de las palas está resuelto sería igual de inexacto: es un sector que aún se está estructurando."
+        },
+        "it": {
+          "myth": "Le turbine eoliche non sono riciclabili.",
+          "claimQuote": "Le turbine eoliche sono impossibili da riciclare: finisce tutto sotterrato.",
+          "reality": "Fuorviante. La maggior parte di una turbina eolica è riciclabile o riutilizzabile; il problema sono le pale, in materiali compositi.\n\n1. Cosa impone la normativa\n\nSecondo la risposta del governo francese a un'interrogazione parlamentare (Gazzetta ufficiale, 25 luglio 2023), dal 1° luglio 2022 almeno il 90 % della massa totale delle turbine smantellate, fondazioni incluse, deve essere riutilizzato o riciclato (85 % in caso di deroga). Per i progetti presentati dopo il 1° gennaio 2023, l'obiettivo sale al 95 % dopo il 1° gennaio 2024. Le fondazioni devono essere rimosse, salvo deroga del prefetto.\n\n2. Il vero punto debole: le pale\n\nPer i rotori l'obbligo è più basso: almeno il 35 % della massa da riutilizzare o riciclare da luglio 2022, il 45 % per i nuovi progetti dal 2023, poi il 55 % dopo il 1° gennaio 2025. Il governo indica che esistono già sbocchi e che sono in sviluppo nuove soluzioni di riciclo della fibra di vetro, senza quantificare lo stato attuale della filiera.\n\n3. In sintesi\n\nDire che le turbine eoliche «non sono riciclabili» è falso per la maggior parte della loro massa. Ma affermare che il riciclo delle pale sia risolto sarebbe altrettanto inesatto: è una filiera ancora in via di strutturazione."
+        },
+        "ru": {
+          "myth": "Ветряные турбины невозможно переработать.",
+          "claimQuote": "Ветряки невозможно переработать: всё в итоге закапывают.",
+          "reality": "Вводит в заблуждение. Большая часть ветряной турбины пригодна для переработки или повторного использования; проблема — лопасти из композитных материалов.\n\n1. Что требует регламент\n\nСогласно ответу правительства Франции на парламентский запрос («Журналь офисьель» от 25 июля 2023 года), с 1 июля 2022 года не менее 90 % общей массы демонтированных ветряных турбин, включая фундаменты, должно быть повторно использовано или переработано (85 % при исключении). Для проектов, поданных после 1 января 2023 года, цель повышается до 95 % после 1 января 2024 года. Фундаменты должны быть извлечены, если префект не разрешил исключение.\n\n2. Настоящее слабое место — лопасти\n\nДля роторов требование ниже: не менее 35 % массы должно быть повторно использовано или переработано с июля 2022 года, 45 % для новых проектов с 2023 года, затем 55 % после 1 января 2025 года. Правительство сообщает, что каналы сбыта уже существуют и разрабатываются новые решения по переработке стекловолокна, но не приводит данных о нынешнем состоянии отрасли.\n\n3. Итог\n\nУтверждение, что ветряки «не перерабатываются», неверно для основной части их массы. Но говорить, что переработка лопастей решена, было бы так же неточно: отрасль ещё формируется."
+        },
+        "ja": {
+          "myth": "風力発電の風車はリサイクルできない。",
+          "claimQuote": "風車はリサイクル不可能で、結局すべて埋められる。",
+          "reality": "誤解を招きます。風車の大部分はリサイクルまたは再利用が可能で、問題なのは複合材料でできたブレード（羽根）です。\n\n1. 規制が定めていること\n\nフランス政府が議会質問に答えた内容（2023年7月25日付官報）によると、2022年7月1日以降、解体される風車は、基礎を含む総質量の少なくとも90％を再利用またはリサイクルしなければなりません（例外適用時は85％）。2023年1月1日より後に申請された案件では、2024年1月1日以降は目標が95％になります。基礎は、知事の例外がない限り撤去しなければなりません。\n\n2. 本当の弱点：ブレード\n\nローターについての義務はもっと低く、2022年7月以降は質量の少なくとも35％、2023年からの新規案件は45％、2025年1月1日以降は55％を再利用またはリサイクルする必要があります。政府は、すでに受け皿があり、ガラス繊維の新しいリサイクル方法が開発中だとしていますが、業界の現状は数値で示していません。\n\n3. まとめ\n\n風車が「リサイクルできない」というのは、質量の大部分については誤りです。ただし、ブレードのリサイクルが解決済みだと言うのも同じく不正確で、この分野はまだ整備の途上にあります。"
+        },
+        "zh": {
+          "myth": "风力发电机无法回收。",
+          "claimQuote": "风机根本没法回收，最后都是填埋。",
+          "reality": "具有误导性。风力发电机的绝大部分可以回收或再利用；问题出在由复合材料制成的叶片。\n\n1. 法规的要求\n\n据法国政府对一项议会质询的答复（2023年7月25日《政府公报》），自2022年7月1日起，拆除的风机（含基础）总质量的至少90%必须再利用或回收（获豁免时为85%）。对于2023年1月1日之后提交的项目，2024年1月1日后目标提高到95%。除非省长批准豁免，基础必须挖除。\n\n2. 真正的薄弱环节：叶片\n\n对转子（叶片）的要求较低：自2022年7月起，至少35%的质量须再利用或回收；2023年起的新项目为45%；2025年1月1日后为55%。政府表示已有出路，玻璃纤维回收的新方案也在开发中，但没有给出该行业现状的数据。\n\n3. 小结\n\n说风机“不能回收”，对其大部分质量而言是错误的。但声称叶片回收已经解决同样不准确：这个产业仍在构建之中。"
+        },
+        "hi": {
+          "myth": "पवन चक्कियों का रीसाइक्लिंग नहीं हो सकता।",
+          "claimQuote": "पवन चक्कियाँ रीसाइकिल करना असंभव है: सब कुछ ज़मीन में दबा दिया जाता है।",
+          "reality": "भ्रामक। पवन चक्की का अधिकांश हिस्सा रीसाइकिल या दोबारा इस्तेमाल हो सकता है; समस्या कंपोज़िट सामग्री से बने पंखों (ब्लेड) की है।\n\n1. नियम क्या अनिवार्य करते हैं\n\nसंसदीय प्रश्न पर फ़्रांस सरकार के उत्तर (आधिकारिक राजपत्र, 25 जुलाई 2023) के अनुसार 1 जुलाई 2022 से हटाई गई पवन चक्कियों के कुल द्रव्यमान का कम से कम 90 %, नींव सहित, दोबारा इस्तेमाल या रीसाइकिल होना चाहिए (छूट की स्थिति में 85 %)। 1 जनवरी 2023 के बाद दाखिल परियोजनाओं के लिए 1 जनवरी 2024 के बाद लक्ष्य 95 % हो जाता है। प्रांताध्यक्ष की छूट न हो तो नींव को खोदकर निकालना होगा।\n\n2. असली कमज़ोरी: ब्लेड\n\nरोटरों के लिए अनिवार्यता कम है: जुलाई 2022 से द्रव्यमान का कम से कम 35 %, 2023 से नई परियोजनाओं के लिए 45 %, फिर 1 जनवरी 2025 के बाद 55 % दोबारा इस्तेमाल या रीसाइकिल होना चाहिए। सरकार का कहना है कि खपत के रास्ते मौजूद हैं और काँच के रेशे के रीसाइक्लिंग के नए समाधान विकसित हो रहे हैं, पर वह क्षेत्र की मौजूदा स्थिति के आँकड़े नहीं देती।\n\n3. सार\n\nयह कहना कि पवन चक्कियाँ \"रीसाइकिल नहीं हो सकतीं\", उनके अधिकांश द्रव्यमान के लिए गलत है। लेकिन यह दावा करना कि ब्लेड का रीसाइक्लिंग हल हो चुका है, उतना ही गलत होगा: यह क्षेत्र अभी आकार ले रहा है।"
+        }
+      }
+    }
+  ]
+}
