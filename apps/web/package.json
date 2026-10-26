@@ -11,7 +11,7 @@
     "test": "node --test test/**/*.test.js"
   },
   "dependencies": {
-    "chart.js": "^4.4.3",
+    "chart.js": "^4.6.1",
     "i18n-iso-countries": "^7.11.2",
     "leaflet": "^1.9.4",
     "leaflet.markercluster": "1.5.3",
