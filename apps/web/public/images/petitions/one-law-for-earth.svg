@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 330" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#eaf3de"/>
+      <stop offset="1" stop-color="#bfe0c4"/>
+    </linearGradient>
+  </defs>
+  <rect width="720" height="330" fill="url(#bg)"/>
+  <circle cx="96" cy="64" r="92" fill="#d9ecd0" opacity=".75"/>
+  <circle cx="660" cy="290" r="118" fill="#d9ecd0" opacity=".75"/>
+  <circle cx="610" cy="60" r="34" fill="#cfe8c6" opacity=".9"/>
+  <circle cx="120" cy="280" r="26" fill="#cfe8c6" opacity=".9"/>
+  <circle cx="360" cy="150" r="100" fill="#ffffff" stroke="#1b5e20" stroke-width="9"/>
+  <path d="M300 112 C318 92 346 94 352 114 C358 136 336 144 328 164 C320 182 296 176 292 152 C290 138 292 122 300 112 Z" fill="#2e7d32"/>
+  <path d="M372 150 C392 136 424 142 428 166 C432 190 404 214 384 204 C366 196 360 164 372 150 Z" fill="#43a047"/>
+  <path d="M360 250 V296" stroke="#1b5e20" stroke-width="10" stroke-linecap="round"/>
+  <path d="M300 296 H420" stroke="#1b5e20" stroke-width="8" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,48 @@
+{
+  "_comment": "BROUILLON (published: false) — One Law For Earth, ajouté le 3 novembre 2026 à la demande d'Anthony. À la différence du lot d'octobre, cette initiative ne remplit PAS le critère « organisateur identifiable » : le site ne nomme aucun porteur, ne publie ni mentions légales ni destination des dons, le texte du projet de loi n'est pas lisible sans passer par le site, et les domaines .org / .com ne concordent pas. Aucune source indépendante trouvée. Les descriptions le disent explicitement. Passer published à true seulement après vérification des porteurs. Publié (en brouillon) par apps/api/src/scripts/publish-petitions.js --file=src/scripts/data/petitions-one-law-for-earth.json",
+  "petitions": [
+    {
+      "slug": "one-law-for-earth-vote-citoyen-mondial",
+      "status": "ongoing",
+      "petitionUrl": "https://onelawforearth.org/#vote",
+      "sourceName": "One Law For Earth",
+      "imageUrl": "/images/petitions/one-law-for-earth.svg",
+      "scopeCodes": ["WORLD"],
+      "published": false,
+      "translations": {
+        "fr": {
+          "title": "One Law For Earth : un vote citoyen mondial pour « ne pas prendre plus que ce que la Terre peut régénérer »",
+          "description": "Initiative citoyenne qui propose à chacun de voter, à l'échelle mondiale, pour un principe : « Take no more than the Earth can regenerate » (ne pas prélever plus que ce que la Terre peut régénérer). Il ne s'agit pas d'une pétition adressée à un gouvernement : c'est une consultation citoyenne mondiale, non contraignante, qui se présente comme indépendante de tout parti, pays ou entreprise, avec une voix par personne. Le site propose aussi de lire un projet de loi (en français et en anglais). À savoir avant de participer : le site ne nomme pas ses organisateurs et propose de faire des dons ; nous n'avons pas pu vérifier qui en est à l'origine."
+        },
+        "en": {
+          "title": "One Law For Earth: a global citizen vote to “take no more than the Earth can regenerate”",
+          "description": "A citizen initiative inviting people worldwide to vote on one principle: “Take no more than the Earth can regenerate.” It is not a petition addressed to a government: it describes itself as a global, non-binding citizen survey, independent of any party, country or company, with one vote per person. The site also lets you read a draft law (in English and French). Worth knowing before you take part: the site does not name its organisers and invites donations; we have not been able to verify who is behind it."
+        },
+        "es": {
+          "title": "One Law For Earth: un voto ciudadano mundial para «no tomar más de lo que la Tierra puede regenerar»",
+          "description": "Iniciativa ciudadana que invita a votar, a escala mundial, un principio: «Take no more than the Earth can regenerate» (no tomar más de lo que la Tierra puede regenerar). No es una petición dirigida a un gobierno: se presenta como una consulta ciudadana mundial, no vinculante, independiente de cualquier partido, país o empresa, con un voto por persona. El sitio también permite leer un proyecto de ley (en inglés y francés). Conviene saber antes de participar: el sitio no nombra a sus organizadores y propone donaciones; no hemos podido verificar quién está detrás."
+        },
+        "it": {
+          "title": "One Law For Earth: un voto civico mondiale per «non prelevare più di ciò che la Terra può rigenerare»",
+          "description": "Iniziativa civica che invita a votare, a livello mondiale, un principio: «Take no more than the Earth can regenerate» (non prelevare più di ciò che la Terra può rigenerare). Non è una petizione rivolta a un governo: si presenta come una consultazione civica mondiale, non vincolante, indipendente da partiti, paesi o aziende, con un voto per persona. Il sito permette anche di leggere una bozza di legge (in inglese e francese). Da sapere prima di partecipare: il sito non indica i nomi degli organizzatori e propone donazioni; non siamo riusciti a verificare chi ci sia dietro."
+        },
+        "ru": {
+          "title": "One Law For Earth: всемирное гражданское голосование за принцип «не брать больше, чем Земля способна восстановить»",
+          "description": "Гражданская инициатива, предлагающая людям во всём мире проголосовать за один принцип: «Take no more than the Earth can regenerate» («не брать больше, чем Земля способна восстановить»). Это не петиция к правительству: инициатива называет себя глобальным гражданским опросом, не имеющим обязательной силы и не зависящим ни от какой партии, страны или компании; один голос на человека. На сайте также можно прочитать проект закона (на английском и французском). Что важно знать перед участием: сайт не называет своих организаторов и предлагает делать пожертвования; нам не удалось проверить, кто за ним стоит."
+        },
+        "ja": {
+          "title": "One Law For Earth：「地球が再生できる以上を取らない」ための世界市民投票",
+          "description": "世界中の人々に、ひとつの原則への投票を呼びかける市民イニシアティブです。原則は「Take no more than the Earth can regenerate」（地球が再生できる以上のものを取らない）。政府に宛てた署名活動ではなく、特定の政党・国・企業に属さない、法的拘束力のない世界規模の市民アンケートとされており、投票は1人1票です。サイトでは法案の草案（英語・フランス語）も読めます。参加前にご注意ください：サイトには運営者の名前が記載されておらず、寄付を募っています。運営者を確認することはできませんでした。"
+        },
+        "zh": {
+          "title": "One Law For Earth：为“索取不超过地球再生能力”而进行的全球公民投票",
+          "description": "这是一项公民倡议，邀请全球民众就一项原则投票：“Take no more than the Earth can regenerate”（索取不超过地球所能再生的限度）。它不是递交给某国政府的请愿书，而是自称不隶属于任何政党、国家或企业、不具法律约束力的全球公民调查，每人一票。网站还提供法律草案（英文和法文）供阅读。参与前请注意：该网站未公布组织者的姓名，并设有捐款入口；我们未能核实其背后的主办方。"
+        },
+        "hi": {
+          "title": "One Law For Earth: “पृथ्वी जितना पुनर्जीवित कर सके, उससे अधिक न लें” पर वैश्विक नागरिक मतदान",
+          "description": "यह एक नागरिक पहल है जो दुनिया भर के लोगों को एक सिद्धांत पर मतदान करने के लिए आमंत्रित करती है: “Take no more than the Earth can regenerate” (पृथ्वी जितना पुनर्जीवित कर सकती है, उससे अधिक न लें)। यह किसी सरकार को संबोधित याचिका नहीं है: यह स्वयं को किसी दल, देश या कंपनी से स्वतंत्र, गैर-बाध्यकारी वैश्विक नागरिक सर्वेक्षण बताती है, जिसमें प्रति व्यक्ति एक मत है। साइट पर एक मसौदा कानून (अंग्रेज़ी और फ़्रेंच में) भी पढ़ा जा सकता है। भाग लेने से पहले ध्यान दें: साइट अपने आयोजकों के नाम नहीं बताती और दान माँगती है; हम यह सत्यापित नहीं कर सके कि इसके पीछे कौन है।"
+        }
+      }
+    }
+  ]
+}
