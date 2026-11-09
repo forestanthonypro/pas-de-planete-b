@@ -1,5 +1,6 @@
 import crypto from "node:crypto";
-import webpush from "web-push";
+// web-push 4 est un module ESM pur, sans export par défaut : import d'espace de noms.
+import * as webpush from "web-push";
 import { pool } from "./db.js";
 import { isValidScopeCode } from "./scopeCodes.js";
 

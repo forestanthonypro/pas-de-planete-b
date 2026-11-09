@@ -35,14 +35,14 @@
     "cors": "^2.8.5",
     "csv-parse": "^7.0.3",
     "express": "^5.3.0",
-    "express-rate-limit": "^8.7.2",
+    "express-rate-limit": "^8.7.3",
     "helmet": "^8.3.0",
     "i18n-iso-countries": "^7.11.2",
     "pg": "^8.23.1",
-    "playwright-core": "^1.64.1",
+    "playwright-core": "^1.65.0",
     "qrcode": "^1.5.4",
     "sanitize-html": "2.18.1",
-    "web-push": "^3.6.7"
+    "web-push": "^4.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
