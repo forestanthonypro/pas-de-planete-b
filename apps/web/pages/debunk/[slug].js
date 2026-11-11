@@ -5,6 +5,7 @@ import DebunkContentWithCharts from "../../components/DebunkContentWithCharts";
 import { formatDate } from "../../lib/useLastUpdated";
 import { useT } from "../../lib/useT";
 import { useApiFetch } from "../../lib/useApiFetch";
+import PageTitle from "../../components/PageTitle";
 
 const VERDICT_COLORS = {
   faux: "#d63e2a",
@@ -44,6 +45,7 @@ export default function DebunkEntryPage() {
           <span style={{ display: "inline-block", background: VERDICT_COLORS[entry.verdict] || VERDICT_COLORS.faux, color: entry.verdict === "trompeur" ? "var(--color-texte)" : "white", fontSize: 12, fontWeight: 600, padding: "4px 12px", borderRadius: 20 }}>
             {verdictLabel(entry.verdict).toUpperCase()}
           </span>
+          <PageTitle title={entry.myth} />
           <h1 style={{ margin: "12px 0 6px" }}>{entry.myth}</h1>
           <p style={{ fontSize: 12, color: "var(--color-texte-clair)", marginBottom: "1rem" }}>
             {entry.category_name && `${entry.category_name} · `}

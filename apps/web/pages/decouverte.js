@@ -9,6 +9,7 @@ import { useCountriesList } from "../lib/useCountriesList";
 import { localizedCountryName } from "../lib/countryNames";
 import { detectDefaultCountry } from "../lib/detectCountry";
 import CountrySelect from "../components/CountrySelect";
+import PageTitle from "../components/PageTitle";
 import GenerationalWarmingChart from "../components/GenerationalWarmingChart";
 import { IconCloud, IconBolt, IconDroplet, IconTree, IconPaw, IconSmog, IconThermometer, IconSearch, IconPlay, IconLandmark, IconScroll, IconCheck, IconScale, IconUsers, IconLeaf, IconHome, IconBulb } from "../components/icons";
 
@@ -921,6 +922,7 @@ export default function DecouvertePage() {
 
   return (
     <>
+      <PageTitle title={t("decouverte.explain_title")} />
       <SectionProgressBar activeSection={activeSection} t={t} />
       <div style={{ maxWidth: 700, margin: "0 auto", padding: "1.5rem" }}>
         {/* --- Section 1 : Accroche --- */}

@@ -18,6 +18,7 @@ import { useTheme } from "../../lib/ThemeContext";
 import { barEndLabelsPlugin } from "../../lib/barEndLabelsPlugin";
 import { useT } from "../../lib/useT";
 import ScrollableTable from "../../components/ScrollableTable";
+import PageTitle from "../../components/PageTitle";
 
 
 function useCategoryInfo(t) {
@@ -1139,6 +1140,7 @@ export default function PaysDashboard() {
               <IconLeaf size={20} style={{ color: "#1b5e20" }} />
             </div>
           )}
+          <PageTitle title={countryName} />
           <h1 style={{ margin: 0 }}>{countryName}</h1>
         </div>
         <ShareButtons title={`Pas de planète B — ${countryName}`} />

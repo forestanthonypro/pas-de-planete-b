@@ -3,6 +3,7 @@ import Link from "next/link";
 import ShareButtons from "../../components/ShareButtons";
 import { useT } from "../../lib/useT";
 import { useApiFetch } from "../../lib/useApiFetch";
+import PageTitle from "../../components/PageTitle";
 
 export default function PaysanDetailPage() {
   const { t, locale } = useT();
@@ -35,6 +36,7 @@ export default function PaysanDetailPage() {
           <span style={{ fontSize: 11, color: "var(--color-texte-clair)", textTransform: "uppercase", letterSpacing: "0.03em" }}>
             {typeLabel(entry.content_type)}{entry.category_name ? ` · ${entry.category_name}` : ""}
           </span>
+          <PageTitle title={entry.title} />
           <h1 style={{ margin: "6px 0 1rem" }}>{entry.title}</h1>
 
           <ShareButtons title={entry.title} />

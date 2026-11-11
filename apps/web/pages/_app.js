@@ -78,14 +78,14 @@ function DefaultHead({ router }) {
           partage à l'autre — voir public/og-image.png. Une page qui a
           besoin d'un aperçu plus spécifique peut définir ses propres
           balises og:* dans son propre <Head>, qui prennent le dessus. */}
-      <meta property="og:title" content="Pas de planète B" />
+      <meta key="og:title" property="og:title" content="Pas de planète B" />
       <meta property="og:description" content={t("home.intro")} />
       <meta property="og:type" content="website" />
       <meta property="og:image" content="https://pasdeplaneteb.com/og-image.png" />
       <meta property="og:image:width" content="1200" />
       <meta property="og:image:height" content="630" />
       <meta name="twitter:card" content="summary_large_image" />
-      <meta name="twitter:title" content="Pas de planète B" />
+      <meta key="twitter:title" name="twitter:title" content="Pas de planète B" />
       <meta name="twitter:description" content={t("home.intro")} />
       <meta name="twitter:image" content="https://pasdeplaneteb.com/og-image.png" />
       {locales.map((loc) => (

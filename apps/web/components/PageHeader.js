@@ -1,4 +1,5 @@
 import { useSobriety } from "../lib/SobrietyContext";
+import PageTitle from "./PageTitle";
 
 // En-tête de page cohérent avec les pastilles colorées de l'accueil — pour
 // que l'identité visuelle du "modèle Nature épurée" se retrouve partout,
@@ -20,6 +21,8 @@ export default function PageHeader({ Icon, tint = "green", title, children }) {
 
   return (
     <div style={{ marginBottom: "1rem" }}>
+      {/* Le titre de l'en-tête sert aussi de <title> de la page (Google, onglets). */}
+      <PageTitle title={title} />
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: children ? 6 : 0 }}>
         {!sobriety && Icon && (
           <div
