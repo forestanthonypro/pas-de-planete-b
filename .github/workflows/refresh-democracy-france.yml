@@ -17,31 +17,43 @@ on:
   workflow_dispatch: {}
 
 jobs:
+  # Les appels passent par .github/scripts/call-ingest.sh : quelques nouvelles
+  # tentatives sur panne DNS/connexion/502 rapide (échecs du 9 et du 25 novembre
+  # 2026), jamais après un dépassement de délai.
+  #
   # Ordre important : les députés doivent exister avant les votes (clé
   # étrangère), donc refresh-scrutins attend refresh-deputies.
 
   refresh-deputies:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout: .github/scripts
       - name: Ré-ingérer la liste des députés
-        run: |
-          curl -f -X POST "${{ secrets.API_URL }}/api/admin/ingest/deputies" \
-            -H "x-ingest-token: ${{ secrets.INGEST_TOKEN }}"
+        env:
+          INGEST_TOKEN: ${{ secrets.INGEST_TOKEN }}
+        run: .github/scripts/call-ingest.sh "${{ secrets.API_URL }}/api/admin/ingest/deputies"
 
   refresh-an-groups:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout: .github/scripts
       - name: Ré-ingérer les groupes politiques
-        run: |
-          curl -f -X POST "${{ secrets.API_URL }}/api/admin/ingest/an-groups" \
-            -H "x-ingest-token: ${{ secrets.INGEST_TOKEN }}"
+        env:
+          INGEST_TOKEN: ${{ secrets.INGEST_TOKEN }}
+        run: .github/scripts/call-ingest.sh "${{ secrets.API_URL }}/api/admin/ingest/an-groups"
 
   refresh-scrutins:
     needs: [refresh-deputies]
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout: .github/scripts
       - name: Ré-ingérer les scrutins et les votes détaillés (peut prendre plusieurs minutes)
-        run: |
-          curl -f -X POST "${{ secrets.API_URL }}/api/admin/ingest/scrutins" \
-            -H "x-ingest-token: ${{ secrets.INGEST_TOKEN }}" \
-            --max-time 1200
+        env:
+          INGEST_TOKEN: ${{ secrets.INGEST_TOKEN }}
+        run: .github/scripts/call-ingest.sh "${{ secrets.API_URL }}/api/admin/ingest/scrutins" 1200
